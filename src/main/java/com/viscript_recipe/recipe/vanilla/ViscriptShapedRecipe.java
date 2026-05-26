@@ -1,0 +1,61 @@
+package com.viscript_recipe.recipe.vanilla;
+
+import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
+
+import java.util.List;
+
+public class ViscriptShapedRecipe extends ShapedRecipe {
+    private final List<CraftingRemainderRule> remainders;
+
+    public ViscriptShapedRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification, List<CraftingRemainderRule> remainders) {
+        super(group, category, pattern, result, showNotification);
+        this.remainders = remainders == null ? List.of() : remainders.stream().map(CraftingRemainderRule::copy).toList();
+    }
+
+    @Override
+    public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+        var remaining = NonNullList.withSize(input.size(), ItemStack.EMPTY);
+        var mirrored = shouldUseMirroredRemainders(input);
+        for (int index = 0; index < remaining.size(); index++) {
+            var ruleIndex = mirrored ? mirroredIndex(index) : index;
+            var rule = ruleIndex < remainders.size() ? remainders.get(ruleIndex) : CraftingRemainderRule.defaultRule();
+            remaining.set(index, rule.apply(input.getItem(index)));
+        }
+        return remaining;
+    }
+
+    private boolean shouldUseMirroredRemainders(CraftingInput input) {
+        if (input.width() != pattern.width() || input.height() != pattern.height()) {
+            return false;
+        }
+        return !matchesPattern(input, false) && matchesPattern(input, true);
+    }
+
+    private boolean matchesPattern(CraftingInput input, boolean mirrored) {
+        var ingredients = pattern.ingredients();
+        var width = pattern.width();
+        var height = pattern.height();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                var ingredientIndex = mirrored ? width - col - 1 + row * width : col + row * width;
+                if (!ingredients.get(ingredientIndex).test(input.getItem(col + row * width))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private int mirroredIndex(int index) {
+        var width = pattern.width();
+        var row = index / width;
+        var col = index % width;
+        return width - col - 1 + row * width;
+    }
+}
