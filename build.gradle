@@ -47,6 +47,24 @@ repositories {
         }
     }
 
+    // Curios
+    maven {
+        name = "Illusive Soulworks"
+        url = "https://maven.theillusivec4.top/"
+        content {
+            includeGroup "top.theillusivec4.curios"
+        }
+    }
+
+    // Player Animator
+    maven {
+        name = "KosmX"
+        url = "https://maven.kosmx.dev/"
+        content {
+            includeGroup "dev.kosmx.player-anim"
+        }
+    }
+
     //Modrinth
     maven {
         name = "Modrinth"
@@ -60,6 +78,25 @@ repositories {
 
     maven {
         url "https://maven.sighs.cc/repository/maven-public/"
+    }
+
+    maven {
+        name = "Iron's Maven"
+        url = "https://code.redspace.io/releases"
+    }
+
+    // Create
+    maven {
+        name = "Create"
+        url = "https://maven.createmod.net"
+    }
+    maven {
+        name = "Registrate"
+        url = "https://maven.ithundxr.dev/snapshots"
+    }
+
+    flatDir {
+        dirs "../viscript_lib/build/libs"
     }
 }
 
@@ -150,10 +187,43 @@ dependencies {
     //前置模组
     // LDLib2
     implementation("com.lowdragmc.ldlib2:ldlib2-neoforge-${minecraft_version}:${ldlib2_version}:all")
+    implementation "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${viscriptlib_version}"
+    jarJar "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${viscriptlib_version}"
 
     // KubeJS
     implementation "dev.latvian.mods:rhino:${rhino_version}"
     implementation "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+
+    // Optional
+    //铁魔法
+    compileOnly "io.redspace:irons_spellbooks:${irons_spells_version}"
+    runtimeOnly "io.redspace:irons_lib:${irons_lib_version}"
+    runtimeOnly "dev.kosmx.player-anim:player-animation-lib-forge:${playeranimator_version}"
+    runtimeOnly "software.bernie.geckolib:geckolib-neoforge-1.21.1:${geckolib_version}"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    //冰火传说
+    compileOnly "curse.maven:iceandfire-ce-1040076:7722420"
+    compileOnly "curse.maven:uranus-1010827:8008516"
+    compileOnly "curse.maven:jupiter-1072905:7738312"
+    //农夫乐事
+    compileOnly "maven.modrinth:farmers-delight:${farmers_delight_version}"
+    //机械动力
+    compileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
+        transitive = false
+    }
+    compileOnly "net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}"
+    compileOnly "dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}"
+    runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}"
+    compileOnly "com.tterrag.registrate:Registrate:${registrate_version}"
+    //新生魔艺
+    compileOnly "curse.maven:ars-nouveau-401955:${ars_nouveau_file}"
+    //无尽贪婪：重生
+    compileOnly "curse.maven:re-avaritia-623969:${re_avaritia_file}"
+    //合成拓展
+    implementation "curse.maven:cucumber-272335:${cucumber_file}"
+    implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
+    //森罗物语：厨房
+    compileOnly "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

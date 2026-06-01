@@ -5,6 +5,7 @@ import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigRL;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -16,13 +17,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 
 @Getter
 @Setter
 @Accessors(chain = true)
 public class RecipeIngredientValue implements IPersistedSerializable, IConfigurable {
     @Configurable(name = "viscript_recipe.config.ingredient.value.kind")
-    @ConfigSelector(candidate = {"item", "tag"})
+    @ConfigSelector(candidate = {"item", "tag", "item_ability"})
     private IngredientValueKind kind = IngredientValueKind.ITEM;
 
     @Configurable(name = "viscript_recipe.config.ingredient.value.item")
@@ -32,22 +34,40 @@ public class RecipeIngredientValue implements IPersistedSerializable, IConfigura
     @ConfigRL(ConfigRL.Type.ITEM_TAG_KEY)
     private ResourceLocation tag = ResourceLocation.fromNamespaceAndPath("minecraft", "planks");
 
+    @Configurable(name = "viscript_recipe.config.ingredient.value.item_ability")
+    private String itemAbility = "knife_dig";
+
     public static RecipeIngredientValue item(Item item) {
-        return new RecipeIngredientValue().setKind(IngredientValueKind.ITEM).setItem(new ItemStack(item));
+        return item(new ItemStack(item));
+    }
+
+    public static RecipeIngredientValue item(ItemStack stack) {
+        return new RecipeIngredientValue()
+                .setKind(IngredientValueKind.ITEM)
+                .setItem(stack == null ? ItemStack.EMPTY : stack.copyWithCount(1));
     }
 
     public static RecipeIngredientValue tag(ResourceLocation tag) {
         return new RecipeIngredientValue().setKind(IngredientValueKind.TAG).setTag(tag);
     }
 
-    public Ingredient.Value compile() {
+    public static RecipeIngredientValue itemAbility(String itemAbility) {
+        return new RecipeIngredientValue()
+                .setKind(IngredientValueKind.ITEM_ABILITY)
+                .setItemAbility(itemAbility == null || itemAbility.isBlank() ? "knife_dig" : itemAbility);
+    }
+
+    public Ingredient compile() {
         return switch (kind) {
             case ITEM -> {
                 var stack = item.copyWithCount(1);
                 if (stack.isEmpty() || stack.is(Items.AIR)) {
                     throw new IllegalArgumentException("Ingredient item cannot be empty");
                 }
-                yield new Ingredient.ItemValue(stack);
+                if (ItemStack.isSameItemSameComponents(stack, stack.getItem().getDefaultInstance())) {
+                    yield Ingredient.of(stack.getItem());
+                }
+                yield DataComponentIngredient.of(true, stack);
             }
             case TAG -> {
                 if (tag == null) {
@@ -57,8 +77,9 @@ public class RecipeIngredientValue implements IPersistedSerializable, IConfigura
                 if (BuiltInRegistries.ITEM.getTag(tagKey).isEmpty()) {
                     throw new IllegalArgumentException("Unknown item tag: " + tag);
                 }
-                yield new Ingredient.TagValue(tagKey);
+                yield Ingredient.of(tagKey);
             }
+            case ITEM_ABILITY -> FarmersDelightRecipeFactory.compileItemAbilityIngredient(itemAbility);
         };
     }
 }

@@ -1,21 +1,27 @@
 package com.viscript_recipe.gui.editor;
 
+import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.editor.ui.Editor;
 import com.lowdragmc.lowdraglib2.editor.ui.EditorLayout;
 import com.lowdragmc.lowdraglib2.editor.ui.EditorWindow;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
+import com.viscript_lib.gui.editor.EditorServerUploads;
+import com.viscript_lib.gui.editor.EditorUploadAction;
+import com.viscript_lib.gui.editor.FunctionFileEditor;
 import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.TaffyDisplay;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class RecipeEditor extends Editor {
+public class RecipeEditor extends FunctionFileEditor {
     public static final ResourceLocation WINDOW_ID = ViScriptRecipe.id("recipe_editor");
 
     public RecipeEditor() {
-        hideBottomWindow();
+        registerFunctionFileType(RecipeProjectType.TYPE);
+        removeBottomWindow();
     }
 
     public static ModularUI createUI() {
@@ -42,29 +48,41 @@ public class RecipeEditor extends Editor {
     }
 
     @Override
-    public void applyLayout(EditorLayout layout) {
-        super.applyLayout(layout);
-        hideBottomWindow();
+    protected EditorUploadAction createServerUploadAction() {
+        if (getCurrentProject() instanceof RecipeProject project) {
+            return new RecipeUploadAction(project);
+        }
+        return null;
     }
 
-    @Override
-    protected void initMenus() {
-        super.initMenus();
-        fileMenu.addProjectProvider(RecipeProjectType.TYPE);
-    }
+    private record RecipeUploadAction(RecipeProject project) implements EditorUploadAction {
+        @Override
+        public Component getDisplayName() {
+            return Component.translatable("viscript_recipe.editor.upload_recipe_file");
+        }
 
-    private void hideBottomWindow() {
-        var parent = bottomWindow.getParentWindow();
-        if (parent != null) {
-            bottomWindow.setDisplay(TaffyDisplay.NONE);
-            if (parent.getSplitView() != null) {
-                parent.getSplitView().setBorderSize(0);
-            }
-            parent.splitStyle(style -> style
-                    .minPercentage(0)
-                    .maxPercentage(100)
-                    .percentage(100)
-                    .minPercentage(100));
+        @Override
+        public String getDialogTitleKey() {
+            return "viscript_recipe.editor.dialog.upload_recipe_file";
+        }
+
+        @Override
+        public String getDefaultFileName() {
+            return "";
+        }
+
+        @Override
+        public String getSuffix() {
+            return RecipeProjectType.FORMAT.runtimeSuffix();
+        }
+
+        @Override
+        public void uploadToServer(String fileName) {
+            project.saveCurrentVisualState();
+            EditorServerUploads.uploadToServer(
+                    RecipeProjectType.FORMAT,
+                    fileName,
+                    project.getRecipeFile().serializeNBT(Platform.getFrozenRegistry()));
         }
     }
 }

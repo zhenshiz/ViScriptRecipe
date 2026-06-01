@@ -13,6 +13,8 @@ import net.minecraft.world.item.crafting.SmokingRecipe;
 import java.util.List;
 
 public final class VanillaRecipeEditorTypes {
+    public static final String MOD_ID = "minecraft";
+
     public static final ResourceLocation CRAFTING_TABLE = minecraft("crafting_table");
     public static final ResourceLocation FURNACE = minecraft("furnace");
     public static final ResourceLocation BLAST_FURNACE = minecraft("blast_furnace");
@@ -47,7 +49,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 CRAFTING_TABLE,
                 "viscript_recipe.editor.category.minecraft.crafting_table",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 CRAFTING_SHAPED,
                 RecipeEditorLayout.CRAFTING_GRID
@@ -55,7 +57,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 FURNACE,
                 "viscript_recipe.editor.category.minecraft.furnace",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 SMELTING,
                 RecipeEditorLayout.COOKING
@@ -63,7 +65,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 BLAST_FURNACE,
                 "viscript_recipe.editor.category.minecraft.blast_furnace",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 BLASTING,
                 RecipeEditorLayout.COOKING
@@ -71,7 +73,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 SMOKER,
                 "viscript_recipe.editor.category.minecraft.smoker",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 SMOKING,
                 RecipeEditorLayout.COOKING
@@ -79,7 +81,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 CAMPFIRE,
                 "viscript_recipe.editor.category.minecraft.campfire",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 CAMPFIRE_COOKING,
                 RecipeEditorLayout.COOKING
@@ -87,7 +89,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 STONECUTTER,
                 "viscript_recipe.editor.category.minecraft.stonecutter",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 STONECUTTING,
                 RecipeEditorLayout.SINGLE_INPUT
@@ -95,7 +97,7 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 SMITHING_TABLE,
                 "viscript_recipe.editor.category.minecraft.smithing_table",
-                "viscript_recipe.editor.owner.minecraft",
+                MOD_ID,
                 List.of(),
                 SMITHING_TRANSFORM,
                 RecipeEditorLayout.SMITHING
@@ -206,6 +208,6 @@ public final class VanillaRecipeEditorTypes {
     }
 
     private static ResourceLocation minecraft(String path) {
-        return ResourceLocation.fromNamespaceAndPath("minecraft", path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }

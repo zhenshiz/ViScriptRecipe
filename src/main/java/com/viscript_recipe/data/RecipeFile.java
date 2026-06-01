@@ -5,7 +5,6 @@ import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigNumber;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
-import com.viscript_recipe.ViScriptRecipe;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -24,7 +23,7 @@ public class RecipeFile implements IPersistedSerializable, IConfigurable {
     private int formatVersion = CURRENT_FORMAT_VERSION;
 
     @Configurable(name = "viscript_recipe.config.file.pack_id")
-    private String packId = ViScriptRecipe.MOD_ID + ":main";
+    private String packId = "";
 
     @Configurable(name = "viscript_recipe.config.file.entries")
     @ConfigList(addDefaultMethod = "createDefaultEntry")

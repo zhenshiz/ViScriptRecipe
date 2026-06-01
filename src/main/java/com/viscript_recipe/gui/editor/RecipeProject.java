@@ -1,9 +1,9 @@
 package com.viscript_recipe.gui.editor;
 
-import com.lowdragmc.lowdraglib2.editor.project.IProject;
 import com.lowdragmc.lowdraglib2.editor.project.ProjectType;
 import com.lowdragmc.lowdraglib2.editor.resource.Resources;
 import com.lowdragmc.lowdraglib2.editor.ui.Editor;
+import com.viscript_lib.gui.editor.IRuntimeFileProject;
 import com.viscript_recipe.data.RecipeFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class RecipeProject implements IProject {
+public class RecipeProject implements IRuntimeFileProject {
     @Getter
     @Setter
     private RecipeFile recipeFile = new RecipeFile();
@@ -49,6 +49,11 @@ public class RecipeProject implements IProject {
 
     @Override
     public CompoundTag serializeProject(@NotNull HolderLookup.Provider provider) {
+        return serializeRuntimeFile(provider);
+    }
+
+    @Override
+    public CompoundTag serializeRuntimeFile(@Nonnull HolderLookup.Provider provider) {
         saveCurrentVisualState();
         return recipeFile.serializeNBT(provider);
     }
@@ -61,7 +66,7 @@ public class RecipeProject implements IProject {
 
     @Override
     public void onLoad(@Nonnull Editor editor) {
-        IProject.super.onLoad(editor);
+        IRuntimeFileProject.super.onLoad(editor);
         this.editor = editor;
         var controller = new RecipeEditorController(this);
         this.navigationView = new RecipeNavigationView(controller);
@@ -74,7 +79,7 @@ public class RecipeProject implements IProject {
 
     @Override
     public void onClosed(@Nonnull Editor editor) {
-        IProject.super.onClosed(editor);
+        IRuntimeFileProject.super.onClosed(editor);
         if (navigationView != null) {
             navigationView.removeSelf();
         }

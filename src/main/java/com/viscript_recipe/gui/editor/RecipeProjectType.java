@@ -2,8 +2,10 @@ package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.editor.project.IProject;
-import com.lowdragmc.lowdraglib2.editor.project.ProjectType;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
+import com.viscript_lib.gui.editor.EditorFileFormat;
+import com.viscript_lib.gui.editor.FunctionFileProjectType;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.data.RecipeFile;
 import com.viscript_recipe.recipe.RecipeAssetPaths;
@@ -13,16 +15,16 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.Objects;
 
-public class RecipeProjectType extends ProjectType {
+public class RecipeProjectType extends FunctionFileProjectType {
+    public static final EditorFileFormat FORMAT = EditorFileFormat.of(
+            ViScriptRecipe.MOD_ID,
+            "recipes",
+            RecipeAssetPaths.RECIPE_SUFFIX
+    );
     public static final RecipeProjectType TYPE = new RecipeProjectType();
 
     private RecipeProjectType() {
-        super(Icons.FILE, "viscript_recipe.project.recipe", RecipeAssetPaths.RECIPE_SUFFIX, RecipeProject::new);
-    }
-
-    @Override
-    public File getRootSavePath(IProject project, File projectRoot) {
-        return RecipeAssetPaths.recipeDirectory().toFile();
+        super(Icons.FILE, "viscript_recipe.project.recipe", FORMAT, RecipeProject::new);
     }
 
     @Override

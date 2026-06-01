@@ -4,7 +4,9 @@
   "package": "com.viscript_recipe.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ItemStackAccessorMixin",
+    "IronAlchemistCauldronFluidHandlerMixin",
+    "IronArcaneAnvilMenuMixin",
+    "ItemCombinerMenuAccessor",
     "RecipeManagerMixin"
   ],
   "client": [

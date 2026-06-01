@@ -4,6 +4,40 @@ import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauApparatusRecipeData;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauArmorUpgradeRecipeData;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushRecipeData;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauEnchantmentRecipeData;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauGlyphRecipeData;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauImbuementRecipeData;
+import com.viscript_recipe.data.ars_nouveau.ArsNouveauPedestalOnlyRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaEternalSingularityRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaExtremeSmithingRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaFullMatterClusterRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaInfinityCatalystRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
+import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
+import com.viscript_recipe.data.create.CreateProcessingRecipeData;
+import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
+import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCombinationRecipeData;
+import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCompressorRecipeData;
+import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingEnderCrafterRecipeData;
+import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingFluxCrafterRecipeData;
+import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingTableRecipeData;
+import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingUltimateSingularityRecipeData;
+import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
+import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
+import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
+import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
+import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
+import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeChoppingBoardRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeMillstoneRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
 import com.viscript_recipe.data.vanilla.CookingRecipeData;
 import com.viscript_recipe.data.vanilla.ShapedCraftingRecipeData;
 import com.viscript_recipe.data.vanilla.ShapelessCraftingRecipeData;
@@ -46,6 +80,108 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
 
     @Configurable(name = "viscript_recipe.config.entry.smithing_transform", subConfigurable = true)
     private SmithingTransformRecipeData smithingTransform = new SmithingTransformRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.irons_spellbooks.alchemist_cauldron", subConfigurable = true)
+    private IronAlchemistCauldronRecipeData ironAlchemistCauldron = new IronAlchemistCauldronRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.irons_spellbooks.arcane_anvil", subConfigurable = true)
+    private IronArcaneAnvilRecipeData ironArcaneAnvil = new IronArcaneAnvilRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.irons_spellbooks.smithing_no_addition", subConfigurable = true)
+    private IronNoAdditionSmithingRecipeData ironNoAdditionSmithing = new IronNoAdditionSmithingRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.iceandfire.dragon_forge", subConfigurable = true)
+    private DragonForgeRecipeData iceAndFireDragonForge = new DragonForgeRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.farmersdelight.cooking_pot", subConfigurable = true)
+    private FarmerCookingPotRecipeData farmerCookingPot = new FarmerCookingPotRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.farmersdelight.cutting_board", subConfigurable = true)
+    private FarmerCuttingRecipeData farmerCuttingBoard = new FarmerCuttingRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.create.processing", subConfigurable = true)
+    private CreateProcessingRecipeData createProcessing = new CreateProcessingRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.create.mechanical_crafting", subConfigurable = true)
+    private CreateMechanicalCraftingRecipeData createMechanicalCrafting = new CreateMechanicalCraftingRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.create.sequenced_assembly", subConfigurable = true)
+    private CreateSequencedAssemblyRecipeData createSequencedAssembly = new CreateSequencedAssemblyRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.table", subConfigurable = true)
+    private ExtendedCraftingTableRecipeData extendedCraftingTable = new ExtendedCraftingTableRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.ender_crafter", subConfigurable = true)
+    private ExtendedCraftingEnderCrafterRecipeData extendedCraftingEnderCrafter = new ExtendedCraftingEnderCrafterRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.flux_crafter", subConfigurable = true)
+    private ExtendedCraftingFluxCrafterRecipeData extendedCraftingFluxCrafter = new ExtendedCraftingFluxCrafterRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.combination", subConfigurable = true)
+    private ExtendedCraftingCombinationRecipeData extendedCraftingCombination = new ExtendedCraftingCombinationRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.compressor", subConfigurable = true)
+    private ExtendedCraftingCompressorRecipeData extendedCraftingCompressor = new ExtendedCraftingCompressorRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.ultimate_singularity", subConfigurable = true)
+    private ExtendedCraftingUltimateSingularityRecipeData extendedCraftingUltimateSingularity = new ExtendedCraftingUltimateSingularityRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.apparatus", subConfigurable = true)
+    private ArsNouveauApparatusRecipeData arsNouveauApparatus = new ArsNouveauApparatusRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.armor_upgrade", subConfigurable = true)
+    private ArsNouveauArmorUpgradeRecipeData arsNouveauArmorUpgrade = new ArsNouveauArmorUpgradeRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.enchantment", subConfigurable = true)
+    private ArsNouveauEnchantmentRecipeData arsNouveauEnchantment = new ArsNouveauEnchantmentRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.imbuement", subConfigurable = true)
+    private ArsNouveauImbuementRecipeData arsNouveauImbuement = new ArsNouveauImbuementRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.glyph", subConfigurable = true)
+    private ArsNouveauGlyphRecipeData arsNouveauGlyph = new ArsNouveauGlyphRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.crush", subConfigurable = true)
+    private ArsNouveauCrushRecipeData arsNouveauCrush = new ArsNouveauCrushRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.pedestal_only", subConfigurable = true)
+    private ArsNouveauPedestalOnlyRecipeData arsNouveauPedestalOnly = new ArsNouveauPedestalOnlyRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.pot", subConfigurable = true)
+    private KaleidoscopePotRecipeData kaleidoscopePot = new KaleidoscopePotRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.stockpot", subConfigurable = true)
+    private KaleidoscopeStockpotRecipeData kaleidoscopeStockpot = new KaleidoscopeStockpotRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.millstone", subConfigurable = true)
+    private KaleidoscopeMillstoneRecipeData kaleidoscopeMillstone = new KaleidoscopeMillstoneRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.chopping_board", subConfigurable = true)
+    private KaleidoscopeChoppingBoardRecipeData kaleidoscopeChoppingBoard = new KaleidoscopeChoppingBoardRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.steamer", subConfigurable = true)
+    private KaleidoscopeSteamerRecipeData kaleidoscopeSteamer = new KaleidoscopeSteamerRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.teapot", subConfigurable = true)
+    private KaleidoscopeTeapotRecipeData kaleidoscopeTeapot = new KaleidoscopeTeapotRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.avaritia.table", subConfigurable = true)
+    private AvaritiaTableRecipeData avaritiaTable = new AvaritiaTableRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.avaritia.compressor", subConfigurable = true)
+    private AvaritiaCompressorRecipeData avaritiaCompressor = new AvaritiaCompressorRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.avaritia.extreme_smithing", subConfigurable = true)
+    private AvaritiaExtremeSmithingRecipeData avaritiaExtremeSmithing = new AvaritiaExtremeSmithingRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.avaritia.infinity_catalyst", subConfigurable = true)
+    private AvaritiaInfinityCatalystRecipeData avaritiaInfinityCatalyst = new AvaritiaInfinityCatalystRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.avaritia.eternal_singularity", subConfigurable = true)
+    private AvaritiaEternalSingularityRecipeData avaritiaEternalSingularity = new AvaritiaEternalSingularityRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.avaritia.full_matter_cluster", subConfigurable = true)
+    private AvaritiaFullMatterClusterRecipeData avaritiaFullMatterCluster = new AvaritiaFullMatterClusterRecipeData();
 
     public Recipe<?> compile() {
         return RecipeEditorTypes.require(getType()).compile(this);

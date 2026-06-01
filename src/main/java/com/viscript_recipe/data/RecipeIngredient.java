@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +24,18 @@ public class RecipeIngredient implements IPersistedSerializable, IConfigurable {
     private List<RecipeIngredientValue> values = new ArrayList<>();
 
     public static RecipeIngredient item(Item item) {
+        return item(new ItemStack(item));
+    }
+
+    public static RecipeIngredient item(ItemStack stack) {
         var ingredient = new RecipeIngredient();
-        ingredient.values.add(RecipeIngredientValue.item(item));
+        ingredient.values.add(RecipeIngredientValue.item(stack));
+        return ingredient;
+    }
+
+    public static RecipeIngredient itemAbility(String itemAbility) {
+        var ingredient = new RecipeIngredient();
+        ingredient.values.add(RecipeIngredientValue.itemAbility(itemAbility));
         return ingredient;
     }
 
@@ -35,6 +47,10 @@ public class RecipeIngredient implements IPersistedSerializable, IConfigurable {
         if (values.isEmpty()) {
             return Ingredient.EMPTY;
         }
-        return Ingredient.fromValues(values.stream().map(RecipeIngredientValue::compile));
+        var ingredients = values.stream()
+                .map(RecipeIngredientValue::compile)
+                .filter(ingredient -> !ingredient.isEmpty())
+                .toArray(Ingredient[]::new);
+        return CompoundIngredient.of(ingredients);
     }
 }

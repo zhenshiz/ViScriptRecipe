@@ -9,17 +9,25 @@ import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Button;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
-import com.lowdragmc.lowdraglib2.gui.ui.elements.Selector;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.SearchComponent;
+import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
+import com.viscript_lib.gui.components.DraggableUI;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEntry;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.FlexDirection;
+import dev.vfyjxf.taffy.style.FlexWrap;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
+import java.util.Locale;
 
 public class RecipeNavigationView extends View {
     private final RecipeEditorController controller;
     private final UIElement entryList = RecipeEditorUi.column();
     private final UIElement addRow = createAddRow();
+    private WorkstationSearchComponent workstationSearch;
+    private List<WorkstationSearchEntry> workstationSearchEntries = List.of();
 
     public RecipeNavigationView(RecipeEditorController controller) {
         super("viscript_recipe.view.recipe_navigation", Icons.FILE);
@@ -37,24 +45,70 @@ public class RecipeNavigationView extends View {
         var root = RecipeEditorUi.panelRoot();
         root.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.entries"),
-                RecipeEditorUi.fieldGroup("viscript_recipe.editor.workstation", createWorkstationSelector()),
+                RecipeEditorUi.fieldGroup("viscript_recipe.editor.workstation", createWorkstationSearch()),
                 addRow,
                 createEntryScroller()
         );
         return root;
     }
 
-    private Selector<RecipeEditorCategory> createWorkstationSelector() {
-        var selector = new Selector<RecipeEditorCategory>()
-                .setCandidates(controller.availableCategories())
-                .setCandidateUIProvider(this::createWorkstationCandidate)
+    private WorkstationSearchComponent createWorkstationSearch() {
+        workstationSearchEntries = createWorkstationSearchEntries();
+        workstationSearch = new WorkstationSearchComponent(new SearchComponent.ISearchUI<>() {
+            @Override
+            public String resultText(RecipeEditorCategory category) {
+                return category == null ? "" : category.displayName().getString();
+            }
+
+            @Override
+            public void onResultSelected(RecipeEditorCategory value) {
+            }
+
+            @Override
+            public void search(String word, IResultHandler<RecipeEditorCategory> searchHandler) {
+                var normalized = normalizeSearch(word);
+                for (var entry : workstationSearchEntries) {
+                    if (entry.matches(normalized)) {
+                        searchHandler.acceptResult(entry.category());
+                    }
+                }
+            }
+        });
+        workstationSearch.setCandidateUIProvider(this::createWorkstationCandidate)
                 .setSelected(controller.getSelectedCategoryData(), false)
-                .setOnValueChanged(controller::setSelectedCategory);
-        selector.layout(layout -> {
+                .setOnValueChanged(controller::setSelectedCategory)
+                .searchStyle(style -> {
+                    style.maxItemCount(8);
+                    style.scrollerViewHeight(126);
+                });
+        workstationSearch.preview.setOverflowVisible(false);
+        workstationSearch.textField.setOverflowVisible(false);
+        workstationSearch.layout(layout -> {
             layout.widthPercent(100);
             layout.height(20);
         });
-        return selector;
+        return workstationSearch;
+    }
+
+    private List<WorkstationSearchEntry> createWorkstationSearchEntries() {
+        return controller.availableCategories().stream()
+                .map(category -> new WorkstationSearchEntry(category, workstationSearchText(category)))
+                .toList();
+    }
+
+    private String workstationSearchText(RecipeEditorCategory category) {
+        var itemId = category.workstationItemId() == null ? "" : category.workstationItemId().toString();
+        return normalizeSearch(String.join(" ",
+                category.displayName().getString(),
+                Component.translatable(category.translationKey()).getString(),
+                category.ownerModId(),
+                category.id().toString(),
+                itemId
+        ));
+    }
+
+    private static String normalizeSearch(String text) {
+        return text == null ? "" : text.toLowerCase(Locale.ROOT).trim();
     }
 
     private UIElement createWorkstationCandidate(RecipeEditorCategory category) {
@@ -66,21 +120,36 @@ public class RecipeNavigationView extends View {
         }
         var name = RecipeEditorUi.label(category.displayName())
                 .textStyle(style -> style
-                        .textWrap(TextWrap.HOVER_ROLL));
+                        .textWrap(TextWrap.HOVER_ROLL)
+                        .adaptiveWidth(false));
+        name.setOverflowVisible(false);
         var owner = RecipeEditorUi.label(category.ownerName())
                 .textStyle(style -> style
                         .textAlignHorizontal(Horizontal.RIGHT)
                         .textColor(ColorPattern.LIGHT_GRAY.color)
-                        .textWrap(TextWrap.HOVER_ROLL));
+                        .textWrap(TextWrap.HOVER_ROLL)
+                        .adaptiveWidth(false));
+        owner.setOverflowVisible(false);
         return RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);
             layout.height(14);
-            layout.gapAll(4);
             layout.alignItems(AlignItems.CENTER);
         }).addChildren(
-                name.layout(layout -> layout.flex(1).heightPercent(100)),
-                owner.layout(layout -> layout.width(72).heightPercent(100))
-        );
+                createWorkstationCell(name),
+                createWorkstationCell(owner)
+        ).setOverflowVisible(false);
+    }
+
+    private UIElement createWorkstationCell(UIElement label) {
+        label.layout(layout -> {
+            layout.widthPercent(100);
+            layout.heightPercent(100);
+        });
+        label.setOverflowVisible(false);
+        return new UIElement().layout(layout -> {
+            layout.widthPercent(50);
+            layout.heightPercent(100);
+        }).addChild(label).setOverflowVisible(false);
     }
 
     private UIElement createAddRow() {
@@ -114,18 +183,41 @@ public class RecipeNavigationView extends View {
     }
 
     private void refresh() {
+        refreshWorkstationSearch();
         entryList.clearAllChildren();
         var entries = controller.recipeFile().getEntries();
+        var visibleEntries = entries.stream()
+                .filter(controller::isEntryInSelectedCategory)
+                .toList();
+        var draggableEntries = new DraggableUI<>(visibleEntries, controller::reorderSelectedCategoryEntries);
+        draggableEntries.layout(layout -> {
+            layout.widthPercent(100);
+            layout.gapAll(2);
+            layout.paddingAll(0);
+            layout.flexDirection(FlexDirection.COLUMN);
+            layout.wrap(FlexWrap.NO_WRAP);
+        });
         var visibleIndex = 0;
-        for (int i = 0; i < entries.size(); i++) {
-            var entry = entries.get(i);
-            if (controller.isEntryInSelectedCategory(entry)) {
-                entryList.addChild(createEntryRow(entry, visibleIndex++));
-            }
+        for (var entry : visibleEntries) {
+            var dragHandle = createDragHandle();
+            draggableEntries.addSortableCard(entry, createEntryRow(entry, visibleIndex++, dragHandle), dragHandle);
+        }
+        draggableEntries.addChild(createTailDropZone());
+        entryList.addChild(draggableEntries);
+    }
+
+    private void refreshWorkstationSearch() {
+        workstationSearchEntries = createWorkstationSearchEntries();
+        if (workstationSearch == null || workstationSearch.isOpen()) {
+            return;
+        }
+        var selectedCategory = controller.getSelectedCategoryData();
+        if (workstationSearch.getValue() != selectedCategory) {
+            workstationSearch.setSelected(selectedCategory, false);
         }
     }
 
-    private UIElement createEntryRow(RecipeEntry entry, int index) {
+    private UIElement createEntryRow(RecipeEntry entry, int index, UIElement dragHandle) {
         var selected = entry == controller.getSelectedEntry();
         var label = entryLabel(entry, index);
         var button = new Button()
@@ -156,10 +248,32 @@ public class RecipeNavigationView extends View {
             layout.gapAll(2);
             layout.flexDirection(FlexDirection.ROW);
         }).addChildren(
+                dragHandle,
                 button.layout(layout -> layout.flex(1)),
                 RecipeEditorUi.iconButton(Icons.DELETE, "viscript_recipe.editor.delete", event -> controller.removeEntry(entry))
                         .layout(layout -> layout.width(20).height(22))
         );
+    }
+
+    private UIElement createDragHandle() {
+        var handle = RecipeEditorUi.iconButton(Icons.GRID, "viscript_recipe.editor.drag_reorder", event -> {
+        });
+        handle.layout(layout -> {
+            layout.width(18);
+            layout.height(22);
+        });
+        handle.buttonStyle(style -> style
+                .baseTexture(ColorPattern.DARK_GRAY.rectTexture())
+                .hoverTexture(ColorPattern.GRAY.rectTexture())
+                .pressedTexture(ColorPattern.SEAL_BLACK.rectTexture()));
+        return handle;
+    }
+
+    private UIElement createTailDropZone() {
+        return new UIElement().layout(layout -> {
+            layout.widthPercent(100);
+            layout.height(18);
+        });
     }
 
     private int entryTextColor(RecipeEntry entry) {
@@ -177,5 +291,32 @@ public class RecipeNavigationView extends View {
                 controller.typeDisplayName(entry),
                 id
         );
+    }
+
+    private record WorkstationSearchEntry(RecipeEditorCategory category, String searchText) {
+        private boolean matches(String normalizedWord) {
+            if (normalizedWord.isBlank()) {
+                return true;
+            }
+            for (var token : normalizedWord.split("\\s+")) {
+                if (!searchText.contains(token)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    private static class WorkstationSearchComponent extends SearchComponent<RecipeEditorCategory> {
+        private WorkstationSearchComponent(ISearchUI<RecipeEditorCategory> searchUI) {
+            super(searchUI);
+        }
+
+        @Override
+        public void show() {
+            super.show();
+            textField.setText("", false);
+            onSearchWordChanged("");
+        }
     }
 }

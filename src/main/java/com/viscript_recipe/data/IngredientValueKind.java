@@ -4,7 +4,8 @@ import net.minecraft.util.StringRepresentable;
 
 public enum IngredientValueKind implements StringRepresentable {
     ITEM("item"),
-    TAG("tag");
+    TAG("tag"),
+    ITEM_ABILITY("item_ability");
 
     private final String serializedName;
 
