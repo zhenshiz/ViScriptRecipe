@@ -16,8 +16,12 @@ import com.viscript_recipe.data.vanilla.VanillaRecipeDataAccessors;
 import java.util.function.Supplier;
 
 public final class RecipeDataAccessors {
+    private static boolean registered;
 
     public static synchronized void register() {
+        if (registered) {
+            return;
+        }
         registerType(RecipeFile.class, RecipeFile::new);
         registerType(RecipeEntry.class, RecipeEntry::new);
         registerType(RecipeIngredient.class, RecipeIngredient::new);
@@ -31,6 +35,7 @@ public final class RecipeDataAccessors {
         ArsNouveauRecipeDataAccessors.register();
         KaleidoscopeCookeryRecipeDataAccessors.register();
         AvaritiaRecipeDataAccessors.register();
+        registered = true;
     }
 
     public static <T> void registerType(Class<T> type, Supplier<T> factory) {

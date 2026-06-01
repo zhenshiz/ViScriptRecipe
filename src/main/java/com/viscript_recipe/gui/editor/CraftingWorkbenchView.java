@@ -6,7 +6,6 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.FluidStackTexture;
-import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
@@ -22,7 +21,6 @@ import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
-import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -37,7 +35,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class CraftingWorkbenchView extends View {
@@ -342,27 +339,7 @@ public class CraftingWorkbenchView extends View {
     }
 
     private UIElement createCraftingCanvas() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(24);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createGrid(),
-                new UIElement().layout(layout -> {
-                    layout.width(28);
-                    layout.height(16);
-                }).style(style -> style.backgroundTexture(Icons.ARROW_LEFT_RIGHT)),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                        configureResultSlot(craftingOutputSlot)
-                )
-        );
+        return BasicRecipeCanvasFactory.createCraftingCanvas(createGrid(), configureResultSlot(craftingOutputSlot));
     }
 
     private UIElement createMechanicalCraftingCanvas() {
@@ -374,36 +351,11 @@ public class CraftingWorkbenchView extends View {
             layout.widthPercent(100);
             layout.height(14);
         });
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(190);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        mechanicalCraftingSizeLabel,
-                        createMechanicalCraftingGrid()
-                ),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(118);
-                    layout.height(136);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(mechanicalCraftingWorkstationIcon),
-                createRightArrowElement(36, 20),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                        configureResultSlot(mechanicalCraftingOutputSlot)
-                )
+        return BasicRecipeCanvasFactory.createMechanicalCraftingCanvas(
+                mechanicalCraftingSizeLabel,
+                createMechanicalCraftingGrid(),
+                mechanicalCraftingWorkstationIcon,
+                configureResultSlot(mechanicalCraftingOutputSlot)
         );
     }
 
@@ -446,28 +398,11 @@ public class CraftingWorkbenchView extends View {
     }
 
     private UIElement createSmithingCanvas() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(12);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return BasicRecipeCanvasFactory.createSmithingCanvas(
                 createSmithingInput("viscript_recipe.editor.smithing.template", 0),
                 createSmithingInput("viscript_recipe.editor.smithing.base", 1),
                 createSmithingInput("viscript_recipe.editor.smithing.addition", 2),
-                new UIElement().layout(layout -> {
-                    layout.width(28);
-                    layout.height(16);
-                }).style(style -> style.backgroundTexture(Icons.ARROW_LEFT_RIGHT)),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                        configureResultSlot(smithingOutputSlot)
-                )
+                configureResultSlot(smithingOutputSlot)
         );
     }
 
@@ -494,67 +429,25 @@ public class CraftingWorkbenchView extends View {
         configureResultSlot(avaritiaCompressorOutputSlot);
         configureJeiOverlaySlotVisual(avaritiaCompressorIngredientSlot);
         configureJeiOverlaySlotVisual(avaritiaCompressorOutputSlot);
-        var panel = createAvaritiaJeiPanel("compressor", 170, 63);
-        panel.addChildren(
-                createAvaritiaFloatingCell(avaritiaCompressorIngredientSlot, 37, 21, JEI_SLOT_SIZE, JEI_SLOT_SIZE),
-                createAvaritiaFloatingCell(avaritiaCompressorOutputSlot, 117, 21, JEI_SLOT_SIZE, JEI_SLOT_SIZE)
+        return AvaritiaCanvasFactory.createCompressorCanvas(
+                avaritiaCompressorIngredientSlot,
+                avaritiaCompressorOutputSlot
         );
-        return centerAvaritiaPanel(panel);
     }
 
     private UIElement createAvaritiaExtremeSmithingCanvas() {
         configureResultSlot(avaritiaSmithingOutputSlot);
         configureJeiOverlaySlotVisual(avaritiaSmithingOutputSlot);
-        var panel = createAvaritiaJeiPanel("extreme_smithing_jei", 170, 64);
-        panel.addChildren(
-                createAvaritiaSmithingIngredientCell(0, 27, 23),
-                createAvaritiaSmithingIngredientCell(1, 45, 23),
-                createAvaritiaSmithingIngredientCell(2, 45, 5),
-                createAvaritiaSmithingIngredientCell(3, 63, 23),
-                createAvaritiaSmithingIngredientCell(4, 45, 41),
-                createAvaritiaSmithingResultCell(117, 23)
+        for (int i = 0; i < avaritiaSmithingIngredientSlots.length; i++) {
+            var slot = createIngredientSlot(JEI_SLOT_SIZE);
+            configureIngredientSlot(slot, i);
+            configureJeiOverlaySlotVisual(slot);
+            avaritiaSmithingIngredientSlots[i] = slot;
+        }
+        return AvaritiaCanvasFactory.createExtremeSmithingCanvas(
+                avaritiaSmithingIngredientSlots,
+                avaritiaSmithingOutputSlot
         );
-        return centerAvaritiaPanel(panel);
-    }
-
-    private static UIElement createAvaritiaJeiPanel(String texturePath, int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-            layout.positionType(TaffyPosition.RELATIVE);
-        }).style(style -> style.backgroundTexture(avaritiaJeiTexture(texturePath, width, height)));
-    }
-
-    private static IGuiTexture avaritiaJeiTexture(String path, int width, int height) {
-        return SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
-                "avaritia",
-                "textures/gui/jei/" + path + ".png"
-        )).setSprite(0, 0, width, height);
-    }
-
-    private static UIElement centerAvaritiaPanel(UIElement panel) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(panel);
-    }
-
-    private UIElement createAvaritiaSmithingIngredientCell(int index, int left, int top) {
-        var slot = createIngredientSlot(JEI_SLOT_SIZE);
-        configureIngredientSlot(slot, index);
-        configureJeiOverlaySlotVisual(slot);
-        avaritiaSmithingIngredientSlots[index] = slot;
-        return createAvaritiaFloatingCell(slot, left, top, JEI_SLOT_SIZE, JEI_SLOT_SIZE)
-                .style(style -> style.tooltips(Component.translatable(
-                        "viscript_recipe.editor.avaritia.extreme_smithing.slot." + index
-                )));
-    }
-
-    private UIElement createAvaritiaSmithingResultCell(int left, int top) {
-        return createAvaritiaFloatingCell(avaritiaSmithingOutputSlot, left, top, JEI_SLOT_SIZE, JEI_SLOT_SIZE)
-                .style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.result_slot")));
     }
 
     private UIElement createExtendedCombinationCanvas() {
@@ -567,28 +460,10 @@ public class CraftingWorkbenchView extends View {
         configureResultSlot(extendedCombinationOutputSlot);
         configureJeiOverlaySlotVisual(extendedCombinationOutputSlot);
 
-        var panel = createExtendedCustomPanel(220, 108);
-        panel.addChild(createExtendedSlotCell(extendedCombinationIngredientSlots[0], 88, 52));
-        var pedestalPositions = new int[][]{
-                {88, 16},
-                {116, 28},
-                {130, 52},
-                {116, 76},
-                {88, 88},
-                {60, 76},
-                {46, 52},
-                {60, 28}
-        };
-        for (int i = 0; i < pedestalPositions.length; i++) {
-            panel.addChild(createExtendedSlotCell(
-                    extendedCombinationIngredientSlots[i + 1],
-                    pedestalPositions[i][0],
-                    pedestalPositions[i][1]
-            ));
-        }
-        panel.addChild(createExtendedFloatingCell(createRightArrowElement(30, 18), 160, 52, 30, 18));
-        panel.addChild(createExtendedSlotCell(extendedCombinationOutputSlot, 196, 52));
-        return centerExtendedPanel(panel);
+        return ExtendedCraftingCanvasFactory.createCombinationCanvas(
+                extendedCombinationIngredientSlots,
+                extendedCombinationOutputSlot
+        );
     }
 
     private UIElement createExtendedCompressorCanvas() {
@@ -598,305 +473,70 @@ public class CraftingWorkbenchView extends View {
         configureJeiOverlaySlotVisual(extendedCompressorCatalystSlot);
         configureJeiOverlaySlotVisual(extendedCompressorInputSlot);
         configureJeiOverlaySlotVisual(extendedCompressorOutputSlot);
-        var panel = createExtendedCustomPanel(150, 54);
-        panel.addChildren(
-                createExtendedSlotCell(extendedCompressorCatalystSlot, 10, 18),
-                createExtendedSlotCell(extendedCompressorInputSlot, 42, 18),
-                createExtendedFloatingCell(createRightArrowElement(30, 18), 78, 18, 30, 18),
-                createExtendedSlotCell(extendedCompressorOutputSlot, 122, 18)
+        return ExtendedCraftingCanvasFactory.createCompressorCanvas(
+                extendedCompressorCatalystSlot,
+                extendedCompressorInputSlot,
+                extendedCompressorOutputSlot
         );
-        return centerExtendedPanel(panel);
     }
 
     private UIElement createExtendedFluxCanvas() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 3 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-
         for (int i = 0; i < extendedFluxIngredientSlots.length; i++) {
             var slot = createIngredientSlot(SLOT_SIZE);
             configureIngredientSlot(slot, i);
             extendedFluxIngredientSlots[i] = slot;
         }
-        for (int row = 0; row < 3; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            for (int col = 0; col < 3; col++) {
-                rowElement.addChild(extendedFluxIngredientSlots[row * 3 + col]);
-            }
-            grid.addChild(rowElement);
-        }
         configureResultSlot(extendedFluxOutputSlot);
 
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(24);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                grid,
-                new UIElement().layout(layout -> {
-                    layout.width(28);
-                    layout.height(16);
-                }).style(style -> style.backgroundTexture(Icons.ARROW_LEFT_RIGHT)),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                        extendedFluxOutputSlot
-                )
+        return ExtendedCraftingCanvasFactory.createFluxCanvas(
+                extendedFluxIngredientSlots,
+                extendedFluxOutputSlot
         );
     }
 
-    private static UIElement createExtendedCustomPanel(int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-            layout.positionType(TaffyPosition.RELATIVE);
-        });
-    }
-
-    private static UIElement centerExtendedPanel(UIElement panel) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(panel);
-    }
-
-    private static UIElement createExtendedSlotCell(UIElement child, int left, int top) {
-        return createExtendedFloatingCell(child, left, top, JEI_SLOT_SIZE, JEI_SLOT_SIZE)
-                .style(style -> style.backgroundTexture(ItemSlot.ITEM_SLOT_TEXTURE));
-    }
-
-    private static UIElement createExtendedFloatingCell(UIElement child, int left, int top, int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(width);
-            layout.height(height);
-        }).addChild(child);
-    }
-
-    private UIElement createAvaritiaFloatingCell(UIElement child, int left, int top, int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(width);
-            layout.height(height);
-        }).addChild(child);
-    }
-
     private UIElement createGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 3 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-
-        for (int row = 0; row < 3; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createIngredientSlot(SLOT_SIZE);
-                configureIngredientSlot(slot, index);
-                craftingIngredientSlots[index] = slot;
-                rowElement.addChild(slot);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(3, 3, SLOT_SIZE, (index, row, col) -> {
+            var slot = createIngredientSlot(SLOT_SIZE);
+            configureIngredientSlot(slot, index);
+            craftingIngredientSlots[index] = slot;
+            return slot;
+        });
     }
 
     private UIElement createCookingCanvas() {
         configureIngredientSlot(cookingIngredientSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(22);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.cooking.ingredient")),
-                        cookingIngredientSlot
-                ),
-                new UIElement().layout(layout -> {
-                    layout.width(28);
-                    layout.height(16);
-                }).style(style -> style.backgroundTexture(Icons.ARROW_LEFT_RIGHT)),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                        configureResultSlot(cookingOutputSlot)
-                )
-        );
+        return BasicRecipeCanvasFactory.createCookingCanvas(cookingIngredientSlot, configureResultSlot(cookingOutputSlot));
     }
 
     private UIElement createFarmersCookingPotCanvas() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createFarmerCookingInputSide(),
-                createFarmerCookingProcessColumn(),
-                createFarmerCookingOutputSide()
-        );
-    }
-
-    private UIElement createFarmerCookingInputSide() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(116);
-            layout.gapAll(9);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(
+        return FarmersDelightCanvasFactory.createCookingPotCanvas(
                 createFarmerCookingIngredientGrid(),
-                createFarmerCookingHeatSource()
+                FarmersDelightCanvasFactory.createHeatSource(createItemIcon(new ItemStack(Items.CAMPFIRE), 30)),
+                FarmersDelightCanvasFactory.createPotPreview(
+                        createItemIcon(new ItemStack(itemFromRegistry("farmersdelight:cooking_pot", Items.CAULDRON)), 18),
+                        configureResultSlot(farmerCookingPotPreviewSlot)
+                ),
+                FarmersDelightCanvasFactory.createServingRow(
+                        configureContainerSlot(farmerCookingContainerSlot),
+                        configureResultSlot(farmerCookingOutputSlot)
+                )
         );
     }
 
     private UIElement createFarmerCookingIngredientGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 2 + 10);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createIngredientSlot(SLOT_SIZE);
-                configureIngredientSlot(slot, index);
-                farmerCookingIngredientSlots[index] = slot;
-                rowElement.addChild(slot);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
-    }
-
-    private UIElement createFarmerCookingHeatSource() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.width(86);
-            layout.height(30);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.farmersdelight.cooking.heat_source")))
-                .addChild(createItemIcon(new ItemStack(Items.CAMPFIRE), 30));
-    }
-
-    private UIElement createFarmerCookingProcessColumn() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(78);
-            layout.height(128);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(createCounterClockwiseArrowElement(Icons.UP_ARROW_NO_BAR, 30, 60));
-    }
-
-    private UIElement createFarmerCookingOutputSide() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(134);
-            layout.height(138);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createFarmerCookingPotPreview(),
-                createFarmerCookingServingRow()
-        );
-    }
-
-    private UIElement createFarmerCookingPotPreview() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(88);
-            layout.height(72);
-            layout.paddingAll(5);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-        }).style(style -> style
-                .backgroundTexture(Sprites.BORDER_DARK)
-                .tooltips(Component.translatable("viscript_recipe.editor.farmersdelight.cooking.pot_preview"))
-        ).addChildren(
-                RecipeEditorUi.row().layout(layout -> {
-                    layout.widthPercent(100);
-                    layout.height(12);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createItemIcon(new ItemStack(itemFromRegistry("farmersdelight:cooking_pot", Items.CAULDRON)), 18)
-                ),
-                configureResultSlot(farmerCookingPotPreviewSlot)
-        );
-    }
-
-    private UIElement createFarmerCookingServingRow() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.width(130);
-            layout.height(34);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                configureContainerSlot(farmerCookingContainerSlot),
-                createCounterClockwiseArrowElement(Icons.RIGHT_ARROW_NO_BAR, 24, 16),
-                configureResultSlot(farmerCookingOutputSlot)
-        );
+        return RecipeGridFactory.borderedGrid(3, 2, SLOT_SIZE, (index, row, col) -> {
+            var slot = createIngredientSlot(SLOT_SIZE);
+            configureIngredientSlot(slot, index);
+            farmerCookingIngredientSlots[index] = slot;
+            return slot;
+        });
     }
 
     private UIElement createFarmersCuttingBoardCanvas() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(16);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return FarmersDelightCanvasFactory.createCuttingBoardCanvas(
                 createFarmerCuttingInput("viscript_recipe.editor.farmersdelight.cutting.input", 0),
-                createOperatorPlusLabel(),
                 createFarmerCuttingInput("viscript_recipe.editor.farmersdelight.cutting.tool", 1),
-                createArrowElement(),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(86);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.farmersdelight.cutting.results")),
-                        createFarmerCuttingResultGrid()
-                )
+                createFarmerCuttingResultGrid()
         );
     }
 
@@ -904,39 +544,16 @@ public class CraftingWorkbenchView extends View {
         var slot = createIngredientSlot(SLOT_SIZE);
         configureIngredientSlot(slot, index);
         farmerCuttingIngredientSlots[index] = slot;
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(72);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(
-                RecipeEditorUi.label(Component.translatable(labelKey)),
-                slot
-        );
+        return FarmersDelightCanvasFactory.createCuttingInput(labelKey, slot);
     }
 
     private UIElement createFarmerCuttingResultGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 2 + 10);
-            layout.height(SLOT_SIZE * 2 + 10);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            for (int col = 0; col < 2; col++) {
-                var index = row * 2 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCuttingResultSlot(slot, index);
-                farmerCuttingResultSlots[index] = slot;
-                rowElement.addChild(slot);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCuttingResultSlot(slot, index);
+            farmerCuttingResultSlots[index] = slot;
+            return slot;
+        });
     }
 
     private UIElement createAlchemistCanvas() {
@@ -952,13 +569,7 @@ public class CraftingWorkbenchView extends View {
                 alchemistOutputLabel,
                 configureResultSlot(alchemistOutputSlot)
         );
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(14);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return BasicRecipeCanvasFactory.createAlchemistCanvas(
                 RecipeEditorUi.column().layout(layout -> {
                     layout.width(72);
                     layout.gapAll(4);
@@ -978,25 +589,10 @@ public class CraftingWorkbenchView extends View {
     }
 
     private UIElement createDragonForgeCanvas() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(14);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return BasicRecipeCanvasFactory.createDragonForgeCanvas(
                 createDragonBreathColumn(),
-                createOperatorPlusLabel(),
                 createDragonForgeInputColumn(),
-                createArrowElement(),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                        configureResultSlot(dragonForgeOutputSlot)
-                )
+                configureResultSlot(dragonForgeOutputSlot)
         );
     }
 
@@ -1014,10 +610,7 @@ public class CraftingWorkbenchView extends View {
         createPressingCanvas = createCreatePressingCanvas();
         createDeployerCanvas = createCreateDeployerCanvas();
         createManualApplicationCanvas = createCreateManualApplicationCanvas();
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-        }).addChildren(genericCreateProcessingCanvas, createSpoutCanvas, createDrainCanvas, createFanCanvas, createCrushingCanvas, createMillingCanvas, createSawCanvas, createAutoPackingCanvas, createSandpaperCanvas, createPressBasinCanvas, createPressingCanvas, createDeployerCanvas, createManualApplicationCanvas);
+        return CreateProcessingCanvasFactory.createProcessingStack(genericCreateProcessingCanvas, createSpoutCanvas, createDrainCanvas, createFanCanvas, createCrushingCanvas, createMillingCanvas, createSawCanvas, createAutoPackingCanvas, createSandpaperCanvas, createPressBasinCanvas, createPressingCanvas, createDeployerCanvas, createManualApplicationCanvas);
     }
 
     private UIElement createCreateSequencedAssemblyCanvas() {
@@ -1033,191 +626,41 @@ public class CraftingWorkbenchView extends View {
                 .textColor(ColorPattern.LIGHT_GRAY.color)
                 .textWrap(TextWrap.HOVER_ROLL));
         createSequencedLoopsLabel.layout(layout -> layout.width(62).height(16));
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(12);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateSequencedStepRow(),
-                createCreateSequencedFlowRow()
+        var canvas = CreateSequencedAssemblyCanvasFactory.createCanvas(
+                createSequencedInputSlot,
+                createSequencedTransitionalSlot,
+                createSequencedOutputSlots,
+                createSequencedOutputSlotCells,
+                createSequencedStepCards,
+                createSequencedStepIcons,
+                createSequencedStepLabels,
+                createSequencedLoopsLabel,
+                this::createCreateSequencedStepIngredientCell,
+                this::createCreateSequencedStepFluidCell,
+                controller::selectCreateSequencedStep
         );
+        createSequencedSecondaryOutputColumn = canvas.secondaryOutputColumn();
+        return canvas.root();
     }
 
-    private UIElement createCreateSequencedStepRow() {
-        var row = RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.height(112);
-            layout.gapAll(6);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        });
-        for (int i = 0; i < createSequencedStepCards.length; i++) {
-            var card = createCreateSequencedStepCard(i);
-            createSequencedStepCards[i] = card;
-            row.addChild(card);
-        }
-        return row;
-    }
-
-    private UIElement createCreateSequencedStepCard(int index) {
-        var icon = new UIElement().layout(layout -> layout.width(36).height(36));
-        var label = RecipeEditorUi.label(Component.empty());
-        label.textStyle(style -> style
-                .textAlignHorizontal(Horizontal.CENTER)
-                .textColor(ColorPattern.LIGHT_GRAY.color)
-                .textWrap(TextWrap.HOVER_ROLL));
-        label.layout(layout -> layout.widthPercent(100).height(14));
-        createSequencedStepIcons[index] = icon;
-        createSequencedStepLabels[index] = label;
-
+    private UIElement createCreateSequencedStepIngredientCell(int index) {
         var ingredientSlot = createIngredientSlot(SLOT_SIZE);
         configureCreateSequencedStepIngredientSlot(ingredientSlot, createSequencedIngredientSlotIndex(index));
         createSequencedStepIngredientSlots[index] = ingredientSlot;
         var ingredientCell = createCreateFramedSlot(ingredientSlot, 36);
         configureCreateSequencedStepIngredientCell(ingredientCell, createSequencedIngredientSlotIndex(index));
         createSequencedStepIngredientCells[index] = ingredientCell;
+        return ingredientCell;
+    }
 
+    private UIElement createCreateSequencedStepFluidCell(int index) {
         var fluidSlot = createFluidDisplaySlot();
         configureCreateSequencedStepFluidSlot(fluidSlot, index);
         createSequencedStepFluidSlots[index] = fluidSlot;
         var fluidCell = createCreateFramedSlot(fluidSlot, 36);
         configureCreateSequencedStepFluidCell(fluidCell, index);
         createSequencedStepFluidCells[index] = fluidCell;
-
-        var slotRow = RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.height(38);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(ingredientCell, fluidCell);
-
-        var card = RecipeEditorUi.column().layout(layout -> {
-            layout.width(66);
-            layout.height(106);
-            layout.paddingAll(4);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
-                .addChildren(label, icon, slotRow);
-        card.addEventListener(UIEvents.MOUSE_DOWN, event -> controller.selectCreateSequencedStep(index));
-        return card;
-    }
-
-    private UIElement createCreateSequencedFlowRow() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.height(96);
-            layout.gapAll(10);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateFramedSlot(createSequencedInputSlot, 42),
-                createRightArrowElement(30, 18),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(66);
-                    layout.height(62);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createCreateFramedSlot(createSequencedTransitionalSlot, 42),
-                        createSequencedLoopsLabel
-                ),
-                createRightArrowElement(30, 18),
-                createCreateSequencedOutputPanel()
-        );
-    }
-
-    private UIElement createCreateSequencedOutputPanel() {
-        var panel = RecipeEditorUi.row().layout(layout -> {
-            layout.width(184);
-            layout.height(86);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        });
-        panel.addChildren(
-                createCreateSequencedMainOutputColumn(),
-                createCreateSequencedSecondaryOutputColumn()
-        );
-        return panel;
-    }
-
-    private UIElement createCreateSequencedMainOutputColumn() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(50);
-            layout.height(76);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createSequencedOutputSectionLabel("viscript_recipe.editor.create.sequenced_assembly.main_output"),
-                createCreateFramedSlot(createSequencedOutputSlots[0], 42)
-        );
-    }
-
-    private UIElement createCreateSequencedSecondaryOutputColumn() {
-        createSequencedSecondaryOutputColumn = RecipeEditorUi.column().layout(layout -> {
-            layout.width(126);
-            layout.height(76);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        });
-        createSequencedSecondaryOutputColumn.addChildren(
-                createSequencedOutputSectionLabel("viscript_recipe.editor.create.sequenced_assembly.extra_outputs"),
-                createCreateSequencedSecondaryOutputGrid()
-        );
-        return createSequencedSecondaryOutputColumn;
-    }
-
-    private UIElement createCreateSequencedSecondaryOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(126);
-            layout.height(62);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        });
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            for (int col = 0; col < 4; col++) {
-                var index = row * 4 + col + 1;
-                var cell = RecipeEditorUi.row().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                });
-                cell.addChild(createSequencedOutputSlots[index]);
-                createSequencedOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
-    }
-
-    private Label createSequencedOutputSectionLabel(String key) {
-        var label = RecipeEditorUi.label(Component.translatable(key));
-        label.layout(layout -> {
-            layout.widthPercent(100);
-            layout.height(16);
-        });
-        label.textStyle(style -> style
-                .textAlignHorizontal(Horizontal.CENTER)
-                .textColor(ColorPattern.LIGHT_GRAY.color)
-                .textWrap(TextWrap.HOVER_ROLL));
-        return label;
+        return fluidCell;
     }
 
     private UIElement createArsNouveauApparatusCanvas() {
@@ -1227,265 +670,80 @@ public class CraftingWorkbenchView extends View {
         arsNouveauApparatusSourceLabel.textStyle(style -> style
                 .textColor(ColorPattern.WHITE.color)
                 .textWrap(TextWrap.HOVER_ROLL));
-        arsNouveauApparatusSourceLabel.layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(20);
-            layout.top(178);
-            layout.width(176);
-            layout.height(18);
-        });
         arsNouveauApparatusTierLabel.textStyle(style -> style
                 .textColor(ColorPattern.WHITE.color)
                 .textWrap(TextWrap.HOVER_ROLL));
-        arsNouveauApparatusTierLabel.layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(20);
-            layout.top(8);
-            layout.width(92);
-            layout.height(18);
-        });
-
-        var panel = new UIElement().layout(layout -> {
-            layout.width(228);
-            layout.height(216);
-            layout.positionType(TaffyPosition.RELATIVE);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-
-        arsNouveauApparatusCenterPreviewCell = createArsNouveauApparatusPreviewCell(
-                arsNouveauApparatusCenterPreviewIcon, 98, 88, SLOT_SIZE
-        );
-        arsNouveauApparatusOutputPreviewCell = createArsNouveauApparatusResultCell(
-                arsNouveauApparatusOutputPreviewIcon, 170, 24
-        );
-
-        panel.addChildren(
-                createArsNouveauApparatusIngredientCell(0, 98, 88),
-                arsNouveauApparatusCenterPreviewCell,
-                createArsNouveauApparatusResultCell(arsNouveauResultSlot, 170, 24),
-                arsNouveauApparatusOutputPreviewCell,
-                arsNouveauApparatusSourceLabel,
-                arsNouveauApparatusTierLabel
-        );
-
-        var pedestalPositions = new int[][]{
-                {98, 28},
-                {53, 47},
-                {38, 88},
-                {53, 133},
-                {98, 148},
-                {143, 133},
-                {158, 88},
-                {143, 47}
-        };
-        for (int i = 0; i < pedestalPositions.length; i++) {
-            var index = i + 1;
-            var position = pedestalPositions[i];
-            panel.addChild(createArsNouveauApparatusIngredientCell(index, position[0], position[1]));
+        for (int i = 0; i < arsNouveauIngredientSlots.length; i++) {
+            var slot = createIngredientSlot(SLOT_SIZE);
+            configureIngredientSlot(slot, i);
+            arsNouveauIngredientSlots[i] = slot;
         }
 
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(panel);
-    }
-
-    private UIElement createArsNouveauApparatusIngredientCell(int index, int left, int top) {
-        var slot = createIngredientSlot(SLOT_SIZE);
-        configureIngredientSlot(slot, index);
-        arsNouveauIngredientSlots[index] = slot;
-        var cell = new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(SLOT_SIZE);
-            layout.height(SLOT_SIZE);
-        }).style(style -> style.tooltips(Component.translatable(
-                "viscript_recipe.editor.ars_nouveau.ingredient_slot",
-                controller.arsNouveauInputSlotName(index)
-        ))).addChild(slot);
-        arsNouveauIngredientSlotCells[index] = cell;
-        return cell;
-    }
-
-    private UIElement createArsNouveauApparatusPreviewCell(UIElement icon, int left, int top, int size) {
-        icon.layout(layout -> {
-            layout.width(size);
-            layout.height(size);
-        });
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(size);
-            layout.height(size);
-        }).addChild(icon);
-    }
-
-    private UIElement createArsNouveauApparatusResultCell(UIElement icon, int left, int top) {
-        icon.layout(layout -> {
-            layout.width(OUTPUT_SLOT_SIZE);
-            layout.height(OUTPUT_SLOT_SIZE);
-        });
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(OUTPUT_SLOT_SIZE);
-            layout.height(OUTPUT_SLOT_SIZE);
-        }).addChild(icon);
-    }
-
-    private UIElement createArsNouveauApparatusResultCell(ItemSlot slot, int left, int top) {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(OUTPUT_SLOT_SIZE);
-            layout.height(OUTPUT_SLOT_SIZE);
-        }).addChild(slot);
+        var canvas = ArsNouveauCanvasFactory.createApparatusCanvas(
+                arsNouveauIngredientSlots,
+                arsNouveauIngredientSlotCells,
+                arsNouveauResultSlot,
+                arsNouveauApparatusCenterPreviewIcon,
+                arsNouveauApparatusOutputPreviewIcon,
+                arsNouveauApparatusSourceLabel,
+                arsNouveauApparatusTierLabel,
+                this::arsNouveauIngredientTooltip
+        );
+        arsNouveauApparatusCenterPreviewCell = canvas.centerPreviewCell();
+        arsNouveauApparatusOutputPreviewCell = canvas.outputPreviewCell();
+        return canvas.root();
     }
 
     private UIElement createArsNouveauImbuementCanvas() {
         configureIngredientSlot(arsNouveauImbuementInputSlot, 0);
         configureResultSlot(arsNouveauImbuementResultSlot);
-        arsNouveauImbuementDefaultCenterIcon.layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(94);
-            layout.top(84);
-            layout.width(32);
-            layout.height(32);
-        }).style(style -> style
+        arsNouveauImbuementDefaultCenterIcon.style(style -> style
                 .backgroundTexture(new ItemStackTexture(new ItemStack(itemFromRegistry("ars_nouveau:imbuement_chamber", Items.ENCHANTING_TABLE))))
                 .tooltips(Component.translatable("block.ars_nouveau.imbuement_chamber")));
         arsNouveauImbuementSourceLabel.textStyle(style -> style
                 .textColor(ColorPattern.WHITE.color)
                 .textWrap(TextWrap.HOVER_ROLL));
-        arsNouveauImbuementSourceLabel.layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(20);
-            layout.top(178);
-            layout.width(176);
-            layout.height(18);
-        });
-
-        var panel = new UIElement().layout(layout -> {
-            layout.width(228);
-            layout.height(216);
-            layout.positionType(TaffyPosition.RELATIVE);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        panel.addChildren(
-                createArsNouveauImbuementIngredientCell(0, arsNouveauImbuementInputSlot, 98, 88),
-                arsNouveauImbuementDefaultCenterIcon,
-                createArsNouveauImbuementResultCell(),
-                arsNouveauImbuementSourceLabel
-        );
-        var pedestalPositions = new int[][]{
-                {98, 28},
-                {150, 122},
-                {46, 122}
-        };
         for (int i = 0; i < arsNouveauImbuementPedestalSlots.length; i++) {
             var slot = createIngredientSlot(SLOT_SIZE);
             configureIngredientSlot(slot, i + 1);
             arsNouveauImbuementPedestalSlots[i] = slot;
-            var position = pedestalPositions[i];
-            var cell = createArsNouveauImbuementIngredientCell(i + 1, slot, position[0], position[1]);
-            arsNouveauImbuementPedestalSlotCells[i] = cell;
-            panel.addChild(cell);
         }
 
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(panel);
+        return ArsNouveauCanvasFactory.createImbuementCanvas(
+                arsNouveauImbuementInputSlot,
+                arsNouveauImbuementPedestalSlots,
+                arsNouveauImbuementPedestalSlotCells,
+                arsNouveauImbuementDefaultCenterIcon,
+                arsNouveauImbuementResultSlot,
+                arsNouveauImbuementSourceLabel,
+                this::arsNouveauIngredientTooltip
+        );
     }
 
     private UIElement createArsNouveauGlyphCanvas() {
         configureResultSlot(arsNouveauGlyphResultSlot);
-        arsNouveauGlyphWorkstationIcon.layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(98);
-            layout.top(88);
-            layout.width(32);
-            layout.height(32);
-        }).style(style -> style
+        arsNouveauGlyphWorkstationIcon.style(style -> style
                 .backgroundTexture(new ItemStackTexture(controller.selectedArsNouveauWorkstationStack()))
                 .tooltips(Component.translatable("block.ars_nouveau.scribes_table")));
         arsNouveauGlyphExpLabel.textStyle(style -> style
                 .textAlignHorizontal(Horizontal.LEFT)
                 .textColor(ColorPattern.BLACK.color)
                 .textWrap(TextWrap.HOVER_ROLL));
-        arsNouveauGlyphExpLabel.layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(20);
-            layout.top(178);
-            layout.width(176);
-            layout.height(18);
-        });
-        var panel = new UIElement().layout(layout -> {
-            layout.width(228);
-            layout.height(216);
-            layout.positionType(TaffyPosition.RELATIVE);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER));
-        panel.addChild(arsNouveauGlyphWorkstationIcon);
-        panel.addChild(createArsNouveauGlyphResultCell());
-        panel.addChild(arsNouveauGlyphExpLabel);
-
-        var inputPositions = new int[][]{
-                {98, 28},
-                {137, 42},
-                {158, 78},
-                {151, 122},
-                {124, 148},
-                {80, 148},
-                {49, 122},
-                {39, 78},
-                {59, 42}
-        };
         for (int i = 0; i < arsNouveauGlyphIngredientSlots.length; i++) {
             var slot = createIngredientSlot(SLOT_SIZE);
             configureIngredientSlot(slot, i);
             configureFloatingIngredientSlot(slot);
             arsNouveauGlyphIngredientSlots[i] = slot;
-            var position = inputPositions[i];
-            var cell = createArsNouveauGlyphIngredientCell(i, slot, position[0], position[1]);
-            arsNouveauGlyphIngredientSlotCells[i] = cell;
-            panel.addChild(cell);
         }
 
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(panel);
-    }
-
-    private UIElement createArsNouveauGlyphIngredientCell(int index, IngredientDisplaySlot slot, int left, int top) {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(SLOT_SIZE);
-            layout.height(SLOT_SIZE);
-        }).style(style -> style.tooltips(Component.translatable(
-                "viscript_recipe.editor.ars_nouveau.ingredient_slot",
-                controller.arsNouveauInputSlotName(index)
-        ))).addChild(slot);
-    }
-
-    private UIElement createArsNouveauGlyphResultCell() {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(170);
-            layout.top(24);
-            layout.width(OUTPUT_SLOT_SIZE);
-            layout.height(OUTPUT_SLOT_SIZE);
-        }).addChild(arsNouveauGlyphResultSlot);
+        return ArsNouveauCanvasFactory.createGlyphCanvas(
+                arsNouveauGlyphIngredientSlots,
+                arsNouveauGlyphIngredientSlotCells,
+                arsNouveauGlyphWorkstationIcon,
+                arsNouveauGlyphResultSlot,
+                arsNouveauGlyphExpLabel,
+                this::arsNouveauIngredientTooltip
+        );
     }
 
     private static void configureFloatingIngredientSlot(IngredientDisplaySlot slot) {
@@ -1500,96 +758,26 @@ public class CraftingWorkbenchView extends View {
         slot.slotStyle(style -> style.slotOverlay(IGuiTexture.EMPTY));
     }
 
-    private UIElement createArsNouveauImbuementIngredientCell(int index, IngredientDisplaySlot slot, int left, int top) {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(SLOT_SIZE);
-            layout.height(SLOT_SIZE);
-        }).style(style -> style.tooltips(Component.translatable(
-                "viscript_recipe.editor.ars_nouveau.ingredient_slot",
-                controller.arsNouveauInputSlotName(index)
-        ))).addChild(slot);
-    }
-
-    private UIElement createArsNouveauImbuementResultCell() {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(170);
-            layout.top(24);
-            layout.width(OUTPUT_SLOT_SIZE);
-            layout.height(OUTPUT_SLOT_SIZE);
-        }).addChild(arsNouveauImbuementResultSlot);
-    }
-
     private UIElement createArsNouveauCrushCanvas() {
         configureIngredientSlot(arsNouveauCrushInputSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.ars_nouveau.input")),
-                        arsNouveauCrushInputSlot
-                ),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(96);
-                    layout.height(104);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createItemIcon(new ItemStack(itemFromRegistry("ars_nouveau:glyph_crush", Items.IRON_PICKAXE)), 82)),
-                createRightArrowElement(34, 20),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(SLOT_SIZE * 3 + 18);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.ars_nouveau.outputs")),
-                        createArsNouveauCrushOutputGrid()
-                )
+        for (int i = 0; i < arsNouveauCrushOutputSlots.length; i++) {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureArsNouveauOutputSlot(slot, i);
+            arsNouveauCrushOutputSlots[i] = slot;
+        }
+        return ArsNouveauCanvasFactory.createCrushCanvas(
+                arsNouveauCrushInputSlot,
+                createItemIcon(new ItemStack(itemFromRegistry("ars_nouveau:glyph_crush", Items.IRON_PICKAXE)), 82),
+                arsNouveauCrushOutputSlots,
+                arsNouveauCrushOutputSlotCells
         );
     }
 
-    private UIElement createArsNouveauCrushOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 14);
-            layout.height(SLOT_SIZE * 2 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureArsNouveauOutputSlot(slot, index);
-                arsNouveauCrushOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                arsNouveauCrushOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+    private Component arsNouveauIngredientTooltip(int index) {
+        return Component.translatable(
+                "viscript_recipe.editor.ars_nouveau.ingredient_slot",
+                controller.arsNouveauInputSlotName(index)
+        );
     }
 
     private UIElement createKaleidoscopePotCanvas() {
@@ -1598,12 +786,12 @@ public class CraftingWorkbenchView extends View {
         configureKaleidoscopeResultSlot(kaleidoscopePotResultSlot);
         configureKaleidoscopeInfoLabel(kaleidoscopePotStirFryLabel);
 
-        var panel = createKaleidoscopePanel("pot", 176, 102);
-        addKaleidoscopeGridSlots(panel, kaleidoscopePotIngredientSlots, 15, 24);
-        panel.addChild(createKaleidoscopeCell(kaleidoscopePotCarrierSlot, 133, 18));
-        panel.addChild(createKaleidoscopeCell(kaleidoscopePotResultSlot, 143, 60));
-        panel.addChild(createKaleidoscopeLabelCell(kaleidoscopePotStirFryLabel, 0, 85, 176, 12));
-        return centerKaleidoscopePanel(panel);
+        return KaleidoscopeCanvasFactory.createPotCanvas(
+                kaleidoscopePotIngredientSlots,
+                kaleidoscopePotCarrierSlot,
+                kaleidoscopePotResultSlot,
+                kaleidoscopePotStirFryLabel
+        );
     }
 
     private UIElement createKaleidoscopeStockpotCanvas() {
@@ -1611,41 +799,41 @@ public class CraftingWorkbenchView extends View {
         configureKaleidoscopeIngredientSlot(kaleidoscopeStockpotCarrierSlot, KALEIDOSCOPE_CARRIER_SLOT);
         configureKaleidoscopeResultSlot(kaleidoscopeStockpotResultSlot);
 
-        var panel = createKaleidoscopePanel("stockpot", 176, 102);
-        addKaleidoscopeGridSlots(panel, kaleidoscopeStockpotIngredientSlots, 15, 25);
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeStockpotCarrierSlot, 133, 18));
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeStockpotResultSlot, 143, 60));
-        return centerKaleidoscopePanel(panel);
+        return KaleidoscopeCanvasFactory.createStockpotCanvas(
+                kaleidoscopeStockpotIngredientSlots,
+                kaleidoscopeStockpotCarrierSlot,
+                kaleidoscopeStockpotResultSlot
+        );
     }
 
     private UIElement createKaleidoscopeMillstoneCanvas() {
         configureKaleidoscopeIngredientSlot(kaleidoscopeMillstoneInputSlot, 0);
         configureKaleidoscopeResultSlot(kaleidoscopeMillstoneResultSlot);
 
-        var panel = createKaleidoscopePanel("millstone", 176, 95);
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeMillstoneInputSlot, 69, 39));
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeMillstoneResultSlot, 146, 47));
-        return centerKaleidoscopePanel(panel);
+        return KaleidoscopeCanvasFactory.createMillstoneCanvas(
+                kaleidoscopeMillstoneInputSlot,
+                kaleidoscopeMillstoneResultSlot
+        );
     }
 
     private UIElement createKaleidoscopeChoppingBoardCanvas() {
         configureKaleidoscopeIngredientSlot(kaleidoscopeChoppingBoardInputSlot, 0);
         configureKaleidoscopeResultSlot(kaleidoscopeChoppingBoardResultSlot);
 
-        var panel = createKaleidoscopePanel("chopping_board", 176, 78);
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeChoppingBoardInputSlot, 38, 27));
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeChoppingBoardResultSlot, 128, 30));
-        return centerKaleidoscopePanel(panel);
+        return KaleidoscopeCanvasFactory.createChoppingBoardCanvas(
+                kaleidoscopeChoppingBoardInputSlot,
+                kaleidoscopeChoppingBoardResultSlot
+        );
     }
 
     private UIElement createKaleidoscopeSteamerCanvas() {
         configureKaleidoscopeIngredientSlot(kaleidoscopeSteamerInputSlot, 0);
         configureKaleidoscopeResultSlot(kaleidoscopeSteamerResultSlot);
 
-        var panel = createKaleidoscopePanel("steamer", 176, 78);
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeSteamerInputSlot, 38, 27));
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeSteamerResultSlot, 128, 30));
-        return centerKaleidoscopePanel(panel);
+        return KaleidoscopeCanvasFactory.createSteamerCanvas(
+                kaleidoscopeSteamerInputSlot,
+                kaleidoscopeSteamerResultSlot
+        );
     }
 
     private UIElement createKaleidoscopeTeapotCanvas() {
@@ -1654,12 +842,12 @@ public class CraftingWorkbenchView extends View {
         configureKaleidoscopeResultSlot(kaleidoscopeTeapotResultSlot);
         configureKaleidoscopeInfoLabel(kaleidoscopeTeapotTimeLabel);
 
-        var panel = createKaleidoscopePanel("teapot", 176, 78);
-        panel.addChild(createKaleidoscopeSlotBackgroundCell(kaleidoscopeTeapotFluidBucketSlot, 65, 3));
-        panel.addChild(createKaleidoscopeSlotBackgroundCell(kaleidoscopeTeapotInputSlot, 83, 3));
-        panel.addChild(createKaleidoscopeCell(kaleidoscopeTeapotResultSlot, 128, 30));
-        panel.addChild(createKaleidoscopeLabelCell(kaleidoscopeTeapotTimeLabel, 0, 70, 176, 10));
-        return centerKaleidoscopePanel(panel);
+        return KaleidoscopeCanvasFactory.createTeapotCanvas(
+                kaleidoscopeTeapotFluidBucketSlot,
+                kaleidoscopeTeapotInputSlot,
+                kaleidoscopeTeapotResultSlot,
+                kaleidoscopeTeapotTimeLabel
+        );
     }
 
     private void configureKaleidoscopeGridSlots(IngredientDisplaySlot[] slots) {
@@ -1667,16 +855,6 @@ public class CraftingWorkbenchView extends View {
             var slot = createIngredientSlot(JEI_SLOT_SIZE);
             configureKaleidoscopeIngredientSlot(slot, i);
             slots[i] = slot;
-        }
-    }
-
-    private void addKaleidoscopeGridSlots(UIElement panel, IngredientDisplaySlot[] slots, int left, int top) {
-        for (int i = 0; i < slots.length; i++) {
-            panel.addChild(createKaleidoscopeCell(
-                    slots[i],
-                    left + (i % 3) * JEI_SLOT_SIZE,
-                    top + (i / 3) * JEI_SLOT_SIZE
-            ));
         }
     }
 
@@ -1717,70 +895,10 @@ public class CraftingWorkbenchView extends View {
                 .textWrap(TextWrap.HOVER_ROLL));
     }
 
-    private static UIElement createKaleidoscopePanel(String texturePath, int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-            layout.positionType(TaffyPosition.RELATIVE);
-        }).style(style -> style.backgroundTexture(kaleidoscopeJeiTexture(texturePath, width, height)));
-    }
-
-    private static IGuiTexture kaleidoscopeJeiTexture(String path, int width, int height) {
-        return SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
-                "kaleidoscope_cookery",
-                "textures/gui/jei/" + path + ".png"
-        )).setSprite(0, 0, width, height);
-    }
-
-    private static UIElement centerKaleidoscopePanel(UIElement panel) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(panel);
-    }
-
-    private static UIElement createKaleidoscopeCell(UIElement slot, int left, int top) {
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(JEI_SLOT_SIZE);
-            layout.height(JEI_SLOT_SIZE);
-        }).addChild(slot);
-    }
-
-    private static UIElement createKaleidoscopeSlotBackgroundCell(UIElement slot, int left, int top) {
-        return createKaleidoscopeCell(slot, left, top)
-                .style(style -> style.backgroundTexture(ItemSlot.ITEM_SLOT_TEXTURE));
-    }
-
-    private static UIElement createKaleidoscopeLabelCell(Label label, int left, int top, int width, int height) {
-        label.layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-        });
-        return new UIElement().layout(layout -> {
-            layout.positionType(TaffyPosition.ABSOLUTE);
-            layout.left(left);
-            layout.top(top);
-            layout.width(width);
-            layout.height(height);
-        }).addChild(label);
-    }
-
     private UIElement createGenericCreateProcessingCanvas() {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(14);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return CreateProcessingCanvasFactory.createGenericProcessingCanvas(
                 createCreateInputSide(),
                 createCreateMachineColumn(),
-                createArrowElement(),
                 createCreateOutputSide()
         );
     }
@@ -1789,56 +907,10 @@ public class CraftingWorkbenchView extends View {
         configureIngredientSlot(createSpoutIngredientSlot, 0);
         configureCreateFluidInputSlot(createSpoutFluidInputSlot, 0);
         configureCreateOutputSlot(createSpoutOutputSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(34);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateSpoutInputStack(),
-                createCreateSpoutMachineStack(),
-                createCreateSpoutOutputStack()
-        );
-    }
-
-    private UIElement createCreateSpoutInputStack() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(60);
-            layout.height(128);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateFramedSlot(createSpoutFluidInputSlot, 42),
-                createCreateFramedSlot(createSpoutIngredientSlot, 42)
-        );
-    }
-
-    private UIElement createCreateSpoutMachineStack() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(132);
-            layout.height(168);
-            layout.gapAll(5);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createItemIcon(new ItemStack(itemFromRegistry("create:spout", Items.CRAFTING_TABLE)), 78),
-                createDownArrowElement(18, 18),
-                createItemIcon(new ItemStack(itemFromRegistry("create:depot", Items.CAULDRON)), 70)
-        );
-    }
-
-    private UIElement createCreateSpoutOutputStack() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(70);
-            layout.height(128);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createDownArrowElement(30, 36),
-                createCreateFramedSlot(createSpoutOutputSlot, 44)
+        return CreateProcessingCanvasFactory.createSpoutCanvas(
+                createSpoutFluidInputSlot,
+                createSpoutIngredientSlot,
+                createSpoutOutputSlot
         );
     }
 
@@ -1846,76 +918,20 @@ public class CraftingWorkbenchView extends View {
         configureIngredientSlot(createDrainIngredientSlot, 0);
         configureCreateFluidOutputSlot(createDrainFluidOutputSlot, 0);
         configureCreateOutputSlot(createDrainOutputSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(44);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateFramedSlot(createDrainIngredientSlot, 46),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(132);
-                    layout.height(130);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createItemIcon(new ItemStack(itemFromRegistry("create:item_drain", Items.CAULDRON)), 92)),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(56);
-                    layout.height(112);
-                    layout.gapAll(8);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createCreateFramedSlot(createDrainFluidOutputSlot, 46),
-                        createCreateFramedSlot(createDrainOutputSlot, 46)
-                )
+        return CreateProcessingCanvasFactory.createDrainCanvas(
+                createDrainIngredientSlot,
+                createDrainFluidOutputSlot,
+                createDrainOutputSlot
         );
     }
 
     private UIElement createCreateFramedSlot(UIElement slot, int size) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.width(size);
-            layout.height(size);
-            layout.paddingAll(Math.max(0, (size - 30) / 2));
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
-                .addChild(slot);
+        return CreateProcessingCanvasFactory.framedSlot(slot, size);
     }
 
     private UIElement createCreateFanCanvas() {
         configureIngredientSlot(createFanIngredientSlot, 0);
         configureCreateOutputSlot(createFanSingleOutputSlot, 0);
-        createFanSingleOutputPanel = createCreateFanSingleOutputPanel();
-        createFanMultiOutputPanel = createCreateFanMultiOutputPanel();
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.create.item_inputs")),
-                        createFanIngredientSlot
-                ),
-                createCreateFanMachinePanel(),
-                createRightArrowElement(40, 20),
-                createFanSingleOutputPanel,
-                createFanMultiOutputPanel
-        );
-    }
-
-    private UIElement createCreateFanMachinePanel() {
-        createFanCatalystIcon.layout(layout -> {
-            layout.width(34);
-            layout.height(34);
-        });
         createFanCatalystLabel.textStyle(style -> style
                 .textAlignHorizontal(Horizontal.CENTER)
                 .textColor(ColorPattern.WHITE.color)
@@ -1924,379 +940,141 @@ public class CraftingWorkbenchView extends View {
             layout.widthPercent(100);
             layout.height(18);
         });
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(126);
-            layout.height(106);
-            layout.paddingAll(6);
-            layout.gapAll(5);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
-                .addChildren(
-                        RecipeEditorUi.row().layout(layout -> {
-                            layout.widthPercent(100);
-                            layout.height(56);
-                            layout.gapAll(5);
-                            layout.alignItems(AlignItems.CENTER);
-                            layout.justifyContent(AlignContent.CENTER);
-                        }).addChildren(
-                                createItemIcon(new ItemStack(itemFromRegistry("create:encased_fan", Items.CRAFTING_TABLE)), 52),
-                                createFanCatalystIcon
-                        ),
-                        createFanCatalystLabel
-                );
-    }
-
-    private UIElement createCreateFanSingleOutputPanel() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(82);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(
-                RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.result")),
-                createFanSingleOutputSlot
-        );
-    }
-
-    private UIElement createCreateFanMultiOutputPanel() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 20);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(
-                RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.create.outputs")),
+        var canvas = CreateProcessingCanvasFactory.createFanCanvas(
+                createFanIngredientSlot,
+                createFanCatalystIcon,
+                createFanCatalystLabel,
+                createFanSingleOutputSlot,
                 createCreateFanOutputGrid()
         );
+        createFanSingleOutputPanel = canvas.singleOutputPanel();
+        createFanMultiOutputPanel = canvas.multiOutputPanel();
+        return canvas.root();
     }
 
     private UIElement createCreateFanOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 4 + 14);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 4; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createFanOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createFanOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(3, 4, SLOT_SIZE, true, null, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCreateOutputSlot(slot, index);
+            createFanOutputSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createFanOutputSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreateCrushingCanvas() {
         configureIngredientSlot(createCrushingIngredientSlot, 0);
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(2);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        createCrushingIngredientSlot,
-                        createDownArrowElement(18, 24)
-                ),
-                RecipeEditorUi.row().layout(layout -> {
-                    layout.width(148);
-                    layout.height(72);
-                    layout.gapAll(0);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createItemIcon(new ItemStack(itemFromRegistry("create:crushing_wheel", Items.CRAFTING_TABLE)), 72),
-                        createItemIcon(new ItemStack(itemFromRegistry("create:crushing_wheel", Items.CRAFTING_TABLE)), 72)
-                ),
+        return CreateProcessingCanvasFactory.createCrushingCanvas(
+                createCrushingIngredientSlot,
                 createCreateCrushingOutputRow()
         );
     }
 
     private UIElement createCreateCrushingOutputRow() {
-        var row = RecipeEditorUi.row().layout(layout -> {
-            layout.width(SLOT_SIZE * createCrushingOutputSlots.length + 20);
-            layout.height(SLOT_SIZE + 8);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int i = 0; i < createCrushingOutputSlots.length; i++) {
+        return RecipeGridFactory.borderedRow(createCrushingOutputSlots.length, SLOT_SIZE, i -> {
             var slot = createEditorSlot(SLOT_SIZE);
             configureCreateOutputSlot(slot, i);
             createCrushingOutputSlots[i] = slot;
-            var cell = new UIElement().layout(layout -> {
-                layout.width(SLOT_SIZE);
-                layout.height(SLOT_SIZE);
-            }).addChild(slot);
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
             createCrushingOutputSlotCells[i] = cell;
-            row.addChild(cell);
-        }
-        return row;
+            return cell;
+        });
     }
 
     private UIElement createCreateMillingCanvas() {
         configureIngredientSlot(createMillingIngredientSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(64);
-                    layout.height(124);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createMillingIngredientSlot
-                ),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(96);
-                    layout.height(124);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createItemIcon(new ItemStack(itemFromRegistry("create:millstone", Items.CRAFTING_TABLE)), 86)
-                ),
-                createRightArrowElement(34, 22),
+        return CreateProcessingCanvasFactory.createMillingCanvas(
+                createMillingIngredientSlot,
                 createCreateMillingOutputRow()
         );
     }
 
     private UIElement createCreateMillingOutputRow() {
-        var row = RecipeEditorUi.row().layout(layout -> {
-            layout.width(SLOT_SIZE * createMillingOutputSlots.length + 14);
-            layout.height(SLOT_SIZE + 8);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int i = 0; i < createMillingOutputSlots.length; i++) {
+        return RecipeGridFactory.borderedRow(createMillingOutputSlots.length, SLOT_SIZE, i -> {
             var slot = createEditorSlot(SLOT_SIZE);
             configureCreateOutputSlot(slot, i);
             createMillingOutputSlots[i] = slot;
-            var cell = new UIElement().layout(layout -> {
-                layout.width(SLOT_SIZE);
-                layout.height(SLOT_SIZE);
-            }).addChild(slot);
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
             createMillingOutputSlotCells[i] = cell;
-            row.addChild(cell);
-        }
-        return row;
+            return cell;
+        });
     }
 
     private UIElement createCreateSawCanvas() {
         configureIngredientSlot(createSawIngredientSlot, 0);
         createSawOutputGrid = createCreateSawOutputGrid();
         createBlockCuttingOutputGrid = createCreateBlockCuttingOutputGrid();
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(14);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(56);
-                    layout.height(112);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createSawIngredientSlot),
-                createChevronLabel(),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(110);
-                    layout.height(112);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createItemIcon(new ItemStack(itemFromRegistry("create:mechanical_saw", Items.CRAFTING_TABLE)), 96)),
-                createChevronLabel(),
+        return CreateProcessingCanvasFactory.createSawCanvas(
+                createSawIngredientSlot,
                 createSawOutputGrid,
                 createBlockCuttingOutputGrid
         );
     }
 
     private UIElement createCreateSawOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 2 + 10);
-            layout.height(SLOT_SIZE * 2 + 10);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            for (int col = 0; col < 2; col++) {
-                var index = row * 2 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createSawOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createSawOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            createSawOutputRows[row] = rowElement;
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE, true, createSawOutputRows, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCreateOutputSlot(slot, index);
+            createSawOutputSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createSawOutputSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreateBlockCuttingOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * BLOCK_CUTTING_OUTPUT_COLUMNS + 16);
-            layout.height(SLOT_SIZE * BLOCK_CUTTING_OUTPUT_ROWS + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < BLOCK_CUTTING_OUTPUT_ROWS; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            for (int col = 0; col < BLOCK_CUTTING_OUTPUT_COLUMNS; col++) {
-                var index = row * BLOCK_CUTTING_OUTPUT_COLUMNS + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createBlockCuttingOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createBlockCuttingOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            createBlockCuttingOutputRows[row] = rowElement;
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(
+                BLOCK_CUTTING_OUTPUT_COLUMNS,
+                BLOCK_CUTTING_OUTPUT_ROWS,
+                SLOT_SIZE,
+                true,
+                createBlockCuttingOutputRows,
+                (index, row, col) -> {
+                    var slot = createEditorSlot(SLOT_SIZE);
+                    configureCreateOutputSlot(slot, index);
+                    createBlockCuttingOutputSlots[index] = slot;
+                    var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+                    createBlockCuttingOutputSlotCells[index] = cell;
+                    return cell;
+                }
+        );
     }
 
     private UIElement createCreateAutoPackingCanvas() {
         configureCreateOutputSlot(createAutoPackingOutputSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(24);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return CreateProcessingCanvasFactory.createAutoPackingCanvas(
                 createCreateAutoPackingInputGrid(),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(138);
-                    layout.height(146);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createItemIcon(new ItemStack(itemFromRegistry("create:mechanical_press", Items.CRAFTING_TABLE)), 96)),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.height(72);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
-                        .addChild(createAutoPackingOutputSlot)
+                createAutoPackingOutputSlot
         );
     }
 
     private UIElement createCreateSandpaperCanvas() {
         configureIngredientSlot(sandpaperIngredientSlot, 0);
         configureCreateOutputSlot(sandpaperOutputSlot, 0);
-        var machinePanel = RecipeEditorUi.column().layout(layout -> {
-            layout.width(142);
-            layout.height(118);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(createItemIcon(new ItemStack(itemFromRegistry("create:sand_paper", Items.PAPER)), 86));
-
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(24);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return CreateProcessingCanvasFactory.createSandpaperCanvas(
                 sandpaperIngredientSlot,
-                machinePanel,
-                createSandpaperArrowElement(),
                 sandpaperOutputSlot
         );
     }
 
     private UIElement createCreateAutoPackingInputGrid() {
-        createAutoPackingInputGrid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 3 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style
-                .backgroundTexture(Sprites.BORDER_DARK)
-                .tooltips(Component.translatable("viscript_recipe.editor.create.auto_packing.input_grid"))
-        );
+        createAutoPackingInputGrid = RecipeGridFactory.borderedGrid(
+                3,
+                3,
+                SLOT_SIZE,
+                true,
+                createAutoPackingIngredientRows,
+                (index, row, col) -> {
+                    var slot = createIngredientSlot(SLOT_SIZE);
+                    configureAutoPackingIngredientSlot(slot);
+                    createAutoPackingIngredientSlots[index] = slot;
+                    var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+                    createAutoPackingIngredientSlotCells[index] = cell;
+                    return cell;
+                }
+        ).style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.create.auto_packing.input_grid")));
         createAutoPackingInputGrid.addEventListener(UIEvents.MOUSE_DOWN, event -> controller.selectIngredientSlot(0));
-        for (int row = 0; row < 3; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            createAutoPackingIngredientRows[row] = rowElement;
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createIngredientSlot(SLOT_SIZE);
-                configureAutoPackingIngredientSlot(slot);
-                createAutoPackingIngredientSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createAutoPackingIngredientSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            createAutoPackingInputGrid.addChild(rowElement);
-        }
         return createAutoPackingInputGrid;
     }
 
@@ -2310,77 +1088,31 @@ public class CraftingWorkbenchView extends View {
             layout.widthPercent(100);
             layout.height(24);
         });
-        createPressHeatPanel = new UIElement().layout(layout -> {
-            layout.width(340);
-            layout.height(34);
-            layout.paddingAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
-                .addChild(createPressHeatLabel);
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(12);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.row().layout(layout -> {
-                    layout.widthPercent(100);
-                    layout.height(164);
-                    layout.gapAll(18);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(
-                        createCreatePressInputSide(),
-                        createCreatePressMachineStack(),
-                        createCreatePressOutputSide()
-                ),
+        createPressHeatPanel = CreateProcessingCanvasFactory.createPressHeatPanel(createPressHeatLabel);
+        return CreateProcessingCanvasFactory.createPressBasinCanvas(
+                createCreatePressInputSide(),
+                createCreatePressMachineStack(),
+                createCreatePressOutputSide(),
                 createPressHeatPanel
         );
     }
 
     private UIElement createCreatePressInputSide() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(120);
-            layout.gapAll(7);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return CreateProcessingCanvasFactory.createPressInputSide(
                 createCreatePressItemInputGrid(),
                 createCreatePressFluidInputs()
         );
     }
 
     private UIElement createCreatePressItemInputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 3 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 3; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            createPressIngredientRows[row] = rowElement;
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createIngredientSlot(SLOT_SIZE);
-                configureIngredientSlot(slot, index);
-                createPressIngredientSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createPressIngredientSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(3, 3, SLOT_SIZE, false, createPressIngredientRows, (index, row, col) -> {
+            var slot = createIngredientSlot(SLOT_SIZE);
+            configureIngredientSlot(slot, index);
+            createPressIngredientSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createPressIngredientSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreatePressFluidInputs() {
@@ -2411,68 +1143,25 @@ public class CraftingWorkbenchView extends View {
     }
 
     private UIElement createCreatePressMachineStack() {
-        createBasinMachineIcon.layout(layout -> {
-            layout.width(82);
-            layout.height(82);
-        });
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(118);
-            layout.height(158);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createBasinMachineIcon,
-                createItemIcon(new ItemStack(itemFromRegistry("create:basin", Items.CAULDRON)), 64)
-        );
+        return CreateProcessingCanvasFactory.createPressMachineStack(createBasinMachineIcon);
     }
 
     private UIElement createCreatePressOutputSide() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(118);
-            layout.gapAll(7);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createDownArrowElement(24, 28),
+        return CreateProcessingCanvasFactory.createPressOutputSide(
                 createCreatePressItemOutputs(),
                 createCreatePressFluidOutputs()
         );
     }
 
     private UIElement createCreatePressItemOutputs() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 2 + 10);
-            layout.height(SLOT_SIZE * 2 + 10);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            createPressOutputRows[row] = rowElement;
-            for (int col = 0; col < 2; col++) {
-                var index = row * 2 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createPressOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createPressOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE, true, createPressOutputRows, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCreateOutputSlot(slot, index);
+            createPressOutputSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createPressOutputSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreatePressFluidOutputs() {
@@ -2504,156 +1193,52 @@ public class CraftingWorkbenchView extends View {
 
     private UIElement createCreatePressingCanvas() {
         configureIngredientSlot(createPressingIngredientSlot, 0);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(62);
-                    layout.height(132);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createPressingIngredientSlot),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(138);
-                    layout.height(146);
-                    layout.gapAll(8);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(createItemIcon(new ItemStack(itemFromRegistry("create:mechanical_press", Items.CRAFTING_TABLE)), 96)),
+        return CreateProcessingCanvasFactory.createPressingCanvas(
+                createPressingIngredientSlot,
                 createCreatePressingOutputRow()
         );
     }
 
     private UIElement createCreatePressingOutputRow() {
-        var row = RecipeEditorUi.row().layout(layout -> {
-            layout.width(SLOT_SIZE * createPressingOutputSlots.length + 10);
-            layout.height(SLOT_SIZE + 8);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int i = 0; i < createPressingOutputSlots.length; i++) {
+        return RecipeGridFactory.borderedRow(createPressingOutputSlots.length, SLOT_SIZE, i -> {
             var slot = createEditorSlot(SLOT_SIZE);
             configureCreateOutputSlot(slot, i);
             createPressingOutputSlots[i] = slot;
-            var cell = new UIElement().layout(layout -> {
-                layout.width(SLOT_SIZE);
-                layout.height(SLOT_SIZE);
-            }).addChild(slot);
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
             createPressingOutputSlotCells[i] = cell;
-            row.addChild(cell);
-        }
-        return row;
+            return cell;
+        });
     }
 
     private UIElement createCreateDeployerCanvas() {
         configureIngredientSlot(createDeployerProcessedSlot, 0);
         configureIngredientSlot(createDeployerHeldSlot, 1);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateDeployerInputStack(),
-                createCreateDeployerMachineStack(),
-                createRightArrowElement(40, 20),
+        return CreateProcessingCanvasFactory.createDeployerCanvas(
+                createDeployerHeldSlot,
+                createDeployerProcessedSlot,
                 createCreateDeployerOutputGrid()
         );
     }
 
-    private UIElement createCreateDeployerInputStack() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(56);
-            layout.height(132);
-            layout.gapAll(10);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateFramedSlot(createDeployerHeldSlot, 46),
-                createCreateFramedSlot(createDeployerProcessedSlot, 46)
-        );
-    }
-
-    private UIElement createCreateDeployerMachineStack() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(132);
-            layout.height(154);
-            layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createItemIcon(new ItemStack(itemFromRegistry("create:deployer", Items.CRAFTING_TABLE)), 76),
-                createDownArrowElement(18, 20),
-                createItemIcon(new ItemStack(itemFromRegistry("create:depot", Items.CAULDRON)), 64)
-        );
-    }
-
     private UIElement createCreateDeployerOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 2 + 10);
-            layout.height(SLOT_SIZE * 2 + 10);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            createDeployerOutputRows[row] = rowElement;
-            for (int col = 0; col < 2; col++) {
-                var index = row * 2 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createDeployerOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createDeployerOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE, true, createDeployerOutputRows, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCreateOutputSlot(slot, index);
+            createDeployerOutputSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createDeployerOutputSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreateManualApplicationCanvas() {
         configureIngredientSlot(createManualApplicationBlockSlot, 0);
         configureIngredientSlot(createManualApplicationHeldSlot, 1);
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(22);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                createCreateManualApplicationBlockInput(),
+        return CreateProcessingCanvasFactory.createManualApplicationCanvas(
+                createManualApplicationBlockSlot,
                 createCreateManualApplicationProcessStack(),
-                createManualApplicationArrowElement(),
                 createCreateManualApplicationOutputGrid()
         );
-    }
-
-    private UIElement createCreateManualApplicationBlockInput() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(60);
-            layout.height(132);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChild(createCreateFramedSlot(createManualApplicationBlockSlot, 54));
     }
 
     private UIElement createCreateManualApplicationProcessStack() {
@@ -2688,80 +1273,32 @@ public class CraftingWorkbenchView extends View {
     }
 
     private UIElement createCreateManualApplicationOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 2 + 10);
-            layout.height(SLOT_SIZE * 2 + 10);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 2; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-                layout.alignItems(AlignItems.CENTER);
-                layout.justifyContent(AlignContent.CENTER);
-            });
-            createManualApplicationOutputRows[row] = rowElement;
-            for (int col = 0; col < 2; col++) {
-                var index = row * 2 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createManualApplicationOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createManualApplicationOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE, true, createManualApplicationOutputRows, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCreateOutputSlot(slot, index);
+            createManualApplicationOutputSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createManualApplicationOutputSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreateInputSide() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(128);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(
-                RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.create.item_inputs")),
+        return CreateProcessingCanvasFactory.createInputSide(
                 createCreateItemInputGrid(),
                 createCreateFluidInputs()
         );
     }
 
     private UIElement createCreateItemInputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 3 + 12);
-            layout.height(SLOT_SIZE * 3 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 3; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            for (int col = 0; col < 3; col++) {
-                var index = row * 3 + col;
-                var slot = createIngredientSlot(SLOT_SIZE);
-                configureIngredientSlot(slot, index);
-                createIngredientSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createIngredientSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(3, 3, SLOT_SIZE, (index, row, col) -> {
+            var slot = createIngredientSlot(SLOT_SIZE);
+            configureIngredientSlot(slot, index);
+            createIngredientSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createIngredientSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreateFluidInputs() {
@@ -2803,57 +1340,25 @@ public class CraftingWorkbenchView extends View {
             layout.width(86);
             layout.height(18);
         });
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(92);
-            layout.height(80);
-            layout.paddingAll(6);
-            layout.gapAll(5);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
-                .addChildren(createMachineIcon, createMachineLabel);
+        return CreateProcessingCanvasFactory.createMachineColumn(createMachineIcon, createMachineLabel);
     }
 
     private UIElement createCreateOutputSide() {
-        return RecipeEditorUi.column().layout(layout -> {
-            layout.width(156);
-            layout.gapAll(8);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(
-                RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.create.outputs")),
+        return CreateProcessingCanvasFactory.createOutputSide(
                 createCreateItemOutputGrid(),
                 createCreateFluidOutputs()
         );
     }
 
     private UIElement createCreateItemOutputGrid() {
-        var grid = RecipeEditorUi.column().layout(layout -> {
-            layout.width(SLOT_SIZE * 4 + 14);
-            layout.height(SLOT_SIZE * 3 + 12);
-            layout.paddingAll(4);
-            layout.gapAll(2);
-        }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
-        for (int row = 0; row < 3; row++) {
-            var rowElement = RecipeEditorUi.row().layout(layout -> {
-                layout.widthPercent(100);
-                layout.height(SLOT_SIZE);
-                layout.gapAll(2);
-            });
-            for (int col = 0; col < 4; col++) {
-                var index = row * 4 + col;
-                var slot = createEditorSlot(SLOT_SIZE);
-                configureCreateOutputSlot(slot, index);
-                createOutputSlots[index] = slot;
-                var cell = new UIElement().layout(layout -> {
-                    layout.width(SLOT_SIZE);
-                    layout.height(SLOT_SIZE);
-                }).addChild(slot);
-                createOutputSlotCells[index] = cell;
-                rowElement.addChild(cell);
-            }
-            grid.addChild(rowElement);
-        }
-        return grid;
+        return RecipeGridFactory.borderedGrid(4, 3, SLOT_SIZE, (index, row, col) -> {
+            var slot = createEditorSlot(SLOT_SIZE);
+            configureCreateOutputSlot(slot, index);
+            createOutputSlots[index] = slot;
+            var cell = RecipeGridFactory.slotCell(slot, SLOT_SIZE);
+            createOutputSlotCells[index] = cell;
+            return cell;
+        });
     }
 
     private UIElement createCreateFluidOutputs() {
@@ -4388,53 +2893,11 @@ public class CraftingWorkbenchView extends View {
         return label;
     }
 
-    private static Label createChevronLabel() {
-        Label label = RecipeEditorUi.label(Component.literal(">"));
-        label.textStyle(style -> style.fontSize(22).textColor(ColorPattern.GRAY.color));
-        label.layout(layout -> layout.width(18).height(24));
-        return label;
-    }
-
-    private static UIElement createRightArrowElement(int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-        }).style(style -> style.backgroundTexture(Icons.DOWN_ARROW_NO_BAR.copy().rotate(-90)));
-    }
-
-    private static UIElement createSandpaperArrowElement() {
-        return new UIElement().layout(layout -> {
-            layout.width(28);
-            layout.height(28);
-        }).style(style -> style.backgroundTexture(Icons.DOWN_ARROW_NO_BAR.copy().rotate(-90)));
-    }
-
-    private static UIElement createManualApplicationArrowElement() {
-        return new UIElement().layout(layout -> {
-            layout.width(28);
-            layout.height(28);
-        }).style(style -> style.backgroundTexture(Icons.DOWN_ARROW_NO_BAR.copy().rotate(-90)));
-    }
-
-    private static UIElement createUpArrowElement(int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-        }).style(style -> style.backgroundTexture(Icons.UP_ARROW_NO_BAR));
-    }
-
     private static UIElement createDownArrowElement(int width, int height) {
         return new UIElement().layout(layout -> {
             layout.width(width);
             layout.height(height);
         }).style(style -> style.backgroundTexture(Icons.DOWN_ARROW_NO_BAR));
-    }
-
-    private static UIElement createCounterClockwiseArrowElement(IGuiTexture texture, int width, int height) {
-        return new UIElement().layout(layout -> {
-            layout.width(width);
-            layout.height(height);
-        }).style(style -> style.backgroundTexture(texture.copy().rotate(-90)));
     }
 
     private static UIElement createArrowElement() {
@@ -4457,127 +2920,4 @@ public class CraftingWorkbenchView extends View {
         return item == null || item == Items.AIR ? fallback : item;
     }
 
-    private static class FluidDisplaySlot extends FluidSlot {
-        private FluidStack[] tagDisplayStacks = new FluidStack[0];
-        private int tagDisplayIndex;
-        private int tagDisplayTicks;
-
-        void setTagDisplayStacks(FluidStack[] stacks) {
-            if (stacks == null || stacks.length == 0) {
-                clearTagDisplayStacks();
-                return;
-            }
-            var copies = new FluidStack[stacks.length];
-            for (int i = 0; i < stacks.length; i++) {
-                copies[i] = stacks[i] == null ? FluidStack.EMPTY : stacks[i].copy();
-            }
-            if (sameStacks(tagDisplayStacks, copies)) {
-                return;
-            }
-            tagDisplayStacks = copies;
-            tagDisplayIndex = 0;
-            tagDisplayTicks = 0;
-            setFluid(tagDisplayStacks[0].copy(), false);
-        }
-
-        void clearTagDisplayStacks() {
-            if (tagDisplayStacks.length == 0) {
-                return;
-            }
-            tagDisplayStacks = new FluidStack[0];
-            tagDisplayIndex = 0;
-            tagDisplayTicks = 0;
-        }
-
-        @Override
-        public void screenTick() {
-            super.screenTick();
-            if (tagDisplayStacks.length <= 1) {
-                return;
-            }
-            tagDisplayTicks++;
-            if (tagDisplayTicks < 20) {
-                return;
-            }
-            tagDisplayTicks = 0;
-            tagDisplayIndex = (tagDisplayIndex + 1) % tagDisplayStacks.length;
-            setFluid(tagDisplayStacks[tagDisplayIndex].copy(), false);
-        }
-
-        private boolean sameStacks(FluidStack[] left, FluidStack[] right) {
-            return left.length == right.length && Arrays.equals(stackKeys(left), stackKeys(right));
-        }
-
-        private String[] stackKeys(FluidStack[] stacks) {
-            var keys = new String[stacks.length];
-            for (int i = 0; i < stacks.length; i++) {
-                var stack = stacks[i];
-                keys[i] = stack == null || stack.isEmpty()
-                        ? ""
-                        : stack.getFluidHolder().unwrapKey().map(Object::toString).orElse(stack.getFluid().toString()) + "#" + stack.getAmount();
-            }
-            return keys;
-        }
-    }
-
-    private static class IngredientDisplaySlot extends ItemSlot {
-        private ItemStack[] tagDisplayStacks = new ItemStack[0];
-        private int tagDisplayIndex;
-        private int tagDisplayTicks;
-
-        void setTagDisplayStacks(ItemStack[] stacks) {
-            if (stacks == null || stacks.length == 0) {
-                clearTagDisplayStacks();
-                return;
-            }
-            var copies = new ItemStack[stacks.length];
-            for (int i = 0; i < stacks.length; i++) {
-                copies[i] = stacks[i] == null ? ItemStack.EMPTY : stacks[i].copyWithCount(1);
-            }
-            if (sameStacks(tagDisplayStacks, copies)) {
-                return;
-            }
-            tagDisplayStacks = copies;
-            tagDisplayIndex = 0;
-            tagDisplayTicks = 0;
-            setItem(tagDisplayStacks[0].copy(), false);
-        }
-
-        void clearTagDisplayStacks() {
-            if (tagDisplayStacks.length == 0) {
-                return;
-            }
-            tagDisplayStacks = new ItemStack[0];
-            tagDisplayIndex = 0;
-            tagDisplayTicks = 0;
-        }
-
-        @Override
-        public void screenTick() {
-            super.screenTick();
-            if (tagDisplayStacks.length <= 1) {
-                return;
-            }
-            tagDisplayTicks++;
-            if (tagDisplayTicks < 20) {
-                return;
-            }
-            tagDisplayTicks = 0;
-            tagDisplayIndex = (tagDisplayIndex + 1) % tagDisplayStacks.length;
-            setItem(tagDisplayStacks[tagDisplayIndex].copy(), false);
-        }
-
-        private boolean sameStacks(ItemStack[] left, ItemStack[] right) {
-            return left.length == right.length && Arrays.equals(stackKeys(left), stackKeys(right));
-        }
-
-        private String[] stackKeys(ItemStack[] stacks) {
-            var keys = new String[stacks.length];
-            for (int i = 0; i < stacks.length; i++) {
-                var stack = stacks[i];
-                keys[i] = stack == null || stack.isEmpty() ? "" : stack.getItemHolder().unwrapKey().map(Object::toString).orElse(stack.getItem().toString());
-            }
-            return keys;
-        }
-    }
 }
