@@ -230,6 +230,7 @@ dependencies {
     implementation "maven.modrinth:iris:${iris_version}"
     implementation "maven.modrinth:lan-server-properties:${lsp_version}"
     implementation "maven.modrinth:jei:${jei_version}"
+    implementation "maven.modrinth:advanced-loot-info:${advanced_loot_info_version}"
 
     //plugin
     additionalRuntimeClasspath("dev.vfyjxf:mixin-hotswap-agent:1.1")

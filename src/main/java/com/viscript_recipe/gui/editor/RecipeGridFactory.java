@@ -4,6 +4,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
+import dev.vfyjxf.taffy.style.FlexWrap;
 
 import java.util.function.IntFunction;
 
@@ -53,11 +54,15 @@ final class RecipeGridFactory {
 
     static UIElement borderedRow(int slotCount, int slotSize, IntFunction<UIElement> cellFactory) {
         var row = RecipeEditorUi.row().layout(layout -> {
-            layout.width(gridDimension(slotCount, slotSize));
-            layout.height(slotSize + GRID_PADDING * 2);
+            layout.widthPercent(100);
+            layout.maxWidth(gridDimension(slotCount, slotSize));
+            layout.minWidth(0);
+            layout.minHeight(slotSize + GRID_PADDING * 2);
             layout.paddingAll(GRID_PADDING);
             layout.gapAll(GRID_GAP);
+            layout.flexWrap(FlexWrap.WRAP);
             layout.alignItems(AlignItems.CENTER);
+            layout.alignContent(AlignContent.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
         for (int i = 0; i < slotCount; i++) {

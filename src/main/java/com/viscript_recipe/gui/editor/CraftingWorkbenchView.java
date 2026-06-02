@@ -1256,11 +1256,15 @@ public class CraftingWorkbenchView extends View {
                 .setRenderedCore(List.of(BlockPos.ZERO))
                 .setZoom(1f)
                 .layout(layout -> {
-                    layout.width(174);
+                    layout.widthPercent(100);
+                    layout.maxWidth(174);
+                    layout.minWidth(0);
                     layout.height(136);
                 });
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(190);
+            layout.widthPercent(100);
+            layout.maxWidth(190);
+            layout.minWidth(0);
             layout.height(184);
             layout.gapAll(0);
             layout.alignItems(AlignItems.CENTER);

@@ -5,9 +5,11 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.lowdragmc.lowdraglib2.gui.ui.style.LayoutStyle;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
+import dev.vfyjxf.taffy.style.FlexWrap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +21,26 @@ final class CreateProcessingCanvasFactory {
     private CreateProcessingCanvasFactory() {
     }
 
+    private static UIElement responsiveRow(int gap) {
+        return RecipeEditorUi.row().layout(layout -> configureResponsiveRow(layout, gap));
+    }
+
+    private static void configureResponsiveRow(LayoutStyle layout, int gap) {
+        layout.widthPercent(100);
+        layout.flex(1);
+        layout.gapAll(gap);
+        layout.flexWrap(FlexWrap.WRAP);
+        layout.alignItems(AlignItems.CENTER);
+        layout.alignContent(AlignContent.CENTER);
+        layout.justifyContent(AlignContent.CENTER);
+    }
+
+    private static void boundedWidth(LayoutStyle layout, int maxWidth) {
+        layout.widthPercent(100);
+        layout.maxWidth(maxWidth);
+        layout.minWidth(0);
+    }
+
     static UIElement createProcessingStack(UIElement... canvases) {
         return RecipeEditorUi.column().layout(layout -> {
             layout.widthPercent(100);
@@ -27,18 +49,12 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createGenericProcessingCanvas(UIElement inputSide, UIElement machineColumn, UIElement outputSide) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(14);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(inputSide, machineColumn, arrowElement(), outputSide);
+        return responsiveRow(14).addChildren(inputSide, machineColumn, arrowElement(), outputSide);
     }
 
     static UIElement createInputSide(UIElement itemGrid, UIElement fluidInputs) {
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(128);
+            boundedWidth(layout, 128);
             layout.gapAll(8);
             layout.alignItems(AlignItems.CENTER);
         }).addChildren(
@@ -54,7 +70,7 @@ final class CreateProcessingCanvasFactory {
             layout.height(36);
         });
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(92);
+            boundedWidth(layout, 92);
             layout.height(80);
             layout.paddingAll(6);
             layout.gapAll(5);
@@ -66,7 +82,7 @@ final class CreateProcessingCanvasFactory {
 
     static UIElement createOutputSide(UIElement itemGrid, UIElement fluidOutputs) {
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(156);
+            boundedWidth(layout, 156);
             layout.gapAll(8);
             layout.alignItems(AlignItems.CENTER);
         }).addChildren(
@@ -77,15 +93,9 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createSpoutCanvas(UIElement fluidInputSlot, UIElement ingredientSlot, UIElement outputSlot) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(34);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(18).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(60);
+                    boundedWidth(layout, 60);
                     layout.height(128);
                     layout.gapAll(8);
                     layout.alignItems(AlignItems.CENTER);
@@ -95,7 +105,7 @@ final class CreateProcessingCanvasFactory {
                         framedSlot(ingredientSlot, 42)
                 ),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(132);
+                    boundedWidth(layout, 132);
                     layout.height(168);
                     layout.gapAll(5);
                     layout.alignItems(AlignItems.CENTER);
@@ -106,7 +116,7 @@ final class CreateProcessingCanvasFactory {
                         itemIcon(new ItemStack(itemFromRegistry("create:depot", Items.CAULDRON)), 70)
                 ),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(70);
+                    boundedWidth(layout, 70);
                     layout.height(128);
                     layout.gapAll(8);
                     layout.alignItems(AlignItems.CENTER);
@@ -119,22 +129,16 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createDrainCanvas(UIElement ingredientSlot, UIElement fluidOutputSlot, UIElement outputSlot) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(44);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(20).addChildren(
                 framedSlot(ingredientSlot, 46),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(132);
+                    boundedWidth(layout, 132);
                     layout.height(130);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:item_drain", Items.CAULDRON)), 92)),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(56);
+                    boundedWidth(layout, 56);
                     layout.height(112);
                     layout.gapAll(8);
                     layout.alignItems(AlignItems.CENTER);
@@ -148,7 +152,7 @@ final class CreateProcessingCanvasFactory {
 
     static FanCanvas createFanCanvas(UIElement ingredientSlot, UIElement catalystIcon, Label catalystLabel, UIElement singleOutputSlot, UIElement multiOutputGrid) {
         var singleOutputPanel = RecipeEditorUi.column().layout(layout -> {
-            layout.width(82);
+            boundedWidth(layout, 82);
             layout.gapAll(4);
             layout.alignItems(AlignItems.CENTER);
         }).addChildren(
@@ -156,7 +160,7 @@ final class CreateProcessingCanvasFactory {
                 singleOutputSlot
         );
         var multiOutputPanel = RecipeEditorUi.column().layout(layout -> {
-            layout.width(24 * 3 + 20);
+            boundedWidth(layout, 24 * 3 + 20);
             layout.gapAll(4);
             layout.alignItems(AlignItems.CENTER);
         }).addChildren(
@@ -168,7 +172,7 @@ final class CreateProcessingCanvasFactory {
             layout.height(34);
         });
         var machinePanel = RecipeEditorUi.column().layout(layout -> {
-            layout.width(126);
+            boundedWidth(layout, 126);
             layout.height(106);
             layout.paddingAll(6);
             layout.gapAll(5);
@@ -188,15 +192,9 @@ final class CreateProcessingCanvasFactory {
                         ),
                         catalystLabel
                 );
-        var root = RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        var root = responsiveRow(14).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
+                    boundedWidth(layout, 72);
                     layout.gapAll(4);
                     layout.alignItems(AlignItems.CENTER);
                 }).addChildren(
@@ -216,75 +214,66 @@ final class CreateProcessingCanvasFactory {
             layout.widthPercent(100);
             layout.flex(1);
             layout.gapAll(4);
+            layout.paddingAll(4);
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         }).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
+                    boundedWidth(layout, 72);
                     layout.gapAll(2);
                     layout.alignItems(AlignItems.CENTER);
                 }).addChildren(ingredientSlot, downArrow(18, 24)),
                 RecipeEditorUi.row().layout(layout -> {
-                    layout.width(148);
-                    layout.height(72);
+                    boundedWidth(layout, 120);
+                    layout.minHeight(58);
                     layout.gapAll(0);
+                    layout.flexWrap(FlexWrap.WRAP);
                     layout.alignItems(AlignItems.CENTER);
+                    layout.alignContent(AlignContent.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChildren(
-                        itemIcon(new ItemStack(itemFromRegistry("create:crushing_wheel", Items.CRAFTING_TABLE)), 72),
-                        itemIcon(new ItemStack(itemFromRegistry("create:crushing_wheel", Items.CRAFTING_TABLE)), 72)
+                        itemIcon(new ItemStack(itemFromRegistry("create:crushing_wheel", Items.CRAFTING_TABLE)), 58),
+                        itemIcon(new ItemStack(itemFromRegistry("create:crushing_wheel", Items.CRAFTING_TABLE)), 58)
                 ),
                 outputRow
         );
     }
 
     static UIElement createMillingCanvas(UIElement ingredientSlot, UIElement outputRow) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(12).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(64);
+                    boundedWidth(layout, 56);
                     layout.height(124);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChild(ingredientSlot),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(96);
+                    boundedWidth(layout, 84);
                     layout.height(124);
                     layout.gapAll(4);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:millstone", Items.CRAFTING_TABLE)), 86)),
-                rightArrow(34, 22),
+                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:millstone", Items.CRAFTING_TABLE)), 76)),
+                rightArrow(28, 20),
                 outputRow
         );
     }
 
     static UIElement createSawCanvas(UIElement ingredientSlot, UIElement sawOutputGrid, UIElement blockCuttingOutputGrid) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(14);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(8).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(56);
+                    boundedWidth(layout, 52);
                     layout.height(112);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChild(ingredientSlot),
                 chevronLabel(),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(110);
+                    boundedWidth(layout, 92);
                     layout.height(112);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:mechanical_saw", Items.CRAFTING_TABLE)), 96)),
+                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:mechanical_saw", Items.CRAFTING_TABLE)), 82)),
                 chevronLabel(),
                 sawOutputGrid,
                 blockCuttingOutputGrid
@@ -292,22 +281,16 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createAutoPackingCanvas(UIElement inputGrid, UIElement outputSlot) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(24);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(14).addChildren(
                 inputGrid,
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(138);
+                    boundedWidth(layout, 118);
                     layout.height(146);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:mechanical_press", Items.CRAFTING_TABLE)), 96)),
+                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:mechanical_press", Items.CRAFTING_TABLE)), 84)),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
+                    boundedWidth(layout, 72);
                     layout.height(72);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
@@ -317,46 +300,34 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createSandpaperCanvas(UIElement ingredientSlot, UIElement outputSlot) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(24);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(14).addChildren(
                 ingredientSlot,
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(142);
+                    boundedWidth(layout, 112);
                     layout.height(118);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:sand_paper", Items.PAPER)), 86)),
+                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:sand_paper", Items.PAPER)), 76)),
                 rightArrow(28, 28),
                 outputSlot
         );
     }
 
     static UIElement createPressingCanvas(UIElement ingredientSlot, UIElement outputRow) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(12).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(62);
+                    boundedWidth(layout, 56);
                     layout.height(132);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChild(ingredientSlot),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(138);
+                    boundedWidth(layout, 118);
                     layout.height(146);
                     layout.gapAll(8);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:mechanical_press", Items.CRAFTING_TABLE)), 96)),
+                }).addChild(itemIcon(new ItemStack(itemFromRegistry("create:mechanical_press", Items.CRAFTING_TABLE)), 84)),
                 outputRow
         );
     }
@@ -371,9 +342,11 @@ final class CreateProcessingCanvasFactory {
         }).addChildren(
                 RecipeEditorUi.row().layout(layout -> {
                     layout.widthPercent(100);
-                    layout.height(164);
+                    layout.minHeight(164);
                     layout.gapAll(18);
+                    layout.flexWrap(FlexWrap.WRAP);
                     layout.alignItems(AlignItems.CENTER);
+                    layout.alignContent(AlignContent.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChildren(inputSide, machineStack, outputSide),
                 heatPanel
@@ -382,7 +355,7 @@ final class CreateProcessingCanvasFactory {
 
     static UIElement createPressInputSide(UIElement itemInputs, UIElement fluidInputs) {
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(120);
+            boundedWidth(layout, 120);
             layout.gapAll(7);
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
@@ -395,7 +368,7 @@ final class CreateProcessingCanvasFactory {
             layout.height(82);
         });
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(118);
+            boundedWidth(layout, 118);
             layout.height(158);
             layout.gapAll(4);
             layout.alignItems(AlignItems.CENTER);
@@ -408,7 +381,7 @@ final class CreateProcessingCanvasFactory {
 
     static UIElement createPressOutputSide(UIElement itemOutputs, UIElement fluidOutputs) {
         return RecipeEditorUi.column().layout(layout -> {
-            layout.width(118);
+            boundedWidth(layout, 118);
             layout.gapAll(7);
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
@@ -421,8 +394,8 @@ final class CreateProcessingCanvasFactory {
 
     static UIElement createPressHeatPanel(UIElement heatLabel) {
         return new UIElement().layout(layout -> {
-            layout.width(340);
-            layout.height(34);
+            boundedWidth(layout, 340);
+            layout.minHeight(34);
             layout.paddingAll(4);
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
@@ -431,15 +404,9 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createDeployerCanvas(UIElement heldSlot, UIElement processedSlot, UIElement outputGrid) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(12).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(56);
+                    boundedWidth(layout, 56);
                     layout.height(132);
                     layout.gapAll(10);
                     layout.alignItems(AlignItems.CENTER);
@@ -449,7 +416,7 @@ final class CreateProcessingCanvasFactory {
                         framedSlot(processedSlot, 46)
                 ),
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(132);
+                    boundedWidth(layout, 112);
                     layout.height(154);
                     layout.gapAll(4);
                     layout.alignItems(AlignItems.CENTER);
@@ -465,15 +432,9 @@ final class CreateProcessingCanvasFactory {
     }
 
     static UIElement createManualApplicationCanvas(UIElement blockSlot, UIElement processStack, UIElement outputGrid) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(22);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
+        return responsiveRow(12).addChildren(
                 RecipeEditorUi.column().layout(layout -> {
-                    layout.width(60);
+                    boundedWidth(layout, 60);
                     layout.height(132);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);

@@ -2,6 +2,8 @@
 
 ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编辑与覆盖模组。它可以通过 LDLib2/ViScriptLib 的编辑器创建 `.recipe` 文件，并在游戏中把这些条目应用为新增、替换或移除配方。
 
+玩家使用教程见：[docs/wiki.md](docs/wiki.md)。
+
 联动配方只会在对应模组已安装时注册到编辑器中。下面的类型 ID 以代码中已注册的 `RecipeEditorType` 为准，可作为 `.recipe` 条目的 `type` 对照。
 
 ## 基本信息
