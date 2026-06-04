@@ -250,6 +250,8 @@ public class RecipeNavigationView extends View {
         }).addChildren(
                 dragHandle,
                 button.layout(layout -> layout.flex(1)),
+                RecipeEditorUi.iconButton(Icons.COPY, "viscript_recipe.editor.duplicate", event -> controller.duplicateEntry(entry))
+                        .layout(layout -> layout.width(20).height(22)),
                 RecipeEditorUi.iconButton(Icons.DELETE, "viscript_recipe.editor.delete", event -> controller.removeEntry(entry))
                         .layout(layout -> layout.width(20).height(22))
         );

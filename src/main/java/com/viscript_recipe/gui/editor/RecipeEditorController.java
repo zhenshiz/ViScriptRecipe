@@ -1,7 +1,9 @@
 package com.viscript_recipe.gui.editor;
 
+import com.lowdragmc.lowdraglib2.Platform;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IngredientValueKind;
+import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
@@ -264,6 +266,26 @@ public class RecipeEditorController {
         addWorkbenchEntry();
     }
 
+    public void duplicateEntry(RecipeEntry entry) {
+        if (entry == null) {
+            return;
+        }
+        var entries = recipeFile().getEntries();
+        var sourceIndex = entries.indexOf(entry);
+        if (sourceIndex < 0) {
+            return;
+        }
+        saveVisualStateToSelectedEntry();
+        var duplicate = copyEntry(entry)
+                .setRecipeId(nextDuplicateRecipeId(entry.getRecipeId()));
+        entries.add(sourceIndex + 1, duplicate);
+        selectedCategory = categoryOf(duplicate);
+        selectedEntry = duplicate;
+        slotSelection = WorkbenchSlotSelection.RECIPE;
+        loadSelectedEntryToVisualState();
+        notifyChanged();
+    }
+
     public void removeEntry(RecipeEntry entry) {
         var entries = recipeFile().getEntries();
         var removedIndex = entries.indexOf(entry);
@@ -279,6 +301,40 @@ public class RecipeEditorController {
             loadSelectedEntryToVisualState();
         }
         notifyChanged();
+    }
+
+    private RecipeEntry copyEntry(RecipeEntry source) {
+        RecipeDataAccessors.register();
+        var provider = Platform.getFrozenRegistry();
+        var copy = new RecipeEntry();
+        copy.deserializeNBT(provider, source.serializeNBT(provider).copy());
+        return copy;
+    }
+
+    private ResourceLocation nextDuplicateRecipeId(@Nullable ResourceLocation sourceId) {
+        var base = sourceId == null ? ViScriptRecipe.id("recipe") : sourceId;
+        var copyPath = base.getPath() + "_copy";
+        var candidate = ResourceLocation.fromNamespaceAndPath(base.getNamespace(), copyPath);
+        if (!recipeIdExists(candidate)) {
+            return candidate;
+        }
+        var index = 2;
+        while (true) {
+            candidate = ResourceLocation.fromNamespaceAndPath(base.getNamespace(), copyPath + "_" + index);
+            if (!recipeIdExists(candidate)) {
+                return candidate;
+            }
+            index++;
+        }
+    }
+
+    private boolean recipeIdExists(ResourceLocation recipeId) {
+        for (var entry : recipeFile().getEntries()) {
+            if (recipeId.equals(entry.getRecipeId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void reorderSelectedCategoryEntries(List<RecipeEntry> orderedEntries) {

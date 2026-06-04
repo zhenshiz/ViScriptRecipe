@@ -154,6 +154,7 @@
   "viscript_recipe.editor.entry_label": "%s. [%s] %s",
   "viscript_recipe.editor.select_entry": "选择这个配方条目",
   "viscript_recipe.editor.drag_reorder": "拖拽调整配方顺序",
+  "viscript_recipe.editor.duplicate": "复制到下方",
   "viscript_recipe.editor.delete": "删除",
   "viscript_recipe.editor.no_entry": "没有配方条目",
   "viscript_recipe.editor.status": "条目：%s / 启用：%s / %s",

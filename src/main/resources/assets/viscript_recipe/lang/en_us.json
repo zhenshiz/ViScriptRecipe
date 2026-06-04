@@ -154,6 +154,7 @@
   "viscript_recipe.editor.entry_label": "%s. [%s] %s",
   "viscript_recipe.editor.select_entry": "Select this recipe entry",
   "viscript_recipe.editor.drag_reorder": "Drag to reorder recipes",
+  "viscript_recipe.editor.duplicate": "Duplicate below",
   "viscript_recipe.editor.delete": "Delete",
   "viscript_recipe.editor.no_entry": "No recipe entry",
   "viscript_recipe.editor.status": "Entries: %s / Enabled: %s / %s",
