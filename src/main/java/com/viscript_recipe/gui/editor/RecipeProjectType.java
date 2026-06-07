@@ -6,7 +6,6 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.viscript_lib.gui.editor.EditorFileFormat;
 import com.viscript_lib.gui.editor.FunctionFileProjectType;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.data.RecipeFile;
 import com.viscript_recipe.recipe.RecipeAssetPaths;
 import net.minecraft.nbt.NbtIo;
@@ -29,7 +28,6 @@ public class RecipeProjectType extends FunctionFileProjectType {
 
     @Override
     public IProject loadProjectFromFile(File file) throws Exception {
-        RecipeDataAccessors.register();
         var tag = NbtIo.read(file.toPath());
         if (tag == null) {
             return null;
@@ -43,7 +41,6 @@ public class RecipeProjectType extends FunctionFileProjectType {
 
     @Override
     public void saveProjectToFile(IProject project, File file) throws Exception {
-        RecipeDataAccessors.register();
         var parent = file.toPath().getParent();
         if (parent != null) {
             Files.createDirectories(parent);

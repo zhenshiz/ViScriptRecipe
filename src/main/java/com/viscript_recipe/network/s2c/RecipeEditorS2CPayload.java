@@ -8,7 +8,6 @@ import com.lowdragmc.lowdraglib2.gui.holder.ModularUIScreen;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.gui.editor.RecipeProject;
 import com.viscript_recipe.recipe.RecipeAssetPaths;
 import net.minecraft.client.Minecraft;
@@ -31,7 +30,6 @@ public final class RecipeEditorS2CPayload {
             return;
         }
 
-        RecipeDataAccessors.register();
         var project = new RecipeProject();
         project.deserializeProject(Platform.getFrozenRegistry(), fileTag == null ? new CompoundTag() : fileTag);
         var file = RecipeAssetPaths.recipeDirectory().resolve(relativePath).normalize().toFile();

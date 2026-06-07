@@ -25,6 +25,7 @@ public final class RecipeOverrideManager {
     private static final Object LOCK = new Object();
     @Nullable
     private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> baseRecipes;
+    private static LinkedHashMap<ResourceLocation, ResourceLocation> lastAppliedRecipeTypes = new LinkedHashMap<>();
     private static ApplyResult lastResult = ApplyResult.empty();
 
     private RecipeOverrideManager() {
@@ -52,10 +53,21 @@ public final class RecipeOverrideManager {
         }
     }
 
+    public static List<ResourceLocation> recipeIdsForEditorType(ResourceLocation type) {
+        synchronized (LOCK) {
+            return lastAppliedRecipeTypes.entrySet()
+                    .stream()
+                    .filter(entry -> java.util.Objects.equals(entry.getValue(), type))
+                    .map(java.util.Map.Entry::getKey)
+                    .toList();
+        }
+    }
+
     private static ApplyResult applyOverrides(RecipeManager recipeManager, HolderLookup.Provider provider, LinkedHashMap<ResourceLocation, RecipeHolder<?>> base) {
         var loadedFiles = RecipeFileLoader.loadAll(provider);
         var showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();
         var recipes = showcaseOnly ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>() : new LinkedHashMap<>(base);
+        var appliedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
         var arcaneAnvilRecipes = new LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe>();
         var alchemistCauldronFluids = new ArrayList<FluidStack>();
 
@@ -76,7 +88,7 @@ public final class RecipeOverrideManager {
                     continue;
                 }
                 enabled++;
-                var entryResult = applyEntry(loaded.relativePath(), entry, recipes, arcaneAnvilRecipes, showcaseOnly);
+                var entryResult = applyEntry(loaded.relativePath(), entry, recipes, appliedRecipeTypes, arcaneAnvilRecipes, showcaseOnly);
                 if (entryResult == ApplyEntryResult.APPLIED) {
                     collectAlchemistCauldronRecipeFluids(entry, alchemistCauldronFluids);
                 }
@@ -91,6 +103,7 @@ public final class RecipeOverrideManager {
         IronArcaneAnvilOverrideManager.replaceAll(arcaneAnvilRecipes.values());
         IronAlchemistCauldronFluidSupport.replaceAll(alchemistCauldronFluids);
         recipeManager.replaceRecipes(recipes.values());
+        lastAppliedRecipeTypes = appliedRecipeTypes;
         lastResult = new ApplyResult(
                 loadedFiles.size(),
                 entries,
@@ -136,7 +149,7 @@ public final class RecipeOverrideManager {
         return snapshot;
     }
 
-    private static ApplyEntryResult applyEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes, boolean showcaseOnly) {
+    private static ApplyEntryResult applyEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes, LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes, boolean showcaseOnly) {
         if (entry.getRecipeId() == null) {
             ViScriptRecipe.LOGGER.warn("Skipping recipe entry with empty id in {}", source);
             return ApplyEntryResult.FAILED;
@@ -148,7 +161,7 @@ public final class RecipeOverrideManager {
             }
             return switch (entry.getOperation()) {
                 case REMOVE -> removeEntry(source, id, entry, recipes, showcaseOnly);
-                case ADD, REPLACE -> upsertEntry(source, entry, recipes, showcaseOnly);
+                case ADD, REPLACE -> upsertEntry(source, entry, recipes, appliedRecipeTypes, showcaseOnly);
             };
         } catch (Exception e) {
             ViScriptRecipe.LOGGER.error("Failed to apply recipe override {} from {}", id, source, e);
@@ -216,7 +229,7 @@ public final class RecipeOverrideManager {
         return ApplyEntryResult.APPLIED;
     }
 
-    private static ApplyEntryResult upsertEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, boolean showcaseOnly) {
+    private static ApplyEntryResult upsertEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes, boolean showcaseOnly) {
         var id = entry.getRecipeId();
         var holders = compileRecipeHolders(id, entry);
         if (holders.isEmpty()) {
@@ -231,6 +244,7 @@ public final class RecipeOverrideManager {
                 ViScriptRecipe.LOGGER.warn("Recipe override {} replaces missing recipe {}; adding it", source, holder.id());
             }
             recipes.put(holder.id(), holder);
+            appliedRecipeTypes.put(holder.id(), entry.getType());
         }
         return ApplyEntryResult.APPLIED;
     }

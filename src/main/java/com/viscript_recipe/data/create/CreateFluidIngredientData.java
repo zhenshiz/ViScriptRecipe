@@ -30,10 +30,16 @@ public class CreateFluidIngredientData implements IPersistedSerializable, IConfi
     @Configurable(name = "viscript_recipe.config.create.fluid_ingredient.amount")
     private int amount = 1000;
 
+    public static CreateFluidIngredientData empty() {
+        return fluid(FluidStack.EMPTY);
+    }
+
     public static CreateFluidIngredientData fluid(FluidStack stack) {
+        var fluid = stack == null ? FluidStack.EMPTY : stack.copy();
         return new CreateFluidIngredientData()
                 .setKind(CreateFluidIngredientKind.FLUID)
-                .setFluid(stack == null ? FluidStack.EMPTY : stack.copy());
+                .setFluid(fluid)
+                .setAmount(fluid.isEmpty() ? 0 : Math.max(1, fluid.getAmount()));
     }
 
     public CreateFluidIngredientData copy() {

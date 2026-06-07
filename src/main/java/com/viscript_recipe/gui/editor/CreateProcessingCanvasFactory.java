@@ -353,6 +353,77 @@ final class CreateProcessingCanvasFactory {
         );
     }
 
+    static UIElement createAutomaticBrewingCanvas(UIElement ingredientSlot, UIElement fluidInputSlot, UIElement fluidOutputSlot, UIElement heatPanel) {
+        return RecipeEditorUi.column().layout(layout -> {
+            layout.widthPercent(100);
+            layout.flex(1);
+            layout.gapAll(12);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).addChildren(
+                RecipeEditorUi.row().layout(layout -> {
+                    layout.widthPercent(100);
+                    layout.minHeight(164);
+                    layout.gapAll(18);
+                    layout.flexWrap(FlexWrap.WRAP);
+                    layout.alignItems(AlignItems.CENTER);
+                    layout.alignContent(AlignContent.CENTER);
+                    layout.justifyContent(AlignContent.CENTER);
+                }).addChildren(
+                        createAutomaticBrewingInputSide(ingredientSlot, fluidInputSlot),
+                        createAutomaticBrewingMachineStack(),
+                        rightArrow(34, 20),
+                        createAutomaticBrewingOutputSide(fluidOutputSlot)
+                ),
+                heatPanel
+        );
+    }
+
+    private static UIElement createAutomaticBrewingInputSide(UIElement ingredientSlot, UIElement fluidInputSlot) {
+        return RecipeEditorUi.column().layout(layout -> {
+            boundedWidth(layout, 82);
+            layout.gapAll(8);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).addChildren(
+                ingredientSlot,
+                createFluidColumn("viscript_recipe.editor.create.fluid_input_short", fluidInputSlot)
+        );
+    }
+
+    private static UIElement createAutomaticBrewingMachineStack() {
+        return RecipeEditorUi.column().layout(layout -> {
+            boundedWidth(layout, 118);
+            layout.height(158);
+            layout.gapAll(4);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).addChildren(
+                itemIcon(new ItemStack(itemFromRegistry("create:mechanical_mixer", Items.CRAFTING_TABLE)), 82),
+                itemIcon(new ItemStack(itemFromRegistry("create:basin", Items.CAULDRON)), 64)
+        );
+    }
+
+    private static UIElement createAutomaticBrewingOutputSide(UIElement fluidOutputSlot) {
+        return RecipeEditorUi.column().layout(layout -> {
+            boundedWidth(layout, 82);
+            layout.gapAll(6);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).addChild(createFluidColumn("viscript_recipe.editor.create.fluid_output_short", fluidOutputSlot));
+    }
+
+    private static UIElement createFluidColumn(String labelKey, UIElement fluidSlot) {
+        return RecipeEditorUi.column().layout(layout -> {
+            layout.width(52);
+            layout.gapAll(2);
+            layout.alignItems(AlignItems.CENTER);
+        }).addChildren(
+                RecipeEditorUi.label(Component.translatable(labelKey)),
+                fluidSlot
+        );
+    }
+
     static UIElement createPressInputSide(UIElement itemInputs, UIElement fluidInputs) {
         return RecipeEditorUi.column().layout(layout -> {
             boundedWidth(layout, 120);

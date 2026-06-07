@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib2.gui.factory.PlayerUIMenuType;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.mojang.logging.LogUtils;
-import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.gui.editor.RecipeEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -26,14 +25,13 @@ public class ViScriptRecipe {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public ViScriptRecipe(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
-        RecipeDataAccessors.register();
         PlayerUIMenuType.register(RecipeEditor.WINDOW_ID, ignored -> player -> {
             if (player.level().isClientSide) {
                 return RecipeEditor.createUI();
             }
             return new ModularUI(UI.empty());
         });
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC, "%s_config.toml".formatted(MOD_ID));
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC, Config.CONFIG_FILE_NAME);
         if (dist == Dist.CLIENT) {
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         }

@@ -3,7 +3,6 @@ package com.viscript_recipe.gui.editor;
 import com.lowdragmc.lowdraglib2.Platform;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IngredientValueKind;
-import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
@@ -65,6 +64,8 @@ import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import com.viscript_recipe.data.vanilla.ShapelessCraftingRecipeData;
 import com.viscript_recipe.data.vanilla.SmithingTransformRecipeData;
 import com.viscript_recipe.data.vanilla.StonecuttingRecipeData;
+import com.viscript_recipe.recipe.importer.RecipeImportResult;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import lombok.Getter;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -286,6 +287,33 @@ public class RecipeEditorController {
         notifyChanged();
     }
 
+    public RecipeImportResult importRecipe(ResourceLocation recipeId) {
+        if (recipeId == null) {
+            return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.invalid_id");
+        }
+        if (recipeIdExists(recipeId)) {
+            return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.duplicate_id");
+        }
+        saveVisualStateToSelectedEntry();
+        var result = RecipeImporter.importRecipe(recipeId);
+        if (!result.successful() || result.entry() == null) {
+            return result;
+        }
+        var entry = result.entry();
+        var entries = recipeFile().getEntries();
+        var insertIndex = selectedEntry == null ? entries.size() : entries.indexOf(selectedEntry) + 1;
+        if (insertIndex <= 0 || insertIndex > entries.size()) {
+            insertIndex = entries.size();
+        }
+        entries.add(insertIndex, entry);
+        selectedCategory = categoryOf(entry);
+        selectedEntry = entry;
+        slotSelection = WorkbenchSlotSelection.RECIPE;
+        loadSelectedEntryToVisualState();
+        notifyChanged();
+        return result;
+    }
+
     public void removeEntry(RecipeEntry entry) {
         var entries = recipeFile().getEntries();
         var removedIndex = entries.indexOf(entry);
@@ -304,7 +332,6 @@ public class RecipeEditorController {
     }
 
     private RecipeEntry copyEntry(RecipeEntry source) {
-        RecipeDataAccessors.register();
         var provider = Platform.getFrozenRegistry();
         var copy = new RecipeEntry();
         copy.deserializeNBT(provider, source.serializeNBT(provider).copy());
@@ -925,10 +952,10 @@ public class RecipeEditorController {
 
     public CreateFluidIngredientData getVisualCreateFluidInput(int index) {
         if (index < 0 || index >= visualCreateFluidInputs.length) {
-            return new CreateFluidIngredientData();
+            return CreateFluidIngredientData.empty();
         }
         var input = visualCreateFluidInputs[index];
-        return input == null ? new CreateFluidIngredientData() : input.copy();
+        return input == null ? CreateFluidIngredientData.empty() : input.copy();
     }
 
     public FluidStack getVisualCreateFluidInputDisplay(int index) {
@@ -961,7 +988,7 @@ public class RecipeEditorController {
         if (selectedEntry == null || !isCreateProcessingEntry(selectedEntry) || index < 0 || index >= visualCreateFluidInputs.length) {
             return;
         }
-        visualCreateFluidInputs[index] = input == null ? new CreateFluidIngredientData() : input.copy();
+        visualCreateFluidInputs[index] = input == null ? CreateFluidIngredientData.empty() : input.copy();
         saveVisualStateToSelectedEntry();
         notifyChanged();
     }
@@ -1969,10 +1996,10 @@ public class RecipeEditorController {
 
     public CreateFluidIngredientData getCreateSequencedStepFluidIngredient(int index) {
         if (selectedEntry == null || !isCreateSequencedAssemblyEntry(selectedEntry)) {
-            return new CreateFluidIngredientData();
+            return CreateFluidIngredientData.empty();
         }
         var step = getCreateSequencedStep(selectedEntry, index);
-        return step.getFluidIngredient() == null ? new CreateFluidIngredientData() : step.getFluidIngredient().copy();
+        return step.getFluidIngredient() == null ? CreateFluidIngredientData.empty() : step.getFluidIngredient().copy();
     }
 
     public FluidStack getCreateSequencedStepFluidDisplay(int index) {
@@ -2001,7 +2028,7 @@ public class RecipeEditorController {
         if (selectedEntry == null || !isCreateSequencedAssemblyEntry(selectedEntry)) {
             return;
         }
-        getCreateSequencedStep(selectedEntry, index).setFluidIngredient(ingredient == null ? new CreateFluidIngredientData() : ingredient.copy());
+        getCreateSequencedStep(selectedEntry, index).setFluidIngredient(ingredient == null ? CreateFluidIngredientData.empty() : ingredient.copy());
         notifyChanged();
     }
 
@@ -2819,7 +2846,7 @@ public class RecipeEditorController {
 
     public CreateFluidIngredientData getSelectedCreateFluidIngredient() {
         if (!isSelectedCreateFluidInput()) {
-            return new CreateFluidIngredientData();
+            return CreateFluidIngredientData.empty();
         }
         if (selectedEntry != null && isCreateSequencedAssemblyEntry(selectedEntry)) {
             return getCreateSequencedStepFluidIngredient(selectedCreateFluidInputIndex());
@@ -2839,7 +2866,16 @@ public class RecipeEditorController {
             return;
         }
         var ingredient = getSelectedCreateFluidIngredient();
-        ingredient.setKind(kind == null ? CreateFluidIngredientKind.FLUID : kind);
+        var resolvedKind = kind == null ? CreateFluidIngredientKind.FLUID : kind;
+        ingredient.setKind(resolvedKind);
+        if (resolvedKind == CreateFluidIngredientKind.TAG) {
+            if (ingredient.getTag() == null) {
+                ingredient.setTag(ResourceLocation.fromNamespaceAndPath("c", "milk"));
+            }
+            if (ingredient.getAmount() <= 0) {
+                ingredient.setAmount(1000);
+            }
+        }
         setSelectedCreateFluidIngredient(ingredient);
     }
 
@@ -2850,6 +2886,9 @@ public class RecipeEditorController {
         var ingredient = getSelectedCreateFluidIngredient();
         ingredient.setKind(CreateFluidIngredientKind.TAG);
         ingredient.setTag(tag == null ? ResourceLocation.fromNamespaceAndPath("c", "milk") : tag);
+        if (ingredient.getAmount() <= 0) {
+            ingredient.setAmount(1000);
+        }
         setSelectedCreateFluidIngredient(ingredient);
     }
 
@@ -3350,11 +3389,16 @@ public class RecipeEditorController {
             }
         }
         var fluidIngredients = new ArrayList<CreateFluidIngredientData>();
-        for (int i = 0; i < Math.min(CREATE_MAX_FLUID_INPUTS, kind.maxFluidInputs()); i++) {
-            var ingredient = visualCreateFluidInputs[i];
-            if (ingredient != null && !isCreateFluidIngredientEmpty(ingredient)) {
-                fluidIngredients.add(ingredient.copy());
+        var visualFluidInputCount = Math.min(CREATE_MAX_FLUID_INPUTS, kind.maxFluidInputs());
+        var lastFluidInputIndex = -1;
+        for (int i = 0; i < visualFluidInputCount; i++) {
+            if (!isCreateFluidIngredientEmpty(visualCreateFluidInputs[i])) {
+                lastFluidInputIndex = i;
             }
+        }
+        for (int i = 0; i <= lastFluidInputIndex; i++) {
+            var ingredient = visualCreateFluidInputs[i];
+            fluidIngredients.add(ingredient == null ? CreateFluidIngredientData.empty() : ingredient.copy());
         }
         var outputs = new ArrayList<CreateProcessingOutputData>();
         var visualOutputCount = Math.min(CREATE_MAX_ITEM_OUTPUTS, kind.maxItemOutputs());
@@ -4297,7 +4341,7 @@ public class RecipeEditorController {
         }
         var kind = ingredient.getKind() == null ? CreateFluidIngredientKind.FLUID : ingredient.getKind();
         if (kind == CreateFluidIngredientKind.TAG) {
-            return ingredient.getTag() == null || ingredient.getAmount() <= 0 || fluidsFromTag(ingredient.getTag(), ingredient.getAmount()).length == 0;
+            return ingredient.getTag() == null || ingredient.getAmount() <= 0;
         }
         return ingredient.getFluid() == null || ingredient.getFluid().isEmpty() || ingredient.getFluid().getAmount() <= 0;
     }
@@ -4678,7 +4722,7 @@ public class RecipeEditorController {
         if (fluidInputs != null) {
             for (int i = 0; i < Math.min(Math.min(CREATE_MAX_FLUID_INPUTS, kind.maxFluidInputs()), fluidInputs.size()); i++) {
                 var input = fluidInputs.get(i);
-                visualCreateFluidInputs[i] = input == null ? new CreateFluidIngredientData() : input.copy();
+                visualCreateFluidInputs[i] = input == null ? CreateFluidIngredientData.empty() : input.copy();
             }
         }
         visualCreateOutputs = emptyCreateOutputStacks();
@@ -5341,7 +5385,7 @@ public class RecipeEditorController {
 
     private static CreateFluidIngredientData[] emptyCreateFluidInputs() {
         var inputs = new CreateFluidIngredientData[CREATE_MAX_FLUID_INPUTS];
-        Arrays.setAll(inputs, ignored -> new CreateFluidIngredientData());
+        Arrays.setAll(inputs, ignored -> CreateFluidIngredientData.empty());
         return inputs;
     }
 

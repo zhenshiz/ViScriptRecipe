@@ -23,6 +23,8 @@ public enum CreateProcessingKind {
     FILLING("filling", "spout", "filling", 1, 1, 1, 0, false, false, false, "create:spout", Items.GLASS_BOTTLE, Items.POTION),
     EMPTYING("emptying", "item_drain", "emptying", 1, 0, 1, 1, false, false, false, "create:item_drain", Items.POTION, Items.GLASS_BOTTLE),
     MIXING("mixing", "mechanical_mixer", "mixing", 64, 2, 4, 2, true, true, false, "create:mechanical_mixer", Items.SUGAR, Items.SLIME_BALL),
+    AUTOMATIC_SHAPELESS("automatic_shapeless", "mechanical_mixer", "automatic_shapeless", 9, 0, 1, 0, false, false, false, "create:mechanical_mixer", Items.SUGAR, Items.SLIME_BALL),
+    AUTOMATIC_BREWING("automatic_brewing", "mechanical_mixer", "automatic_brewing", 1, 1, 0, 1, false, true, false, "create:mechanical_mixer", Items.NETHER_WART, Items.POTION),
     DEPLOYING("deploying", "deployer", "deploying", 2, 0, 4, 0, false, false, true, "create:deployer", Items.IRON_BLOCK, Items.IRON_BLOCK),
     ITEM_APPLICATION("item_application", "manual_item_application", "item_application", 2, 0, 4, 0, false, false, true, "create:deployer", Items.COPPER_BLOCK, Items.COPPER_BLOCK);
 

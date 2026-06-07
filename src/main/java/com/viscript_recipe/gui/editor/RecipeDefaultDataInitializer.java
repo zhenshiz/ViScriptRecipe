@@ -288,24 +288,32 @@ final class RecipeDefaultDataInitializer {
 
     private static void applyCreateProcessing(CreateProcessingRecipeData data, CreateProcessingKind kind) {
         var defaultIngredients = new ArrayList<RecipeIngredient>();
-        var defaultInputCount = kind == CreateProcessingKind.AUTO_PACKING ? 9 : 1;
+        var defaultInputCount = switch (kind) {
+            case AUTO_PACKING -> 9;
+            case AUTOMATIC_SHAPELESS -> 2;
+            default -> 1;
+        };
         for (int i = 0; i < defaultInputCount; i++) {
             defaultIngredients.add(RecipeIngredient.item(kind.defaultInput()));
         }
         data.setIngredients(defaultIngredients);
         data.setFluidIngredients(new ArrayList<>());
-        data.setOutputs(new ArrayList<>(List.of(new CreateProcessingOutputData()
+        data.setOutputs(kind.maxItemOutputs() > 0
+                ? new ArrayList<>(List.of(new CreateProcessingOutputData()
                 .setItem(new ItemStack(kind.defaultOutput()))
-                .setChance(1.0F))));
+                .setChance(1.0F)))
+                : new ArrayList<>());
         data.setFluidOutputs(new ArrayList<>());
         data.setProcessingTime(kind.durationAllowed() ? 100 : 0);
-        data.setHeatRequirement(CreateHeatCondition.NONE);
+        data.setHeatRequirement(kind == CreateProcessingKind.AUTOMATIC_BREWING ? CreateHeatCondition.HEATED : CreateHeatCondition.NONE);
         data.setKeepHeldItem(false);
         if (kind.maxFluidInputs() > 0) {
             data.getFluidIngredients().add(CreateFluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
         }
         if (kind.maxFluidOutputs() > 0 && kind.maxItemOutputs() == 1 && kind == CreateProcessingKind.EMPTYING) {
             data.getFluidOutputs().add(new FluidStack(Fluids.WATER, 250));
+        } else if (kind.maxFluidOutputs() > 0 && kind == CreateProcessingKind.AUTOMATIC_BREWING) {
+            data.getFluidOutputs().add(new FluidStack(Fluids.WATER, 1000));
         }
     }
 

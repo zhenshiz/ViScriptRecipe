@@ -7,7 +7,8 @@
     "IronAlchemistCauldronFluidHandlerMixin",
     "IronArcaneAnvilMenuMixin",
     "ItemCombinerMenuAccessor",
-    "RecipeManagerMixin"
+    "RecipeManagerMixin",
+    "SmithingTransformRecipeAccessor"
   ],
   "client": [
   ],

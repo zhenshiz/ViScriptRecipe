@@ -36,7 +36,7 @@ public class CreateSequencedAssemblyStepData implements IPersistedSerializable, 
         return new CreateSequencedAssemblyStepData()
                 .setKind(kind == null ? CreateSequencedAssemblyStepKind.DEPLOYING : kind)
                 .setIngredient(copyIngredient(ingredient))
-                .setFluidIngredient(fluidIngredient == null ? new CreateFluidIngredientData() : fluidIngredient.copy())
+                .setFluidIngredient(fluidIngredient == null ? CreateFluidIngredientData.empty() : fluidIngredient.copy())
                 .setProcessingTime(processingTime)
                 .setKeepHeldItem(keepHeldItem);
     }

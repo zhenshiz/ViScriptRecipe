@@ -1,7 +1,6 @@
 package com.viscript_recipe.recipe;
 
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.data.RecipeFile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtAccounter;
@@ -19,7 +18,6 @@ public final class RecipeFileLoader {
     }
 
     public static List<LoadedRecipeFile> loadAll(HolderLookup.Provider provider) {
-        RecipeDataAccessors.register();
         var root = RecipeAssetPaths.recipeDirectory();
         ensureDirectory(root);
         try (var stream = Files.walk(root)) {
@@ -63,7 +61,6 @@ public final class RecipeFileLoader {
     }
 
     public static void save(Path path, RecipeFile file, HolderLookup.Provider provider) throws IOException {
-        RecipeDataAccessors.register();
         var parent = path.getParent();
         if (parent != null) {
             Files.createDirectories(parent);

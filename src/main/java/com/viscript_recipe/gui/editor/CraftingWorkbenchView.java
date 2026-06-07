@@ -151,6 +151,10 @@ public class CraftingWorkbenchView extends View {
     private final UIElement[] createPressFluidOutputColumns = new UIElement[2];
     private final Label createPressHeatLabel = RecipeEditorUi.label(Component.empty());
     private final UIElement createBasinMachineIcon = new UIElement();
+    private final IngredientDisplaySlot createAutomaticBrewingIngredientSlot = createIngredientSlot(SLOT_SIZE);
+    private final FluidDisplaySlot createAutomaticBrewingFluidInputSlot = createFluidDisplaySlot();
+    private final FluidSlot createAutomaticBrewingFluidOutputSlot = createFluidSlot();
+    private final Label createAutomaticBrewingHeatLabel = RecipeEditorUi.label(Component.empty());
     private final IngredientDisplaySlot createPressingIngredientSlot = createIngredientSlot(SLOT_SIZE);
     private final ItemSlot[] createPressingOutputSlots = new ItemSlot[2];
     private final UIElement[] createPressingOutputSlotCells = new UIElement[2];
@@ -248,6 +252,7 @@ public class CraftingWorkbenchView extends View {
     private UIElement createSandpaperCanvas;
     private UIElement createAutoPackingCanvas;
     private UIElement createPressBasinCanvas;
+    private UIElement createAutomaticBrewingCanvas;
     private UIElement createPressingCanvas;
     private UIElement createDeployerCanvas;
     private UIElement createManualApplicationCanvas;
@@ -267,6 +272,7 @@ public class CraftingWorkbenchView extends View {
     private UIElement createPressFluidInputRow;
     private UIElement createPressFluidOutputRow;
     private UIElement createPressHeatPanel;
+    private UIElement createAutomaticBrewingHeatPanel;
     private UIElement alchemistResultFluidColumn;
     private UIElement alchemistOutputItemColumn;
 
@@ -607,10 +613,11 @@ public class CraftingWorkbenchView extends View {
         createAutoPackingCanvas = createCreateAutoPackingCanvas();
         createSandpaperCanvas = createCreateSandpaperCanvas();
         createPressBasinCanvas = createCreatePressBasinCanvas();
+        createAutomaticBrewingCanvas = createCreateAutomaticBrewingCanvas();
         createPressingCanvas = createCreatePressingCanvas();
         createDeployerCanvas = createCreateDeployerCanvas();
         createManualApplicationCanvas = createCreateManualApplicationCanvas();
-        return CreateProcessingCanvasFactory.createProcessingStack(genericCreateProcessingCanvas, createSpoutCanvas, createDrainCanvas, createFanCanvas, createCrushingCanvas, createMillingCanvas, createSawCanvas, createAutoPackingCanvas, createSandpaperCanvas, createPressBasinCanvas, createPressingCanvas, createDeployerCanvas, createManualApplicationCanvas);
+        return CreateProcessingCanvasFactory.createProcessingStack(genericCreateProcessingCanvas, createSpoutCanvas, createDrainCanvas, createFanCanvas, createCrushingCanvas, createMillingCanvas, createSawCanvas, createAutoPackingCanvas, createSandpaperCanvas, createPressBasinCanvas, createAutomaticBrewingCanvas, createPressingCanvas, createDeployerCanvas, createManualApplicationCanvas);
     }
 
     private UIElement createCreateSequencedAssemblyCanvas() {
@@ -1094,6 +1101,28 @@ public class CraftingWorkbenchView extends View {
                 createCreatePressMachineStack(),
                 createCreatePressOutputSide(),
                 createPressHeatPanel
+        );
+    }
+
+    private UIElement createCreateAutomaticBrewingCanvas() {
+        configureIngredientSlot(createAutomaticBrewingIngredientSlot, 0);
+        configureCreateFluidInputSlot(createAutomaticBrewingFluidInputSlot, 0);
+        configureCreateFluidOutputSlot(createAutomaticBrewingFluidOutputSlot, 0);
+        createAutomaticBrewingHeatLabel.textStyle(style -> style
+                .fontSize(16)
+                .textColor(ColorPattern.WHITE.color)
+                .textAlignHorizontal(Horizontal.CENTER)
+                .textWrap(TextWrap.HOVER_ROLL));
+        createAutomaticBrewingHeatLabel.layout(layout -> {
+            layout.widthPercent(100);
+            layout.height(24);
+        });
+        createAutomaticBrewingHeatPanel = CreateProcessingCanvasFactory.createPressHeatPanel(createAutomaticBrewingHeatLabel);
+        return CreateProcessingCanvasFactory.createAutomaticBrewingCanvas(
+                createAutomaticBrewingIngredientSlot,
+                createAutomaticBrewingFluidInputSlot,
+                createAutomaticBrewingFluidOutputSlot,
+                createAutomaticBrewingHeatPanel
         );
     }
 
@@ -2244,7 +2273,8 @@ public class CraftingWorkbenchView extends View {
         var sawing = cutting || blockCutting;
         var autoPacking = kind == CreateProcessingKind.AUTO_PACKING;
         var sandpaper = kind == CreateProcessingKind.SANDPAPER_POLISHING;
-        var pressBasin = kind == CreateProcessingKind.COMPACTING || kind == CreateProcessingKind.MIXING;
+        var automaticBrewing = kind == CreateProcessingKind.AUTOMATIC_BREWING;
+        var pressBasin = isCreateBasinKind(kind) && !automaticBrewing;
         var pressing = kind == CreateProcessingKind.PRESSING;
         var spout = kind == CreateProcessingKind.FILLING;
         var drain = kind == CreateProcessingKind.EMPTYING;
@@ -2253,7 +2283,7 @@ public class CraftingWorkbenchView extends View {
         var fan = isCreateFanKind(kind);
         var fanSingleOutput = isCreateFanSingleOutputKind(kind);
         if (genericCreateProcessingCanvas != null) {
-            genericCreateProcessingCanvas.setDisplay(!spout && !drain && !deployer && !manualApplication && !fan && !crushing && !milling && !sawing && !autoPacking && !sandpaper && !pressBasin && !pressing);
+            genericCreateProcessingCanvas.setDisplay(!spout && !drain && !deployer && !manualApplication && !fan && !crushing && !milling && !sawing && !autoPacking && !sandpaper && !pressBasin && !automaticBrewing && !pressing);
         }
         if (createSpoutCanvas != null) {
             createSpoutCanvas.setDisplay(spout);
@@ -2293,6 +2323,9 @@ public class CraftingWorkbenchView extends View {
         }
         if (createPressBasinCanvas != null) {
             createPressBasinCanvas.setDisplay(pressBasin);
+        }
+        if (createAutomaticBrewingCanvas != null) {
+            createAutomaticBrewingCanvas.setDisplay(automaticBrewing);
         }
         if (createPressingCanvas != null) {
             createPressingCanvas.setDisplay(pressing);
@@ -2358,6 +2391,8 @@ public class CraftingWorkbenchView extends View {
             refreshCreateSandpaper();
         } else if (pressBasin) {
             refreshCreatePressBasin(kind, itemInputCount, fluidInputCount, itemOutputCount, fluidOutputCount);
+        } else if (automaticBrewing) {
+            refreshCreateAutomaticBrewing();
         } else if (pressing) {
             refreshIngredientSlot(createPressingIngredientSlot, 0);
             refreshCreateOutputSlots(createPressingOutputSlots, createPressingOutputSlotCells, itemOutputCount);
@@ -2564,9 +2599,36 @@ public class CraftingWorkbenchView extends View {
         }
     }
 
+    private void refreshCreateAutomaticBrewing() {
+        refreshIngredientSlot(createAutomaticBrewingIngredientSlot, 0);
+        refreshCreateFluidInputSlot(createAutomaticBrewingFluidInputSlot, 0);
+        setFluid(createAutomaticBrewingFluidOutputSlot, controller.getVisualCreateFluidOutput(0));
+        var entry = controller.getSelectedEntry();
+        var showHeat = controller.selectedCreateHeatAllowed() && entry != null;
+        if (createAutomaticBrewingHeatPanel != null) {
+            createAutomaticBrewingHeatPanel.setDisplay(showHeat);
+        }
+        if (showHeat) {
+            var heat = controller.getCreateHeatRequirement(entry);
+            createAutomaticBrewingHeatLabel.setText(controller.createHeatDisplayName(heat));
+        } else {
+            createAutomaticBrewingHeatLabel.setText(Component.empty());
+        }
+    }
+
     private void updateCreateBasinMachine(CreateProcessingKind kind) {
-        var machineItem = kind == CreateProcessingKind.MIXING ? "create:mechanical_mixer" : "create:mechanical_press";
+        var machineItem = isCreateMixerKind(kind) ? "create:mechanical_mixer" : "create:mechanical_press";
         createBasinMachineIcon.style(style -> style.backgroundTexture(new ItemStackTexture(new ItemStack(itemFromRegistry(machineItem, Items.CRAFTING_TABLE)))));
+    }
+
+    private static boolean isCreateBasinKind(CreateProcessingKind kind) {
+        return kind == CreateProcessingKind.COMPACTING || isCreateMixerKind(kind);
+    }
+
+    private static boolean isCreateMixerKind(CreateProcessingKind kind) {
+        return kind == CreateProcessingKind.MIXING
+                || kind == CreateProcessingKind.AUTOMATIC_SHAPELESS
+                || kind == CreateProcessingKind.AUTOMATIC_BREWING;
     }
 
     private void refreshCreatePressOutputRows(int itemOutputCount) {

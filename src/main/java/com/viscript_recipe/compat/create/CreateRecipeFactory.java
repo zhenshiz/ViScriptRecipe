@@ -80,6 +80,8 @@ public final class CreateRecipeFactory {
             case FILLING -> compileStandard(kind, data, FillingRecipe::new);
             case EMPTYING -> compileStandard(kind, data, EmptyingRecipe::new);
             case MIXING -> compileStandard(kind, data, MixingRecipe::new);
+            case AUTOMATIC_SHAPELESS -> compileAutomaticShapeless(kind, data);
+            case AUTOMATIC_BREWING -> compileStandard(kind, data, MixingRecipe::new);
             case COMPACTING -> compileStandard(kind, data, CompactingRecipe::new);
             case DEPLOYING -> compileItemApplication(kind, data, DeployerApplicationRecipe::new);
             case ITEM_APPLICATION -> compileItemApplication(kind, data, ManualApplicationRecipe::new);
@@ -208,6 +210,18 @@ public final class CreateRecipeFactory {
         }
         if (!ItemHelper.matchAllIngredients(ingredients)) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe inputs must all be the same ingredient");
+        }
+        var outputs = compileItemOutputs(data, kind.maxItemOutputs());
+        if (outputs.isEmpty()) {
+            throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
+        }
+        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.getFirst().getStack().copy(), ingredients, false);
+    }
+
+    private static Recipe<?> compileAutomaticShapeless(CreateProcessingKind kind, CreateProcessingRecipeData data) {
+        var ingredients = compileItemIngredients(data, kind.maxItemInputs());
+        if (ingredients.size() < 2) {
+            throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have at least 2 item inputs");
         }
         var outputs = compileItemOutputs(data, kind.maxItemOutputs());
         if (outputs.isEmpty()) {

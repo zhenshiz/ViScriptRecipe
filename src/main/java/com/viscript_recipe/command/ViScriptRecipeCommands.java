@@ -12,32 +12,27 @@ import com.viscript_lib.gui.editor.EditorAssetFiles;
 import com.viscript_lib.register.ICommand;
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.data.RecipeDataAccessors;
 import com.viscript_recipe.data.RecipeFile;
 import com.viscript_recipe.gui.editor.RecipeEditor;
 import com.viscript_recipe.gui.editor.RecipeProjectType;
 import com.viscript_recipe.network.s2c.JeiShowcaseS2CPayload;
 import com.viscript_recipe.network.s2c.RecipeEditorS2CPayload;
 import com.viscript_recipe.recipe.RecipeOverrideManager;
-import io.netty.buffer.Unpooled;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.neoforge.network.connection.ConnectionType;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.tags.TagNetworkSerialization;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 @LDLRegister(registry = ICommand.COMMAND_ID, name = "recipe")
@@ -136,7 +131,6 @@ public class ViScriptRecipeCommands implements ICommand {
     }
 
     private static RecipeFile loadRecipeFile(Path path, MinecraftServer server) throws IOException {
-        RecipeDataAccessors.register();
         if (!Files.exists(path)) {
             return new RecipeFile();
         }
@@ -171,11 +165,9 @@ public class ViScriptRecipeCommands implements ICommand {
 
     private static int reloadRecipes(CommandSourceStack source) {
         var server = source.getServer();
-        var recipePayloadHashBeforeReload = server.getPlayerList().getPlayers().isEmpty()
-                ? null
-                : createRecipePayloadHash(server);
+        Config.reloadRuntimeConfigFromDisk();
         var result = RecipeOverrideManager.reload(server.getRecipeManager(), server.registryAccess());
-        syncReloadDataToPlayers(server, recipePayloadHashBeforeReload);
+        syncReloadDataToPlayers(server);
         source.sendSuccess(() -> Component.translatable(
                 "commands.viscript_recipe.reload.success",
                 result.fileCount(),
@@ -189,46 +181,24 @@ public class ViScriptRecipeCommands implements ICommand {
         return 1;
     }
 
-    private static void syncReloadDataToPlayers(MinecraftServer server, @Nullable byte[] recipePayloadHashBeforeReload) {
+    private static void syncReloadDataToPlayers(MinecraftServer server) {
         var players = server.getPlayerList().getPlayers();
         if (players.isEmpty()) {
             return;
         }
 
-        var recipePayloadHashAfterReload = createRecipePayloadHash(server);
-        var recipePayloadChanged = recipePayloadHashBeforeReload == null
-                || recipePayloadHashAfterReload == null
-                || !Arrays.equals(recipePayloadHashBeforeReload, recipePayloadHashAfterReload);
-        // 本命令只重读 .recipe；发送 UpdateTags 会让 ALI 清空并重新请求 loot 数据。
-        var recipesPacket = recipePayloadChanged
-                ? new ClientboundUpdateRecipesPacket(server.getRecipeManager().getOrderedRecipes())
+        var recipesPacket = new ClientboundUpdateRecipesPacket(server.getRecipeManager().getOrderedRecipes());
+        var tagsPacket = Config.SYNC_TAGS_FOR_JEI_RELOAD.get()
+                ? new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registries()))
                 : null;
         var showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();
         for (var player : players) {
-            if (recipesPacket != null) {
-                player.connection.send(recipesPacket);
-                player.getRecipeBook().sendInitialRecipeBook(player);
+            player.connection.send(recipesPacket);
+            if (tagsPacket != null) {
+                player.connection.send(tagsPacket);
             }
+            player.getRecipeBook().sendInitialRecipeBook(player);
             RPCPacketDistributor.rpcToPlayer(player, JeiShowcaseS2CPayload.SYNC_SHOWCASE_MODE, showcaseOnly);
-        }
-    }
-
-    @Nullable
-    private static byte[] createRecipePayloadHash(MinecraftServer server) {
-        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), server.registryAccess(), ConnectionType.NEOFORGE);
-        try {
-            ClientboundUpdateRecipesPacket.STREAM_CODEC.encode(
-                    buffer,
-                    new ClientboundUpdateRecipesPacket(server.getRecipeManager().getOrderedRecipes())
-            );
-            var bytes = new byte[buffer.readableBytes()];
-            buffer.getBytes(buffer.readerIndex(), bytes);
-            return MessageDigest.getInstance("SHA-256").digest(bytes);
-        } catch (Exception e) {
-            ViScriptRecipe.LOGGER.warn("Failed to fingerprint client recipe payload; forcing recipe sync", e);
-            return null;
-        } finally {
-            buffer.release();
         }
     }
 

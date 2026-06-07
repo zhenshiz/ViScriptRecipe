@@ -8,26 +8,39 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Button;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.SearchComponent;
 import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
 import com.viscript_lib.gui.components.DraggableUI;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.FlexDirection;
 import dev.vfyjxf.taffy.style.FlexWrap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 public class RecipeNavigationView extends View {
+    private static final int MAX_RECIPE_ID_CANDIDATES = 100;
+
     private final RecipeEditorController controller;
     private final UIElement entryList = RecipeEditorUi.column();
     private final UIElement addRow = createAddRow();
+    private final UIElement importPanel = createImportPanel();
     private WorkstationSearchComponent workstationSearch;
     private List<WorkstationSearchEntry> workstationSearchEntries = List.of();
+    private RecipeIdSearchComponent importRecipeSearch;
+    private Label importStatusLabel;
+    private boolean importOpen;
+    private String importRecipeId = "";
 
     public RecipeNavigationView(RecipeEditorController controller) {
         super("viscript_recipe.view.recipe_navigation", Icons.FILE);
@@ -47,6 +60,7 @@ public class RecipeNavigationView extends View {
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.entries"),
                 RecipeEditorUi.fieldGroup("viscript_recipe.editor.workstation", createWorkstationSearch()),
                 addRow,
+                importPanel,
                 createEntryScroller()
         );
         return root;
@@ -159,8 +173,201 @@ public class RecipeNavigationView extends View {
             layout.gapAll(3);
         }).addChildren(
                 RecipeEditorUi.iconButton(Icons.ADD, "viscript_recipe.editor.add_recipe", event -> controller.addEntry())
+                        .layout(layout -> layout.flex(1).height(20)),
+                RecipeEditorUi.iconButton(Icons.IMPORT, "viscript_recipe.editor.import_recipe", event -> toggleImportPanel())
                         .layout(layout -> layout.flex(1).height(20))
         );
+    }
+
+    private UIElement createImportPanel() {
+        importRecipeSearch = createImportRecipeSearch();
+
+        var controls = RecipeEditorUi.row().layout(layout -> {
+            layout.widthPercent(100);
+            layout.height(20);
+            layout.gapAll(2);
+            layout.alignItems(AlignItems.CENTER);
+        }).addChildren(
+                importRecipeSearch,
+                RecipeEditorUi.iconButton(Icons.CHECK, "viscript_recipe.editor.import_recipe.confirm", event -> submitImport())
+                        .layout(layout -> layout.width(20).height(20)),
+                RecipeEditorUi.iconButton(Icons.CLOSE, "viscript_recipe.editor.import_recipe.cancel", event -> closeImportPanel())
+                        .layout(layout -> layout.width(20).height(20))
+        );
+
+        importStatusLabel = RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.import_recipe.hint"));
+        importStatusLabel.textStyle(style -> style
+                .textColor(ColorPattern.LIGHT_GRAY.color)
+                .textWrap(TextWrap.HOVER_ROLL)
+                .adaptiveWidth(false));
+        importStatusLabel.layout(layout -> {
+            layout.widthPercent(100);
+            layout.height(14);
+        });
+        importStatusLabel.setOverflowVisible(false);
+
+        var panel = RecipeEditorUi.column().layout(layout -> {
+            layout.widthPercent(100);
+            layout.gapAll(3);
+            layout.paddingAll(3);
+        }).style(style -> style.backgroundTexture(ColorPattern.T_DARK_GRAY.rectTexture())).addChildren(
+                RecipeEditorUi.fieldGroup("viscript_recipe.editor.import_recipe_id", controls),
+                importStatusLabel
+        );
+        panel.setDisplay(false);
+        return panel;
+    }
+
+    private RecipeIdSearchComponent createImportRecipeSearch() {
+        var search = new RecipeIdSearchComponent(new SearchComponent.ISearchUI<>() {
+            @Override
+            public String resultText(ResourceLocation value) {
+                return value == null ? "" : value.toString();
+            }
+
+            @Override
+            public void onResultSelected(ResourceLocation value) {
+                importRecipeId = value == null ? "" : value.toString();
+            }
+
+            @Override
+            public void search(String word, IResultHandler<ResourceLocation> searchHandler) {
+                var minecraft = Minecraft.getInstance();
+                if (minecraft.level == null) {
+                    return;
+                }
+                var normalized = normalizeSearch(word);
+                var accepted = 0;
+                var recipeIds = minecraft.level.getRecipeManager().getRecipeIds()
+                        .sorted(Comparator.comparing(ResourceLocation::toString))
+                        .toList();
+                for (var recipeId : recipeIds) {
+                    var holder = minecraft.level.getRecipeManager().byKey(recipeId).orElse(null);
+                    if (holder != null && RecipeImporter.canImport(holder) && matchesRecipeId(recipeId, normalized)) {
+                        searchHandler.acceptResult(recipeId);
+                        accepted++;
+                        if (accepted >= MAX_RECIPE_ID_CANDIDATES) {
+                            return;
+                        }
+                    }
+                }
+            }
+        });
+        search.setCandidateUIProvider(this::createRecipeIdCandidate)
+                .setOnValueChanged(value -> importRecipeId = value == null ? "" : value.toString())
+                .searchStyle(style -> {
+                    style.maxItemCount(8);
+                    style.scrollerViewHeight(128);
+                    style.closeAfterSelect(true);
+                });
+        search.preview.setOverflowVisible(false);
+        search.textField.setOverflowVisible(false);
+        search.textField.setResourceLocationOnly();
+        search.textField.textFieldStyle(style -> style.placeholder(Component.translatable("viscript_recipe.editor.import_recipe.placeholder")));
+        search.layout(layout -> {
+            layout.flex(1);
+            layout.height(18);
+        });
+        return search;
+    }
+
+    private boolean matchesRecipeId(ResourceLocation recipeId, String normalizedWord) {
+        if (normalizedWord.isBlank()) {
+            return true;
+        }
+        var searchText = normalizeSearch(String.join(" ",
+                recipeId.toString(),
+                recipeId.getNamespace(),
+                recipeId.getPath(),
+                recipeTypeText(recipeId)
+        ));
+        for (var token : normalizedWord.split("\\s+")) {
+            if (!searchText.contains(token)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private UIElement createRecipeIdCandidate(ResourceLocation recipeId) {
+        if (recipeId == null) {
+            return RecipeEditorUi.label(Component.literal("---")).layout(layout -> {
+                layout.widthPercent(100);
+                layout.height(14);
+            });
+        }
+        var id = RecipeEditorUi.label(Component.literal(recipeId.toString()))
+                .textStyle(style -> style
+                        .textWrap(TextWrap.HOVER_ROLL)
+                        .adaptiveWidth(false));
+        id.setOverflowVisible(false);
+        return id.layout(layout -> {
+            layout.widthPercent(100);
+            layout.height(14);
+            layout.alignItems(AlignItems.CENTER);
+        }).setOverflowVisible(false);
+    }
+
+    private String recipeTypeText(ResourceLocation recipeId) {
+        var minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return "";
+        }
+        return minecraft.level.getRecipeManager()
+                .byKey(recipeId)
+                .map(holder -> {
+                    var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
+                    var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
+                    if (typeId == null) {
+                        return serializerId == null ? "" : serializerId.toString();
+                    }
+                    if (serializerId == null || serializerId.equals(typeId)) {
+                        return typeId.toString();
+                    }
+                    return typeId + " / " + serializerId;
+                })
+                .orElse("");
+    }
+
+    private void toggleImportPanel() {
+        importOpen = !importOpen;
+        importPanel.setDisplay(importOpen);
+        if (importOpen && (importRecipeId == null || importRecipeId.isBlank())) {
+            setImportStatus(Component.translatable("viscript_recipe.editor.import_recipe.hint"), ColorPattern.LIGHT_GRAY.color);
+        }
+    }
+
+    private void closeImportPanel() {
+        importOpen = false;
+        importPanel.setDisplay(false);
+    }
+
+    private void submitImport() {
+        var rawText = importRecipeSearch == null ? "" : importRecipeSearch.textField.getRawText();
+        var recipeIdText = rawText == null || rawText.isBlank() ? importRecipeId : rawText.trim();
+        var recipeId = ResourceLocation.tryParse(recipeIdText);
+        if (recipeId == null) {
+            setImportStatus(Component.translatable("viscript_recipe.editor.import_recipe.error.invalid_id"), ColorPattern.RED.color);
+            return;
+        }
+        var result = controller.importRecipe(recipeId);
+        setImportStatus(result.message(), result.successful() ? ColorPattern.GREEN.color : ColorPattern.RED.color);
+        if (result.successful()) {
+            importRecipeId = "";
+            importRecipeSearch.setSelected(null, false);
+            importRecipeSearch.textField.setText("", false);
+        }
+    }
+
+    private void setImportStatus(Component message, int color) {
+        if (importStatusLabel == null) {
+            return;
+        }
+        importStatusLabel.setText(message);
+        importStatusLabel.textStyle(style -> style
+                .textColor(color)
+                .textWrap(TextWrap.HOVER_ROLL)
+                .adaptiveWidth(false));
     }
 
     private ScrollerView createEntryScroller() {
@@ -319,6 +526,25 @@ public class RecipeNavigationView extends View {
             super.show();
             textField.setText("", false);
             onSearchWordChanged("");
+        }
+    }
+
+    private class RecipeIdSearchComponent extends SearchComponent<ResourceLocation> {
+        private RecipeIdSearchComponent(ISearchUI<ResourceLocation> searchUI) {
+            super(searchUI);
+        }
+
+        @Override
+        protected void onSearchWordChanged(String word) {
+            importRecipeId = word == null ? "" : word;
+            super.onSearchWordChanged(word);
+        }
+
+        @Override
+        public void show() {
+            super.show();
+            textField.setText(importRecipeId == null ? "" : importRecipeId, false);
+            onSearchWordChanged(importRecipeId == null ? "" : importRecipeId);
         }
     }
 }
