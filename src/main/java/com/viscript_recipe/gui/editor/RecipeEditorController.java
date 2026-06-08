@@ -14,6 +14,7 @@ import com.viscript_recipe.data.RecipeIngredientValue;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateHeatCondition;
+import com.viscript_recipe.data.create.CreateItemInputCounts;
 import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateProcessingOutputData;
@@ -538,7 +539,7 @@ public class RecipeEditorController {
         if (isSelectedFarmersCuttingBoardLayout() && index > 1) {
             return;
         }
-        if (isSelectedCreateProcessingLayout() && index >= selectedCreateKind().map(CreateProcessingKind::maxItemInputs).orElse(0)) {
+        if (isSelectedCreateProcessingLayout() && index >= selectedCreateItemInputCount()) {
             return;
         }
         if (isSelectedCreateSequencedAssemblyLayout() && !isValidCreateSequencedIngredientIndex(index)) {
@@ -756,7 +757,7 @@ public class RecipeEditorController {
             return switch (value.getKind()) {
                 case ITEM -> value.getItem() == null || value.getItem().isEmpty()
                         ? new ItemStack[0]
-                        : new ItemStack[]{value.getItem().copyWithCount(1)};
+                        : new ItemStack[]{isCreateCountedItemInputSlot(index) ? value.getItem().copy() : value.getItem().copyWithCount(1)};
                 case TAG -> value.getTag() == null ? new ItemStack[0] : itemsFromTag(value.getTag());
                 case ITEM_ABILITY -> value.getItemAbility() == null || value.getItemAbility().isBlank()
                         ? new ItemStack[0]
@@ -827,10 +828,10 @@ public class RecipeEditorController {
             notifyChanged();
             return;
         }
-        visualIngredients[index] = normalizeStack(stack);
+        visualIngredients[index] = normalizeVisualIngredientStack(index, stack);
         visualIngredientData[index] = visualIngredients[index].isEmpty()
                 ? new RecipeIngredient()
-                : RecipeIngredient.item(visualIngredients[index]);
+                : ingredientForVisualItemStack(index, visualIngredients[index]);
         if (visualIngredients[index].isEmpty()) {
             visualRemainders[index] = CraftingRemainderRule.defaultRule();
         }
@@ -1853,7 +1854,103 @@ public class RecipeEditorController {
     }
 
     public int selectedCreateItemInputCount() {
-        return Math.min(9, selectedCreateKind().map(CreateProcessingKind::maxItemInputs).orElse(0));
+        var kind = selectedCreateKind().orElse(null);
+        var capacity = createVisibleItemInputCapacity(kind);
+        if (kind == null || selectedEntry == null || !supportsCreateCountedItemInputs(kind)) {
+            return capacity;
+        }
+        var extraWeight = 0;
+        var lastOccupiedSlot = -1;
+        for (int i = 0; i < capacity; i++) {
+            var weight = CreateItemInputCounts.slotWeight(visualIngredientData[i]);
+            if (weight <= 0) {
+                continue;
+            }
+            extraWeight += Math.max(0, weight - 1);
+            lastOccupiedSlot = i;
+        }
+        var visibleCount = capacity - Math.min(capacity - 1, extraWeight);
+        if (lastOccupiedSlot >= 0) {
+            visibleCount = Math.max(visibleCount, lastOccupiedSlot + 1);
+        }
+        return Math.max(1, Math.min(capacity, visibleCount));
+    }
+
+    public boolean isSelectedCreateCountedItemInput() {
+        if (selectedEntry == null
+                || !isCreateProcessingEntry(selectedEntry)
+                || slotSelection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT) {
+            return false;
+        }
+        var kind = selectedCreateKind().orElse(null);
+        return supportsCreateCountedItemInputs(kind)
+                && slotSelection.index() >= 0
+                && slotSelection.index() < createVisibleItemInputCapacity(kind);
+    }
+
+    private boolean isCreateCountedItemInputSlot(int index) {
+        if (selectedEntry == null || !isCreateProcessingEntry(selectedEntry)) {
+            return false;
+        }
+        var kind = selectedCreateKind().orElse(null);
+        return supportsCreateCountedItemInputs(kind)
+                && index >= 0
+                && index < createVisibleItemInputCapacity(kind);
+    }
+
+    public ItemStack normalizeSelectedIngredientItemStack(ItemStack stack) {
+        if (stack == null || stack.isEmpty() || stack.is(Items.AIR)) {
+            return ItemStack.EMPTY;
+        }
+        var copy = stack.copy();
+        if (isSelectedCreateCountedItemInput()) {
+            copy.setCount(Math.max(1, Math.min(selectedCreateItemInputMaxWeight(slotSelection.index()), copy.getCount())));
+        } else {
+            copy.setCount(1);
+        }
+        return copy;
+    }
+
+    public int selectedCreateCountedInputSignature() {
+        var kind = selectedCreateKind().orElse(null);
+        if (selectedEntry == null || !supportsCreateCountedItemInputs(kind)) {
+            return 0;
+        }
+        var capacity = createVisibleItemInputCapacity(kind);
+        var signature = selectedCreateItemInputCount();
+        for (int i = 0; i < capacity; i++) {
+            signature = 31 * signature + CreateItemInputCounts.slotWeight(visualIngredientData[i]);
+        }
+        return signature;
+    }
+
+    private int selectedCreateItemInputMaxWeight(int slot) {
+        var kind = selectedCreateKind().orElse(null);
+        if (!supportsCreateCountedItemInputs(kind)) {
+            return 1;
+        }
+        return createItemInputMaxWeight(slot, createVisibleItemInputCapacity(kind));
+    }
+
+    private int createItemInputMaxWeight(int slot, int capacity) {
+        var usedByOtherSlots = 0;
+        for (int i = 0; i < capacity; i++) {
+            if (i == slot) {
+                continue;
+            }
+            usedByOtherSlots += CreateItemInputCounts.slotWeight(visualIngredientData[i]);
+        }
+        return Math.max(1, capacity - usedByOtherSlots);
+    }
+
+    private int createVisibleItemInputCapacity(CreateProcessingKind kind) {
+        return kind == null ? 0 : Math.min(9, kind.maxItemInputs());
+    }
+
+    private boolean supportsCreateCountedItemInputs(CreateProcessingKind kind) {
+        return kind == CreateProcessingKind.MIXING
+                || kind == CreateProcessingKind.COMPACTING
+                || kind == CreateProcessingKind.AUTOMATIC_SHAPELESS;
     }
 
     public int selectedCreateFluidInputCount() {
@@ -3372,15 +3469,26 @@ public class RecipeEditorController {
             return;
         }
         var ingredients = new ArrayList<RecipeIngredient>();
-        var visualIngredientCount = Math.min(9, kind.maxItemInputs());
+        var visualIngredientCount = createVisibleItemInputCapacity(kind);
+        var countedInputs = supportsCreateCountedItemInputs(kind);
+        var remainingIngredientWeight = visualIngredientCount;
         for (int i = 0; i < visualIngredientCount; i++) {
             var ingredient = ingredientForVisualSlot(i);
             if (!isIngredientEmpty(ingredient)) {
-                ingredients.add(ingredient);
+                var normalizedIngredient = countedInputs
+                        ? CreateItemInputCounts.copyWithClampedWeight(ingredient, remainingIngredientWeight)
+                        : ingredient;
+                if (!isIngredientEmpty(normalizedIngredient)) {
+                    ingredients.add(normalizedIngredient);
+                    remainingIngredientWeight -= Math.max(1, CreateItemInputCounts.slotWeight(normalizedIngredient));
+                    if (countedInputs && remainingIngredientWeight <= 0) {
+                        break;
+                    }
+                }
             }
         }
         var existingIngredients = data.getIngredients();
-        if (existingIngredients != null && existingIngredients.size() > visualIngredientCount) {
+        if (!countedInputs && existingIngredients != null && existingIngredients.size() > visualIngredientCount) {
             for (int i = visualIngredientCount; i < Math.min(existingIngredients.size(), kind.maxItemInputs()); i++) {
                 var ingredient = existingIngredients.get(i);
                 if (!isIngredientEmpty(ingredient)) {
@@ -4180,7 +4288,8 @@ public class RecipeEditorController {
             setCreateAutoPackingIngredient(entry, ingredient);
             return;
         }
-        visualIngredients[index] = itemFromIngredient(ingredient);
+        var kind = CreateProcessingKind.byType(entry.getType()).orElse(null);
+        visualIngredients[index] = supportsCreateCountedItemInputs(kind) ? itemFromCreateIngredient(ingredient) : itemFromIngredient(ingredient);
         visualIngredientData[index] = ingredient == null ? new RecipeIngredient() : ingredient;
         visualRemainders[index] = CraftingRemainderRule.defaultRule();
         writeCreateProcessingRecipe(entry);
@@ -4713,8 +4822,26 @@ public class RecipeEditorController {
         }
         var ingredients = data.getIngredients();
         if (ingredients != null) {
-            for (int i = 0; i < Math.min(Math.min(9, kind.maxItemInputs()), ingredients.size()); i++) {
-                loadIngredientSlot(i, ingredients.get(i));
+            var visualIngredientCount = createVisibleItemInputCapacity(kind);
+            if (supportsCreateCountedItemInputs(kind)) {
+                var remainingIngredientWeight = visualIngredientCount;
+                var visualIndex = 0;
+                for (var ingredient : ingredients) {
+                    if (visualIndex >= visualIngredientCount || remainingIngredientWeight <= 0) {
+                        break;
+                    }
+                    var normalizedIngredient = CreateItemInputCounts.copyWithClampedWeight(ingredient, remainingIngredientWeight);
+                    if (isIngredientEmpty(normalizedIngredient)) {
+                        continue;
+                    }
+                    loadCreateIngredientSlot(visualIndex, normalizedIngredient);
+                    remainingIngredientWeight -= Math.max(1, CreateItemInputCounts.slotWeight(normalizedIngredient));
+                    visualIndex++;
+                }
+            } else {
+                for (int i = 0; i < Math.min(visualIngredientCount, ingredients.size()); i++) {
+                    loadIngredientSlot(i, ingredients.get(i));
+                }
             }
         }
         visualCreateFluidInputs = emptyCreateFluidInputs();
@@ -4986,6 +5113,15 @@ public class RecipeEditorController {
         visualRemainders[index] = CraftingRemainderRule.defaultRule();
     }
 
+    private void loadCreateIngredientSlot(int index, RecipeIngredient ingredient) {
+        if (containsUnsupportedIngredientValue(ingredient)) {
+            selectedContainsUnsupportedIngredients = true;
+        }
+        visualIngredients[index] = itemFromCreateIngredient(ingredient);
+        visualIngredientData[index] = ingredient == null ? new RecipeIngredient() : ingredient;
+        visualRemainders[index] = CraftingRemainderRule.defaultRule();
+    }
+
     private boolean ingredientSlotsChanged() {
         if (loadedIngredientStacks.length != visualIngredients.length) {
             return true;
@@ -5002,7 +5138,7 @@ public class RecipeEditorController {
         if (left.isEmpty() || right.isEmpty()) {
             return left.isEmpty() == right.isEmpty();
         }
-        return ItemStack.isSameItemSameComponents(left, right);
+        return ItemStack.matches(left, right);
     }
 
     private boolean remainderSlotsChanged() {
@@ -5053,6 +5189,29 @@ public class RecipeEditorController {
         for (var value : ingredient.getValues()) {
             if (value.getKind() == IngredientValueKind.ITEM && value.getItem() != null && !value.getItem().isEmpty()) {
                 return value.getItem().copyWithCount(1);
+            }
+            if (value.getKind() == IngredientValueKind.TAG && value.getTag() != null) {
+                var tagItems = itemsFromTag(value.getTag());
+                if (tagItems.length > 0) {
+                    return tagItems[0].copyWithCount(1);
+                }
+            }
+            if (value.getKind() == IngredientValueKind.ITEM_ABILITY && value.getItemAbility() != null) {
+                return itemFromAbility(value.getItemAbility());
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private ItemStack itemFromCreateIngredient(@Nullable RecipeIngredient ingredient) {
+        if (ingredient == null) {
+            return ItemStack.EMPTY;
+        }
+        for (var value : ingredient.getValues()) {
+            if (value.getKind() == IngredientValueKind.ITEM && value.getItem() != null && !value.getItem().isEmpty()) {
+                var stack = value.getItem().copy();
+                stack.setCount(Math.max(1, Math.min(99, stack.getCount())));
+                return stack;
             }
             if (value.getKind() == IngredientValueKind.TAG && value.getTag() != null) {
                 var tagItems = itemsFromTag(value.getTag());
@@ -5317,6 +5476,35 @@ public class RecipeEditorController {
             return ItemStack.EMPTY;
         }
         return stack.copyWithCount(1);
+    }
+
+    private ItemStack normalizeVisualIngredientStack(int index, ItemStack stack) {
+        if (stack == null || stack.isEmpty() || stack.is(Items.AIR)) {
+            return ItemStack.EMPTY;
+        }
+        var copy = stack.copy();
+        var kind = selectedCreateKind().orElse(null);
+        if (selectedEntry != null
+                && isCreateProcessingEntry(selectedEntry)
+                && supportsCreateCountedItemInputs(kind)
+                && index >= 0
+                && index < createVisibleItemInputCapacity(kind)) {
+            copy.setCount(Math.max(1, Math.min(createItemInputMaxWeight(index, createVisibleItemInputCapacity(kind)), copy.getCount())));
+            return copy;
+        }
+        return copy.copyWithCount(1);
+    }
+
+    private RecipeIngredient ingredientForVisualItemStack(int index, ItemStack stack) {
+        var kind = selectedCreateKind().orElse(null);
+        if (selectedEntry != null
+                && isCreateProcessingEntry(selectedEntry)
+                && supportsCreateCountedItemInputs(kind)
+                && index >= 0
+                && index < createVisibleItemInputCapacity(kind)) {
+            return CreateItemInputCounts.item(stack, createItemInputMaxWeight(index, createVisibleItemInputCapacity(kind)));
+        }
+        return RecipeIngredient.item(stack);
     }
 
     private String normalizeDragonType(String dragonType) {

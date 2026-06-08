@@ -143,6 +143,7 @@ public class RecipePropertiesView extends View {
                 controller.selectedCreateHeatAllowed(),
                 controller.selectedCreateKeepHeldItemAllowed(),
                 controller.selectedCreateOutputChanceAllowed(),
+                controller.selectedCreateCountedInputSignature(),
                 createSequencedStructureSignature(entry)
         );
     }
@@ -217,6 +218,7 @@ public class RecipePropertiesView extends View {
             boolean createHeatAllowed,
             boolean createKeepHeldItemAllowed,
             boolean createOutputChanceAllowed,
+            int createCountedInputSignature,
             String createSequencedSignature
     ) {
     }
@@ -701,7 +703,7 @@ public class RecipePropertiesView extends View {
         var updated = new RecipeIngredientValue().setKind(kind);
         ingredient.getValues().clear();
         if (kind == IngredientValueKind.ITEM) {
-            var stack = currentValue.getItem() == null ? ItemStack.EMPTY : currentValue.getItem().copyWithCount(1);
+            var stack = controller.normalizeSelectedIngredientItemStack(currentValue.getItem());
             if (!stack.isEmpty()) {
                 updated.setItem(stack);
                 ingredient.getValues().add(updated);
@@ -743,10 +745,11 @@ public class RecipePropertiesView extends View {
 
     private void setIngredientItem(RecipeIngredient ingredient, ItemStack stack) {
         ingredient.getValues().clear();
-        if (stack != null && !stack.isEmpty()) {
+        var normalizedStack = controller.normalizeSelectedIngredientItemStack(stack);
+        if (!normalizedStack.isEmpty()) {
             ingredient.getValues().add(new RecipeIngredientValue()
                     .setKind(IngredientValueKind.ITEM)
-                    .setItem(stack.copyWithCount(1)));
+                    .setItem(normalizedStack));
         }
         controller.setSelectedIngredient(ingredient);
     }

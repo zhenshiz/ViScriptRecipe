@@ -17,7 +17,7 @@ class IngredientDisplaySlot extends ItemSlot {
         }
         var copies = new ItemStack[stacks.length];
         for (int i = 0; i < stacks.length; i++) {
-            copies[i] = stacks[i] == null ? ItemStack.EMPTY : stacks[i].copyWithCount(1);
+            copies[i] = stacks[i] == null ? ItemStack.EMPTY : stacks[i].copy();
         }
         if (sameStacks(tagDisplayStacks, copies)) {
             return;
@@ -62,7 +62,7 @@ class IngredientDisplaySlot extends ItemSlot {
             var stack = stacks[i];
             keys[i] = stack == null || stack.isEmpty()
                     ? ""
-                    : stack.getItemHolder().unwrapKey().map(Object::toString).orElse(stack.getItem().toString());
+                    : stack.getItemHolder().unwrapKey().map(Object::toString).orElse(stack.getItem().toString()) + "x" + stack.getCount();
         }
         return keys;
     }

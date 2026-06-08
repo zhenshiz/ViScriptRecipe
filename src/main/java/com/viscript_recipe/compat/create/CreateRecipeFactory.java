@@ -26,6 +26,7 @@ import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateHeatCondition;
+import com.viscript_recipe.data.create.CreateItemInputCounts;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateProcessingOutputData;
 import com.viscript_recipe.data.create.CreateProcessingRecipeData;
@@ -249,9 +250,13 @@ public final class CreateRecipeFactory {
             if (ingredients.size() >= maxCount) {
                 break;
             }
-            var ingredient = compileIngredient(ingredientData);
+            var normalizedData = CreateItemInputCounts.copyWithClampedWeight(ingredientData, maxCount - ingredients.size());
+            var ingredient = compileIngredient(normalizedData);
             if (!ingredient.isEmpty()) {
-                ingredients.add(ingredient);
+                var repeat = Math.max(1, CreateItemInputCounts.slotWeight(normalizedData));
+                for (int i = 0; i < repeat && ingredients.size() < maxCount; i++) {
+                    ingredients.add(ingredient);
+                }
             }
         }
         return ingredients;

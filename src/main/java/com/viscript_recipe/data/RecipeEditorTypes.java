@@ -1,6 +1,6 @@
 package com.viscript_recipe.data;
 
-import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.compat.RecipeCompatModules;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
 import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
@@ -80,31 +80,7 @@ public final class RecipeEditorTypes {
     private static final LinkedHashMap<ResourceLocation, RecipeEditorType> TYPES = new LinkedHashMap<>();
 
     static {
-        VanillaRecipeEditorTypes.registerAll();
-        if (ViScriptRecipe.isModLoaded(IronSpellbooksRecipeEditorTypes.MOD_ID)) {
-            IronSpellbooksRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(IceAndFireRecipeEditorTypes.MOD_ID)) {
-            IceAndFireRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(FarmersDelightRecipeEditorTypes.MOD_ID)) {
-            FarmersDelightRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(CreateRecipeEditorTypes.MOD_ID)) {
-            CreateRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(ExtendedCraftingRecipeEditorTypes.MOD_ID)) {
-            ExtendedCraftingRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(ArsNouveauRecipeEditorTypes.MOD_ID)) {
-            ArsNouveauRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(KaleidoscopeCookeryRecipeEditorTypes.MOD_ID)) {
-            KaleidoscopeCookeryRecipeEditorTypes.registerAll();
-        }
-        if (ViScriptRecipe.isModLoaded(AvaritiaRecipeEditorTypes.MOD_ID)) {
-            AvaritiaRecipeEditorTypes.registerAll();
-        }
+        RecipeCompatModules.registerEditorTypes();
     }
 
     private RecipeEditorTypes() {

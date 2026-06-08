@@ -1,14 +1,6 @@
 package com.viscript_recipe.recipe.importer;
 
-import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeImporter;
-import com.viscript_recipe.compat.avaritia.AvaritiaRecipeImporter;
-import com.viscript_recipe.compat.create.CreateRecipeImporter;
-import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeImporter;
-import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeImporter;
-import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeImporter;
-import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeImporter;
-import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeImporter;
+import com.viscript_recipe.compat.RecipeCompatModules;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
@@ -50,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Supplier;
 
 public final class RecipeImporter {
     private static final char[] SHAPED_SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>/?|~".toCharArray();
@@ -141,21 +132,8 @@ public final class RecipeImporter {
     private static List<RecipeImportHandler> createHandlers() {
         var handlers = new ArrayList<RecipeImportHandler>();
         handlers.add(VANILLA_HANDLER);
-        addIfLoaded(handlers, "irons_spellbooks", () -> IronSpellbooksRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "iceandfire", () -> IceAndFireRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "farmersdelight", () -> FarmersDelightRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "create", () -> CreateRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "extendedcrafting", () -> ExtendedCraftingRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "ars_nouveau", () -> ArsNouveauRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "kaleidoscope_cookery", () -> KaleidoscopeCookeryRecipeImporter.INSTANCE);
-        addIfLoaded(handlers, "avaritia", () -> AvaritiaRecipeImporter.INSTANCE);
+        RecipeCompatModules.addImportHandlers(handlers);
         return List.copyOf(handlers);
-    }
-
-    private static void addIfLoaded(List<RecipeImportHandler> handlers, String modId, Supplier<RecipeImportHandler> handler) {
-        if (ViScriptRecipe.isModLoaded(modId)) {
-            handlers.add(handler.get());
-        }
     }
 
     public static RecipeImportResult success(RecipeEntry entry) {
