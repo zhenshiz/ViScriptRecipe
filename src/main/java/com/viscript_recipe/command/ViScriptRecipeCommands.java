@@ -166,7 +166,7 @@ public class ViScriptRecipeCommands implements ICommand {
     private static int reloadRecipes(CommandSourceStack source) {
         var server = source.getServer();
         Config.reloadRuntimeConfigFromDisk();
-        var result = RecipeOverrideManager.reload(server.getRecipeManager(), server.registryAccess());
+        var result = RecipeOverrideManager.reload(server.getRecipeManager(), server.registryAccess(), server.getResourceManager());
         syncReloadDataToPlayers(server);
         source.sendSuccess(() -> Component.translatable(
                 "commands.viscript_recipe.reload.success",
