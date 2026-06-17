@@ -26,6 +26,6 @@ public abstract class RecipeManagerMixin {
             at = @At("TAIL")
     )
     private void viscriptRecipe$applyOverrides(Map<?, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
-        RecipeOverrideManager.apply((RecipeManager) (Object) this, registries);
+        RecipeOverrideManager.apply((RecipeManager) (Object) this, registries, resourceManager);
     }
 }

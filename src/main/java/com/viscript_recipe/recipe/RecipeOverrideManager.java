@@ -3,14 +3,17 @@ package com.viscript_recipe.recipe;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.Config;
 import com.viscript_recipe.compat.create.CreateRecipeFactory;
+import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.irons_spellbooks.IronAlchemistCauldronFluidSupport;
 import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeOperation;
 import com.viscript_recipe.data.create.CreateProcessingKind;
+import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -32,18 +35,26 @@ public final class RecipeOverrideManager {
     }
 
     public static ApplyResult apply(RecipeManager recipeManager, HolderLookup.Provider provider) {
+        return apply(recipeManager, provider, null);
+    }
+
+    public static ApplyResult apply(RecipeManager recipeManager, HolderLookup.Provider provider, @Nullable ResourceManager resourceManager) {
         synchronized (LOCK) {
             baseRecipes = snapshot(recipeManager.getRecipes());
-            return applyOverrides(recipeManager, provider, baseRecipes);
+            return applyOverrides(recipeManager, provider, baseRecipes, resourceManager);
         }
     }
 
     public static ApplyResult reload(RecipeManager recipeManager, HolderLookup.Provider provider) {
+        return reload(recipeManager, provider, null);
+    }
+
+    public static ApplyResult reload(RecipeManager recipeManager, HolderLookup.Provider provider, @Nullable ResourceManager resourceManager) {
         synchronized (LOCK) {
             if (baseRecipes == null) {
                 baseRecipes = snapshot(recipeManager.getRecipes());
             }
-            return applyOverrides(recipeManager, provider, baseRecipes);
+            return applyOverrides(recipeManager, provider, baseRecipes, resourceManager);
         }
     }
 
@@ -63,7 +74,7 @@ public final class RecipeOverrideManager {
         }
     }
 
-    private static ApplyResult applyOverrides(RecipeManager recipeManager, HolderLookup.Provider provider, LinkedHashMap<ResourceLocation, RecipeHolder<?>> base) {
+    private static ApplyResult applyOverrides(RecipeManager recipeManager, HolderLookup.Provider provider, LinkedHashMap<ResourceLocation, RecipeHolder<?>> base, @Nullable ResourceManager resourceManager) {
         var loadedFiles = RecipeFileLoader.loadAll(provider);
         var showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();
         var recipes = showcaseOnly ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>() : new LinkedHashMap<>(base);
@@ -103,6 +114,7 @@ public final class RecipeOverrideManager {
         IronArcaneAnvilOverrideManager.replaceAll(arcaneAnvilRecipes.values());
         IronAlchemistCauldronFluidSupport.replaceAll(alchemistCauldronFluids);
         recipeManager.replaceRecipes(recipes.values());
+        invalidateCompatRecipeCaches(resourceManager);
         lastAppliedRecipeTypes = appliedRecipeTypes;
         lastResult = new ApplyResult(
                 loadedFiles.size(),
@@ -139,6 +151,12 @@ public final class RecipeOverrideManager {
             );
         }
         return lastResult;
+    }
+
+    private static void invalidateCompatRecipeCaches(@Nullable ResourceManager resourceManager) {
+        if (ViScriptRecipe.isModLoaded(CreateRecipeEditorTypes.MOD_ID)) {
+            CreateRecipeRuntimeSupport.invalidateRecipeCaches(resourceManager);
+        }
     }
 
     private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> snapshot(Collection<RecipeHolder<?>> recipes) {
