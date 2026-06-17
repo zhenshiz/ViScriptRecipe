@@ -11,11 +11,9 @@ import java.nio.file.Path;
 public class Config {
     public static final String CONFIG_FILE_NAME = ViScriptRecipe.MOD_ID + "_config.toml";
     private static final String SHOWCASE_ONLY_PATH = "recipes.showcase_only_viscript_recipes";
-    private static final String SYNC_TAGS_FOR_JEI_RELOAD_PATH = "recipes.sync_tags_for_jei_reload";
 
     public static final ModConfigSpec CONFIG_SPEC;
     public static final ModConfigSpec.BooleanValue SHOWCASE_ONLY_VISCRIPT_RECIPES;
-    public static final ModConfigSpec.BooleanValue SYNC_TAGS_FOR_JEI_RELOAD;
 
     static {
         ModConfigSpec.Builder CONFIG_BUILDER = new ModConfigSpec.Builder();
@@ -23,9 +21,6 @@ public class Config {
         SHOWCASE_ONLY_VISCRIPT_RECIPES = CONFIG_BUILDER
                 .translation("viscript_recipe.configuration.showcase_only_viscript_recipes")
                 .define("showcase_only_viscript_recipes", false);
-        SYNC_TAGS_FOR_JEI_RELOAD = CONFIG_BUILDER
-                .translation("viscript_recipe.configuration.sync_tags_for_jei_reload")
-                .define("sync_tags_for_jei_reload", true);
         CONFIG_BUILDER.pop();
         CONFIG_SPEC = CONFIG_BUILDER.build();
     }
@@ -39,7 +34,6 @@ public class Config {
             config.load();
             CONFIG_SPEC.correct(config);
             reloadBoolean(config, SHOWCASE_ONLY_PATH, SHOWCASE_ONLY_VISCRIPT_RECIPES, path);
-            reloadBoolean(config, SYNC_TAGS_FOR_JEI_RELOAD_PATH, SYNC_TAGS_FOR_JEI_RELOAD, path);
         } catch (Exception e) {
             ViScriptRecipe.LOGGER.warn("Failed to reload ViScriptRecipe config from disk", e);
         }

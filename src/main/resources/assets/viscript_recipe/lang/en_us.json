@@ -318,7 +318,6 @@
   "commands.viscript_recipe.reload.status": "ViScriptRecipe recipe status: files %s, entries %s, enabled %s, applied %s, skipped %s, failed %s, base recipes %s, current recipes %s.",
   "viscript_recipe.configuration.recipes": "Recipes",
   "viscript_recipe.configuration.showcase_only_viscript_recipes": "Showcase Mode: Load Only ViScriptRecipe .recipe Files",
-  "viscript_recipe.configuration.sync_tags_for_jei_reload": "Sync Tags on Reload to Refresh JEI",
   "viscript_recipe.config.file.format_version": "File Format Version",
   "viscript_recipe.config.file.pack_id": "Recipe Pack ID",
   "viscript_recipe.config.file.entries": "Recipe Overrides",
