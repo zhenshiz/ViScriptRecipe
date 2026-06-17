@@ -19,6 +19,7 @@ import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
+import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.viscript_recipe.ViScriptRecipe;
@@ -50,6 +51,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
@@ -123,7 +125,21 @@ public final class CreateRecipeFactory {
         for (var step : steps) {
             addSequencedStep(builder, step);
         }
-        return builder.build().value();
+        var recipe = builder.build().value();
+        initializeSequencedAssembly(recipe);
+        return recipe;
+    }
+
+    private static void initializeSequencedAssembly(SequencedAssemblyRecipe recipe) {
+        var transit = Ingredient.of(recipe.getTransitionalItem());
+        var sequence = recipe.getSequence();
+        for (int i = 0; i < sequence.size(); i++) {
+            var wrapped = sequence.get(i).getRecipe();
+            if (!sequence.get(i).getAsAssemblyRecipe().supportsAssembly() || wrapped.getIngredients().isEmpty()) {
+                continue;
+            }
+            wrapped.getIngredients().set(0, i == 0 ? CompoundIngredient.of(transit, recipe.getIngredient()) : transit);
+        }
     }
 
     private static void addSequencedStep(SequencedAssemblyRecipeBuilder builder, CreateSequencedAssemblyStepData step) {

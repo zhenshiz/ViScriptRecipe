@@ -51,7 +51,9 @@ public class ViScriptRecipeCommands implements ICommand {
                                         StringArgumentType.getString(context, "file")
                                 ))))
                 .then(Commands.literal("reload")
-                        .executes(context -> reloadRecipes(context.getSource())))
+                        .executes(context -> reloadRecipes(context.getSource(), false))
+                        .then(Commands.literal("full")
+                                .executes(context -> reloadRecipes(context.getSource(), true))))
                 .then(Commands.literal("status")
                         .executes(context -> showStatus(context.getSource()))));
     }
@@ -163,11 +165,11 @@ public class ViScriptRecipeCommands implements ICommand {
         return path.toString().replace('\\', '/');
     }
 
-    private static int reloadRecipes(CommandSourceStack source) {
+    private static int reloadRecipes(CommandSourceStack source, boolean syncTags) {
         var server = source.getServer();
         Config.reloadRuntimeConfigFromDisk();
         var result = RecipeOverrideManager.reload(server.getRecipeManager(), server.registryAccess());
-        syncReloadDataToPlayers(server);
+        syncReloadDataToPlayers(server, syncTags);
         source.sendSuccess(() -> Component.translatable(
                 "commands.viscript_recipe.reload.success",
                 result.fileCount(),
@@ -181,14 +183,14 @@ public class ViScriptRecipeCommands implements ICommand {
         return 1;
     }
 
-    private static void syncReloadDataToPlayers(MinecraftServer server) {
+    private static void syncReloadDataToPlayers(MinecraftServer server, boolean syncTags) {
         var players = server.getPlayerList().getPlayers();
         if (players.isEmpty()) {
             return;
         }
 
         var recipesPacket = new ClientboundUpdateRecipesPacket(server.getRecipeManager().getOrderedRecipes());
-        var tagsPacket = Config.SYNC_TAGS_FOR_JEI_RELOAD.get()
+        var tagsPacket = syncTags
                 ? new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registries()))
                 : null;
         var showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();

@@ -318,7 +318,6 @@
   "commands.viscript_recipe.reload.status": "ViScriptRecipe 配方状态：文件 %s，条目 %s，启用 %s，应用 %s，跳过 %s，失败 %s，基础配方 %s，当前配方 %s。",
   "viscript_recipe.configuration.recipes": "配方",
   "viscript_recipe.configuration.showcase_only_viscript_recipes": "展示模式：只加载 ViScriptRecipe .recipe 配方",
-  "viscript_recipe.configuration.sync_tags_for_jei_reload": "重载时同步标签以刷新 JEI",
   "viscript_recipe.config.file.format_version": "文件格式版本",
   "viscript_recipe.config.file.pack_id": "配方包 ID",
   "viscript_recipe.config.file.entries": "配方修改",

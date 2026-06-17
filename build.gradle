@@ -191,8 +191,8 @@ dependencies {
     jarJar "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${viscriptlib_version}"
 
     // KubeJS
-    compileOnly "dev.latvian.mods:rhino:${rhino_version}"
-    compileOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+    implementation "dev.latvian.mods:rhino:${rhino_version}"
+    implementation "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
 
     // Optional
     //铁魔法
