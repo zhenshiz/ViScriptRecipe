@@ -1106,11 +1106,14 @@ public class RecipeEditorController {
     }
 
     public FluidStack getSelectedFluid() {
-        if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.FLUID) {
+        if (selectedEntry == null) {
             return FluidStack.EMPTY;
         }
-        if (isCreateSequencedAssemblyEntry(selectedEntry)) {
+        if (isSelectedCreateFluidInput() && isCreateSequencedAssemblyEntry(selectedEntry)) {
             return getCreateSequencedStepFluidIngredient(slotSelection.index()).getFluid();
+        }
+        if (slotSelection.kind() != WorkbenchSlotSelection.Kind.FLUID) {
+            return FluidStack.EMPTY;
         }
         if (isCreateProcessingEntry(selectedEntry)) {
             if (isSelectedCreateFluidOutput()) {
@@ -1125,16 +1128,19 @@ public class RecipeEditorController {
     }
 
     public void setSelectedFluid(FluidStack stack) {
-        if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.FLUID) {
+        if (selectedEntry == null) {
             return;
         }
-        if (isCreateSequencedAssemblyEntry(selectedEntry)) {
+        if (isSelectedCreateFluidInput() && isCreateSequencedAssemblyEntry(selectedEntry)) {
             var input = getCreateSequencedStepFluidIngredient(slotSelection.index());
             var fluid = stack == null ? FluidStack.EMPTY : stack.copy();
             input.setKind(CreateFluidIngredientKind.FLUID);
             input.setFluid(fluid);
             input.setAmount(Math.max(1, fluid.getAmount()));
             setCreateSequencedStepFluidIngredient(slotSelection.index(), input);
+            return;
+        }
+        if (slotSelection.kind() != WorkbenchSlotSelection.Kind.FLUID) {
             return;
         }
         if (isCreateProcessingEntry(selectedEntry)) {
@@ -2519,9 +2525,14 @@ public class RecipeEditorController {
 
     public boolean isSelectedCreateFluidInput() {
         if (selectedEntry != null
-                && isCreateSequencedAssemblyEntry(selectedEntry)
-                && slotSelection.kind() == WorkbenchSlotSelection.Kind.FLUID) {
-            return slotSelection.index() >= 0 && slotSelection.index() < createSequencedStepCount(selectedEntry);
+                && isCreateSequencedAssemblyEntry(selectedEntry)) {
+            if (slotSelection.kind() == WorkbenchSlotSelection.Kind.FLUID) {
+                return slotSelection.index() >= 0 && slotSelection.index() < createSequencedStepCount(selectedEntry);
+            }
+            return slotSelection.kind() == WorkbenchSlotSelection.Kind.CREATE_SEQUENCED_STEP
+                    && slotSelection.index() >= 0
+                    && slotSelection.index() < createSequencedStepCount(selectedEntry)
+                    && getCreateSequencedStepKind(selectedEntry, slotSelection.index()) == CreateSequencedAssemblyStepKind.FILLING;
         }
         return selectedEntry != null
                 && isCreateProcessingEntry(selectedEntry)
@@ -5261,13 +5272,22 @@ public class RecipeEditorController {
         }
         var normalizedAmount = Math.max(1, amount);
         return BuiltInRegistries.FLUID.getTag(TagKey.create(Registries.FLUID, tag))
-                .map(holders -> holders.stream()
+                .map(holders -> displayFluidsFromHolders(holders.stream()
                         .map(Holder::value)
                         .filter(fluid -> fluid != Fluids.EMPTY)
-                        .map(fluid -> new FluidStack(fluid, normalizedAmount))
-                        .filter(stack -> !stack.isEmpty())
-                .toArray(FluidStack[]::new))
+                        .toList(), normalizedAmount))
                 .orElseGet(() -> new FluidStack[0]);
+    }
+
+    private FluidStack[] displayFluidsFromHolders(List<Fluid> fluids, int amount) {
+        var sourceFluids = fluids.stream()
+                .filter(fluid -> fluid.defaultFluidState().isSource())
+                .toList();
+        var displayFluids = sourceFluids.isEmpty() ? fluids : sourceFluids;
+        return displayFluids.stream()
+                .map(fluid -> new FluidStack(fluid, amount))
+                .filter(stack -> !stack.isEmpty())
+                .toArray(FluidStack[]::new);
     }
 
     @Nullable

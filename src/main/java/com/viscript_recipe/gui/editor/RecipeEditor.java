@@ -20,7 +20,7 @@ public class RecipeEditor extends FunctionFileEditor {
     public static final ResourceLocation WINDOW_ID = ViScriptRecipe.id("recipe_editor");
 
     public RecipeEditor() {
-        registerFunctionFileType(RecipeProjectType.TYPE);
+        registerProjectType(RecipeProjectType.TYPE);
         removeBottomWindow();
     }
 

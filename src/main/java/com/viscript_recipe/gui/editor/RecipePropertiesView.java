@@ -6,10 +6,13 @@ import com.lowdragmc.lowdraglib2.configurator.accessors.FluidStackAccessor;
 import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
 import com.lowdragmc.lowdraglib2.configurator.ui.TagKeySearchComponent;
 import com.lowdragmc.lowdraglib2.editor.ui.View;
+import com.lowdragmc.lowdraglib2.gui.texture.FluidStackTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
+import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeEntry;
@@ -18,13 +21,16 @@ import com.viscript_recipe.data.RecipeIngredientValue;
 import com.viscript_recipe.data.RecipeOperation;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
+import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
 import com.viscript_recipe.data.vanilla.CraftingRemainderMode;
 import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -95,7 +101,7 @@ public class RecipePropertiesView extends View {
                 case CUTTING_RESULT -> buildCuttingResultProperties();
                 case CREATE_RESULT -> buildCreateResultProperties();
                 case CREATE_TRANSITIONAL -> buildCreateSequencedTransitionalProperties();
-                case CREATE_SEQUENCED_STEP -> RecipePropertiesSections.buildSelectedCreateSequencedStep(content, controller, entry, () -> buildRecipeProperties(entry));
+                case CREATE_SEQUENCED_STEP -> buildCreateSequencedStepProperties(entry);
                 case ARS_NOUVEAU_OUTPUT -> buildArsNouveauOutputProperties();
             }
         } finally {
@@ -114,6 +120,7 @@ public class RecipePropertiesView extends View {
                 selectedIngredientKind(entry, selection),
                 selectedRemainderMode(entry, selection),
                 selectedCreateFluidIngredientKind(),
+                selectedCreateFluidIngredientSignature(),
                 entry != null && controller.supportsNotification(entry),
                 entry != null && controller.isCookingEntry(entry),
                 entry != null && controller.isFarmersCookingPotEntry(entry),
@@ -181,6 +188,23 @@ public class RecipePropertiesView extends View {
         return ingredient.getKind() == null ? CreateFluidIngredientKind.FLUID : ingredient.getKind();
     }
 
+    private String selectedCreateFluidIngredientSignature() {
+        if (!controller.isSelectedCreateFluidInput()) {
+            return "";
+        }
+        var ingredient = controller.getSelectedCreateFluidIngredient();
+        var kind = ingredient.getKind() == null ? CreateFluidIngredientKind.FLUID : ingredient.getKind();
+        if (kind == CreateFluidIngredientKind.TAG) {
+            return "tag:" + ingredient.getTag() + ":" + Math.max(1, ingredient.getAmount());
+        }
+        var stack = ingredient.getFluid();
+        if (stack == null || stack.isEmpty()) {
+            return "fluid:empty";
+        }
+        var fluidId = stack.getFluidHolder().unwrapKey().map(Object::toString).orElse(stack.getFluid().toString());
+        return "fluid:" + fluidId + ":" + stack.getAmount();
+    }
+
     private record PropertiesStructureKey(
             int entryIdentity,
             ResourceLocation selectedCategory,
@@ -189,6 +213,7 @@ public class RecipePropertiesView extends View {
             IngredientValueKind ingredientKind,
             CraftingRemainderMode remainderMode,
             CreateFluidIngredientKind createFluidIngredientKind,
+            String createFluidIngredientSignature,
             boolean supportsNotification,
             boolean cooking,
             boolean farmersCookingPot,
@@ -435,6 +460,18 @@ public class RecipePropertiesView extends View {
         );
     }
 
+    private void buildCreateSequencedStepProperties(RecipeEntry entry) {
+        RecipePropertiesSections.buildSelectedCreateSequencedStep(content, controller, entry, () -> buildRecipeProperties(entry));
+        var selection = controller.getSlotSelection();
+        if (controller.isCreateSequencedAssemblyEntry(entry)
+                && selection.kind() == WorkbenchSlotSelection.Kind.CREATE_SEQUENCED_STEP
+                && selection.index() >= 0
+                && selection.index() < controller.selectedCreateSequencedStepCount()
+                && controller.getCreateSequencedStepKind(entry, selection.index()) == CreateSequencedAssemblyStepKind.FILLING) {
+            buildCreateFluidIngredientProperties();
+        }
+    }
+
     private void buildContainerProperties() {
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.farmersdelight.container"),
@@ -635,7 +672,7 @@ public class RecipePropertiesView extends View {
     }
 
     private UIElement createFluidTagConfigurator(CreateFluidIngredientData ingredient) {
-        var configurator = new TagKeySearchComponent.Fluid(
+        var configurator = new TagKeySearchComponent<Fluid>(
                 "viscript_recipe.config.create.fluid_ingredient.tag",
                 () -> fluidTag(ingredient.getTag()),
                 tag -> {
@@ -644,7 +681,12 @@ public class RecipePropertiesView extends View {
                     }
                 },
                 fluidTag(defaultFluidTag()),
-                true
+                true,
+                BuiltInRegistries.FLUID,
+                UIElementProvider.iconText(
+                        this::fluidTagIcon,
+                        tag -> Component.literal(tag.location().toString())
+                )
         );
         configurator.layout(layout -> layout.widthPercent(100));
         configurator.searchComponent.searchStyle(style -> {
@@ -652,6 +694,27 @@ public class RecipePropertiesView extends View {
             style.scrollerViewHeight(120);
         });
         return configurator;
+    }
+
+    private IGuiTexture fluidTagIcon(TagKey<Fluid> tag) {
+        var fluids = BuiltInRegistries.FLUID.getTag(tag)
+                .map(holders -> holders.stream()
+                        .map(holder -> holder.value())
+                        .filter(fluid -> fluid != Fluids.EMPTY)
+                        .toList())
+                .orElseGet(List::of);
+        var sourceFluids = fluids.stream()
+                .filter(fluid -> fluid.defaultFluidState().isSource())
+                .toList();
+        var displayFluids = sourceFluids.isEmpty() ? fluids : sourceFluids;
+        if (displayFluids.isEmpty()) {
+            return IGuiTexture.EMPTY;
+        }
+        var stacks = displayFluids.stream()
+                .map(fluid -> new FluidStack(fluid, 1000))
+                .filter(stack -> !stack.isEmpty())
+                .toArray(FluidStack[]::new);
+        return stacks.length == 0 ? IGuiTexture.EMPTY : new FluidStackTexture(stacks);
     }
 
     private UIElement createItemAbilityConfigurator(RecipeIngredient ingredient, RecipeIngredientValue value) {
