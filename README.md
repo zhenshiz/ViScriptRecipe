@@ -8,14 +8,14 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 
 - 游戏内可视化编辑 `.recipe` 文件，支持创建、替换、删除配方。
 - 按工作站分类展示配方类型，联动模组只有在已安装时才会出现在编辑器中。
-- 支持物品输入、物品标签输入、工具动作输入、流体输入、流体标签输入、概率输出、数量输出等常见配方参数。
+- 支持物品输入、物品标签输入、工具动作输入、流体输入、Create 流体标签输入、概率输出、数量输出等常见配方参数。
 - 左侧配方列表支持新增、删除、复制到下方，适合批量制作相似配方。
 - 支持通过配方 ID 导入当前世界已经加载的配方，兼容时会自动切换到对应配方类型并填充参数。
 - 支持 `add`、`replace`、`remove` 三种操作，可以把 `.recipe` 当作一个轻量配方覆盖包使用。
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
-- 重载后会向客户端同步配方包、配方书状态，并可按配置同步标签包帮助 JEI 刷新。
+- 普通重载会向客户端同步配方包和配方书状态；`/viscript_recipe reload full` 会额外同步标签包，适合需要 JEI 重建标签相关配方时使用。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持多个大型配方模组的专用编辑 UI，包括 Create、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau 等。
+- 支持多个大型配方模组的专用编辑 UI，包括 Create、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Ice and Fire 等。
 
 ## 基本信息
 
@@ -33,9 +33,10 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 | `/viscript_recipe editor` | 打开配方编辑器。 |
 | `/viscript_recipe editor <file>` | 打开或创建指定 `.recipe` 文件，文件名支持补全。 |
 | `/viscript_recipe reload` | 重新读取并应用本模组 `.recipe` 配方文件。 |
+| `/viscript_recipe reload full` | 在普通重载基础上额外同步标签包，帮助 JEI 重建依赖标签的配方显示。 |
 | `/viscript_recipe status` | 查看上一次加载的文件数、条目数、成功/跳过/失败数量。 |
 
-编辑器目前只能在单人/集成服务器中打开。专用服务器可以把 `.recipe` 文件放到服务器的 `ldlib2/assets/viscript_recipe/recipes` 目录下，然后使用 `/viscript_recipe reload` 应用。
+编辑器目前只能在单人/集成服务器中打开。专用服务器可以把 `.recipe` 文件放到服务器的 `ldlib2/assets/viscript_recipe/recipes` 目录下，然后使用 `/viscript_recipe reload` 或 `/viscript_recipe reload full` 应用。
 
 ## 配方文件与操作
 
@@ -55,7 +56,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - 中间是可视化工作区，会根据配方类型显示对应工作台、输入槽、输出槽、流体槽和箭头。
 - 右侧是属性面板，用来编辑配方 ID、操作模式、具体参数、数量、时间、热量、概率、能量消耗等。
 - 支持直接点击槽位编辑物品或流体，也支持在属性面板中精细修改。
-- 支持物品标签和流体标签，标签输入会在槽位中轮换预览匹配物品或流体。
+- 支持物品标签；Create 的流体输入支持流体标签，标签输入会在槽位中轮换预览匹配物品或流体。
 - 支持 Farmer's Delight 砧板工具动作输入，例如斧头、刀具等工具能力。
 - 支持配方导入：输入或搜索已加载配方 ID，若本模组兼容该类型，会自动生成可编辑条目。
 - 支持复制到下方：基于当前配方克隆一个新条目，并自动生成 `_copy` 后缀 ID，适合做少量修改。
@@ -64,14 +65,17 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 
 `/viscript_recipe reload` 会重新读取 `ldlib2/assets/viscript_recipe/recipes` 下的 `.recipe` 文件，然后把结果应用到当前 RecipeManager。它不会触发完整数据包 reload，因此不会额外重载其它模组的战利品表、标签生成器或数据包监听器。
 
-重载时会向在线玩家发送新的配方包，并同步配方书。默认情况下还会同步标签包，用来帮助 JEI 感知配方相关变化并刷新界面。
+安装 Create 时，重载会同时刷新 Create 的配方查找缓存，避免机器侧继续命中已经删除或替换前的旧配方。
+
+普通重载会向在线玩家发送新的配方包，并同步配方书。它不会同步标签包，因此卡顿更少，适合只改配方内容的开发流程。
+
+`/viscript_recipe reload full` 会在普通重载基础上额外发送标签包，用来帮助 JEI 感知标签相关变化并刷新界面。这个模式会比普通重载更重，通常只在新增、删除或修改标签相关输入后需要使用。
 
 配置项：
 
 | 配置项 | 默认值 | 作用 |
 | --- | --- | --- |
 | `recipes.showcase_only_viscript_recipes` | `false` | 展示模式。开启后会清空基础配方，只加载 ViScriptRecipe 的 `.recipe` 配方，方便检查配方包。 |
-| `recipes.sync_tags_for_jei_reload` | `true` | `/viscript_recipe reload` 后同步标签包，帮助 JEI 刷新配方 UI；如果开发环境觉得卡，可以关闭。 |
 
 ## 支持的原版配方
 
@@ -135,7 +139,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 | 动力合成器 | `create:mechanical_crafting` |
 | 序列组装 | `create:sequenced_assembly` |
 
-Create 处理配方支持物品输入、流体输入、物品输出、流体输出、处理时间、热量需求和保留手持物品等参数。动力搅拌、动力压缩和自动无序配方支持在单个物品槽中设置数量，保存时会展开为多个 Create `Ingredient`。`create:block_cutting` 会根据多个输出派生多个配方 ID。序列组装支持部署、冲压、切削和注液步骤。
+Create 处理配方支持物品输入、流体输入、物品输出、流体输出、处理时间、热量需求和保留手持物品等参数。带流体输入的 Create 配方可以使用具体流体或流体标签，当前包括 `create:filling`、`create:mixing`、`create:compacting`、`create:automatic_brewing`，以及序列组装中的注液步骤；`create:emptying` 的流体是输出，仍使用具体流体。动力搅拌、动力压缩和自动无序配方支持在单个物品槽中设置数量，保存时会展开为多个 Create `Ingredient`。`create:block_cutting` 会根据多个输出派生多个配方 ID。序列组装支持部署、冲压、切削和注液步骤。
 
 ### Extended Crafting (`extendedcrafting`)
 
@@ -197,4 +201,4 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 - 联动模组没有安装时，对应工作站和配方类型不会出现在编辑器中。
 - `.recipe` 文件是本模组自己的配方覆盖文件，不是原版 JSON 数据包文件。
 - 展示模式 `recipes.showcase_only_viscript_recipes` 会清空基础配方后再应用 `.recipe`，更适合调试和展示，不建议在不了解效果时直接用于正式整合包。
-- 如果 `/viscript_recipe reload` 后 JEI 刷新较慢，可以关闭 `recipes.sync_tags_for_jei_reload`，但关闭后 JEI 可能不会立刻重建部分配方 UI。
+- 如果只改配方内容，优先使用 `/viscript_recipe reload`；如果 JEI 对标签相关配方没有立刻刷新，再使用 `/viscript_recipe reload full`。
