@@ -744,6 +744,13 @@ public class RecipeEditorController {
         return visualIngredients[index].copy();
     }
 
+    public RecipeIngredient snapshotVisualIngredient(int index) {
+        if (index < 0 || index >= visualIngredientData.length) {
+            return new RecipeIngredient();
+        }
+        return copyIngredient(visualIngredientData[index]);
+    }
+
     public ItemStack[] getVisualIngredientTagStacks(int index) {
         if (index < 0 || index >= visualIngredientData.length) {
             return new ItemStack[0];
@@ -841,6 +848,19 @@ public class RecipeEditorController {
 
     public void clearVisualIngredient(int index) {
         setVisualIngredient(index, ItemStack.EMPTY);
+    }
+
+    public void setVisualIngredientFromDrag(int index, RecipeIngredient ingredient) {
+        if (selectedEntry == null || index < 0 || index >= visualIngredientData.length) {
+            return;
+        }
+        setIngredientForSlot(selectedEntry, index, copyIngredient(ingredient));
+        if (preservesIngredientSlotPositionsOnEdit(selectedEntry)) {
+            refreshUnsupportedIngredientStatus();
+        } else {
+            refreshVisualStateFromData();
+        }
+        notifyChanged();
     }
 
     public ItemStack getVisualResult() {

@@ -17,12 +17,14 @@ import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import com.lowdragmc.lowdraglib2.utils.data.BlockInfo;
 import com.lowdragmc.lowdraglib2.utils.virtuallevel.TrackedDummyWorld;
+import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -35,7 +37,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CraftingWorkbenchView extends View {
     private static final int SLOT_SIZE = 24;
@@ -49,8 +53,10 @@ public class CraftingWorkbenchView extends View {
     private static final int CREATE_SEQUENCED_STEP_INGREDIENT_OFFSET = 10;
     private static final int ARS_NOUVEAU_IMBUEMENT_PEDESTAL_SLOTS = 3;
     private static final int KALEIDOSCOPE_CARRIER_SLOT = 9;
+    private static final int DRAGGED_ITEM_PREVIEW_SIZE = 18;
 
     private final RecipeEditorController controller;
+    private final Map<IngredientDisplaySlot, Integer> ingredientDragSlotIndices = new IdentityHashMap<>();
     private final IngredientDisplaySlot[] craftingIngredientSlots = new IngredientDisplaySlot[9];
     private final ItemSlot craftingOutputSlot = createEditorSlot(OUTPUT_SLOT_SIZE);
     private final IngredientDisplaySlot[] mechanicalCraftingIngredientSlots = new IngredientDisplaySlot[81];
@@ -1502,6 +1508,7 @@ public class CraftingWorkbenchView extends View {
     }
 
     private IngredientDisplaySlot configureIngredientSlot(IngredientDisplaySlot slot, int index) {
+        ingredientDragSlotIndices.put(slot, index);
         slot.registerValueListener(stack -> {
             if (!controller.isRefreshing()) {
                 controller.setVisualIngredient(index, stack);
@@ -1616,6 +1623,7 @@ public class CraftingWorkbenchView extends View {
     }
 
     private IngredientDisplaySlot configureAutoPackingIngredientSlot(IngredientDisplaySlot slot) {
+        ingredientDragSlotIndices.put(slot, 0);
         slot.registerValueListener(stack -> {
             if (!controller.isRefreshing()) {
                 controller.setVisualIngredient(0, stack);
@@ -1738,6 +1746,7 @@ public class CraftingWorkbenchView extends View {
     }
 
     private IngredientDisplaySlot configureCreateSequencedStepIngredientSlot(IngredientDisplaySlot slot, int index) {
+        ingredientDragSlotIndices.put(slot, index);
         slot.registerValueListener(stack -> {
             if (!controller.isRefreshing()) {
                 controller.setVisualIngredient(index, stack);
@@ -2901,24 +2910,87 @@ public class CraftingWorkbenchView extends View {
         slot.setFluid(stack == null ? FluidStack.EMPTY : stack.copy(), false);
     }
 
-    private static ItemSlot createEditorSlot(int size) {
-        return (ItemSlot) new ItemSlot()
+    private ItemSlot createEditorSlot(int size) {
+        return enableShiftDragCopy((ItemSlot) new ItemSlot()
                 .xeiPhantom()
                 .slotStyle(style -> style.showItemTooltips(true))
                 .layout(layout -> {
                     layout.width(size);
                     layout.height(size);
-                });
+                }));
     }
 
-    private static IngredientDisplaySlot createIngredientSlot(int size) {
-        return (IngredientDisplaySlot) new IngredientDisplaySlot()
+    private IngredientDisplaySlot createIngredientSlot(int size) {
+        return enableShiftDragCopy((IngredientDisplaySlot) new IngredientDisplaySlot()
                 .xeiPhantom()
                 .slotStyle(style -> style.showItemTooltips(true))
                 .layout(layout -> {
                     layout.width(size);
                     layout.height(size);
-                });
+                }));
+    }
+
+    private <T extends ItemSlot> T enableShiftDragCopy(T slot) {
+        slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
+            if (event.button != 0 || !Screen.hasShiftDown()) {
+                return;
+            }
+            var stack = slot.getValue();
+            if (stack.isEmpty()) {
+                return;
+            }
+
+            var draggedStack = stack.copy();
+            RecipeIngredient draggedIngredient = null;
+            if (slot instanceof IngredientDisplaySlot ingredientSlot) {
+                var ingredientIndex = ingredientDragSlotIndices.get(ingredientSlot);
+                if (ingredientIndex != null) {
+                    draggedIngredient = controller.snapshotVisualIngredient(ingredientIndex);
+                }
+            }
+            var dragHandler = slot.startDrag(
+                    new ItemSlotDragPayload(slot, draggedStack, draggedIngredient),
+                    new ItemStackTexture(draggedStack)
+            );
+            dragHandler.setDragTexture(
+                    -DRAGGED_ITEM_PREVIEW_SIZE / 2f,
+                    -DRAGGED_ITEM_PREVIEW_SIZE / 2f,
+                    DRAGGED_ITEM_PREVIEW_SIZE,
+                    DRAGGED_ITEM_PREVIEW_SIZE
+            );
+            event.stopImmediatePropagation();
+        });
+        slot.addEventListener(UIEvents.DRAG_PERFORM, event -> {
+            var draggingObject = event.dragHandler == null ? null : event.dragHandler.getDraggingObject();
+            if (!(draggingObject instanceof ItemSlotDragPayload payload)) {
+                return;
+            }
+            if (payload.source() == slot || payload.stack().isEmpty()) {
+                event.stopPropagation();
+                return;
+            }
+
+            if (slot instanceof IngredientDisplaySlot ingredientSlot && payload.ingredient() != null) {
+                var ingredientIndex = ingredientDragSlotIndices.get(ingredientSlot);
+                if (ingredientIndex != null) {
+                    controller.setVisualIngredientFromDrag(ingredientIndex, payload.ingredient());
+                    event.stopPropagation();
+                    return;
+                }
+            }
+
+            var copiedStack = payload.stack().copy();
+            if (!slot.getSlot().mayPlace(copiedStack)) {
+                event.stopPropagation();
+                return;
+            }
+            if (slot instanceof IngredientDisplaySlot ingredientSlot) {
+                ingredientSlot.clearTagDisplayStacks();
+            }
+            slot.setItem(copiedStack, true);
+            event.stopPropagation();
+        });
+        return slot;
     }
 
     private static FluidSlot createFluidSlot() {
@@ -2943,6 +3015,9 @@ public class CraftingWorkbenchView extends View {
                     layout.width(30);
                     layout.height(30);
                 });
+    }
+
+    private record ItemSlotDragPayload(ItemSlot source, ItemStack stack, RecipeIngredient ingredient) {
     }
 
     private static UIElement createItemIcon(ItemStack stack, int size) {
