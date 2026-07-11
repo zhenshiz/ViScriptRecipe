@@ -281,6 +281,8 @@ public class CraftingWorkbenchView extends View {
     private UIElement createAutomaticBrewingHeatPanel;
     private UIElement alchemistResultFluidColumn;
     private UIElement alchemistOutputItemColumn;
+    private UIElement canvasStack;
+    private RecipeCanvasViewport canvasViewport;
 
     public CraftingWorkbenchView(RecipeEditorController controller) {
         super("viscript_recipe.view.workbench", Icons.GRID);
@@ -296,20 +298,28 @@ public class CraftingWorkbenchView extends View {
             layout.heightPercent(100);
             layout.paddingAll(8);
             layout.gapAll(8);
+            layout.minWidth(0);
+            layout.minHeight(0);
         }).style(style -> style.backgroundTexture(Sprites.RECT_SOLID));
+        root.setOverflowVisible(false);
 
         var top = RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);
             layout.height(18);
             layout.alignItems(AlignItems.CENTER);
+            layout.minWidth(0);
         });
-        titleLabel.layout(layout -> layout.flex(1));
+        titleLabel.layout(layout -> {
+            layout.flex(1);
+            layout.minWidth(0);
+        });
         statusLabel.textStyle(style -> style
                 .textAlignHorizontal(Horizontal.RIGHT)
                 .textWrap(TextWrap.HOVER_ROLL)
                 .textColor(ColorPattern.LIGHT_GRAY.color));
         statusLabel.layout(layout -> {
-            layout.width(260);
+            layout.flex(1);
+            layout.minWidth(0);
             layout.height(18);
         });
         top.addChildren(titleLabel, statusLabel);
@@ -344,10 +354,14 @@ public class CraftingWorkbenchView extends View {
         kaleidoscopeChoppingBoardCanvas = createKaleidoscopeChoppingBoardCanvas();
         kaleidoscopeSteamerCanvas = createKaleidoscopeSteamerCanvas();
         kaleidoscopeTeapotCanvas = createKaleidoscopeTeapotCanvas();
-        return RecipeEditorUi.column().layout(layout -> {
+        canvasStack = RecipeEditorUi.column().layout(layout -> {
             layout.widthPercent(100);
-            layout.flex(1);
+            layout.heightPercent(100);
+            layout.minWidth(0);
+            layout.minHeight(0);
         }).addChildren(craftingCanvas, mechanicalCraftingCanvas, cookingCanvas, farmersCookingPotCanvas, farmersCuttingBoardCanvas, smithingCanvas, avaritiaCompressorCanvas, avaritiaExtremeSmithingCanvas, extendedCombinationCanvas, extendedCompressorCanvas, extendedFluxCanvas, alchemistCanvas, dragonForgeCanvas, createProcessingCanvas, createSequencedAssemblyCanvas, arsNouveauApparatusCanvas, arsNouveauImbuementCanvas, arsNouveauGlyphCanvas, arsNouveauCrushCanvas, kaleidoscopePotCanvas, kaleidoscopeStockpotCanvas, kaleidoscopeMillstoneCanvas, kaleidoscopeChoppingBoardCanvas, kaleidoscopeSteamerCanvas, kaleidoscopeTeapotCanvas);
+        canvasViewport = new RecipeCanvasViewport(canvasStack);
+        return canvasViewport;
     }
 
     private UIElement createCraftingCanvas() {
@@ -1985,6 +1999,9 @@ public class CraftingWorkbenchView extends View {
             setSlot(craftingOutputSlot, controller.getVisualResult());
         }
         updateStatus();
+        if (canvasViewport != null) {
+            canvasViewport.requestReflow();
+        }
     }
 
     private void refreshIngredientSlot(IngredientDisplaySlot slot, int index) {

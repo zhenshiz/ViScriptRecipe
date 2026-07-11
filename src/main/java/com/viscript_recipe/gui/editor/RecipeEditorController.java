@@ -1,7 +1,6 @@
 package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.Platform;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorLayout;
@@ -250,7 +249,7 @@ public class RecipeEditorController {
         var type = RecipeEditorTypes.defaultTypeForCategory(selectedCategory);
         var entry = new RecipeEntry()
                 .setType(type)
-                .setRecipeId(ViScriptRecipe.id("recipe_" + (recipeFile().getEntries().size() + 1)));
+                .setRecipeId(nextGeneratedRecipeId());
         RecipeDefaultDataInitializer.apply(entry, type);
         recipeFile().getEntries().add(entry);
         selectedEntry = entry;
@@ -340,15 +339,28 @@ public class RecipeEditorController {
     }
 
     private ResourceLocation nextDuplicateRecipeId(@Nullable ResourceLocation sourceId) {
-        var base = sourceId == null ? ViScriptRecipe.id("recipe") : sourceId;
-        var copyPath = base.getPath() + "_copy";
-        var candidate = ResourceLocation.fromNamespaceAndPath(base.getNamespace(), copyPath);
+        var sourcePath = sourceId == null ? "recipe" : sourceId.getPath();
+        var namespace = recipeFile().getRecipeNamespace();
+        var copyPath = sourcePath + "_copy";
+        var candidate = ResourceLocation.fromNamespaceAndPath(namespace, copyPath);
         if (!recipeIdExists(candidate)) {
             return candidate;
         }
         var index = 2;
         while (true) {
-            candidate = ResourceLocation.fromNamespaceAndPath(base.getNamespace(), copyPath + "_" + index);
+            candidate = ResourceLocation.fromNamespaceAndPath(namespace, copyPath + "_" + index);
+            if (!recipeIdExists(candidate)) {
+                return candidate;
+            }
+            index++;
+        }
+    }
+
+    private ResourceLocation nextGeneratedRecipeId() {
+        var namespace = recipeFile().getRecipeNamespace();
+        var index = recipeFile().getEntries().size() + 1;
+        while (true) {
+            var candidate = ResourceLocation.fromNamespaceAndPath(namespace, "recipe_" + index);
             if (!recipeIdExists(candidate)) {
                 return candidate;
             }

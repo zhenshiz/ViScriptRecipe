@@ -10,7 +10,6 @@ import com.viscript_lib.gui.editor.EditorServerUploads;
 import com.viscript_lib.gui.editor.EditorUploadAction;
 import com.viscript_lib.gui.editor.FunctionFileEditor;
 import com.viscript_recipe.ViScriptRecipe;
-import dev.vfyjxf.taffy.style.TaffyDisplay;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,7 +20,7 @@ public class RecipeEditor extends FunctionFileEditor {
 
     public RecipeEditor() {
         registerProjectType(RecipeProjectType.TYPE);
-        removeBottomWindow();
+        removeUnusedBottomWindow();
     }
 
     public static ModularUI createUI() {
@@ -31,8 +30,20 @@ public class RecipeEditor extends FunctionFileEditor {
     }
 
     @Override
+    protected void initMenus() {
+        super.initMenus();
+        menuContainer.addChild(new RecipeMenu(this).createMenuTab());
+    }
+
+    @Override
     protected @Nonnull Editor createNewEditorInstance() {
         return new RecipeEditor();
+    }
+
+    @Override
+    public void applyLayout(EditorLayout layout) {
+        super.applyLayout(layout);
+        removeUnusedBottomWindow();
     }
 
     @Override
@@ -53,6 +64,15 @@ public class RecipeEditor extends FunctionFileEditor {
             return new RecipeUploadAction(project);
         }
         return null;
+    }
+
+    /**
+     * Removes the unused bottom split after both the default layout and a persisted layout are built.
+     */
+    private void removeUnusedBottomWindow() {
+        if (bottomWindow != rootWindow && bottomWindow.getAllViews().isEmpty()) {
+            removeBottomWindow();
+        }
     }
 
     private record RecipeUploadAction(RecipeProject project) implements EditorUploadAction {
