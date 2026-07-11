@@ -22,6 +22,7 @@ import com.viscript_recipe.data.RecipeOperation;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
+import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
 import com.viscript_recipe.data.vanilla.CraftingRemainderMode;
 import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -143,6 +144,14 @@ public class RecipePropertiesView extends View {
                 entry != null && controller.isAvaritiaTableEntry(entry),
                 entry != null && controller.isAvaritiaShapedTableEntry(entry),
                 entry != null && controller.isAvaritiaCompressorEntry(entry),
+                entry != null && controller.isGoetyRitualEntry(entry) && entry.getGoetyRitual().isHasSacrifice(),
+                entry != null && controller.isGoetyRitualEntry(entry) && entry.getGoetyRitual().isHasSummon(),
+                entry != null && controller.isGoetyRitualEntry(entry) && entry.getGoetyRitual().isHasConversion(),
+                entry != null && controller.isGoetyRitualEntry(entry) && entry.getGoetyRitual().isHasStructure(),
+                entry != null && controller.isGoetyRitualEntry(entry) && entry.getGoetyRitual().isHasEnchantment(),
+                entry != null && controller.isGoetyBrewingEntry(entry)
+                        ? entry.getGoetyBrewing().getEntityKind()
+                        : null,
                 controller.isSelectedExtendedCraftingCompressorInput(),
                 controller.isSelectedCreateFluidInput(),
                 controller.isSelectedCreateFluidOutput(),
@@ -236,6 +245,12 @@ public class RecipePropertiesView extends View {
             boolean avaritiaTable,
             boolean avaritiaShapedTable,
             boolean avaritiaCompressor,
+            boolean goetyRitualSacrifice,
+            boolean goetyRitualSummon,
+            boolean goetyRitualConversion,
+            boolean goetyRitualStructure,
+            boolean goetyRitualEnchantment,
+            GoetyBrewingEntityKind goetyBrewingEntityKind,
             boolean selectedExtendedCraftingCompressorInput,
             boolean selectedCreateFluidInput,
             boolean selectedCreateFluidOutput,
@@ -301,6 +316,27 @@ public class RecipePropertiesView extends View {
         }
         if (controller.isIceAndFireDragonForgeEntry(entry)) {
             RecipePropertiesSections.buildDragonForge(content, controller, entry);
+        }
+        if (controller.isCataclysmAmethystBlessEntry(entry)) {
+            RecipePropertiesSections.buildCataclysmAmethystBless(content, controller, entry);
+        }
+        if (controller.isTouhouLittleMaidAltarEntry(entry)) {
+            RecipePropertiesSections.buildTouhouLittleMaidAltar(content, controller, entry);
+        }
+        if (controller.isGoetyCursedInfuserEntry(entry)) {
+            RecipePropertiesSections.buildGoetyCursedInfuser(content, controller, entry);
+        }
+        if (controller.isGoetyRitualEntry(entry)) {
+            RecipePropertiesSections.buildGoetyRitual(content, controller, entry);
+        }
+        if (controller.isGoetyBrazierEntry(entry)) {
+            RecipePropertiesSections.buildGoetyBrazier(content, controller, entry);
+        }
+        if (controller.isGoetyPulverizeEntry(entry)) {
+            RecipePropertiesSections.buildGoetyPulverize(content, controller, entry);
+        }
+        if (controller.isGoetyBrewingEntry(entry)) {
+            RecipePropertiesSections.buildGoetyBrewing(content, controller, entry);
         }
         if (controller.isCreateMechanicalCraftingEntry(entry)) {
             RecipePropertiesSections.buildCreateMechanicalCrafting(content, controller, entry);

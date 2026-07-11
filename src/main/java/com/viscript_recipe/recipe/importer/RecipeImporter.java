@@ -131,8 +131,8 @@ public final class RecipeImporter {
 
     private static List<RecipeImportHandler> createHandlers() {
         var handlers = new ArrayList<RecipeImportHandler>();
-        handlers.add(VANILLA_HANDLER);
         RecipeCompatModules.addImportHandlers(handlers);
+        handlers.add(VANILLA_HANDLER);
         return List.copyOf(handlers);
     }
 

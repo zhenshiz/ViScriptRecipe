@@ -34,6 +34,12 @@ import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
+import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
+import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
+import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
+import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
+import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
+import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
@@ -45,6 +51,11 @@ import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
+import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
+import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
+import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
+import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
+import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauApparatusRecipeData;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauArmorUpgradeRecipeData;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushOutputData;
@@ -57,6 +68,9 @@ import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
 import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
+import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.vanilla.CookingRecipeData;
 import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
 import com.viscript_recipe.data.vanilla.ShapedCraftingRecipeData;
@@ -545,6 +559,21 @@ public class RecipeEditorController {
         if (isSelectedDragonForgeLayout() && index > 1) {
             return;
         }
+        if (isSelectedCataclysmWeaponFusionLayout() && index > 1) {
+            return;
+        }
+        if (isSelectedCataclysmAmethystBlessLayout() && index != 0) {
+            return;
+        }
+        if (isSelectedTouhouLittleMaidAltarLayout() && index >= TouhouLittleMaidAltarRecipeData.INPUT_COUNT) {
+            return;
+        }
+        if (isSelectedSporeSurgeryLayout() && index >= SporeSurgeryRecipeData.INPUT_COUNT) {
+            return;
+        }
+        if (isSelectedSporeGraftingLayout() && index >= SporeGraftingRecipeData.INPUT_COUNT) {
+            return;
+        }
         if (isSelectedFarmersCookingPotLayout() && index > 5) {
             return;
         }
@@ -595,6 +624,15 @@ public class RecipeEditorController {
         }
         if (isSelectedAvaritiaExtremeSmithingLayout()) {
             return index < 5;
+        }
+        if (isSelectedSporeSurgeryLayout()) {
+            return index < SporeSurgeryRecipeData.INPUT_COUNT;
+        }
+        if (isSelectedTouhouLittleMaidAltarLayout()) {
+            return index < TouhouLittleMaidAltarRecipeData.INPUT_COUNT;
+        }
+        if (isSelectedSporeGraftingLayout()) {
+            return index < SporeGraftingRecipeData.INPUT_COUNT;
         }
         if (isSelectedKaleidoscopePotLayout() || isSelectedKaleidoscopeStockpotLayout()) {
             return index < KALEIDOSCOPE_MAX_INPUTS || index == KALEIDOSCOPE_CARRIER_SLOT;
@@ -914,6 +952,13 @@ public class RecipeEditorController {
             return ItemStack.EMPTY;
         }
         return visualCuttingResults[index].copy();
+    }
+
+    public float getVisualCuttingChance(int index) {
+        if (index < 0 || index >= visualCuttingChances.length) {
+            return 1.0F;
+        }
+        return Math.max(0, Math.min(1, visualCuttingChances[index]));
     }
 
     public void setVisualCuttingResult(int index, ItemStack stack) {
@@ -1291,6 +1336,49 @@ public class RecipeEditorController {
                 .orElse(RecipeEditorLayout.CRAFTING_GRID) == RecipeEditorLayout.DRAGON_FORGE;
     }
 
+    public boolean isSelectedCataclysmWeaponFusionLayout() {
+        return isSelectedLayout(RecipeEditorLayout.CATACLYSM_WEAPON_FUSION);
+    }
+
+    public boolean isSelectedCataclysmAmethystBlessLayout() {
+        return isSelectedLayout(RecipeEditorLayout.CATACLYSM_AMETHYST_BLESS);
+    }
+
+    public boolean isSelectedTouhouLittleMaidAltarLayout() {
+        return isSelectedLayout(RecipeEditorLayout.TOUHOU_LITTLE_MAID_ALTAR);
+    }
+
+    public boolean isSelectedSporeSurgeryLayout() {
+        if (selectedEntry != null) {
+            return isSporeSurgeryEntry(selectedEntry);
+        }
+        return selectedCategory.equals(SporeRecipeEditorTypes.SURGERY_TABLE);
+    }
+
+    public boolean isSelectedSporeGraftingLayout() {
+        return selectedEntry != null && isSporeGraftingEntry(selectedEntry);
+    }
+
+    public boolean isSelectedGoetyCursedInfuserLayout() {
+        return isSelectedLayout(RecipeEditorLayout.GOETY_CURSED_INFUSER);
+    }
+
+    public boolean isSelectedGoetyRitualLayout() {
+        return isSelectedLayout(RecipeEditorLayout.GOETY_RITUAL);
+    }
+
+    public boolean isSelectedGoetyBrazierLayout() {
+        return isSelectedLayout(RecipeEditorLayout.GOETY_BRAZIER);
+    }
+
+    public boolean isSelectedGoetyPulverizeLayout() {
+        return isSelectedLayout(RecipeEditorLayout.GOETY_PULVERIZE);
+    }
+
+    public boolean isSelectedGoetyBrewingLayout() {
+        return isSelectedLayout(RecipeEditorLayout.GOETY_BREWING);
+    }
+
     public boolean isSelectedFarmersCookingPotLayout() {
         if (selectedEntry != null) {
             return RecipeEditorTypes.layoutForType(selectedEntry.getType()) == RecipeEditorLayout.FARMERS_COOKING_POT;
@@ -1489,6 +1577,46 @@ public class RecipeEditorController {
 
     public boolean isIceAndFireDragonForgeEntry(RecipeEntry entry) {
         return entry.isType(IceAndFireRecipeEditorTypes.DRAGONFORGE);
+    }
+
+    public boolean isCataclysmWeaponFusionEntry(RecipeEntry entry) {
+        return entry.isType(CataclysmRecipeEditorTypes.WEAPON_FUSION);
+    }
+
+    public boolean isCataclysmAmethystBlessEntry(RecipeEntry entry) {
+        return entry.isType(CataclysmRecipeEditorTypes.AMETHYST_BLESS);
+    }
+
+    public boolean isTouhouLittleMaidAltarEntry(RecipeEntry entry) {
+        return entry.isType(TouhouLittleMaidRecipeEditorTypes.ALTAR_RECIPE);
+    }
+
+    public boolean isSporeSurgeryEntry(RecipeEntry entry) {
+        return entry.isType(SporeRecipeEditorTypes.SURGERY);
+    }
+
+    public boolean isSporeGraftingEntry(RecipeEntry entry) {
+        return entry.isType(SporeRecipeEditorTypes.GRAFTING);
+    }
+
+    public boolean isGoetyCursedInfuserEntry(RecipeEntry entry) {
+        return entry.isType(GoetyRecipeEditorTypes.CURSED_INFUSER_RECIPE);
+    }
+
+    public boolean isGoetyRitualEntry(RecipeEntry entry) {
+        return entry.isType(GoetyRecipeEditorTypes.RITUAL);
+    }
+
+    public boolean isGoetyBrazierEntry(RecipeEntry entry) {
+        return entry.isType(GoetyRecipeEditorTypes.BRAZIER);
+    }
+
+    public boolean isGoetyPulverizeEntry(RecipeEntry entry) {
+        return entry.isType(GoetyRecipeEditorTypes.PULVERIZE);
+    }
+
+    public boolean isGoetyBrewingEntry(RecipeEntry entry) {
+        return entry.isType(GoetyRecipeEditorTypes.BREWING);
     }
 
     public boolean isFarmersCookingPotEntry(RecipeEntry entry) {
@@ -3121,6 +3249,18 @@ public class RecipeEditorController {
         notifyChanged();
     }
 
+    public int getCataclysmAmethystBlessTime(RecipeEntry entry) {
+        return Math.max(1, entry.getCataclysmAmethystBless().getTime());
+    }
+
+    public void setCataclysmAmethystBlessTime(RecipeEntry entry, int time) {
+        if (!isCataclysmAmethystBlessEntry(entry)) {
+            return;
+        }
+        entry.getCataclysmAmethystBless().setTime(Math.max(1, time));
+        notifyChanged();
+    }
+
     private void saveVisualStateToSelectedEntry() {
         if (refreshing || selectedEntry == null) {
             return;
@@ -3147,6 +3287,26 @@ public class RecipeEditorController {
             writeIronNoAdditionSmithingRecipe(selectedEntry.getIronNoAdditionSmithing());
         } else if (isIceAndFireDragonForgeEntry(selectedEntry)) {
             writeDragonForgeRecipe(selectedEntry.getIceAndFireDragonForge());
+        } else if (isCataclysmWeaponFusionEntry(selectedEntry)) {
+            writeCataclysmWeaponFusionRecipe(selectedEntry.getCataclysmWeaponFusion());
+        } else if (isCataclysmAmethystBlessEntry(selectedEntry)) {
+            writeCataclysmAmethystBlessRecipe(selectedEntry.getCataclysmAmethystBless());
+        } else if (isTouhouLittleMaidAltarEntry(selectedEntry)) {
+            writeTouhouLittleMaidAltarRecipe(selectedEntry.getTouhouLittleMaidAltar());
+        } else if (isSporeSurgeryEntry(selectedEntry)) {
+            writeSporeSurgeryRecipe(selectedEntry.getSporeSurgery());
+        } else if (isSporeGraftingEntry(selectedEntry)) {
+            writeSporeGraftingRecipe(selectedEntry.getSporeGrafting());
+        } else if (isGoetyCursedInfuserEntry(selectedEntry)) {
+            writeGoetyCursedInfuserRecipe(selectedEntry.getGoetyCursedInfuser());
+        } else if (isGoetyRitualEntry(selectedEntry)) {
+            writeGoetyRitualRecipe(selectedEntry.getGoetyRitual());
+        } else if (isGoetyBrazierEntry(selectedEntry)) {
+            writeGoetyBrazierRecipe(selectedEntry.getGoetyBrazier());
+        } else if (isGoetyPulverizeEntry(selectedEntry)) {
+            writeGoetyPulverizeRecipe(selectedEntry.getGoetyPulverize());
+        } else if (isGoetyBrewingEntry(selectedEntry)) {
+            writeGoetyBrewingRecipe(selectedEntry.getGoetyBrewing());
         } else if (isFarmersCookingPotEntry(selectedEntry)) {
             writeFarmerCookingPotRecipe(selectedEntry.getFarmerCookingPot());
         } else if (isFarmersCuttingBoardEntry(selectedEntry)) {
@@ -3395,6 +3555,68 @@ public class RecipeEditorController {
         dragonForge.setInput(ingredientForVisualSlot(0));
         dragonForge.setBlood(ingredientForVisualSlot(1));
         dragonForge.setResult(visualResult.copy());
+    }
+
+    private void writeCataclysmWeaponFusionRecipe(CataclysmWeaponFusionRecipeData data) {
+        data.setBase(ingredientForVisualSlot(0));
+        data.setAddition(ingredientForVisualSlot(1));
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeCataclysmAmethystBlessRecipe(CataclysmAmethystBlessRecipeData data) {
+        data.setIngredient(ingredientForVisualSlot(0));
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeTouhouLittleMaidAltarRecipe(TouhouLittleMaidAltarRecipeData data) {
+        for (int index = 0; index < TouhouLittleMaidAltarRecipeData.INPUT_COUNT; index++) {
+            data.setIngredient(index, ingredientForVisualSlot(index));
+        }
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeSporeSurgeryRecipe(SporeSurgeryRecipeData surgery) {
+        for (int i = 0; i < SporeSurgeryRecipeData.INPUT_COUNT; i++) {
+            surgery.setIngredient(i, ingredientForVisualSlot(i));
+        }
+        surgery.setResult(visualResult.copy());
+    }
+
+    private void writeSporeGraftingRecipe(SporeGraftingRecipeData grafting) {
+        for (int i = 0; i < SporeGraftingRecipeData.INPUT_COUNT; i++) {
+            grafting.setIngredient(i, ingredientForVisualSlot(i));
+        }
+        grafting.setResult(visualResult.copy());
+    }
+
+    private void writeGoetyCursedInfuserRecipe(GoetyCursedInfuserRecipeData data) {
+        data.setIngredient(ingredientForVisualSlot(0));
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeGoetyRitualRecipe(GoetyRitualRecipeData data) {
+        data.setActivationItem(ingredientForVisualSlot(0));
+        for (int i = 0; i < GoetyRitualRecipeData.MAX_PEDESTAL_INGREDIENTS; i++) {
+            data.setIngredient(i, ingredientForVisualSlot(i + 1));
+        }
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeGoetyBrazierRecipe(GoetyBrazierRecipeData data) {
+        for (int i = 0; i < GoetyBrazierRecipeData.INPUT_COUNT; i++) {
+            data.setIngredient(i, ingredientForVisualSlot(i));
+        }
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeGoetyPulverizeRecipe(GoetyPulverizeRecipeData data) {
+        data.setIngredient(ingredientForVisualSlot(0));
+        data.setVisibleResult(visualResult);
+    }
+
+    private void writeGoetyBrewingRecipe(GoetyBrewingRecipeData data) {
+        data.setIngredient(ingredientForVisualSlot(0));
+        visualResult = data.visibleResult();
     }
 
     private void writeFarmerCookingPotRecipe(FarmerCookingPotRecipeData cookingPot) {
@@ -3846,6 +4068,47 @@ public class RecipeEditorController {
         if (isIceAndFireDragonForgeEntry(entry)) {
             return getDragonForgeSlotIngredient(entry.getIceAndFireDragonForge(), index);
         }
+        if (isCataclysmWeaponFusionEntry(entry)) {
+            return switch (index) {
+                case 0 -> entry.getCataclysmWeaponFusion().getBase();
+                case 1 -> entry.getCataclysmWeaponFusion().getAddition();
+                default -> new RecipeIngredient();
+            };
+        }
+        if (isCataclysmAmethystBlessEntry(entry) && index == 0) {
+            var ingredient = entry.getCataclysmAmethystBless().getIngredient();
+            return ingredient == null ? new RecipeIngredient() : ingredient;
+        }
+        if (isTouhouLittleMaidAltarEntry(entry)
+                && index >= 0 && index < TouhouLittleMaidAltarRecipeData.INPUT_COUNT) {
+            return entry.getTouhouLittleMaidAltar().ingredient(index);
+        }
+        if (isSporeSurgeryEntry(entry) && index >= 0 && index < SporeSurgeryRecipeData.INPUT_COUNT) {
+            return entry.getSporeSurgery().ingredient(index);
+        }
+        if (isSporeGraftingEntry(entry) && index >= 0 && index < SporeGraftingRecipeData.INPUT_COUNT) {
+            return entry.getSporeGrafting().ingredient(index);
+        }
+        if (isGoetyCursedInfuserEntry(entry) && index == 0) {
+            return entry.getGoetyCursedInfuser().getIngredient();
+        }
+        if (isGoetyRitualEntry(entry)) {
+            if (index == 0) {
+                return entry.getGoetyRitual().getActivationItem();
+            }
+            if (index <= GoetyRitualRecipeData.MAX_PEDESTAL_INGREDIENTS) {
+                return entry.getGoetyRitual().ingredient(index - 1);
+            }
+        }
+        if (isGoetyBrazierEntry(entry) && index >= 0 && index < GoetyBrazierRecipeData.INPUT_COUNT) {
+            return entry.getGoetyBrazier().ingredient(index);
+        }
+        if (isGoetyPulverizeEntry(entry) && index == 0) {
+            return entry.getGoetyPulverize().getIngredient();
+        }
+        if (isGoetyBrewingEntry(entry) && index == 0) {
+            return entry.getGoetyBrewing().getIngredient();
+        }
         if (isFarmersCookingPotEntry(entry) && index >= 0 && index < 6) {
             return getFarmerCookingPotSlotIngredient(entry.getFarmerCookingPot(), index);
         }
@@ -4182,6 +4445,29 @@ public class RecipeEditorController {
             setIronAlchemistCauldronIngredient(entry, ingredient);
         } else if (isIceAndFireDragonForgeEntry(entry) && index >= 0 && index <= 1) {
             setDragonForgeSlotIngredient(entry.getIceAndFireDragonForge(), index, ingredient);
+        } else if (isCataclysmWeaponFusionEntry(entry) && index >= 0 && index <= 1) {
+            setCataclysmWeaponFusionSlotIngredient(entry.getCataclysmWeaponFusion(), index, ingredient);
+        } else if (isCataclysmAmethystBlessEntry(entry) && index == 0) {
+            setCataclysmAmethystBlessSlotIngredient(entry.getCataclysmAmethystBless(), ingredient);
+        } else if (isTouhouLittleMaidAltarEntry(entry)
+                && index >= 0 && index < TouhouLittleMaidAltarRecipeData.INPUT_COUNT) {
+            entry.getTouhouLittleMaidAltar().setIngredient(index, ingredient);
+        } else if (isSporeSurgeryEntry(entry) && index >= 0 && index < SporeSurgeryRecipeData.INPUT_COUNT) {
+            entry.getSporeSurgery().setIngredient(index, ingredient);
+        } else if (isSporeGraftingEntry(entry) && index >= 0 && index < SporeGraftingRecipeData.INPUT_COUNT) {
+            entry.getSporeGrafting().setIngredient(index, ingredient);
+        } else if (isGoetyCursedInfuserEntry(entry) && index == 0) {
+            entry.getGoetyCursedInfuser().setIngredient(ingredient);
+        } else if (isGoetyRitualEntry(entry) && index == 0) {
+            entry.getGoetyRitual().setActivationItem(ingredient);
+        } else if (isGoetyRitualEntry(entry) && index > 0 && index <= GoetyRitualRecipeData.MAX_PEDESTAL_INGREDIENTS) {
+            entry.getGoetyRitual().setIngredient(index - 1, ingredient);
+        } else if (isGoetyBrazierEntry(entry) && index >= 0 && index < GoetyBrazierRecipeData.INPUT_COUNT) {
+            entry.getGoetyBrazier().setIngredient(index, ingredient);
+        } else if (isGoetyPulverizeEntry(entry) && index == 0) {
+            entry.getGoetyPulverize().setIngredient(ingredient);
+        } else if (isGoetyBrewingEntry(entry) && index == 0) {
+            entry.getGoetyBrewing().setIngredient(ingredient);
         } else if (isFarmersCookingPotEntry(entry) && index >= 0 && index < 6) {
             setFarmerCookingPotSlotIngredient(entry.getFarmerCookingPot(), index, ingredient);
         } else if (isFarmersCuttingBoardEntry(entry) && index >= 0 && index <= 1) {
@@ -4403,6 +4689,20 @@ public class RecipeEditorController {
         writeDragonForgeRecipe(dragonForge);
     }
 
+    private void setCataclysmWeaponFusionSlotIngredient(CataclysmWeaponFusionRecipeData data, int index, RecipeIngredient ingredient) {
+        visualIngredients[index] = itemFromIngredient(ingredient);
+        visualIngredientData[index] = ingredient == null ? new RecipeIngredient() : ingredient;
+        visualRemainders[index] = CraftingRemainderRule.defaultRule();
+        writeCataclysmWeaponFusionRecipe(data);
+    }
+
+    private void setCataclysmAmethystBlessSlotIngredient(CataclysmAmethystBlessRecipeData data, RecipeIngredient ingredient) {
+        visualIngredients[0] = itemFromIngredient(ingredient);
+        visualIngredientData[0] = ingredient == null ? new RecipeIngredient() : ingredient;
+        visualRemainders[0] = CraftingRemainderRule.defaultRule();
+        writeCataclysmAmethystBlessRecipe(data);
+    }
+
     private void setIronNoAdditionSmithingSlotIngredient(IronNoAdditionSmithingRecipeData smithing, int index, RecipeIngredient ingredient) {
         visualIngredients[index] = itemFromIngredient(ingredient);
         visualIngredientData[index] = ingredient == null ? new RecipeIngredient() : ingredient;
@@ -4524,6 +4824,26 @@ public class RecipeEditorController {
                 loadIronNoAdditionSmithing(selectedEntry.getIronNoAdditionSmithing());
             } else if (isIceAndFireDragonForgeEntry(selectedEntry)) {
                 loadDragonForge(selectedEntry.getIceAndFireDragonForge());
+            } else if (isCataclysmWeaponFusionEntry(selectedEntry)) {
+                loadCataclysmWeaponFusion(selectedEntry.getCataclysmWeaponFusion());
+            } else if (isCataclysmAmethystBlessEntry(selectedEntry)) {
+                loadCataclysmAmethystBless(selectedEntry.getCataclysmAmethystBless());
+            } else if (isTouhouLittleMaidAltarEntry(selectedEntry)) {
+                loadTouhouLittleMaidAltar(selectedEntry.getTouhouLittleMaidAltar());
+            } else if (isSporeSurgeryEntry(selectedEntry)) {
+                loadSporeSurgery(selectedEntry.getSporeSurgery());
+            } else if (isSporeGraftingEntry(selectedEntry)) {
+                loadSporeGrafting(selectedEntry.getSporeGrafting());
+            } else if (isGoetyCursedInfuserEntry(selectedEntry)) {
+                loadGoetyCursedInfuser(selectedEntry.getGoetyCursedInfuser());
+            } else if (isGoetyRitualEntry(selectedEntry)) {
+                loadGoetyRitual(selectedEntry.getGoetyRitual());
+            } else if (isGoetyBrazierEntry(selectedEntry)) {
+                loadGoetyBrazier(selectedEntry.getGoetyBrazier());
+            } else if (isGoetyPulverizeEntry(selectedEntry)) {
+                loadGoetyPulverize(selectedEntry.getGoetyPulverize());
+            } else if (isGoetyBrewingEntry(selectedEntry)) {
+                loadGoetyBrewing(selectedEntry.getGoetyBrewing());
             } else if (isFarmersCookingPotEntry(selectedEntry)) {
                 loadFarmerCookingPot(selectedEntry.getFarmerCookingPot());
             } else if (isFarmersCuttingBoardEntry(selectedEntry)) {
@@ -4749,6 +5069,68 @@ public class RecipeEditorController {
         loadSmithingIngredientSlot(0, dragonForge.getInput());
         loadSmithingIngredientSlot(1, dragonForge.getBlood());
         visualResult = dragonForge.getResult().copy();
+    }
+
+    private void loadCataclysmWeaponFusion(CataclysmWeaponFusionRecipeData data) {
+        loadIngredientSlot(0, data.getBase());
+        loadIngredientSlot(1, data.getAddition());
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadCataclysmAmethystBless(CataclysmAmethystBlessRecipeData data) {
+        loadIngredientSlot(0, data.getIngredient());
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadTouhouLittleMaidAltar(TouhouLittleMaidAltarRecipeData data) {
+        for (int index = 0; index < TouhouLittleMaidAltarRecipeData.INPUT_COUNT; index++) {
+            loadIngredientSlot(index, data.ingredient(index));
+        }
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadSporeSurgery(SporeSurgeryRecipeData surgery) {
+        for (int i = 0; i < SporeSurgeryRecipeData.INPUT_COUNT; i++) {
+            loadIngredientSlot(i, surgery.ingredient(i));
+        }
+        visualResult = surgery.getResult() == null ? ItemStack.EMPTY : surgery.getResult().copy();
+    }
+
+    private void loadSporeGrafting(SporeGraftingRecipeData grafting) {
+        for (int i = 0; i < SporeGraftingRecipeData.INPUT_COUNT; i++) {
+            loadIngredientSlot(i, grafting.ingredient(i));
+        }
+        visualResult = grafting.getResult() == null ? ItemStack.EMPTY : grafting.getResult().copy();
+    }
+
+    private void loadGoetyCursedInfuser(GoetyCursedInfuserRecipeData data) {
+        loadIngredientSlot(0, data.getIngredient());
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadGoetyRitual(GoetyRitualRecipeData data) {
+        loadIngredientSlot(0, data.getActivationItem());
+        for (int i = 0; i < GoetyRitualRecipeData.MAX_PEDESTAL_INGREDIENTS; i++) {
+            loadIngredientSlot(i + 1, data.ingredient(i));
+        }
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadGoetyBrazier(GoetyBrazierRecipeData data) {
+        for (int i = 0; i < GoetyBrazierRecipeData.INPUT_COUNT; i++) {
+            loadIngredientSlot(i, data.ingredient(i));
+        }
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadGoetyPulverize(GoetyPulverizeRecipeData data) {
+        loadIngredientSlot(0, data.getIngredient());
+        visualResult = data.visibleResult();
+    }
+
+    private void loadGoetyBrewing(GoetyBrewingRecipeData data) {
+        loadIngredientSlot(0, data.getIngredient());
+        visualResult = data.visibleResult();
     }
 
     private void loadFarmerCookingPot(FarmerCookingPotRecipeData cookingPot) {

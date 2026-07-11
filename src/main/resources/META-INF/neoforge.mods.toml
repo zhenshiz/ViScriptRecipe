@@ -81,5 +81,29 @@ type = "optional"
 ordering = "AFTER"
 side = "BOTH"
 
+[[dependencies."${mod_id}"]]
+modId = "cataclysm"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "spore"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "goety"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "touhou_little_maid"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
 [features."${mod_id}"]
 openGLVersion = "[3.2,)"

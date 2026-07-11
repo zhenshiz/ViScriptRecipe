@@ -15,6 +15,7 @@ import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.RecipeFile;
 import com.viscript_recipe.gui.editor.RecipeEditor;
 import com.viscript_recipe.gui.editor.RecipeProjectType;
+import com.viscript_recipe.network.StructureTagSnapshot;
 import com.viscript_recipe.network.s2c.JeiShowcaseS2CPayload;
 import com.viscript_recipe.network.s2c.RecipeEditorS2CPayload;
 import com.viscript_recipe.recipe.RecipeOverrideManager;
@@ -68,6 +69,11 @@ public class ViScriptRecipeCommands implements ICommand {
             source.sendFailure(Component.translatable("commands.viscript_recipe.editor.singleplayer_only"));
             return 0;
         }
+        RPCPacketDistributor.rpcToPlayer(
+                player,
+                RecipeEditorS2CPayload.SYNC_STRUCTURE_TAGS,
+                StructureTagSnapshot.create(server.registryAccess())
+        );
         if (!PlayerUIMenuType.openUI(player, RecipeEditor.WINDOW_ID)) {
             return 0;
         }

@@ -5,15 +5,25 @@ import com.viscript_lib.event.RegisterAccessorEvent;
 import com.viscript_recipe.data.ars_nouveau.*;
 import com.viscript_recipe.data.avaritia.*;
 import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
+import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
+import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
+import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
+import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
+import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
 import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.*;
+import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
+import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
+import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.vanilla.*;
 
 public final class RecipeDataAccessors {
@@ -24,12 +34,16 @@ public final class RecipeDataAccessors {
         registerVanilla(event);
         registerIronSpellbooks(event);
         registerIceAndFire(event);
+        registerSpore(event);
         registerFarmersDelight(event);
         registerCreate(event);
         registerExtendedCrafting(event);
         registerArsNouveau(event);
         registerKaleidoscopeCookery(event);
         registerAvaritia(event);
+        registerCataclysm(event);
+        registerTouhouLittleMaid(event);
+        registerGoety(event);
     }
 
     private static void registerBase(RegisterAccessorEvent event) {
@@ -57,6 +71,11 @@ public final class RecipeDataAccessors {
 
     private static void registerIceAndFire(RegisterAccessorEvent event) {
         event.register(DragonForgeRecipeData.class, DragonForgeRecipeData::new);
+    }
+
+    private static void registerSpore(RegisterAccessorEvent event) {
+        event.register(SporeSurgeryRecipeData.class, SporeSurgeryRecipeData::new);
+        event.register(SporeGraftingRecipeData.class, SporeGraftingRecipeData::new);
     }
 
     private static void registerFarmersDelight(RegisterAccessorEvent event) {
@@ -111,5 +130,22 @@ public final class RecipeDataAccessors {
         event.register(AvaritiaFullMatterClusterRecipeData.class, AvaritiaFullMatterClusterRecipeData::new);
         event.register(AvaritiaInfinityCatalystRecipeData.class, AvaritiaInfinityCatalystRecipeData::new);
         event.register(AvaritiaTableRecipeData.class, AvaritiaTableRecipeData::new);
+    }
+
+    private static void registerCataclysm(RegisterAccessorEvent event) {
+        event.register(CataclysmWeaponFusionRecipeData.class, CataclysmWeaponFusionRecipeData::new);
+        event.register(CataclysmAmethystBlessRecipeData.class, CataclysmAmethystBlessRecipeData::new);
+    }
+
+    private static void registerTouhouLittleMaid(RegisterAccessorEvent event) {
+        event.register(TouhouLittleMaidAltarRecipeData.class, TouhouLittleMaidAltarRecipeData::new);
+    }
+
+    private static void registerGoety(RegisterAccessorEvent event) {
+        event.register(GoetyCursedInfuserRecipeData.class, GoetyCursedInfuserRecipeData::new);
+        event.register(GoetyRitualRecipeData.class, GoetyRitualRecipeData::new);
+        event.register(GoetyBrazierRecipeData.class, GoetyBrazierRecipeData::new);
+        event.register(GoetyPulverizeRecipeData.class, GoetyPulverizeRecipeData::new);
+        event.register(GoetyBrewingRecipeData.class, GoetyBrewingRecipeData::new);
     }
 }

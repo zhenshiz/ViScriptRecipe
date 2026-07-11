@@ -1,5 +1,6 @@
 package com.viscript_recipe.gui.editor;
 
+import com.Polarice3.Goety.common.research.ResearchList;
 import com.lowdragmc.lowdraglib2.configurator.ui.ColorConfigurator;
 import com.lowdragmc.lowdraglib2.configurator.ui.RegistrySearchComponent;
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
@@ -12,18 +13,25 @@ import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.create.CreateHeatCondition;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
+import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
+import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
+import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -109,6 +117,297 @@ final class RecipePropertiesSections {
                         RecipeEditorUi.intField(controller.getDragonForgeCookTime(entry), 1, Integer.MAX_VALUE,
                                 value -> controller.setDragonForgeCookTime(entry, value)))
         );
+    }
+
+    static void buildCataclysmAmethystBless(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.cataclysm.amethyst_bless"),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.cataclysm.amethyst_bless.time",
+                        RecipeEditorUi.intField(controller.getCataclysmAmethystBlessTime(entry), 1, Integer.MAX_VALUE,
+                                value -> controller.setCataclysmAmethystBlessTime(entry, value)))
+        );
+    }
+
+    static void buildTouhouLittleMaidAltar(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getTouhouLittleMaidAltar();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.touhou_little_maid.altar"),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.touhou_little_maid.altar.power",
+                        RecipeEditorUi.floatField(data.getPower(), 0, Float.MAX_VALUE, value -> {
+                            data.setPower(value);
+                            controller.notifyChanged();
+                        })),
+                createTouhouLittleMaidEntityTypeConfigurator(controller, entry),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.touhou_little_maid.altar.lang",
+                        RecipeEditorUi.textField(data.getLangKey(), value -> {
+                            data.setLangKey(value);
+                            controller.notifyChanged();
+                        }))
+        );
+    }
+
+    private static UIElement createTouhouLittleMaidEntityTypeConfigurator(
+            RecipeEditorController controller,
+            RecipeEntry entry
+    ) {
+        var data = entry.getTouhouLittleMaidAltar();
+        var configurator = RecipeSearchComponents.entityType(
+                "viscript_recipe.config.touhou_little_maid.altar.entity",
+                data::getEntityType,
+                data::setEntityType,
+                controller::notifyChanged,
+                EntityType.ITEM
+        );
+        var tooltip = Component.translatable("viscript_recipe.config.touhou_little_maid.altar.entity.tooltip");
+        configurator.style(style -> style.tooltips(tooltip));
+        configurator.searchComponent.style(style -> style.tooltips(tooltip));
+        return configurator;
+    }
+
+    static void buildGoetyCursedInfuser(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getGoetyCursedInfuser();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.goety.cursed_infuser"),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.goety.cursed_infuser.cooking_time",
+                        RecipeEditorUi.intField(data.getCookingTime(), 1, Integer.MAX_VALUE, value -> {
+                            data.setCookingTime(Math.max(1, value));
+                            controller.notifyChanged();
+                        })),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.goety.cursed_infuser.grim",
+                        new Switch().setOn(data.isGrim(), false).setOnSwitchChanged(value -> {
+                            data.setGrim(value);
+                            controller.notifyChanged();
+                        }))
+        );
+    }
+
+    static void buildGoetyRitual(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getGoetyRitual();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.goety.ritual"),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.goety.ritual.craft_type",
+                        RecipeEditorUi.selector(
+                                List.of(GoetyRitualCraftType.values()),
+                                data.getCraftType(),
+                                value -> Component.translatable("viscript_recipe.editor.goety.ritual.craft_type." + value.getSerializedName()),
+                                value -> {
+                                    data.setCraftType(value);
+                                    controller.notifyChanged();
+                                }
+                        )),
+                GoetyRitualSearchComponents.ritualType(data::getRitualType, data::setRitualType, controller::notifyChanged),
+                intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(), 0, Integer.MAX_VALUE, data::setSoulCost, controller),
+                intField("viscript_recipe.config.goety.duration", data.getDuration(), 1, Integer.MAX_VALUE,
+                        value -> data.setDuration(Math.max(1, value)), controller),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.goety.ritual.research",
+                        RecipeEditorUi.selector(
+                                goetyResearchIds(),
+                                data.getResearch() == null ? "" : data.getResearch(),
+                                RecipePropertiesSections::goetyResearchName,
+                                value -> {
+                                    data.setResearch(value);
+                                    controller.notifyChanged();
+                                }
+                        ))
+        );
+        content.addChild(switchField("viscript_recipe.config.goety.ritual.has_sacrifice",
+                data.isHasSacrifice(), data::setHasSacrifice, controller));
+        if (data.isHasSacrifice()) {
+            content.addChildren(
+                    RecipeSearchComponents.entityTag(
+                            "viscript_recipe.config.goety.ritual.entity_to_sacrifice",
+                            data::getEntityToSacrifice,
+                            data::setEntityToSacrifice,
+                            controller::notifyChanged),
+                    textField("viscript_recipe.config.goety.ritual.entity_to_sacrifice_name",
+                            data.getEntityToSacrificeDisplayName(), data::setEntityToSacrificeDisplayName, controller)
+            );
+        }
+        content.addChild(switchField("viscript_recipe.config.goety.ritual.has_summon",
+                data.isHasSummon(), data::setHasSummon, controller));
+        if (data.isHasSummon()) {
+            content.addChildren(
+                    RecipeSearchComponents.entityType(
+                            "viscript_recipe.config.goety.ritual.entity_to_summon",
+                            data::getEntityToSummon,
+                            data::setEntityToSummon,
+                            controller::notifyChanged,
+                            EntityType.ZOMBIE),
+                    intField("viscript_recipe.config.goety.ritual.summon_life", data.getSummonLife(), -1, Integer.MAX_VALUE,
+                            data::setSummonLife, controller)
+            );
+        }
+        content.addChild(switchField("viscript_recipe.config.goety.ritual.has_conversion",
+                data.isHasConversion(), data::setHasConversion, controller));
+        if (data.isHasConversion()) {
+            content.addChildren(
+                    RecipeSearchComponents.entityTag(
+                            "viscript_recipe.config.goety.ritual.entity_to_convert",
+                            data::getEntityToConvert,
+                            data::setEntityToConvert,
+                            controller::notifyChanged),
+                    textField("viscript_recipe.config.goety.ritual.entity_to_convert_name",
+                            data.getEntityToConvertDisplayName(), data::setEntityToConvertDisplayName, controller),
+                    RecipeSearchComponents.entityType(
+                            "viscript_recipe.config.goety.ritual.entity_to_convert_into",
+                            data::getEntityToConvertInto,
+                            data::setEntityToConvertInto,
+                            controller::notifyChanged,
+                            EntityType.ZOMBIE)
+            );
+        }
+        content.addChild(switchField("viscript_recipe.config.goety.ritual.has_structure",
+                data.isHasStructure(), data::setHasStructure, controller));
+        if (data.isHasStructure()) {
+            content.addChildren(
+                    RecipeSearchComponents.structureTag(
+                            "viscript_recipe.config.goety.ritual.structure_to_locate",
+                            data::getStructureToLocate,
+                            data::setStructureToLocate,
+                            controller::notifyChanged),
+                    textField("viscript_recipe.config.goety.ritual.structure_name",
+                            data.getStructureDisplayName(), data::setStructureDisplayName, controller)
+            );
+        }
+        content.addChild(switchField("viscript_recipe.config.goety.ritual.has_enchantment",
+                data.isHasEnchantment(), data::setHasEnchantment, controller));
+        if (data.isHasEnchantment()) {
+            content.addChildren(
+                    GoetyRitualSearchComponents.enchantment(
+                            "viscript_recipe.config.goety.ritual.enchantment",
+                            data::getEnchantment,
+                            data::setEnchantment,
+                            controller::notifyChanged),
+                    intField("viscript_recipe.config.goety.ritual.xp_level_cost", data.getXpLevelCost(), 0, Integer.MAX_VALUE,
+                            data::setXpLevelCost, controller)
+            );
+        }
+    }
+
+    private static List<String> goetyResearchIds() {
+        var ids = new ArrayList<String>();
+        ids.add("");
+        ResearchList.getResearchList().keySet().stream().sorted().forEach(ids::add);
+        return ids;
+    }
+
+    private static Component goetyResearchName(String id) {
+        if (id == null || id.isBlank()) {
+            return Component.translatable("viscript_recipe.editor.goety.ritual.research.none");
+        }
+        return Component.translatableWithFallback("item.goety." + id + "_scroll", id)
+                .append(Component.literal(" (" + id + ")"));
+    }
+
+    static void buildGoetyBrazier(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getGoetyBrazier();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.goety.brazier"),
+                intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(), 0, Integer.MAX_VALUE,
+                        data::setSoulCost, controller)
+        );
+    }
+
+    static void buildGoetyPulverize(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getGoetyPulverize();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.goety.pulverize"),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.goety.pulverize.result_kind",
+                        RecipeEditorUi.selector(
+                                List.of(GoetyPulverizeResultKind.values()),
+                                data.getResultKind(),
+                                value -> Component.translatable("viscript_recipe.editor.goety.pulverize.result_kind." + value.name().toLowerCase(java.util.Locale.ROOT)),
+                                value -> {
+                                    data.setResultKind(value);
+                                    controller.refreshVisualStateFromData();
+                                }
+                        )),
+                RecipeSearchComponents.block(
+                        "viscript_recipe.config.goety.pulverize.block_result",
+                        data::getBlockResult,
+                        data::setBlockResult,
+                        controller::notifyChanged,
+                        Blocks.COBBLESTONE
+                )
+        );
+    }
+
+    static void buildGoetyBrewing(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getGoetyBrewing();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.goety.brewing"),
+                RecipeSearchComponents.mobEffect(
+                        "viscript_recipe.config.goety.brewing.effect",
+                        data::getEffect,
+                        data::setEffect,
+                        controller::notifyChanged,
+                        MobEffects.POISON.value()
+                ),
+                intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(), 0, Integer.MAX_VALUE,
+                        data::setSoulCost, controller),
+                intField("viscript_recipe.config.goety.brewing.capacity_extra", data.getCapacityExtra(), 0, Integer.MAX_VALUE,
+                        data::setCapacityExtra, controller),
+                intField("viscript_recipe.config.goety.duration", data.getDuration(), 1, Integer.MAX_VALUE,
+                        value -> data.setDuration(Math.max(1, value)), controller),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.goety.brewing.entity_kind",
+                        RecipeEditorUi.selector(
+                                List.of(GoetyBrewingEntityKind.values()),
+                                data.getEntityKind(),
+                                value -> Component.translatable("viscript_recipe.editor.goety.brewing.entity_kind." + value.name().toLowerCase(java.util.Locale.ROOT)),
+                                value -> {
+                                    data.setEntityKind(value);
+                                    controller.notifyChanged();
+                                }
+                        ))
+        );
+        if (data.getEntityKind() == GoetyBrewingEntityKind.ENTITY) {
+            content.addChild(RecipeSearchComponents.entityType(
+                    "viscript_recipe.config.goety.brewing.entity",
+                    data::getEntity,
+                    data::setEntity,
+                    controller::notifyChanged,
+                    EntityType.ZOMBIE
+            ));
+        } else if (data.getEntityKind() == GoetyBrewingEntityKind.TAG) {
+            content.addChild(RecipeSearchComponents.entityTag(
+                    "viscript_recipe.config.goety.brewing.entity",
+                    data::getEntity,
+                    data::setEntity,
+                    controller::notifyChanged
+            ));
+        }
+    }
+
+    private static UIElement switchField(String key, boolean value, Consumer<Boolean> setter,
+                                         RecipeEditorController controller) {
+        return RecipeEditorUi.fieldGroup(key, new Switch().setOn(value, false).setOnSwitchChanged(next -> {
+            setter.accept(next);
+            controller.notifyChanged();
+        }));
+    }
+
+    private static UIElement textField(String key, String value, Consumer<String> setter,
+                                       RecipeEditorController controller) {
+        return RecipeEditorUi.fieldGroup(key, RecipeEditorUi.textField(value, next -> {
+            setter.accept(next);
+            controller.notifyChanged();
+        }));
+    }
+
+    private static UIElement resourceField(String key, ResourceLocation value, Consumer<ResourceLocation> setter,
+                                           RecipeEditorController controller) {
+        return RecipeEditorUi.fieldGroup(key, RecipeEditorUi.resourceLocationField(value, next -> {
+            setter.accept(next);
+            controller.notifyChanged();
+        }));
+    }
+
+    private static UIElement intField(String key, int value, int min, int max, Consumer<Integer> setter,
+                                      RecipeEditorController controller) {
+        return RecipeEditorUi.fieldGroup(key, RecipeEditorUi.intField(value, min, max, next -> {
+            setter.accept(next);
+            controller.notifyChanged();
+        }));
     }
 
     static void buildCreateProcessing(UIElement content, RecipeEditorController controller, RecipeEntry entry) {

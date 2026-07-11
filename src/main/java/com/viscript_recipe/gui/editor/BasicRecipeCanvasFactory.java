@@ -2,13 +2,23 @@ package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
+import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.fml.ModList;
 
 final class BasicRecipeCanvasFactory {
+    private static final String JEI_MOD_ID = "jei";
+    private static final ResourceLocation JEI_RECIPE_ARROW = ResourceLocation.fromNamespaceAndPath(
+            JEI_MOD_ID,
+            "textures/jei/atlas/gui/recipe_arrow.png"
+    );
+
     private BasicRecipeCanvasFactory() {
     }
 
@@ -26,30 +36,6 @@ final class BasicRecipeCanvasFactory {
         }).addChildren(
                 labeledSlot("viscript_recipe.editor.cooking.ingredient", inputSlot),
                 rightLeftArrow(28, 16),
-                resultColumn(outputSlot)
-        );
-    }
-
-    static UIElement createMechanicalCraftingCanvas(UIElement sizeLabel, UIElement grid, UIElement workstationIcon, UIElement outputSlot) {
-        return RecipeEditorUi.row().layout(layout -> {
-            layout.widthPercent(100);
-            layout.flex(1);
-            layout.gapAll(18);
-            layout.alignItems(AlignItems.CENTER);
-            layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(190);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(sizeLabel, grid),
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(118);
-                    layout.height(136);
-                    layout.alignItems(AlignItems.CENTER);
-                    layout.justifyContent(AlignContent.CENTER);
-                }).addChild(workstationIcon),
-                rightArrow(36, 20),
                 resultColumn(outputSlot)
         );
     }
@@ -109,7 +95,7 @@ final class BasicRecipeCanvasFactory {
                 breathColumn,
                 operatorPlusLabel(),
                 inputColumn,
-                rightLeftArrow(28, 16),
+                rightArrow(28, 16),
                 resultColumn(outputSlot)
         );
     }
@@ -123,9 +109,22 @@ final class BasicRecipeCanvasFactory {
             layout.justifyContent(AlignContent.CENTER);
         }).addChildren(
                 grid,
-                rightLeftArrow(28, 16),
+                craftingArrow(),
                 resultColumn(outputSlot)
         );
+    }
+
+    private static UIElement craftingArrow() {
+        if (!ModList.get().isLoaded(JEI_MOD_ID)
+                || Minecraft.getInstance().getResourceManager().getResource(JEI_RECIPE_ARROW).isEmpty()) {
+            return rightLeftArrow(28, 16);
+        }
+        return new UIElement().layout(layout -> {
+            layout.width(22);
+            layout.height(16);
+        }).style(style -> style.backgroundTexture(
+                SpriteTexture.of(JEI_RECIPE_ARROW).setSprite(0, 0, 22, 16)
+        ));
     }
 
     private static UIElement labeledSlot(String labelKey, UIElement slot) {

@@ -9,14 +9,29 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
 import com.lowdragmc.lowdraglib2.syncdata.rpc.RPCSender;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.gui.editor.RecipeProject;
+import com.viscript_recipe.gui.editor.StructureTagClientData;
 import com.viscript_recipe.recipe.RecipeAssetPaths;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 
 public final class RecipeEditorS2CPayload {
     public static final String OPEN_RECIPE_EDITOR_FILE = ViScriptRecipe.MOD_ID + ":open_recipe_editor_file";
+    public static final String SYNC_STRUCTURE_TAGS = ViScriptRecipe.MOD_ID + ":sync_structure_tags";
 
     private RecipeEditorS2CPayload() {
+    }
+
+    /**
+     * Replaces the client editor's structure tag catalog with an authoritative server snapshot.
+     *
+     * <p>The snapshot contains structure tag identifiers and the structure identifiers bound to each tag.
+     *
+     * @param  sender the RPC sender identifying the server
+     * @param  snapshot the compound tag containing the encoded structure tag catalog
+     */
+    @RPCPacket(value = SYNC_STRUCTURE_TAGS, modId = ViScriptRecipe.MOD_ID)
+    public static void syncStructureTags(RPCSender sender, CompoundTag snapshot) {
+        StructureTagClientData.updateFromServer(snapshot);
     }
 
     @RPCPacket(value = OPEN_RECIPE_EDITOR_FILE, modId = ViScriptRecipe.MOD_ID)

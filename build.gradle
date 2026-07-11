@@ -187,7 +187,9 @@ dependencies {
     //前置模组
     // LDLib2
     implementation("com.lowdragmc.ldlib2:ldlib2-neoforge-${minecraft_version}:${ldlib2_version}:all")
-    implementation "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${viscriptlib_version}"
+    implementation("com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${viscriptlib_version}") {
+        exclude group: "maven.modrinth", module: "jei"
+    }
     jarJar "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${viscriptlib_version}"
 
     // KubeJS
@@ -224,6 +226,15 @@ dependencies {
     implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
     //森罗物语：厨房
     implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
+    //灾变：L_Ender's Cataclysm
+    implementation "curse.maven:lendercataclysm-551586:${cataclysm_file}"
+    runtimeOnly "curse.maven:lionfish-api-1001614:${lionfish_api_file}"
+    //菌类感染：孢子
+    implementation "curse.maven:fungal-infection-spore-678295:${fungal_infection_spore_file}"
+    //诡厄巫法：Goety
+    implementation "curse.maven:goety-586095:${goety_file}"
+    //东方女仆：Touhou Little Maid
+    implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

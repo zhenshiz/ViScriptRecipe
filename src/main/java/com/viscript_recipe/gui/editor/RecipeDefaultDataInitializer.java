@@ -3,10 +3,12 @@ package com.viscript_recipe.gui.editor;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.data.RecipeIngredientValue;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushOutputData;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
 import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
+import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateHeatCondition;
@@ -27,9 +29,13 @@ import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingTableRecipeData
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
+import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
+import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
+import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
+import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -91,6 +97,73 @@ final class RecipeDefaultDataInitializer {
                     .setInput(RecipeIngredient.item(Items.IRON_INGOT))
                     .setBlood(RecipeIngredient.item(itemFromRegistry("iceandfire:fire_dragon_blood", Items.GLASS_BOTTLE)))
                     .setResult(new ItemStack(itemFromRegistry("iceandfire:dragonsteel_fire_ingot", Items.IRON_INGOT)));
+        } else if (type.equals(SporeRecipeEditorTypes.SURGERY)) {
+            entry.getSporeSurgery()
+                    .setIngredient(2, RecipeIngredient.item(itemFromRegistry("spore:mutated_fiber", Items.STRING)))
+                    .setResult(new ItemStack(itemFromRegistry("spore:knife", Items.IRON_SWORD)));
+        } else if (type.equals(SporeRecipeEditorTypes.GRAFTING)) {
+            entry.getSporeGrafting()
+                    .setIngredient(0, RecipeIngredient.item(itemFromRegistry("spore:inf_helmet", Items.IRON_HELMET)))
+                    .setIngredient(1, RecipeIngredient.item(itemFromRegistry("spore:brain_remnants", Items.ROTTEN_FLESH)))
+                    .setIngredient(2, RecipeIngredient.item(itemFromRegistry("spore:respirator", Items.LEATHER_HELMET)))
+                    .setResult(new ItemStack(itemFromRegistry("spore:inf_up_helmet", Items.NETHERITE_HELMET)));
+        } else if (type.equals(CataclysmRecipeEditorTypes.WEAPON_FUSION)) {
+            entry.getCataclysmWeaponFusion()
+                    .setBase(RecipeIngredient.item(itemFromRegistry("cataclysm:infernal_forge", Items.IRON_SWORD)))
+                    .setAddition(RecipeIngredient.item(itemFromRegistry("cataclysm:void_core", Items.AMETHYST_SHARD)))
+                    .setResult(new ItemStack(itemFromRegistry("cataclysm:void_forge", Items.DIAMOND_SWORD)));
+        } else if (type.equals(CataclysmRecipeEditorTypes.AMETHYST_BLESS)) {
+            entry.getCataclysmAmethystBless()
+                    .setIngredient(RecipeIngredient.item(itemFromRegistry("cataclysm:amethyst_crab_meat", Items.COOKED_COD)))
+                    .setResult(new ItemStack(itemFromRegistry("cataclysm:blessed_amethyst_crab_meat", Items.GOLDEN_CARROT)))
+                    .setTime(120);
+        } else if (type.equals(TouhouLittleMaidRecipeEditorTypes.ALTAR_RECIPE)) {
+            entry.getTouhouLittleMaidAltar()
+                    .setIngredient(0, RecipeIngredient.item(Items.HAY_BLOCK))
+                    .setIngredient(1, RecipeIngredient.item(Items.HAY_BLOCK))
+                    .setIngredient(2, RecipeIngredient.item(Items.HAY_BLOCK))
+                    .setIngredient(3, tagIngredient("c:rods/wooden"))
+                    .setIngredient(4, tagIngredient("c:rods/wooden"))
+                    .setIngredient(5, RecipeIngredient.item(Items.ENDER_EYE))
+                    .setPower(0.2F)
+                    .setResult(new ItemStack(itemFromRegistry("touhou_little_maid:broom", Items.STICK)));
+        } else if (type.equals(GoetyRecipeEditorTypes.CURSED_INFUSER_RECIPE)) {
+            entry.getGoetyCursedInfuser()
+                    .setIngredient(RecipeIngredient.item(Items.EMERALD_BLOCK))
+                    .setResult(new ItemStack(itemFromRegistry("goety:awakened_emerald_block", Items.DIAMOND_BLOCK)))
+                    .setCookingTime(540)
+                    .setGrim(false);
+        } else if (type.equals(GoetyRecipeEditorTypes.RITUAL)) {
+            entry.getGoetyRitual()
+                    .setActivationItem(RecipeIngredient.item(itemFromRegistry("goety:dark_gem", Items.BOOK)))
+                    .setIngredients(new ArrayList<>(List.of(
+                            RecipeIngredient.item(Items.IRON_INGOT),
+                            RecipeIngredient.item(Items.COAL),
+                            RecipeIngredient.item(itemFromRegistry("goety:cursed_ingot", Items.GOLD_INGOT))
+                    )))
+                    .setResult(new ItemStack(itemFromRegistry("goety:dark_ingot", Items.NETHERITE_INGOT)))
+                    .setCraftType(GoetyRitualCraftType.FORGE)
+                    .setRitualType(GoetyRecipeEditorTypes.goety("craft"))
+                    .setSoulCost(5)
+                    .setDuration(30);
+        } else if (type.equals(GoetyRecipeEditorTypes.BRAZIER)) {
+            entry.getGoetyBrazier()
+                    .setIngredient(0, RecipeIngredient.item(Items.COAL))
+                    .setIngredient(1, RecipeIngredient.item(Items.SCULK))
+                    .setIngredient(2, RecipeIngredient.item(itemFromRegistry("goety:cursed_ingot", Items.IRON_INGOT)))
+                    .setResult(new ItemStack(itemFromRegistry("goety:dark_ingot", Items.NETHERITE_INGOT)))
+                    .setSoulCost(500);
+        } else if (type.equals(GoetyRecipeEditorTypes.PULVERIZE)) {
+            entry.getGoetyPulverize()
+                    .setIngredient(RecipeIngredient.item(Items.STONE))
+                    .setItemResult(new ItemStack(Items.COBBLESTONE));
+        } else if (type.equals(GoetyRecipeEditorTypes.BREWING)) {
+            entry.getGoetyBrewing()
+                    .setIngredient(RecipeIngredient.item(Items.SPIDER_EYE))
+                    .setEffect(ResourceLocation.withDefaultNamespace("poison"))
+                    .setSoulCost(25)
+                    .setCapacityExtra(1)
+                    .setDuration(600);
         } else if (type.equals(FarmersDelightRecipeEditorTypes.COOKING)) {
             entry.getFarmerCookingPot()
                     .setIngredients(new ArrayList<>(List.of(
@@ -449,5 +522,12 @@ final class RecipeDefaultDataInitializer {
         }
         var item = BuiltInRegistries.ITEM.get(location);
         return item == null || item == Items.AIR ? fallback : item;
+    }
+
+    private static RecipeIngredient tagIngredient(String id) {
+        var location = ResourceLocation.tryParse(id);
+        return new RecipeIngredient().setValues(new ArrayList<>(List.of(
+                RecipeIngredientValue.tag(location == null ? ResourceLocation.withDefaultNamespace("planks") : location)
+        )));
     }
 }

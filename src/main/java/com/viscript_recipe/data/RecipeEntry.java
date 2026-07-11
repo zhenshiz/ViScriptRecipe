@@ -20,6 +20,8 @@ import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.create.CreateProcessingRecipeData;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCombinationRecipeData;
 import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCompressorRecipeData;
 import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingEnderCrafterRecipeData;
@@ -29,6 +31,11 @@ import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingUltimateSingula
 import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
+import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
+import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
+import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
+import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
+import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
@@ -38,6 +45,9 @@ import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
+import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
+import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
+import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.vanilla.CookingRecipeData;
 import com.viscript_recipe.data.vanilla.ShapedCraftingRecipeData;
 import com.viscript_recipe.data.vanilla.ShapelessCraftingRecipeData;
@@ -92,6 +102,12 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
 
     @Configurable(name = "viscript_recipe.config.entry.iceandfire.dragon_forge", subConfigurable = true)
     private DragonForgeRecipeData iceAndFireDragonForge = new DragonForgeRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.spore.surgery", subConfigurable = true)
+    private SporeSurgeryRecipeData sporeSurgery = new SporeSurgeryRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.spore.grafting", subConfigurable = true)
+    private SporeGraftingRecipeData sporeGrafting = new SporeGraftingRecipeData();
 
     @Configurable(name = "viscript_recipe.config.entry.farmersdelight.cooking_pot", subConfigurable = true)
     private FarmerCookingPotRecipeData farmerCookingPot = new FarmerCookingPotRecipeData();
@@ -182,6 +198,30 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
 
     @Configurable(name = "viscript_recipe.config.entry.avaritia.full_matter_cluster", subConfigurable = true)
     private AvaritiaFullMatterClusterRecipeData avaritiaFullMatterCluster = new AvaritiaFullMatterClusterRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.cataclysm.weapon_fusion", subConfigurable = true)
+    private CataclysmWeaponFusionRecipeData cataclysmWeaponFusion = new CataclysmWeaponFusionRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.cataclysm.amethyst_bless", subConfigurable = true)
+    private CataclysmAmethystBlessRecipeData cataclysmAmethystBless = new CataclysmAmethystBlessRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.touhou_little_maid.altar", subConfigurable = true)
+    private TouhouLittleMaidAltarRecipeData touhouLittleMaidAltar = new TouhouLittleMaidAltarRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.goety.cursed_infuser", subConfigurable = true)
+    private GoetyCursedInfuserRecipeData goetyCursedInfuser = new GoetyCursedInfuserRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.goety.ritual", subConfigurable = true)
+    private GoetyRitualRecipeData goetyRitual = new GoetyRitualRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.goety.brazier", subConfigurable = true)
+    private GoetyBrazierRecipeData goetyBrazier = new GoetyBrazierRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.goety.pulverize", subConfigurable = true)
+    private GoetyPulverizeRecipeData goetyPulverize = new GoetyPulverizeRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.goety.brewing", subConfigurable = true)
+    private GoetyBrewingRecipeData goetyBrewing = new GoetyBrewingRecipeData();
 
     public Recipe<?> compile() {
         return RecipeEditorTypes.require(getType()).compile(this);
