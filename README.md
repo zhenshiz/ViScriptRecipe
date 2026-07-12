@@ -2,7 +2,7 @@
 
 ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编辑与覆盖模组。它的目标很直接：把原本需要手写 JSON、写 KubeJS、反复重启或重载数据包的配方修改，变成可以在游戏内通过编辑器完成的可视化流程。
 
-玩家使用教程见：https://doc.mafuyu.moe/wiki/ViScriptRecipe。
+玩家使用教程见：https://doc.mafuyu.moe/wiki/ViScriptRecipe
 
 ## 功能总览
 
@@ -15,12 +15,13 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - 普通重载会向客户端同步配方包和配方书状态；`/viscript_recipe reload full` 会额外同步标签包，适合需要 JEI 重建标签相关配方时使用。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持多个大型配方模组的专用编辑 UI，包括 Create、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Ice and Fire 等。
+- 支持多个配方模组的专用编辑 UI 与导入器，包括 Create、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Ice and Fire、灾变、菌类感染：孢子、东方女仆和 Goety。
 
 ## 基本信息
 
 - Minecraft：`1.21.1`
 - Mod Loader：NeoForge `21+`
+- Java：`21`
 - 必需依赖：LDLib2
 - 内置依赖：ViScriptLib 会随本模组打包
 - 配方文件目录：`ldlib2/assets/viscript_recipe/recipes/*.recipe`
@@ -100,9 +101,9 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 | 工作站 | 支持的配方类型 |
 | --- | --- |
 | 炼金锅 | `irons_spellbooks:alchemist_cauldron_fill`、`irons_spellbooks:alchemist_cauldron_empty`、`irons_spellbooks:alchemist_cauldron_brew` |
-| 奥数铁砧 | `irons_spellbooks:arcane_anvil_transform` |
+| 奥术铁砧 | `irons_spellbooks:arcane_anvil_transform` |
 
-炼金锅支持物品与流体输入、返回物品、副产物、输出流体和声音设置。奥数铁砧配方通过本模组的菜单覆盖逻辑生效，不直接写入原版 RecipeManager。
+炼金锅支持物品与流体输入、返回物品、副产物、输出流体和声音设置。奥术铁砧配方通过本模组的菜单覆盖逻辑生效，不直接写入原版 RecipeManager。
 
 ### Ice and Fire CE (`iceandfire`)
 
@@ -187,11 +188,48 @@ Extended Crafting 合成台在编辑器里统一为一个工作台，通过配�
 
 Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据中的层级和尺寸字段选择幽匿、下界、末地、终极合成台规格。旧的幽匿、下界、末地、终极类型 ID 会被兼容归一到当前合成台类型。
 
+### L_Ender's Cataclysm / 灾变 (`cataclysm`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 机械融合铁砧 | `cataclysm:weapon_fusion` |
+| 紫水晶祭坛 | `cataclysm:amethyst_bless` |
+
+机械融合铁砧支持基础装备、融合材料和结果；紫水晶祭坛支持祭品、祝福时间和结果。两类配方均提供专用工作区与导入器。
+
+### Fungal Infection: Spore / 真菌感染：孢子 (`spore`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 孢子手术台 | `spore:surgery`、`spore:grafting` |
+
+手术配方提供 `4x4` 的 16 个材料槽；嫁接配方提供 3 个材料槽。两者都使用孢子手术台专用编辑 UI，并支持结果编辑和从已加载配方导入。
+
+### Touhou Little Maid / 车万女仆 (`touhou_little_maid`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 祭坛 | `touhou_little_maid:altar_recipe` |
+
+东方女仆祭坛支持材料、灵力消耗、结果、显示翻译键和输出实体类型。输出实体使用自动补全选择；普通物品输出使用 `minecraft:item`，也可选择女仆、闪电等祭坛原生支持的实体类型。
+
+### Goety / 诡厄巫法 (`goety`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 诅咒注入器 | `goety:cursed_infuser_recipes` |
+| 黑暗祭坛 | `goety:ritual` |
+| 死灵火盆 | `goety:brazier` |
+| 瓦解聚晶 | `goety:pulverize` |
+| 女巫坩埚 | `goety:brewing` |
+
+黑暗祭坛支持激活物、基座材料、灵魂消耗、仪式行为、召唤、献祭、转化、定位结构、附魔和研究等可选条件。女巫坩埚支持药水效果自动补全，并可选择不限制实体、实体标签或单个实体；后两种模式会显示相应的自动补全输入框。定位结构在界面中显示熟悉的结构 ID，但保存时会映射为 Goety Codec 所需的结构标签。
+
 ## 导入已加载配方
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Create、Extended Crafting、Avaritia、Farmer's Delight、Iron's Spells 炼金锅、Ice and Fire 龙钢锻炉、Ars Nouveau、Kaleidoscope Cookery 等已实现类型。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Avaritia、灾变、菌类感染：孢子、东方女仆和 Goety 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 
