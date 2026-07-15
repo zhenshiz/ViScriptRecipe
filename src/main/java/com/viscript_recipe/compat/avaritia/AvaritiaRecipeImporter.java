@@ -10,7 +10,10 @@ import committee.nova.mods.avaritia.common.crafting.recipe.ShapedTableCraftingRe
 import committee.nova.mods.avaritia.common.crafting.recipe.ShapelessTableCraftingRecipe;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaEternalSingularityRecipeData;
 import com.viscript_recipe.data.avaritia.AvaritiaExtremeSmithingRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaFullMatterClusterRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaInfinityCatalystRecipeData;
 import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
@@ -39,6 +42,9 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
         var recipe = holder.value();
         return recipe instanceof NoConsumeCatalystShapedRecipe
                 || recipe instanceof ShapedTableCraftingRecipe
+                || recipe instanceof InfinityCatalystCraftRecipe
+                || recipe instanceof EternalSingularityCraftRecipe
+                || recipe instanceof FullMatterClusterRecipe
                 || recipe instanceof ShapelessTableCraftingRecipe && !isSpecialShapeless(recipe)
                 || recipe instanceof CompressorRecipe
                 || recipe instanceof ExtremeSmithingRecipe;
@@ -63,6 +69,32 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                     .setShapelessIngredients(new ArrayList<>(RecipeImporter.importIngredientList(shapeless.getIngredients(), 81)))
                     .setResult(RecipeImporter.copyResult(shapeless, provider));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.SHAPELESS_TABLE).setAvaritiaTable(data));
+        }
+        if (recipe instanceof InfinityCatalystCraftRecipe catalyst) {
+            var result = RecipeImporter.copyResult(catalyst, provider);
+            var data = new AvaritiaInfinityCatalystRecipeData()
+                    .setGroup(catalyst.getGroup())
+                    .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(catalyst.getIngredients(), 81)))
+                    .setCount(Math.max(1, result.getCount()));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.INFINITY_CATALYST)
+                    .setAvaritiaInfinityCatalyst(data));
+        }
+        if (recipe instanceof EternalSingularityCraftRecipe eternalSingularity) {
+            var result = RecipeImporter.copyResult(eternalSingularity, provider);
+            var data = new AvaritiaEternalSingularityRecipeData()
+                    .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(eternalSingularity.originalInputs, 81)))
+                    .setCount(Math.max(1, result.getCount()));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)
+                    .setAvaritiaEternalSingularity(data));
+        }
+        if (recipe instanceof FullMatterClusterRecipe fullMatterCluster) {
+            var result = RecipeImporter.copyResult(fullMatterCluster, provider);
+            var data = new AvaritiaFullMatterClusterRecipeData()
+                    .setGroup(fullMatterCluster.getGroup())
+                    .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(fullMatterCluster.getIngredients(), 81)))
+                    .setCount(Math.max(1, result.getCount()));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)
+                    .setAvaritiaFullMatterCluster(data));
         }
         if (recipe instanceof CompressorRecipe compressor) {
             var data = new AvaritiaCompressorRecipeData()

@@ -74,6 +74,9 @@ repositories {
     //cf
     maven {
         url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
 
     maven {
@@ -93,6 +96,15 @@ repositories {
     maven {
         name = "Registrate"
         url = "https://maven.ithundxr.dev/snapshots"
+    }
+
+    // Mekanism
+    maven {
+        name = "Mekanism"
+        url = "https://modmaven.dev"
+        content {
+            includeGroup "mekanism"
+        }
     }
 
     flatDir {
@@ -223,6 +235,8 @@ dependencies {
     implementation "curse.maven:re-avaritia-623969:${re_avaritia_file}"
     //合成拓展
     implementation "curse.maven:cucumber-272335:${cucumber_file}"
+    //神秘农业
+    implementation "curse.maven:mystical-agriculture-246640:${mystical_agriculture_file}"
     implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
     //森罗物语：厨房
     implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
@@ -235,6 +249,11 @@ dependencies {
     implementation "curse.maven:goety-586095:${goety_file}"
     //东方女仆：Touhou Little Maid
     implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
+    //工业先锋：Industrial Foregoing
+    implementation "curse.maven:titanium-287342:${titanium_file}"
+    implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
+    //通用机械：Mekanism
+    implementation "mekanism:Mekanism:${mekanism_version}"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

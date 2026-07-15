@@ -23,15 +23,20 @@ import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientKind;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -63,6 +68,7 @@ public class CraftingWorkbenchView extends View {
     private static final ResourceLocation IRON_SCROLL_ID = ResourceLocation.fromNamespaceAndPath("irons_spellbooks", "scroll");
 
     private final RecipeEditorController controller;
+    private final MysticalAgricultureWorkbenchSection mysticalAgriculture;
     private final Map<IngredientDisplaySlot, Integer> ingredientDragSlotIndices = new IdentityHashMap<>();
     private final IngredientDisplaySlot[] craftingIngredientSlots = new IngredientDisplaySlot[9];
     private final ItemSlot craftingOutputSlot = createEditorSlot(OUTPUT_SLOT_SIZE);
@@ -280,6 +286,7 @@ public class CraftingWorkbenchView extends View {
     private final ItemSlot kaleidoscopePotResultSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final Label kaleidoscopePotStirFryLabel = RecipeEditorUi.label(Component.empty());
     private final IngredientDisplaySlot[] kaleidoscopeStockpotIngredientSlots = new IngredientDisplaySlot[9];
+    private final ItemSlot kaleidoscopeStockpotSoupBaseSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final IngredientDisplaySlot kaleidoscopeStockpotCarrierSlot = createIngredientSlot(JEI_SLOT_SIZE);
     private final ItemSlot kaleidoscopeStockpotResultSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final IngredientDisplaySlot kaleidoscopeMillstoneInputSlot = createIngredientSlot(JEI_SLOT_SIZE);
@@ -292,6 +299,31 @@ public class CraftingWorkbenchView extends View {
     private final IngredientDisplaySlot kaleidoscopeTeapotInputSlot = createIngredientSlot(JEI_SLOT_SIZE);
     private final ItemSlot kaleidoscopeTeapotResultSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final Label kaleidoscopeTeapotTimeLabel = RecipeEditorUi.label(Component.empty());
+    private final IngredientDisplaySlot[] industrialDissolutionInputSlots = new IngredientDisplaySlot[8];
+    private final FluidSlot industrialDissolutionInputFluidSlot = createFluidSlot(16);
+    private final ItemSlot industrialDissolutionItemOutputSlot = createEditorSlot(JEI_SLOT_SIZE);
+    private final FluidSlot industrialDissolutionFluidOutputSlot = createFluidSlot(16);
+    private final Label industrialDissolutionProcessingLabel = RecipeEditorUi.label(Component.empty());
+    private final IngredientDisplaySlot industrialExtractorInputSlot = createIngredientSlot(JEI_SLOT_SIZE);
+    private final UIElement industrialExtractorBlockOutput = new UIElement();
+    private final FluidSlot industrialExtractorFluidOutputSlot = createFluidSlot(16);
+    private final Label industrialExtractorProductionLabel = RecipeEditorUi.label(Component.empty());
+    private final IngredientDisplaySlot industrialCrusherInputSlot = createIngredientSlot(JEI_SLOT_SIZE);
+    private final UIElement industrialCrusherActionIcon = new UIElement();
+    private final IngredientDisplaySlot industrialCrusherOutputSlot = createIngredientSlot(JEI_SLOT_SIZE);
+    private final IngredientDisplaySlot industrialLaserOreCatalystSlot = createIngredientSlot(JEI_SLOT_SIZE);
+    private final IngredientDisplaySlot industrialLaserOreOutputSlot = createIngredientSlot(JEI_SLOT_SIZE);
+    private final Label industrialLaserOreRangeLabel = RecipeEditorUi.label(Component.empty());
+    private final Label industrialLaserOreRequirementsLabel = RecipeEditorUi.label(Component.empty());
+    private final IngredientDisplaySlot industrialLaserFluidCatalystSlot = createIngredientSlot(JEI_SLOT_SIZE);
+    private final FluidSlot industrialLaserFluidOutputSlot = createFluidSlot(16);
+    private final Label industrialLaserFluidRangeLabel = RecipeEditorUi.label(Component.empty());
+    private final Label industrialLaserFluidRequirementsLabel = RecipeEditorUi.label(Component.empty());
+    private final ItemSlot industrialStoneWorkOutputSlot = createEditorSlot(JEI_SLOT_SIZE);
+    private final Label industrialStoneWorkNeedsLabel = RecipeEditorUi.label(Component.empty());
+    private final Label industrialStoneWorkConsumesLabel = RecipeEditorUi.label(Component.empty());
+    private final IngredientDisplaySlot[] mekanismIngredientSlots = new IngredientDisplaySlot[2];
+    private final ItemSlot mekanismPrimaryOutputSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final TrackedDummyWorld createManualApplicationPreviewWorld = new TrackedDummyWorld();
     private final Scene createManualApplicationBlockScene = new Scene();
     private Block createManualApplicationPreviewBlock = Blocks.AIR;
@@ -323,6 +355,12 @@ public class CraftingWorkbenchView extends View {
     private UIElement goetyBrazierCanvas;
     private UIElement goetyPulverizeCanvas;
     private UIElement goetyBrewingCanvas;
+    private UIElement industrialDissolutionCanvas;
+    private UIElement industrialExtractorCanvas;
+    private UIElement industrialCrusherCanvas;
+    private UIElement industrialLaserOreCanvas;
+    private UIElement industrialLaserFluidCanvas;
+    private UIElement industrialStoneWorkCanvas;
     private UIElement createProcessingCanvas;
     private UIElement genericCreateProcessingCanvas;
     private UIElement createSpoutCanvas;
@@ -355,6 +393,7 @@ public class CraftingWorkbenchView extends View {
     private UIElement kaleidoscopeChoppingBoardCanvas;
     private UIElement kaleidoscopeSteamerCanvas;
     private UIElement kaleidoscopeTeapotCanvas;
+    private UIElement mekanismCanvas;
     private UIElement createPressFluidInputRow;
     private UIElement createPressFluidOutputRow;
     private UIElement createPressHeatPanel;
@@ -367,6 +406,7 @@ public class CraftingWorkbenchView extends View {
     public CraftingWorkbenchView(RecipeEditorController controller) {
         super("viscript_recipe.view.workbench", Icons.GRID);
         this.controller = controller;
+        this.mysticalAgriculture = new MysticalAgricultureWorkbenchSection(controller);
         addChild(createRoot());
         controller.addListener(this::refresh);
         refresh();
@@ -435,6 +475,12 @@ public class CraftingWorkbenchView extends View {
         goetyBrazierCanvas = createGoetyBrazierCanvas();
         goetyPulverizeCanvas = createGoetyPulverizeCanvas();
         goetyBrewingCanvas = createGoetyBrewingCanvas();
+        industrialDissolutionCanvas = createIndustrialDissolutionCanvas();
+        industrialExtractorCanvas = createIndustrialExtractorCanvas();
+        industrialCrusherCanvas = createIndustrialCrusherCanvas();
+        industrialLaserOreCanvas = createIndustrialLaserOreCanvas();
+        industrialLaserFluidCanvas = createIndustrialLaserFluidCanvas();
+        industrialStoneWorkCanvas = createIndustrialStoneWorkCanvas();
         createProcessingCanvas = createCreateProcessingCanvas();
         createSequencedAssemblyCanvas = createCreateSequencedAssemblyCanvas();
         arsNouveauApparatusCanvas = createArsNouveauApparatusCanvas();
@@ -447,12 +493,22 @@ public class CraftingWorkbenchView extends View {
         kaleidoscopeChoppingBoardCanvas = createKaleidoscopeChoppingBoardCanvas();
         kaleidoscopeSteamerCanvas = createKaleidoscopeSteamerCanvas();
         kaleidoscopeTeapotCanvas = createKaleidoscopeTeapotCanvas();
+        for (int i = 0; i < mekanismIngredientSlots.length; i++) {
+            var slot = createIngredientSlot(JEI_SLOT_SIZE);
+            configureIngredientSlot(slot, i);
+            mekanismIngredientSlots[i] = slot;
+        }
+        mekanismCanvas = MekanismCanvasFactory.createCanvas(controller, mekanismIngredientSlots,
+                configureResultSlot(mekanismPrimaryOutputSlot));
         canvasStack = RecipeEditorUi.column().layout(layout -> {
             layout.widthPercent(100);
             layout.heightPercent(100);
             layout.minWidth(0);
             layout.minHeight(0);
-        }).addChildren(craftingCanvas, mechanicalCraftingCanvas, cookingCanvas, campfireCookingCanvas, singleInputCanvas, farmersCookingPotCanvas, farmersCuttingBoardCanvas, smithingCanvas, arcaneAnvilCanvas, avaritiaCompressorCanvas, avaritiaExtremeSmithingCanvas, extendedCombinationCanvas, extendedCompressorCanvas, extendedFluxCanvas, alchemistCanvas, dragonForgeCanvas, cataclysmWeaponFusionCanvas, cataclysmAmethystBlessCanvas, touhouLittleMaidAltarCanvas, sporeSurgeryCanvas, sporeGraftingCanvas, goetyCursedInfuserCanvas, goetyRitualCanvas, goetyBrazierCanvas, goetyPulverizeCanvas, goetyBrewingCanvas, createProcessingCanvas, createSequencedAssemblyCanvas, arsNouveauApparatusCanvas, arsNouveauImbuementCanvas, arsNouveauGlyphCanvas, arsNouveauCrushCanvas, kaleidoscopePotCanvas, kaleidoscopeStockpotCanvas, kaleidoscopeMillstoneCanvas, kaleidoscopeChoppingBoardCanvas, kaleidoscopeSteamerCanvas, kaleidoscopeTeapotCanvas);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).addChildren(craftingCanvas, mechanicalCraftingCanvas, cookingCanvas, campfireCookingCanvas, singleInputCanvas, farmersCookingPotCanvas, farmersCuttingBoardCanvas, smithingCanvas, arcaneAnvilCanvas, avaritiaCompressorCanvas, avaritiaExtremeSmithingCanvas, extendedCombinationCanvas, extendedCompressorCanvas, extendedFluxCanvas, alchemistCanvas, dragonForgeCanvas, cataclysmWeaponFusionCanvas, cataclysmAmethystBlessCanvas, touhouLittleMaidAltarCanvas, sporeSurgeryCanvas, sporeGraftingCanvas, goetyCursedInfuserCanvas, goetyRitualCanvas, goetyBrazierCanvas, goetyPulverizeCanvas, goetyBrewingCanvas, industrialDissolutionCanvas, industrialExtractorCanvas, industrialCrusherCanvas, industrialLaserOreCanvas, industrialLaserFluidCanvas, industrialStoneWorkCanvas, createProcessingCanvas, createSequencedAssemblyCanvas, arsNouveauApparatusCanvas, arsNouveauImbuementCanvas, arsNouveauGlyphCanvas, arsNouveauCrushCanvas, kaleidoscopePotCanvas, kaleidoscopeStockpotCanvas, kaleidoscopeMillstoneCanvas, kaleidoscopeChoppingBoardCanvas, kaleidoscopeSteamerCanvas, kaleidoscopeTeapotCanvas, mekanismCanvas);
+        canvasStack.addChildren(mysticalAgriculture.canvases().toArray(UIElement[]::new));
         canvasViewport = new RecipeCanvasViewport(canvasStack);
         return canvasViewport;
     }
@@ -1073,6 +1129,124 @@ public class CraftingWorkbenchView extends View {
                 .textWrap(TextWrap.HOVER_ROLL));
     }
 
+    private UIElement createIndustrialDissolutionCanvas() {
+        var cells = new UIElement[industrialDissolutionInputSlots.length];
+        for (int index = 0; index < industrialDissolutionInputSlots.length; index++) {
+            var slot = createIngredientSlot(JEI_SLOT_SIZE);
+            configureIngredientSlot(slot, index);
+            configureJeiOverlaySlotVisual(slot);
+            industrialDissolutionInputSlots[index] = slot;
+            cells[index] = IndustrialForegoingCanvasFactory.slotCell(slot, JEI_SLOT_SIZE, JEI_SLOT_SIZE);
+        }
+        configureResultSlot(industrialDissolutionItemOutputSlot);
+        industrialDissolutionItemOutputSlot.style(style -> style.tooltips(Component.translatable(
+                "viscript_recipe.editor.click_to_edit")));
+        configureJeiOverlaySlotVisual(industrialDissolutionItemOutputSlot);
+        configureIndustrialFluidSlot(industrialDissolutionInputFluidSlot,
+                RecipeEditorController.INDUSTRIAL_DISSOLUTION_INPUT_FLUID_SLOT);
+        configureIndustrialFluidSlot(industrialDissolutionFluidOutputSlot,
+                RecipeEditorController.INDUSTRIAL_DISSOLUTION_OUTPUT_FLUID_SLOT);
+        configureIndustrialComponent(industrialDissolutionProcessingLabel,
+                RecipeEditorController.INDUSTRIAL_DISSOLUTION_SETTINGS_COMPONENT);
+        industrialDissolutionFluidOutputSlot.layout(layout -> {
+            layout.width(16);
+            layout.height(52);
+        });
+        return IndustrialForegoingCanvasFactory.createDissolution(
+                cells,
+                IndustrialForegoingCanvasFactory.slotCell(industrialDissolutionInputFluidSlot, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialDissolutionItemOutputSlot, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialDissolutionFluidOutputSlot, 18, 54),
+                industrialDissolutionProcessingLabel
+        );
+    }
+
+    private UIElement createIndustrialExtractorCanvas() {
+        configureIngredientSlot(industrialExtractorInputSlot, 0);
+        configureJeiOverlaySlotVisual(industrialExtractorInputSlot);
+        configureIndustrialComponent(industrialExtractorBlockOutput,
+                RecipeEditorController.INDUSTRIAL_FLUID_EXTRACTOR_BLOCK_COMPONENT);
+        configureIndustrialFluidSlot(industrialExtractorFluidOutputSlot,
+                RecipeEditorController.INDUSTRIAL_FLUID_EXTRACTOR_OUTPUT_FLUID_SLOT);
+        configureIndustrialComponent(industrialExtractorProductionLabel,
+                RecipeEditorController.INDUSTRIAL_FLUID_EXTRACTOR_OPERATION_COMPONENT);
+        industrialExtractorFluidOutputSlot.layout(layout -> {
+            layout.width(16);
+            layout.height(48);
+        });
+        industrialExtractorBlockOutput.layout(layout -> layout.width(18).height(18));
+        return IndustrialForegoingCanvasFactory.createFluidExtractor(
+                IndustrialForegoingCanvasFactory.slotCell(industrialExtractorInputSlot, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialExtractorBlockOutput, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialExtractorFluidOutputSlot, 18, 50),
+                industrialExtractorProductionLabel
+        );
+    }
+
+    private UIElement createIndustrialCrusherCanvas() {
+        configureIngredientSlot(industrialCrusherInputSlot, 0);
+        configureIngredientSlot(industrialCrusherOutputSlot, 1);
+        configureJeiOverlaySlotVisual(industrialCrusherInputSlot);
+        configureJeiOverlaySlotVisual(industrialCrusherOutputSlot);
+        industrialCrusherActionIcon.layout(layout -> layout.width(18).height(18));
+        industrialCrusherActionIcon.style(style -> style.tooltips(Component.translatable(
+                "viscript_recipe.editor.industrial_foregoing.crusher.action")));
+        setItemTexture(industrialCrusherActionIcon, new ItemStack(Items.DIAMOND_PICKAXE));
+        return IndustrialForegoingCanvasFactory.createCrusher(
+                IndustrialForegoingCanvasFactory.slotCell(industrialCrusherInputSlot, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialCrusherActionIcon, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialCrusherOutputSlot, 18, 18)
+        );
+    }
+
+    private UIElement createIndustrialLaserOreCanvas() {
+        configureIngredientSlot(industrialLaserOreCatalystSlot, 0);
+        configureIngredientSlot(industrialLaserOreOutputSlot, 1);
+        configureJeiOverlaySlotVisual(industrialLaserOreCatalystSlot);
+        configureJeiOverlaySlotVisual(industrialLaserOreOutputSlot);
+        configureIndustrialComponent(industrialLaserOreRangeLabel,
+                RecipeEditorController.INDUSTRIAL_LASER_ORE_RARITY_COMPONENT);
+        configureIndustrialComponent(industrialLaserOreRequirementsLabel,
+                RecipeEditorController.INDUSTRIAL_LASER_ORE_ENTITY_COMPONENT);
+        return IndustrialForegoingCanvasFactory.createLaser(
+                IndustrialForegoingCanvasFactory.slotCell(industrialLaserOreCatalystSlot, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialLaserOreOutputSlot, 18, 18),
+                industrialLaserOreRangeLabel,
+                industrialLaserOreRequirementsLabel
+        );
+    }
+
+    private UIElement createIndustrialLaserFluidCanvas() {
+        configureIngredientSlot(industrialLaserFluidCatalystSlot, 0);
+        configureJeiOverlaySlotVisual(industrialLaserFluidCatalystSlot);
+        configureIndustrialFluidSlot(industrialLaserFluidOutputSlot,
+                RecipeEditorController.INDUSTRIAL_LASER_FLUID_OUTPUT_SLOT);
+        configureIndustrialComponent(industrialLaserFluidRangeLabel,
+                RecipeEditorController.INDUSTRIAL_LASER_FLUID_RARITY_COMPONENT);
+        configureIndustrialComponent(industrialLaserFluidRequirementsLabel,
+                RecipeEditorController.INDUSTRIAL_LASER_FLUID_ENTITY_COMPONENT);
+        return IndustrialForegoingCanvasFactory.createLaser(
+                IndustrialForegoingCanvasFactory.slotCell(industrialLaserFluidCatalystSlot, 18, 18),
+                IndustrialForegoingCanvasFactory.slotCell(industrialLaserFluidOutputSlot, 18, 18),
+                industrialLaserFluidRangeLabel,
+                industrialLaserFluidRequirementsLabel
+        );
+    }
+
+    private UIElement createIndustrialStoneWorkCanvas() {
+        configureResultSlot(industrialStoneWorkOutputSlot);
+        configureJeiOverlaySlotVisual(industrialStoneWorkOutputSlot);
+        configureIndustrialComponent(industrialStoneWorkNeedsLabel,
+                RecipeEditorController.INDUSTRIAL_STONEWORK_NEEDS_COMPONENT);
+        configureIndustrialComponent(industrialStoneWorkConsumesLabel,
+                RecipeEditorController.INDUSTRIAL_STONEWORK_CONSUMES_COMPONENT);
+        return IndustrialForegoingCanvasFactory.createStoneWork(
+                IndustrialForegoingCanvasFactory.slotCell(industrialStoneWorkOutputSlot, 18, 18),
+                industrialStoneWorkNeedsLabel,
+                industrialStoneWorkConsumesLabel
+        );
+    }
+
     private UIElement createCreateProcessingCanvas() {
         genericCreateProcessingCanvas = createGenericCreateProcessingCanvas();
         createSpoutCanvas = createCreateSpoutCanvas();
@@ -1280,11 +1454,13 @@ public class CraftingWorkbenchView extends View {
 
     private UIElement createKaleidoscopeStockpotCanvas() {
         configureKaleidoscopeGridSlots(kaleidoscopeStockpotIngredientSlots);
+        configureKaleidoscopeStockpotSoupBaseSlot(kaleidoscopeStockpotSoupBaseSlot);
         configureKaleidoscopeIngredientSlot(kaleidoscopeStockpotCarrierSlot, KALEIDOSCOPE_CARRIER_SLOT);
         configureKaleidoscopeResultSlot(kaleidoscopeStockpotResultSlot);
 
         return KaleidoscopeCanvasFactory.createStockpotCanvas(
                 kaleidoscopeStockpotIngredientSlots,
+                kaleidoscopeStockpotSoupBaseSlot,
                 kaleidoscopeStockpotCarrierSlot,
                 kaleidoscopeStockpotResultSlot
         );
@@ -1361,14 +1537,39 @@ public class CraftingWorkbenchView extends View {
             }
         });
         slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
-            controller.selectRecipeProperties();
+            controller.selectKaleidoscopeTeapotFluidSlot();
             if (event.button == 1) {
                 controller.resetKaleidoscopeTeapotFluidBucket();
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         configureJeiOverlaySlotVisual(slot);
         slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.config.kaleidoscope_cookery.tea_fluid")));
+        return slot;
+    }
+
+    private ItemSlot configureKaleidoscopeStockpotSoupBaseSlot(ItemSlot slot) {
+        slot.registerValueListener(stack -> {
+            if (controller.isRefreshing()) {
+                return;
+            }
+            var soupBase = KaleidoscopeSoupBaseUiSupport.idForStack(stack);
+            if (soupBase == null) {
+                controller.notifyChanged();
+            } else {
+                controller.setSelectedKaleidoscopeStockpotSoupBase(soupBase);
+            }
+        });
+        slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
+            controller.selectKaleidoscopeStockpotSoupBaseSlot();
+            if (event.button == 1) {
+                controller.resetKaleidoscopeStockpotSoupBase();
+            }
+            event.stopPropagation();
+        });
+        configureJeiOverlaySlotVisual(slot);
+        slot.style(style -> style.tooltips(Component.translatable(
+                "viscript_recipe.config.kaleidoscope_cookery.soup_base")));
         return slot;
     }
 
@@ -1558,7 +1759,10 @@ public class CraftingWorkbenchView extends View {
                     return cell;
                 }
         ).style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.create.auto_packing.input_grid")));
-        createAutoPackingInputGrid.addEventListener(UIEvents.MOUSE_DOWN, event -> controller.selectIngredientSlot(0));
+        createAutoPackingInputGrid.addEventListener(UIEvents.MOUSE_DOWN, event -> {
+            controller.selectIngredientSlot(0);
+            event.stopPropagation();
+        });
         return createAutoPackingInputGrid;
     }
 
@@ -1989,8 +2193,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectIngredientSlot(index);
             if (event.button == 1) {
                 controller.clearVisualIngredient(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable(
                 "viscript_recipe.editor.ingredient_slot",
@@ -2009,8 +2213,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectResultSlot();
             if (event.button == 1) {
                 controller.clearVisualResult();
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.result_slot")));
         return slot;
@@ -2026,8 +2230,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectContainerSlot();
             if (event.button == 1) {
                 controller.clearVisualContainer();
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.farmersdelight.cooking.container_slot")));
         return slot;
@@ -2043,8 +2247,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectCuttingResultSlot(index);
             if (event.button == 1) {
                 controller.clearVisualCuttingResult(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable(
                 "viscript_recipe.editor.farmersdelight.cutting.result_slot",
@@ -2063,8 +2267,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectCreateOutputSlot(index);
             if (event.button == 1) {
                 controller.clearVisualCreateOutput(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable(
                 "viscript_recipe.editor.create.output_slot",
@@ -2083,8 +2287,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectArsNouveauOutputSlot(index);
             if (event.button == 1) {
                 controller.clearVisualArsNouveauOutput(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable(
                 "viscript_recipe.editor.ars_nouveau.output_slot",
@@ -2104,8 +2308,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectIngredientSlot(0);
             if (event.button == 1) {
                 controller.clearVisualIngredient(0);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.create.auto_packing.input_grid")));
         return slot;
@@ -2121,10 +2325,10 @@ public class CraftingWorkbenchView extends View {
             controller.selectAlchemistFluidSlot(index);
             if (event.button == 1) {
                 controller.clearVisualAlchemistFluid(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
-        slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.fluid_slot")));
+        slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.click_to_edit")));
         return slot;
     }
 
@@ -2138,8 +2342,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectCreateFluidInputSlot(index);
             if (event.button == 1) {
                 controller.clearVisualCreateFluidInput(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable(
                 "viscript_recipe.editor.create.fluid_input_slot",
@@ -2158,14 +2362,34 @@ public class CraftingWorkbenchView extends View {
             controller.selectCreateFluidOutputSlot(index);
             if (event.button == 1) {
                 controller.clearVisualCreateFluidOutput(index);
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable(
                 "viscript_recipe.editor.create.fluid_output_slot",
                 index + 1
         )));
         return slot;
+    }
+
+    /** Makes an Industrial Foregoing fluid display select its own properties instead of accepting direct edits. */
+    private FluidSlot configureIndustrialFluidSlot(FluidSlot slot, int selectionIndex) {
+        slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
+            controller.selectIndustrialFluidSlot(selectionIndex);
+            event.stopPropagation();
+        });
+        slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.fluid_slot")));
+        return slot;
+    }
+
+    /** Makes a non-slot Industrial Foregoing canvas component open its focused properties. */
+    private UIElement configureIndustrialComponent(UIElement element, int selectionIndex) {
+        element.addEventListener(UIEvents.MOUSE_DOWN, event -> {
+            controller.selectIndustrialComponent(selectionIndex);
+            event.stopPropagation();
+        });
+        element.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.click_to_edit")));
+        return element;
     }
 
     private ItemSlot configureCreateSequencedTransitionalSlot(ItemSlot slot) {
@@ -2178,8 +2402,8 @@ public class CraftingWorkbenchView extends View {
             controller.selectCreateSequencedTransitionalSlot();
             if (event.button == 1) {
                 controller.clearVisualCreateSequencedTransitional();
-                event.stopPropagation();
             }
+            event.stopPropagation();
         });
         slot.style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.create.sequenced_assembly.transitional_item_slot")));
         return slot;
@@ -2250,6 +2474,14 @@ public class CraftingWorkbenchView extends View {
 
     private void refresh() {
         titleLabel.setText(controller.selectedCategoryDisplayName());
+        if (controller.getSelectedEntry() == null) {
+            hideAllRecipeCanvases();
+            updateStatus();
+            if (canvasViewport != null) {
+                canvasViewport.requestReflow();
+            }
+            return;
+        }
         var singleInput = controller.isSelectedSingleInputLayout();
         var cooking = controller.isSelectedCookingLayout();
         var campfireCooking = cooking && isSelectedCampfireCooking();
@@ -2291,9 +2523,19 @@ public class CraftingWorkbenchView extends View {
         var kaleidoscopeChoppingBoard = controller.isSelectedKaleidoscopeChoppingBoardLayout();
         var kaleidoscopeSteamer = controller.isSelectedKaleidoscopeSteamerLayout();
         var kaleidoscopeTeapot = controller.isSelectedKaleidoscopeTeapotLayout();
+        var industrial = controller.isSelectedIndustrialForegoingLayout();
+        var industrialEntry = controller.getSelectedEntry();
+        var industrialCrusher = industrialEntry != null && controller.isIndustrialCrusherEntry(industrialEntry);
+        var industrialDissolution = industrialEntry != null && controller.isIndustrialDissolutionEntry(industrialEntry);
+        var industrialExtractor = industrialEntry != null && controller.isIndustrialFluidExtractorEntry(industrialEntry);
+        var industrialLaserOre = industrialEntry != null && controller.isIndustrialLaserOreEntry(industrialEntry);
+        var industrialLaserFluid = industrialEntry != null && controller.isIndustrialLaserFluidEntry(industrialEntry);
+        var industrialStoneWork = industrialEntry != null && controller.isIndustrialStoneWorkEntry(industrialEntry);
+        var mekanism = controller.isSelectedMekanismLayout();
+        var mysticalAgricultureLayout = mysticalAgriculture.isSelectedLayout();
         var kaleidoscope = kaleidoscopePot || kaleidoscopeStockpot || kaleidoscopeMillstone || kaleidoscopeChoppingBoard || kaleidoscopeSteamer || kaleidoscopeTeapot;
         if (craftingCanvas != null) {
-            craftingCanvas.setDisplay(!singleInput && !smithing && !alchemist && !dragonForge && !cataclysm && !touhouLittleMaidAltar && !spore && !goety && !farmersCookingPot && !farmersCuttingBoard && !largeCraftingGrid && !avaritiaCompressor && !avaritiaExtremeSmithing && !extendedCombination && !extendedCompressor && !extendedFlux && !createProcessing && !createSequencedAssembly && !arsNouveauApparatus && !arsNouveauImbuement && !arsNouveauGlyph && !arsNouveauCrush && !kaleidoscope);
+            craftingCanvas.setDisplay(!singleInput && !smithing && !alchemist && !dragonForge && !cataclysm && !touhouLittleMaidAltar && !spore && !goety && !farmersCookingPot && !farmersCuttingBoard && !largeCraftingGrid && !avaritiaCompressor && !avaritiaExtremeSmithing && !extendedCombination && !extendedCompressor && !extendedFlux && !createProcessing && !createSequencedAssembly && !arsNouveauApparatus && !arsNouveauImbuement && !arsNouveauGlyph && !arsNouveauCrush && !kaleidoscope && !industrial && !mekanism && !mysticalAgricultureLayout);
         }
         if (mechanicalCraftingCanvas != null) {
             mechanicalCraftingCanvas.setDisplay(largeCraftingGrid);
@@ -2370,6 +2612,24 @@ public class CraftingWorkbenchView extends View {
         if (goetyBrewingCanvas != null) {
             goetyBrewingCanvas.setDisplay(goetyBrewing);
         }
+        if (industrialDissolutionCanvas != null) {
+            industrialDissolutionCanvas.setDisplay(industrialDissolution);
+        }
+        if (industrialExtractorCanvas != null) {
+            industrialExtractorCanvas.setDisplay(industrialExtractor);
+        }
+        if (industrialCrusherCanvas != null) {
+            industrialCrusherCanvas.setDisplay(industrialCrusher);
+        }
+        if (industrialLaserOreCanvas != null) {
+            industrialLaserOreCanvas.setDisplay(industrialLaserOre);
+        }
+        if (industrialLaserFluidCanvas != null) {
+            industrialLaserFluidCanvas.setDisplay(industrialLaserFluid);
+        }
+        if (industrialStoneWorkCanvas != null) {
+            industrialStoneWorkCanvas.setDisplay(industrialStoneWork);
+        }
         if (createProcessingCanvas != null) {
             createProcessingCanvas.setDisplay(createProcessing);
         }
@@ -2406,6 +2666,10 @@ public class CraftingWorkbenchView extends View {
         if (kaleidoscopeTeapotCanvas != null) {
             kaleidoscopeTeapotCanvas.setDisplay(kaleidoscopeTeapot);
         }
+        if (mekanismCanvas != null) {
+            mekanismCanvas.setDisplay(mekanism);
+        }
+        mysticalAgriculture.refresh();
         if (alchemist) {
             var selectedEntry = controller.getSelectedEntry();
             var isFill = selectedEntry != null && controller.isIronAlchemistCauldronFillEntry(selectedEntry);
@@ -2540,6 +2804,8 @@ public class CraftingWorkbenchView extends View {
             setSlot(goetyPulverizeOutputSlot, controller.getVisualResult());
         } else if (goetyBrewing) {
             refreshGoetyBrewing();
+        } else if (industrial) {
+            refreshIndustrialForegoing();
         } else if (largeCraftingGrid) {
             refreshMechanicalCrafting();
         } else if (createSequencedAssembly) {
@@ -2580,6 +2846,15 @@ public class CraftingWorkbenchView extends View {
         updateStatus();
         if (canvasViewport != null) {
             canvasViewport.requestReflow();
+        }
+    }
+
+    private void hideAllRecipeCanvases() {
+        if (canvasStack == null) {
+            return;
+        }
+        for (var canvas : canvasStack.getChildren()) {
+            canvas.setDisplay(false);
         }
     }
 
@@ -2677,6 +2952,125 @@ public class CraftingWorkbenchView extends View {
                 Math.max(0, data.getCapacityExtra()),
                 Math.max(0, data.getSoulCost())
         ));
+    }
+
+    private void refreshIndustrialForegoing() {
+        var entry = controller.getSelectedEntry();
+        if (entry == null) {
+            return;
+        }
+        if (controller.isIndustrialDissolutionEntry(entry)) {
+            var data = entry.getIndustrialDissolution();
+            for (int index = 0; index < industrialDissolutionInputSlots.length; index++) {
+                refreshIngredientSlot(industrialDissolutionInputSlots[index], index);
+            }
+            var inputFluid = industrialFluidDisplay(data.getInputFluid());
+            industrialDissolutionInputFluidSlot.setCapacity(Math.max(1, inputFluid.getAmount()));
+            setFluid(industrialDissolutionInputFluidSlot, inputFluid);
+            industrialDissolutionItemOutputSlot.setDisplay(true);
+            setSlot(industrialDissolutionItemOutputSlot,
+                    data.isHasItemOutput() ? controller.getVisualResult() : ItemStack.EMPTY);
+            var outputFluid = data.isHasFluidOutput() && data.getOutputFluid() != null
+                    ? data.getOutputFluid() : FluidStack.EMPTY;
+            industrialDissolutionFluidOutputSlot.setDisplay(true);
+            industrialDissolutionFluidOutputSlot.setCapacity(Math.max(1, outputFluid.getAmount()));
+            setFluid(industrialDissolutionFluidOutputSlot, outputFluid);
+            industrialDissolutionProcessingLabel.setText(Component.translatable(
+                    "viscript_recipe.editor.industrial_foregoing.processing_ticks",
+                    Math.max(0, data.getProcessingTime())));
+            return;
+        }
+        if (controller.isIndustrialFluidExtractorEntry(entry)) {
+            var data = entry.getIndustrialFluidExtractor();
+            refreshIngredientSlot(industrialExtractorInputSlot, 0);
+            var block = data.getResultBlock() == null ? Blocks.AIR : BuiltInRegistries.BLOCK.get(data.getResultBlock());
+            setItemTexture(industrialExtractorBlockOutput,
+                    block == null || block == Blocks.AIR ? ItemStack.EMPTY : new ItemStack(block));
+            var output = data.getOutput() == null ? FluidStack.EMPTY : data.getOutput();
+            industrialExtractorFluidOutputSlot.setCapacity(Math.max(1, output.getAmount()));
+            setFluid(industrialExtractorFluidOutputSlot, output);
+            industrialExtractorProductionLabel.setText(Component.translatable(
+                    "viscript_recipe.editor.industrial_foregoing.production_per_work",
+                    output.getAmount(), data.getBreakChance()));
+            return;
+        }
+        if (controller.isIndustrialCrusherEntry(entry)) {
+            refreshIngredientSlot(industrialCrusherInputSlot, 0);
+            refreshIngredientSlot(industrialCrusherOutputSlot, 1);
+            setItemTexture(industrialCrusherActionIcon, new ItemStack(Items.DIAMOND_PICKAXE));
+            return;
+        }
+        if (controller.isIndustrialLaserOreEntry(entry)) {
+            refreshIngredientSlot(industrialLaserOreCatalystSlot, 0);
+            refreshIngredientSlot(industrialLaserOreOutputSlot, 1);
+            refreshLaserLabels(entry.getIndustrialLaserDrillOre().getRarity(),
+                    entry.getIndustrialLaserDrillOre().getEntityCondition(),
+                    industrialLaserOreRangeLabel, industrialLaserOreRequirementsLabel,
+                    entry.getIndustrialLaserDrillOre().getOutputCount());
+            return;
+        }
+        if (controller.isIndustrialLaserFluidEntry(entry)) {
+            refreshIngredientSlot(industrialLaserFluidCatalystSlot, 0);
+            var output = industrialFluidDisplay(entry.getIndustrialLaserDrillFluid().getOutput());
+            industrialLaserFluidOutputSlot.setCapacity(Math.max(1, output.getAmount()));
+            setFluid(industrialLaserFluidOutputSlot, output);
+            refreshLaserLabels(entry.getIndustrialLaserDrillFluid().getRarity(),
+                    entry.getIndustrialLaserDrillFluid().getEntityCondition(),
+                    industrialLaserFluidRangeLabel, industrialLaserFluidRequirementsLabel, null);
+            return;
+        }
+        if (controller.isIndustrialStoneWorkEntry(entry)) {
+            var data = entry.getIndustrialStoneWork();
+            setSlot(industrialStoneWorkOutputSlot, controller.getVisualResult());
+            industrialStoneWorkNeedsLabel.setText(Component.translatable(
+                    "viscript_recipe.editor.industrial_foregoing.stonework.needs",
+                    Math.max(0, data.getWaterNeed()), Math.max(0, data.getLavaNeed())));
+            industrialStoneWorkConsumesLabel.setText(Component.translatable(
+                    "viscript_recipe.editor.industrial_foregoing.stonework.consumes",
+                    Math.max(0, data.getWaterConsume()), Math.max(0, data.getLavaConsume())));
+        }
+    }
+
+    private void refreshLaserLabels(List<com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillRarityData> rarities,
+                                    com.viscript_recipe.data.industrial_foregoing.IndustrialEntityConditionData entity,
+                                    Label rangeLabel, Label requirementsLabel, Integer outputCount) {
+        var rarity = rarities == null || rarities.isEmpty() || rarities.getFirst() == null
+                ? new com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillRarityData()
+                : rarities.getFirst();
+        rangeLabel.setText(outputCount == null
+                ? Component.translatable("viscript_recipe.editor.industrial_foregoing.laser.fluid_summary",
+                rarity.getDepthMin(), rarity.getDepthMax(), Math.max(1, rarity.getWeight()),
+                Math.max(1, rarities == null ? 1 : rarities.size()))
+                : Component.translatable("viscript_recipe.editor.industrial_foregoing.laser.summary",
+                rarity.getDepthMin(), rarity.getDepthMax(), Math.max(1, rarity.getWeight()),
+                Math.max(1, rarities == null ? 1 : rarities.size()), Math.max(0, outputCount)));
+        var entityText = entity != null && entity.isEnabled()
+                ? Component.literal((entity.getKind() == com.viscript_recipe.data.industrial_foregoing.IndustrialEntityIngredientKind.TAG ? "#" : "")
+                + entity.getId())
+                : Component.translatable("viscript_recipe.editor.industrial_foregoing.entity_condition.none");
+        requirementsLabel.setText(Component.translatable(
+                "viscript_recipe.editor.industrial_foregoing.laser.requirements",
+                entityText,
+                size(rarity.getBiomeWhitelist()), size(rarity.getBiomeBlacklist()),
+                size(rarity.getDimensionWhitelist()), size(rarity.getDimensionBlacklist())));
+    }
+
+    private FluidStack industrialFluidDisplay(IndustrialFluidIngredientData data) {
+        if (data == null) {
+            return FluidStack.EMPTY;
+        }
+        var amount = Math.max(1, data.getAmount());
+        if (data.getKind() == IndustrialFluidIngredientKind.TAG && data.getTag() != null) {
+            var holder = BuiltInRegistries.FLUID.getTag(TagKey.create(Registries.FLUID, data.getTag()))
+                    .stream().flatMap(net.minecraft.core.HolderSet.ListBacked::stream).findFirst().orElse(null);
+            return holder == null ? FluidStack.EMPTY : new FluidStack(holder.value(), amount);
+        }
+        return data.getFluid() == null || data.getFluid().isEmpty()
+                ? FluidStack.EMPTY : data.getFluid().copyWithAmount(amount);
+    }
+
+    private static int size(List<?> values) {
+        return values == null ? 0 : values.size();
     }
 
     private boolean isSelectedCampfireCooking() {
@@ -2808,6 +3202,8 @@ public class CraftingWorkbenchView extends View {
 
     private void refreshKaleidoscopeStockpot() {
         refreshKaleidoscopeGrid(kaleidoscopeStockpotIngredientSlots);
+        setSlot(kaleidoscopeStockpotSoupBaseSlot, KaleidoscopeSoupBaseUiSupport.displayStack(
+                controller.getSelectedEntry().getKaleidoscopeStockpot().getSoupBase()));
         refreshIngredientSlot(kaleidoscopeStockpotCarrierSlot, KALEIDOSCOPE_CARRIER_SLOT);
         setSlot(kaleidoscopeStockpotResultSlot, controller.getVisualResult());
     }

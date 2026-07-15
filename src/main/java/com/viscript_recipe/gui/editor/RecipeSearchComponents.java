@@ -1,56 +1,59 @@
 package com.viscript_recipe.gui.editor;
 
-import com.lowdragmc.lowdraglib2.configurator.ui.RegistrySearchComponent;
-import com.lowdragmc.lowdraglib2.configurator.ui.SearchComponentConfigurator;
-import com.lowdragmc.lowdraglib2.configurator.ui.TagKeySearchComponent;
-import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
-import net.minecraft.core.HolderSet;
+import com.viscript_lib.gui.components.search.BiomeTagSearchBox;
+import com.viscript_lib.gui.components.search.BlockSearchBox;
+import com.viscript_lib.gui.components.search.EnchantmentSearchBox;
+import com.viscript_lib.gui.components.search.EntityTypeSearchBox;
+import com.viscript_lib.gui.components.search.EntityTypeTagSearchBox;
+import com.viscript_lib.gui.components.search.FluidSearchBox;
+import com.viscript_lib.gui.components.search.FluidTagSearchBox;
+import com.viscript_lib.gui.components.search.ItemTagSearchBox;
+import com.viscript_lib.gui.components.search.MobEffectSearchBox;
+import com.viscript_lib.gui.components.search.RegistrySearchBox;
+import com.viscript_lib.gui.components.search.StructureTagSearchBox;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
-import java.util.Locale;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-/**
- * Creates shared searchable inputs for recipe registry values and tags.
- *
- * <p>Registry identifiers remain the persisted values and searchable aliases, while candidate rows use
- * player-facing names where the registry exposes them.
- */
 final class RecipeSearchComponents {
+    private static final ResourceLocation DEFAULT_ENTITY_TAG = ResourceLocation.withDefaultNamespace("undead");
+    private static final ResourceLocation DEFAULT_FLUID_TAG = ResourceLocation.fromNamespaceAndPath("c", "water");
     private static final ResourceLocation DEFAULT_STRUCTURE_TAG = ResourceLocation.withDefaultNamespace("village");
+    private static final ResourceLocation DEFAULT_BIOME_TAG = ResourceLocation.withDefaultNamespace("is_overworld");
+    private static final ResourceLocation DEFAULT_DIMENSION_TYPE = ResourceLocation.withDefaultNamespace("overworld");
+    private static final int MAX_RECIPE_ID_CANDIDATES = 200;
 
     private RecipeSearchComponents() {
     }
 
-    /**
-     * Creates an entity type input searchable by identifier, translation key, and localized name.
-     *
-     * @param  nameKey the translation key used for the input label
-     * @param  supplier the current entity identifier supplier
-     * @param  consumer the updated entity identifier consumer
-     * @param  onChanged the callback invoked after a changed selection
-     * @param  defaultValue the entity type used when the current identifier is unavailable
-     * @return the configured entity type input
-     */
-    static RegistrySearchComponent.EntityType entityType(
+    static UIElement entityType(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -58,32 +61,14 @@ final class RecipeSearchComponents {
             EntityType<?> defaultValue
     ) {
         var registry = BuiltInRegistries.ENTITY_TYPE;
-        var configurator = new RegistrySearchComponent.EntityType(
-                nameKey,
-                () -> {
-                    var id = supplier.get();
-                    return id == null ? defaultValue : registry.getOptional(id).orElse(defaultValue);
-                },
-                value -> updateRegistryId(registry, value, supplier, consumer, onChanged),
-                defaultValue,
-                true
-        );
-        configurator.setTranslator(value -> value.getDescriptionId() + " " + value.getDescription().getString());
-        configurator.searchComponent.setCandidateUIProvider(UIElementProvider.text(EntityType::getDescription));
-        return configure(configurator);
+        var current = registry.getOptional(Objects.requireNonNullElse(supplier.get(), registry.getKey(defaultValue)))
+                .orElse(defaultValue);
+        var searchBox = new EntityTypeSearchBox(current);
+        return configure(nameKey, searchBox,
+                value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
     }
 
-    /**
-     * Creates a mob effect input searchable by registry identifier, translation key, and localized name.
-     *
-     * @param  nameKey the translation key used for the input label
-     * @param  supplier the current mob effect identifier supplier
-     * @param  consumer the updated mob effect identifier consumer
-     * @param  onChanged the callback invoked after a changed selection
-     * @param  defaultValue the mob effect used when the current identifier is unavailable
-     * @return the configured mob effect registry input
-     */
-    static RegistrySearchComponent<MobEffect> mobEffect(
+    static UIElement mobEffect(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -91,33 +76,28 @@ final class RecipeSearchComponents {
             MobEffect defaultValue
     ) {
         var registry = BuiltInRegistries.MOB_EFFECT;
-        var configurator = new RegistrySearchComponent<>(
-                nameKey,
-                () -> {
-                    var id = supplier.get();
-                    return id == null ? defaultValue : registry.getOptional(id).orElse(defaultValue);
-                },
-                value -> updateRegistryId(registry, value, supplier, consumer, onChanged),
-                defaultValue,
-                true,
-                registry,
-                UIElementProvider.text(MobEffect::getDisplayName)
-        );
-        configurator.setTranslator(value -> value.getDescriptionId() + " " + value.getDisplayName().getString());
-        return configure(configurator);
+        var fallback = registry.wrapAsHolder(defaultValue);
+        var current = registry.getHolder(Objects.requireNonNullElse(supplier.get(), registry.getKey(defaultValue)))
+                .map(holder -> (net.minecraft.core.Holder<MobEffect>) holder)
+                .orElse(fallback);
+        var searchBox = new MobEffectSearchBox(current);
+        return configure(nameKey, searchBox, value -> updateId(
+                MobEffectSearchBox.getMobEffectId(value), supplier, consumer, onChanged));
     }
 
-    /**
-     * Creates a block input searchable by registry identifier, translation key, and localized name.
-     *
-     * @param  nameKey the translation key used for the input label
-     * @param  supplier the current block identifier supplier
-     * @param  consumer the updated block identifier consumer
-     * @param  onChanged the callback invoked after a changed selection
-     * @param  defaultValue the block used when the current identifier is unavailable
-     * @return the configured block registry input
-     */
-    static RegistrySearchComponent.Block block(
+    static UIElement enchantment(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        var id = Objects.requireNonNullElse(supplier.get(), ResourceLocation.withDefaultNamespace("sharpness"));
+        var searchBox = new EnchantmentSearchBox(ResourceKey.create(Registries.ENCHANTMENT, id));
+        return configure(nameKey, searchBox, value -> updateId(
+                EnchantmentSearchBox.getEnchantmentId(value), supplier, consumer, onChanged));
+    }
+
+    static UIElement block(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -125,104 +105,184 @@ final class RecipeSearchComponents {
             Block defaultValue
     ) {
         var registry = BuiltInRegistries.BLOCK;
-        var configurator = new RegistrySearchComponent.Block(
-                nameKey,
-                () -> {
-                    var id = supplier.get();
-                    return id == null ? defaultValue : registry.getOptional(id).orElse(defaultValue);
-                },
-                value -> updateRegistryId(registry, value, supplier, consumer, onChanged),
-                defaultValue,
-                true
-        );
-        configurator.setFilter(value -> value != Blocks.AIR
+        var current = registry.getOptional(Objects.requireNonNullElse(supplier.get(), registry.getKey(defaultValue)))
+                .orElse(defaultValue);
+        var searchBox = new BlockSearchBox(current);
+        searchBox.setCandidateFilter(value -> value != Blocks.AIR
                 && value != Blocks.CAVE_AIR
                 && value != Blocks.VOID_AIR);
-        configurator.setTranslator(value -> value.getDescriptionId() + " "
-                + Component.translatable(value.getDescriptionId()).getString());
-        configurator.searchComponent.setCandidateUIProvider(UIElementProvider.iconText(
-                value -> new ItemStackTexture(value.asItem()),
-                value -> Component.translatable(value.getDescriptionId())
-                        .append(Component.literal(" (" + registry.getKey(value) + ")"))
-        ));
-        return configure(configurator);
+        return configure(nameKey, searchBox,
+                value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
     }
 
-    /**
-     * Creates an entity type tag input searchable by tag and member identifiers and entity names.
-     *
-     * @param  nameKey the translation key used for the input label
-     * @param  supplier the current entity tag identifier supplier
-     * @param  consumer the updated entity tag identifier consumer
-     * @param  onChanged the callback invoked after a changed selection
-     * @return the configured entity type tag input
-     */
-    static TagKeySearchComponent.EntityType entityTag(
+    static UIElement fluid(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged,
+            Fluid defaultValue
+    ) {
+        var registry = BuiltInRegistries.FLUID;
+        var fallback = defaultValue == Fluids.EMPTY ? Fluids.WATER : defaultValue;
+        var current = registry.getOptional(Objects.requireNonNullElse(supplier.get(), registry.getKey(fallback)))
+                .filter(value -> value != Fluids.EMPTY)
+                .orElse(fallback);
+        var searchBox = new FluidSearchBox(current);
+        searchBox.setCandidateFilter(value -> value != Fluids.EMPTY);
+        return configure(nameKey, searchBox,
+                value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
+    }
+
+    static UIElement entityTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var defaultTag = TagKey.create(Registries.ENTITY_TYPE, supplier.get());
-        var configurator = new EntityTagSearchComponent(
-                nameKey,
-                () -> TagKey.create(Registries.ENTITY_TYPE, supplier.get()),
-                tag -> updateTagId(tag, supplier, consumer, onChanged),
-                defaultTag,
-                true
-        );
-        configurator.searchComponent.setCandidateUIProvider(UIElementProvider.text(
-                RecipeSearchComponents::entityTagName));
-        return configure(configurator);
+        var current = TagKey.create(Registries.ENTITY_TYPE,
+                Objects.requireNonNullElse(supplier.get(), DEFAULT_ENTITY_TAG));
+        return configure(nameKey, new EntityTypeTagSearchBox(current),
+                value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
-    /**
-     * Creates a structure tag input searchable by tag and member structure identifiers.
-     *
-     * @param  nameKey the translation key used for the input label
-     * @param  supplier the current structure tag identifier supplier
-     * @param  consumer the updated structure tag identifier consumer
-     * @param  onChanged the callback invoked after a changed selection
-     * @return the configured structure tag input, or an identifier input when no server snapshot is available
-     */
+    static UIElement itemTag(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        var current = TagKey.create(Registries.ITEM,
+                Objects.requireNonNullElse(supplier.get(), ItemTags.PLANKS.location()));
+        return configure(nameKey, new ItemTagSearchBox(current),
+                value -> updateTagId(value, supplier, consumer, onChanged));
+    }
+
+    static UIElement fluidTag(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        var current = TagKey.create(Registries.FLUID,
+                Objects.requireNonNullElse(supplier.get(), DEFAULT_FLUID_TAG));
+        return configure(nameKey, new FluidTagSearchBox(current),
+                value -> updateTagId(value, supplier, consumer, onChanged));
+    }
+
     static UIElement structureTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var structureTags = StructureTagClientData.tags();
-        if (structureTags.isEmpty()) {
-            return RecipeEditorUi.fieldGroup(nameKey, RecipeEditorUi.resourceLocationField(supplier.get(), value -> {
-                if (!Objects.equals(value, supplier.get())) {
-                    consumer.accept(value);
-                    onChanged.run();
-                }
-            }));
-        }
-        var defaultTag = TagKey.create(Registries.STRUCTURE,
+        var current = TagKey.create(Registries.STRUCTURE,
                 Objects.requireNonNullElse(supplier.get(), DEFAULT_STRUCTURE_TAG));
-        var configurator = new SearchComponentConfigurator<>(
-                nameKey,
-                () -> TagKey.create(Registries.STRUCTURE,
-                        Objects.requireNonNullElse(supplier.get(), DEFAULT_STRUCTURE_TAG)),
-                tag -> updateTagId(tag, supplier, consumer, onChanged),
-                defaultTag,
-                true,
-                (word, result) -> searchStructureTags(structureTags, word, result),
-                tag -> structureTagResultText(structureTags, tag),
-                UIElementProvider.text(tag -> structureTagName(structureTags, tag))
-        );
-        return configure(configurator);
+        var structureTags = StructureTagClientData.tags();
+        RegistrySearchBox<TagKey<Structure>> searchBox = structureTags.isEmpty()
+                ? new StructureTagSearchBox(current)
+                : new RecipeStructureTagSearchBox(current, structureTags);
+        return configure(nameKey, searchBox,
+                value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
-    private static <T extends SearchComponentConfigurator<?>> T configure(T configurator) {
-        configurator.layout(layout -> layout.widthPercent(100));
-        configurator.searchComponent.searchStyle(style -> {
+    static UIElement biomeTag(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        var candidates = RecipeRegistryClientData.biomeTags();
+        if (candidates.isEmpty()) {
+            var current = TagKey.create(Registries.BIOME,
+                    Objects.requireNonNullElse(supplier.get(), BiomeTags.IS_OVERWORLD.location()));
+            return configure(nameKey, new BiomeTagSearchBox(current),
+                    value -> updateTagId(value, supplier, consumer, onChanged));
+        }
+        return catalog(nameKey, supplier, consumer, onChanged, candidates.keySet().stream().toList(),
+                id -> {
+                    var members = candidates.getOrDefault(id, List.of());
+                    var sample = members.stream().limit(3).map(ResourceLocation::toString)
+                            .collect(Collectors.joining(", "));
+                    return sample.isEmpty() ? Component.literal(id.toString())
+                            : Component.literal(id + " — " + sample);
+                }, DEFAULT_BIOME_TAG);
+    }
+
+    static UIElement dimensionType(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        return catalog(nameKey, supplier, consumer, onChanged, RecipeRegistryClientData.dimensionTypes(),
+                id -> Component.literal(id.toString()), DEFAULT_DIMENSION_TYPE);
+    }
+
+    static UIElement recipeId(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        var searchBox = new RecipeIdSearchBox(supplier.get(),
+                value -> updateId(value, supplier, consumer, onChanged));
+        searchBox.textField.setResourceLocationOnly();
+        searchBox.preview.setOverflowVisible(false);
+        searchBox.textField.setOverflowVisible(false);
+        return configure(nameKey, searchBox,
+                value -> updateId(value, supplier, consumer, onChanged));
+    }
+
+    static UIElement soupBase(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        return catalog(nameKey, supplier, consumer, onChanged,
+                KaleidoscopeSoupBaseUiSupport.ids(),
+                KaleidoscopeSoupBaseUiSupport::displayName,
+                KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE);
+    }
+
+    private static UIElement catalog(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged,
+            List<ResourceLocation> candidates,
+            Function<ResourceLocation, Component> display,
+            ResourceLocation defaultValue
+    ) {
+        var current = Objects.requireNonNullElse(supplier.get(),
+                candidates.isEmpty() ? defaultValue : candidates.getFirst());
+        var searchBox = new ResourceLocationCatalogSearchBox(current, candidates, display);
+        return configure(nameKey, searchBox,
+                value -> updateId(value, supplier, consumer, onChanged));
+    }
+
+    private static <T> UIElement configure(
+            String nameKey,
+            RegistrySearchBox<T> searchBox,
+            Consumer<T> onSelected
+    ) {
+        searchBox.setOnValueChanged(value -> {
+            if (value != null) {
+                onSelected.accept(value);
+            }
+        });
+        searchBox.searchStyle(style -> {
             style.maxItemCount(8);
             style.scrollerViewHeight(120);
+            style.closeAfterSelect(true);
         });
-        return configurator;
+        searchBox.layout(layout -> {
+            layout.widthPercent(100);
+            layout.height(18);
+        });
+        return nameKey == null || nameKey.isBlank()
+                ? searchBox
+                : RecipeEditorUi.fieldGroup(nameKey, searchBox);
     }
 
     private static <T> void updateRegistryId(
@@ -232,7 +292,15 @@ final class RecipeSearchComponents {
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var id = registry.getKey(value);
+        updateId(registry.getKey(value), supplier, consumer, onChanged);
+    }
+
+    private static void updateId(
+            ResourceLocation id,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
         if (id != null && !Objects.equals(id, supplier.get())) {
             consumer.accept(id);
             onChanged.run();
@@ -245,38 +313,24 @@ final class RecipeSearchComponents {
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        if (tag != null && !Objects.equals(tag.location(), supplier.get())) {
-            consumer.accept(tag.location());
-            onChanged.run();
+        if (tag != null) {
+            updateId(tag.location(), supplier, consumer, onChanged);
         }
     }
 
-    private static Component entityTagName(TagKey<EntityType<?>> tag) {
-        var names = BuiltInRegistries.ENTITY_TYPE.getTag(tag)
-                .stream()
-                .flatMap(HolderSet.ListBacked::stream)
-                .map(holder -> holder.value().getDescription().getString())
-                .distinct()
-                .limit(3)
-                .collect(Collectors.joining(", "));
-        return names.isEmpty()
-                ? Component.literal(tag.location().toString())
-                : Component.literal(tag.location() + " — " + names);
-    }
-
-    private static Component structureTagName(Map<ResourceLocation, List<ResourceLocation>> structureTags,
-                                              TagKey<Structure> tag) {
-        return Component.literal(structureTagResultText(structureTags, tag));
-    }
-
-    private static String structureTagResultText(Map<ResourceLocation, List<ResourceLocation>> structureTags,
-                                                 TagKey<Structure> tag) {
+    private static String structureTagResultText(
+            Map<ResourceLocation, List<ResourceLocation>> structureTags,
+            TagKey<Structure> tag
+    ) {
         var members = structureTags.getOrDefault(tag.location(), List.of());
         return members.size() == 1 ? members.getFirst().toString() : tag.location().toString();
     }
 
-    private static void searchStructureTags(Map<ResourceLocation, List<ResourceLocation>> structureTags,
-                                            String word, Consumer<TagKey<Structure>> result) {
+    private static void searchStructureTags(
+            Map<ResourceLocation, List<ResourceLocation>> structureTags,
+            String word,
+            IResultHandler<TagKey<Structure>> result
+    ) {
         var query = word.toLowerCase(Locale.ROOT);
         for (var entry : structureTags.entrySet()) {
             if (Thread.currentThread().isInterrupted()) {
@@ -286,46 +340,127 @@ final class RecipeSearchComponents {
                     || entry.getValue().stream()
                     .anyMatch(id -> id.toString().toLowerCase(Locale.ROOT).contains(query));
             if (matches) {
-                result.accept(TagKey.create(Registries.STRUCTURE, entry.getKey()));
+                result.acceptResult(TagKey.create(Registries.STRUCTURE, entry.getKey()));
             }
         }
     }
 
-    private static final class EntityTagSearchComponent extends TagKeySearchComponent.EntityType {
-        private EntityTagSearchComponent(
-                String name,
-                Supplier<TagKey<net.minecraft.world.entity.EntityType<?>>> supplier,
-                Consumer<TagKey<net.minecraft.world.entity.EntityType<?>>> onUpdate,
-                TagKey<net.minecraft.world.entity.EntityType<?>> defaultValue,
-                boolean forceUpdate
+    private static boolean matchesResourceLocation(ResourceLocation id, String word) {
+        if (word == null || word.isBlank()) {
+            return true;
+        }
+        var query = word.toLowerCase(Locale.ROOT);
+        var searchText = String.join(" ",
+                id.toString(),
+                id.getNamespace(),
+                id.getPath()
+        ).toLowerCase(Locale.ROOT);
+        for (var token : query.split("\\s+")) {
+            if (!searchText.contains(token)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static final class RecipeStructureTagSearchBox extends RegistrySearchBox<TagKey<Structure>> {
+        private RecipeStructureTagSearchBox(
+                TagKey<Structure> defaultValue,
+                Map<ResourceLocation, List<ResourceLocation>> structureTags
         ) {
-            super(name, supplier, onUpdate, defaultValue, forceUpdate);
+            super(
+                    defaultValue,
+                    () -> null,
+                    TagKey::location,
+                    tag -> structureTagResultText(structureTags, tag),
+                    (word, result) -> searchStructureTags(structureTags, word, result),
+                    UIElementProvider.text(tag -> Component.literal(structureTagResultText(structureTags, tag)))
+            );
+        }
+    }
+
+    private static final class RecipeIdSearchBox extends RegistrySearchBox<ResourceLocation> {
+        private final Consumer<ResourceLocation> onTyped;
+
+        private RecipeIdSearchBox(ResourceLocation defaultValue, Consumer<ResourceLocation> onTyped) {
+            super(
+                    defaultValue,
+                    () -> null,
+                    Function.identity(),
+                    ResourceLocation::toString,
+                    RecipeIdSearchBox::searchRecipeIds,
+                    UIElementProvider.text(id -> Component.literal(id == null ? "" : id.toString()))
+            );
+            this.onTyped = onTyped;
         }
 
         @Override
-        public void search(
-                String word,
-                IResultHandler<TagKey<net.minecraft.world.entity.EntityType<?>>> searchHandler
-        ) {
-            var query = word.toLowerCase(Locale.ROOT);
-            for (var pair : BuiltInRegistries.ENTITY_TYPE.getTags().toList()) {
+        protected void onSearchWordChanged(String word) {
+            var typedId = ResourceLocation.tryParse(word);
+            if (typedId != null) {
+                setSelected(typedId, false);
+                if (onTyped != null) {
+                    onTyped.accept(typedId);
+                }
+            }
+            super.onSearchWordChanged(word);
+        }
+
+        private static void searchRecipeIds(String word, IResultHandler<ResourceLocation> result) {
+            var minecraft = Minecraft.getInstance();
+            if (minecraft.level == null) {
+                return;
+            }
+            var accepted = 0;
+            var recipeIds = minecraft.level.getRecipeManager().getRecipeIds()
+                    .sorted(Comparator.comparing(ResourceLocation::toString))
+                    .toList();
+            for (var recipeId : recipeIds) {
                 if (Thread.currentThread().isInterrupted()) {
                     return;
                 }
-                var tag = pair.getFirst();
-                var matches = tag.location().toString().toLowerCase(Locale.ROOT).contains(query)
-                        || pair.getSecond().stream().anyMatch(holder -> {
-                    var entity = holder.value();
-                    var id = BuiltInRegistries.ENTITY_TYPE.getKey(entity);
-                    return (id != null && id.toString().toLowerCase(Locale.ROOT).contains(query))
-                            || entity.getDescriptionId().toLowerCase(Locale.ROOT).contains(query)
-                            || entity.getDescription().getString().toLowerCase(Locale.ROOT).contains(query);
-                });
-                if (matches) {
-                    searchHandler.acceptResult(tag);
+                if (matchesResourceLocation(recipeId, word)) {
+                    result.acceptResult(recipeId);
+                    if (++accepted >= MAX_RECIPE_ID_CANDIDATES) {
+                        return;
+                    }
                 }
             }
         }
     }
 
+    private static final class ResourceLocationCatalogSearchBox extends RegistrySearchBox<ResourceLocation> {
+        private ResourceLocationCatalogSearchBox(
+                ResourceLocation defaultValue,
+                List<ResourceLocation> candidates,
+                Function<ResourceLocation, Component> display
+        ) {
+            super(
+                    defaultValue,
+                    () -> null,
+                    Function.identity(),
+                    ResourceLocation::toString,
+                    (word, result) -> search(candidates, display, word, result),
+                    UIElementProvider.text(display)
+            );
+        }
+
+        private static void search(
+                List<ResourceLocation> candidates,
+                Function<ResourceLocation, Component> display,
+                String word,
+                IResultHandler<ResourceLocation> result
+        ) {
+            var query = word.toLowerCase(Locale.ROOT);
+            for (var id : candidates) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
+                if (id.toString().toLowerCase(Locale.ROOT).contains(query)
+                        || display.apply(id).getString().toLowerCase(Locale.ROOT).contains(query)) {
+                    result.acceptResult(id);
+                }
+            }
+        }
+    }
 }

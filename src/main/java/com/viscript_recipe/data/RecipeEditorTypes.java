@@ -10,7 +10,9 @@ import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
 import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.VanillaRecipeEditorTypes;
@@ -91,6 +93,18 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation GOETY_BRAZIER = GoetyRecipeEditorTypes.BRAZIER;
     public static final ResourceLocation GOETY_PULVERIZE = GoetyRecipeEditorTypes.PULVERIZE;
     public static final ResourceLocation GOETY_BREWING = GoetyRecipeEditorTypes.BREWING;
+    public static final ResourceLocation MYSTICAL_AGRICULTURE_INFUSION = MysticalAgricultureRecipeEditorTypes.INFUSION;
+    public static final ResourceLocation MYSTICAL_AGRICULTURE_AWAKENING = MysticalAgricultureRecipeEditorTypes.AWAKENING;
+    public static final ResourceLocation MYSTICAL_AGRICULTURE_ENCHANTER = MysticalAgricultureRecipeEditorTypes.ENCHANTER;
+    public static final ResourceLocation MYSTICAL_AGRICULTURE_REPROCESSOR = MysticalAgricultureRecipeEditorTypes.REPROCESSOR;
+    public static final ResourceLocation MYSTICAL_AGRICULTURE_SOUL_EXTRACTION = MysticalAgricultureRecipeEditorTypes.SOUL_EXTRACTION;
+    public static final ResourceLocation MYSTICAL_AGRICULTURE_SOULIUM_SPAWNER = MysticalAgricultureRecipeEditorTypes.SOULIUM_SPAWNER;
+    public static final ResourceLocation INDUSTRIAL_FOREGOING_CRUSHER = IndustrialForegoingRecipeEditorTypes.CRUSHER;
+    public static final ResourceLocation INDUSTRIAL_FOREGOING_DISSOLUTION_CHAMBER = IndustrialForegoingRecipeEditorTypes.DISSOLUTION_CHAMBER;
+    public static final ResourceLocation INDUSTRIAL_FOREGOING_FLUID_EXTRACTOR = IndustrialForegoingRecipeEditorTypes.FLUID_EXTRACTOR;
+    public static final ResourceLocation INDUSTRIAL_FOREGOING_LASER_DRILL_ORE = IndustrialForegoingRecipeEditorTypes.LASER_DRILL_ORE;
+    public static final ResourceLocation INDUSTRIAL_FOREGOING_LASER_DRILL_FLUID = IndustrialForegoingRecipeEditorTypes.LASER_DRILL_FLUID;
+    public static final ResourceLocation INDUSTRIAL_FOREGOING_STONEWORK_GENERATE = IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE;
 
     private static final LinkedHashMap<ResourceLocation, RecipeEditorCategory> CATEGORIES = new LinkedHashMap<>();
     private static final LinkedHashMap<ResourceLocation, RecipeEditorType> TYPES = new LinkedHashMap<>();

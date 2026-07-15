@@ -44,6 +44,18 @@ import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialDissolutionRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
+import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismItemInputCounts;
+import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureAwakeningRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureInfusionRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeChoppingBoardRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeMillstoneRecipeData;
@@ -110,6 +122,43 @@ public class RecipeEditorController {
     private static final int CREATE_MAX_FLUID_INPUTS = 2;
     private static final int CREATE_MAX_FLUID_OUTPUTS = 2;
     private static final int CREATE_FLUID_OUTPUT_INDEX_OFFSET = CREATE_MAX_FLUID_INPUTS;
+    /** Slot-selection identifier for the dissolution chamber's sized fluid input. */
+    public static final int INDUSTRIAL_DISSOLUTION_INPUT_FLUID_SLOT = 100;
+    /** Slot-selection identifier for the dissolution chamber's optional fluid output. */
+    public static final int INDUSTRIAL_DISSOLUTION_OUTPUT_FLUID_SLOT = 101;
+    /** Slot-selection identifier for the fluid extractor output tank. */
+    public static final int INDUSTRIAL_FLUID_EXTRACTOR_OUTPUT_FLUID_SLOT = 102;
+    /** Slot-selection identifier for the fluid laser drill's sized fluid output. */
+    public static final int INDUSTRIAL_LASER_FLUID_OUTPUT_SLOT = 103;
+    /** Component-selection identifier for dissolution chamber timing and optional outputs. */
+    public static final int INDUSTRIAL_DISSOLUTION_SETTINGS_COMPONENT = 200;
+    /** Component-selection identifier for a fluid extractor's extracted block. */
+    public static final int INDUSTRIAL_FLUID_EXTRACTOR_BLOCK_COMPONENT = 201;
+    /** Component-selection identifier for a fluid extractor's operation parameters. */
+    public static final int INDUSTRIAL_FLUID_EXTRACTOR_OPERATION_COMPONENT = 202;
+    /** Component-selection identifier for laser drill ore rarity rules. */
+    public static final int INDUSTRIAL_LASER_ORE_RARITY_COMPONENT = 203;
+    /** Component-selection identifier for laser drill ore entity requirements. */
+    public static final int INDUSTRIAL_LASER_ORE_ENTITY_COMPONENT = 204;
+    /** Component-selection identifier for laser drill fluid rarity rules. */
+    public static final int INDUSTRIAL_LASER_FLUID_RARITY_COMPONENT = 205;
+    /** Component-selection identifier for laser drill fluid entity requirements. */
+    public static final int INDUSTRIAL_LASER_FLUID_ENTITY_COMPONENT = 206;
+    /** Component-selection identifier for StoneWork Factory required fluids. */
+    public static final int INDUSTRIAL_STONEWORK_NEEDS_COMPONENT = 207;
+    /** Component-selection identifier for StoneWork Factory consumed fluids. */
+    public static final int INDUSTRIAL_STONEWORK_CONSUMES_COMPONENT = 208;
+    /** Slot-selection identifier for the primary Mekanism chemical input. */
+    public static final int MEKANISM_CHEMICAL_INPUT_SLOT = 300;
+    /** Slot-selection identifier for the secondary Mekanism chemical input. */
+    public static final int MEKANISM_EXTRA_CHEMICAL_INPUT_SLOT = 301;
+    /** Slot-selection identifier for the primary Mekanism chemical output. */
+    public static final int MEKANISM_CHEMICAL_OUTPUT_SLOT = 302;
+    /** Slot-selection identifier for the secondary Mekanism chemical output. */
+    public static final int MEKANISM_SECONDARY_CHEMICAL_OUTPUT_SLOT = 303;
+    public static final int MEKANISM_FLUID_INPUT_SLOT = 304;
+    public static final int MEKANISM_FLUID_OUTPUT_SLOT = 305;
+    static final int MEKANISM_SECONDARY_ITEM_OUTPUT_SLOT = 306;
     private static final int CREATE_SEQUENCED_STEP_INGREDIENT_OFFSET = 10;
     private static final int CREATE_SEQUENCED_MAX_STEPS = 8;
     private static final int CREATE_SEQUENCED_MAX_OUTPUTS = 9;
@@ -310,16 +359,25 @@ public class RecipeEditorController {
         }
         saveVisualStateToSelectedEntry();
         var result = RecipeImporter.importRecipe(recipeId);
-        if (!result.successful() || result.entry() == null) {
+        if (!result.successful() || result.entries().isEmpty()) {
             return result;
         }
-        var entry = result.entry();
+        for (var imported : result.entries()) {
+            if (imported == null || imported.getRecipeId() == null || recipeIdExists(imported.getRecipeId())) {
+                return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.duplicate_id");
+            }
+        }
+        var distinctIds = result.entries().stream().map(RecipeEntry::getRecipeId).distinct().count();
+        if (distinctIds != result.entries().size()) {
+            return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.duplicate_id");
+        }
+        var entry = result.entries().getFirst();
         var entries = recipeFile().getEntries();
         var insertIndex = selectedEntry == null ? entries.size() : entries.indexOf(selectedEntry) + 1;
         if (insertIndex <= 0 || insertIndex > entries.size()) {
             insertIndex = entries.size();
         }
-        entries.add(insertIndex, entry);
+        entries.addAll(insertIndex, result.entries());
         selectedCategory = categoryOf(entry);
         selectedEntry = entry;
         slotSelection = WorkbenchSlotSelection.RECIPE;
@@ -583,6 +641,9 @@ public class RecipeEditorController {
         if (isSelectedCreateProcessingLayout() && index >= selectedCreateItemInputCount()) {
             return;
         }
+        if (isSelectedMekanismLayout() && index >= selectedMekanismItemInputCount()) {
+            return;
+        }
         if (isSelectedCreateSequencedAssemblyLayout() && !isValidCreateSequencedIngredientIndex(index)) {
             return;
         }
@@ -652,7 +713,77 @@ public class RecipeEditorController {
         if (isSelectedArsNouveauCrushLayout()) {
             return index == 0;
         }
+        if (isSelectedMekanismLayout()) {
+            return index < selectedMekanismItemInputCount();
+        }
+        if (isSelectedIndustrialForegoingLayout()) {
+            if (selectedEntry == null) {
+                return false;
+            }
+            if (isIndustrialDissolutionEntry(selectedEntry)) {
+                return index < IndustrialDissolutionRecipeData.MAX_INPUTS;
+            }
+            if (isIndustrialFluidExtractorEntry(selectedEntry)
+                    || isIndustrialLaserFluidEntry(selectedEntry)) {
+                return index == 0;
+            }
+            if (isIndustrialCrusherEntry(selectedEntry)
+                    || isIndustrialLaserOreEntry(selectedEntry)) {
+                return index < 2;
+            }
+            return false;
+        }
         return index < CRAFTING_GRID_SLOT_COUNT;
+    }
+
+    private int selectedMekanismItemInputCount() {
+        if (selectedEntry == null) {
+            return 0;
+        }
+        return MekanismRecipeKind.byType(selectedEntry.getType())
+                .map(MekanismRecipeKind::itemInputs)
+                .orElse(0);
+    }
+
+    public boolean isSelectedMekanismItemInput() {
+        return selectedEntry != null
+                && isMekanismEntry(selectedEntry)
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.INGREDIENT
+                && isMekanismItemInputSlot(slotSelection.index());
+    }
+
+    public String selectedMekanismItemInputAmountKey() {
+        return slotSelection.index() == 1
+                ? "viscript_recipe.config.mekanism.extra_item_input_amount"
+                : "viscript_recipe.config.mekanism.item_input_amount";
+    }
+
+    public int getSelectedMekanismItemInputAmount() {
+        if (!isSelectedMekanismItemInput()) {
+            return 1;
+        }
+        var data = selectedEntry.getMekanism();
+        var ingredient = slotSelection.index() == 0 ? data.getItemInput() : data.getExtraItemInput();
+        var fallback = slotSelection.index() == 0 ? data.getItemInputAmount() : data.getExtraItemInputAmount();
+        return MekanismItemInputCounts.amount(ingredient, fallback);
+    }
+
+    public void setSelectedMekanismItemInputAmount(int amount) {
+        if (!isSelectedMekanismItemInput()) {
+            return;
+        }
+        var normalized = Math.max(1, amount);
+        setMekanismItemInputFallbackAmount(selectedEntry, slotSelection.index(), normalized);
+        var ingredient = getSelectedIngredient();
+        if (MekanismItemInputCounts.firstItemAmount(ingredient) > 0) {
+            setIngredientForSlot(selectedEntry, slotSelection.index(), MekanismItemInputCounts.copyWithItemAmount(ingredient, normalized));
+        }
+        refreshVisualStateFromData();
+        notifyChanged();
+    }
+
+    private boolean isMekanismItemInputSlot(int index) {
+        return index >= 0 && index < selectedMekanismItemInputCount();
     }
 
     private boolean isValidExtendedCraftingTableIngredientIndex(int index) {
@@ -814,8 +945,8 @@ public class RecipeEditorController {
             return switch (value.getKind()) {
                 case ITEM -> value.getItem() == null || value.getItem().isEmpty()
                         ? new ItemStack[0]
-                        : new ItemStack[]{isCreateCountedItemInputSlot(index) ? value.getItem().copy() : value.getItem().copyWithCount(1)};
-                case TAG -> value.getTag() == null ? new ItemStack[0] : itemsFromTag(value.getTag());
+                        : new ItemStack[]{displayIngredientItemStack(index, value.getItem())};
+                case TAG -> value.getTag() == null ? new ItemStack[0] : ingredientTagDisplayStacks(index, value.getTag());
                 case ITEM_ABILITY -> value.getItemAbility() == null || value.getItemAbility().isBlank()
                         ? new ItemStack[0]
                         : new ItemStack[]{itemFromAbility(value.getItemAbility())};
@@ -829,12 +960,12 @@ public class RecipeEditorController {
             switch (value.getKind()) {
                 case ITEM -> {
                     if (value.getItem() != null && !value.getItem().isEmpty()) {
-                        stacks.add(value.getItem().copyWithCount(1));
+                        stacks.add(displayIngredientItemStack(index, value.getItem()));
                     }
                 }
                 case TAG -> {
                     if (value.getTag() != null) {
-                        stacks.addAll(List.of(itemsFromTag(value.getTag())));
+                        stacks.addAll(List.of(ingredientTagDisplayStacks(index, value.getTag())));
                     }
                 }
                 case ITEM_ABILITY -> {
@@ -1138,7 +1269,8 @@ public class RecipeEditorController {
                 || isExtendedCraftingShapelessTableEntry(entry)
                 || (isExtendedCraftingEnderCrafterEntry(entry) && !isExtendedCraftingShapedEnderCrafterEntry(entry))
                 || (isExtendedCraftingFluxCrafterEntry(entry) && !isExtendedCraftingShapedFluxCrafterEntry(entry))
-                || isAvaritiaShapelessTableEntry(entry);
+                || isAvaritiaShapelessTableEntry(entry)
+                || isAvaritiaSpecialShapelessEntry(entry);
     }
 
     public ItemStack getSelectedResult() {
@@ -1192,6 +1324,9 @@ public class RecipeEditorController {
         if (slotSelection.kind() != WorkbenchSlotSelection.Kind.FLUID) {
             return FluidStack.EMPTY;
         }
+        if (isSelectedIndustrialFluidStack()) {
+            return selectedIndustrialFluidStack().copy();
+        }
         if (isCreateProcessingEntry(selectedEntry)) {
             if (isSelectedCreateFluidOutput()) {
                 return getVisualCreateFluidOutput(selectedCreateFluidOutputIndex());
@@ -1218,6 +1353,11 @@ public class RecipeEditorController {
             return;
         }
         if (slotSelection.kind() != WorkbenchSlotSelection.Kind.FLUID) {
+            return;
+        }
+        if (isSelectedIndustrialFluidStack()) {
+            setSelectedIndustrialFluidStack(stack == null ? FluidStack.EMPTY : stack.copy());
+            notifyChanged();
             return;
         }
         if (isCreateProcessingEntry(selectedEntry)) {
@@ -1248,6 +1388,15 @@ public class RecipeEditorController {
             return isSelectedCreateFluidOutput()
                     ? "viscript_recipe.config.create.fluid_output"
                     : "viscript_recipe.config.create.fluid_ingredient.fluid";
+        }
+        if (selectedEntry != null && isSelectedIndustrialFluidSlot()) {
+            return switch (slotSelection.index()) {
+                case INDUSTRIAL_DISSOLUTION_INPUT_FLUID_SLOT -> "viscript_recipe.config.industrial_foregoing.dissolution.input_fluid";
+                case INDUSTRIAL_DISSOLUTION_OUTPUT_FLUID_SLOT -> "viscript_recipe.config.industrial_foregoing.dissolution.output_fluid";
+                case INDUSTRIAL_FLUID_EXTRACTOR_OUTPUT_FLUID_SLOT -> "viscript_recipe.config.industrial_foregoing.fluid_extractor.output";
+                case INDUSTRIAL_LASER_FLUID_OUTPUT_SLOT -> "viscript_recipe.config.industrial_foregoing.laser.fluid_output";
+                default -> "viscript_recipe.editor.properties.fluid";
+            };
         }
         if (selectedEntry == null || !isIronAlchemistCauldronEntry(selectedEntry)) {
             return "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.fluid";
@@ -1377,6 +1526,30 @@ public class RecipeEditorController {
 
     public boolean isSelectedGoetyBrewingLayout() {
         return isSelectedLayout(RecipeEditorLayout.GOETY_BREWING);
+    }
+
+    public boolean isSelectedMysticalAgricultureInfusionLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MYSTICAL_AGRICULTURE_INFUSION);
+    }
+
+    public boolean isSelectedMysticalAgricultureAwakeningLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MYSTICAL_AGRICULTURE_AWAKENING);
+    }
+
+    public boolean isSelectedMysticalAgricultureEnchanterLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MYSTICAL_AGRICULTURE_ENCHANTER);
+    }
+
+    public boolean isSelectedMysticalAgricultureReprocessorLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MYSTICAL_AGRICULTURE_REPROCESSOR);
+    }
+
+    public boolean isSelectedMysticalAgricultureSoulExtractionLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MYSTICAL_AGRICULTURE_SOUL_EXTRACTION);
+    }
+
+    public boolean isSelectedMysticalAgricultureSouliumSpawnerLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MYSTICAL_AGRICULTURE_SOULIUM_SPAWNER);
     }
 
     public boolean isSelectedFarmersCookingPotLayout() {
@@ -1521,6 +1694,18 @@ public class RecipeEditorController {
         return ExtendedCraftingRecipeEditorTypes.FLUX_CRAFTER.equals(selectedCategory);
     }
 
+    public boolean isSelectedIndustrialForegoingLayout() {
+        return isSelectedLayout(RecipeEditorLayout.INDUSTRIAL_FOREGOING);
+    }
+
+    public boolean isSelectedMekanismLayout() {
+        return isSelectedLayout(RecipeEditorLayout.MEKANISM);
+    }
+
+    public boolean isMekanismEntry(RecipeEntry entry) {
+        return entry != null && MekanismRecipeKind.byType(entry.getType()).isPresent();
+    }
+
     private boolean isSelectedLayout(RecipeEditorLayout layout) {
         if (selectedEntry != null) {
             return RecipeEditorTypes.layoutForType(selectedEntry.getType()) == layout;
@@ -1617,6 +1802,54 @@ public class RecipeEditorController {
 
     public boolean isGoetyBrewingEntry(RecipeEntry entry) {
         return entry.isType(GoetyRecipeEditorTypes.BREWING);
+    }
+
+    public boolean isMysticalAgricultureInfusionEntry(RecipeEntry entry) {
+        return entry.isType(MysticalAgricultureRecipeEditorTypes.INFUSION);
+    }
+
+    public boolean isMysticalAgricultureAwakeningEntry(RecipeEntry entry) {
+        return entry.isType(MysticalAgricultureRecipeEditorTypes.AWAKENING);
+    }
+
+    public boolean isMysticalAgricultureEnchanterEntry(RecipeEntry entry) {
+        return entry.isType(MysticalAgricultureRecipeEditorTypes.ENCHANTER);
+    }
+
+    public boolean isMysticalAgricultureReprocessorEntry(RecipeEntry entry) {
+        return entry.isType(MysticalAgricultureRecipeEditorTypes.REPROCESSOR);
+    }
+
+    public boolean isMysticalAgricultureSoulExtractionEntry(RecipeEntry entry) {
+        return entry.isType(MysticalAgricultureRecipeEditorTypes.SOUL_EXTRACTION);
+    }
+
+    public boolean isMysticalAgricultureSouliumSpawnerEntry(RecipeEntry entry) {
+        return entry.isType(MysticalAgricultureRecipeEditorTypes.SOULIUM_SPAWNER);
+    }
+
+    public boolean isIndustrialDissolutionEntry(RecipeEntry entry) {
+        return entry.isType(IndustrialForegoingRecipeEditorTypes.DISSOLUTION_CHAMBER);
+    }
+
+    public boolean isIndustrialFluidExtractorEntry(RecipeEntry entry) {
+        return entry.isType(IndustrialForegoingRecipeEditorTypes.FLUID_EXTRACTOR);
+    }
+
+    public boolean isIndustrialCrusherEntry(RecipeEntry entry) {
+        return entry.isType(IndustrialForegoingRecipeEditorTypes.CRUSHER);
+    }
+
+    public boolean isIndustrialLaserOreEntry(RecipeEntry entry) {
+        return entry.isType(IndustrialForegoingRecipeEditorTypes.LASER_DRILL_ORE);
+    }
+
+    public boolean isIndustrialLaserFluidEntry(RecipeEntry entry) {
+        return entry.isType(IndustrialForegoingRecipeEditorTypes.LASER_DRILL_FLUID);
+    }
+
+    public boolean isIndustrialStoneWorkEntry(RecipeEntry entry) {
+        return entry.isType(IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE);
     }
 
     public boolean isFarmersCookingPotEntry(RecipeEntry entry) {
@@ -1720,6 +1953,10 @@ public class RecipeEditorController {
 
     public boolean isAvaritiaShapelessTableEntry(RecipeEntry entry) {
         return AvaritiaRecipeEditorTypes.isShapelessTableType(entry.getType());
+    }
+
+    public boolean isAvaritiaSpecialShapelessEntry(RecipeEntry entry) {
+        return AvaritiaRecipeEditorTypes.isSpecialShapelessType(entry.getType());
     }
 
     public boolean isAvaritiaCompressorEntry(RecipeEntry entry) {
@@ -2071,6 +2308,8 @@ public class RecipeEditorController {
         var copy = stack.copy();
         if (isSelectedCreateCountedItemInput()) {
             copy.setCount(Math.max(1, Math.min(selectedCreateItemInputMaxWeight(slotSelection.index()), copy.getCount())));
+        } else if (isSelectedMekanismItemInput()) {
+            copy.setCount(Math.max(1, copy.getCount()));
         } else {
             copy.setCount(1);
         }
@@ -2314,6 +2553,9 @@ public class RecipeEditorController {
         if (selectedEntry != null && isAvaritiaTableEntry(selectedEntry)) {
             return selectedAvaritiaTableGridWidth(selectedEntry);
         }
+        if (selectedEntry != null && isAvaritiaSpecialShapelessEntry(selectedEntry)) {
+            return AvaritiaRecipeEditorTypes.tableGridSizeForTier(4);
+        }
         return selectedCreateMechanicalCraftingWidth();
     }
 
@@ -2324,6 +2566,9 @@ public class RecipeEditorController {
         if (selectedEntry != null && isAvaritiaTableEntry(selectedEntry)) {
             return selectedAvaritiaTableGridHeight(selectedEntry);
         }
+        if (selectedEntry != null && isAvaritiaSpecialShapelessEntry(selectedEntry)) {
+            return AvaritiaRecipeEditorTypes.tableGridSizeForTier(4);
+        }
         return selectedCreateMechanicalCraftingHeight();
     }
 
@@ -2332,6 +2577,9 @@ public class RecipeEditorController {
             return Component.translatable("viscript_recipe.editor.extendedcrafting.table.size", selectedLargeCraftingGridWidth(), selectedLargeCraftingGridHeight());
         }
         if (selectedEntry != null && isAvaritiaTableEntry(selectedEntry)) {
+            return Component.translatable("viscript_recipe.editor.avaritia.table.size", selectedLargeCraftingGridWidth(), selectedLargeCraftingGridHeight());
+        }
+        if (selectedEntry != null && isAvaritiaSpecialShapelessEntry(selectedEntry)) {
             return Component.translatable("viscript_recipe.editor.avaritia.table.size", selectedLargeCraftingGridWidth(), selectedLargeCraftingGridHeight());
         }
         return Component.translatable("viscript_recipe.editor.create.mechanical_crafting.size", selectedLargeCraftingGridWidth(), selectedLargeCraftingGridHeight());
@@ -2349,6 +2597,9 @@ public class RecipeEditorController {
                     AvaritiaRecipeEditorTypes.tableItemForTier(getAvaritiaTableTier(selectedEntry)).toString(),
                     Items.CRAFTING_TABLE
             ));
+        }
+        if (selectedEntry != null && isAvaritiaSpecialShapelessEntry(selectedEntry)) {
+            return new ItemStack(itemFromRegistry(AvaritiaRecipeEditorTypes.EXTREME_CRAFTING_TABLE.toString(), Items.CRAFTING_TABLE));
         }
         if (selectedEntry == null && RecipeEditorTypes.getCategory(selectedCategory)
                 .map(RecipeEditorCategory::layout)
@@ -2706,6 +2957,412 @@ public class RecipeEditorController {
                 && isCreateProcessingEntry(selectedEntry)
                 && slotSelection.kind() == WorkbenchSlotSelection.Kind.FLUID
                 && slotSelection.index() >= CREATE_FLUID_OUTPUT_INDEX_OFFSET;
+    }
+
+    /** Selects one Mekanism chemical gauge so the properties panel edits that chemical only. */
+    public void selectMekanismChemicalSlot(int slot) {
+        if (selectedEntry == null || !isMekanismChemicalSlot(slot)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.mekanismChemical(slot);
+        notifyChanged();
+    }
+
+    /** Returns whether the current selection is a chemical gauge owned by a Mekanism recipe. */
+    public boolean isSelectedMekanismChemicalSlot() {
+        return selectedEntry != null
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.MEKANISM_CHEMICAL
+                && isMekanismChemicalSlot(slotSelection.index());
+    }
+
+    /** Returns whether the selected Mekanism chemical gauge is an input ingredient. */
+    public boolean isSelectedMekanismChemicalIngredient() {
+        return isSelectedMekanismChemicalSlot()
+                && (slotSelection.index() == MEKANISM_CHEMICAL_INPUT_SLOT
+                || slotSelection.index() == MEKANISM_EXTRA_CHEMICAL_INPUT_SLOT);
+    }
+
+    /** Gets the selected Mekanism chemical ingredient data. */
+    public MekanismChemicalIngredientData getSelectedMekanismChemicalIngredient() {
+        if (!isSelectedMekanismChemicalIngredient()) {
+            return new MekanismChemicalIngredientData();
+        }
+        var data = selectedEntry.getMekanism();
+        if (slotSelection.index() == MEKANISM_EXTRA_CHEMICAL_INPUT_SLOT) {
+            if (data.getExtraChemicalInput() == null) {
+                data.setExtraChemicalInput(new MekanismChemicalIngredientData());
+            }
+            return data.getExtraChemicalInput();
+        }
+        if (data.getChemicalInput() == null) {
+            data.setChemicalInput(new MekanismChemicalIngredientData());
+        }
+        return data.getChemicalInput();
+    }
+
+    /** Gets the selected Mekanism chemical output data. */
+    public MekanismChemicalStackData getSelectedMekanismChemicalOutput() {
+        if (!isSelectedMekanismChemicalSlot() || isSelectedMekanismChemicalIngredient()) {
+            return new MekanismChemicalStackData();
+        }
+        var data = selectedEntry.getMekanism();
+        if (slotSelection.index() == MEKANISM_SECONDARY_CHEMICAL_OUTPUT_SLOT) {
+            if (data.getSecondaryChemicalOutput() == null) {
+                data.setSecondaryChemicalOutput(new MekanismChemicalStackData());
+            }
+            return data.getSecondaryChemicalOutput();
+        }
+        if (data.getChemicalOutput() == null) {
+            data.setChemicalOutput(new MekanismChemicalStackData());
+        }
+        return data.getChemicalOutput();
+    }
+
+    private boolean isMekanismChemicalSlot(int slot) {
+        if (selectedEntry == null || !isMekanismEntry(selectedEntry)) {
+            return false;
+        }
+        var kind = MekanismRecipeKind.byType(selectedEntry.getType()).orElse(null);
+        if (kind == null) {
+            return false;
+        }
+        return switch (slot) {
+            case MEKANISM_CHEMICAL_INPUT_SLOT -> kind.chemicalInputs() > 0;
+            case MEKANISM_EXTRA_CHEMICAL_INPUT_SLOT -> kind.chemicalInputs() > 1;
+            case MEKANISM_CHEMICAL_OUTPUT_SLOT -> kind.chemicalOutputs() > 0;
+            case MEKANISM_SECONDARY_CHEMICAL_OUTPUT_SLOT -> kind.chemicalOutputs() > 1;
+            default -> false;
+        };
+    }
+
+    public void selectMekanismFluidSlot(int slot) {
+        if (selectedEntry == null || !isMekanismFluidSlot(slot)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.mekanismFluid(slot);
+        notifyChanged();
+    }
+
+    public boolean isSelectedMekanismFluidSlot() {
+        return selectedEntry != null
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.MEKANISM_FLUID
+                && isMekanismFluidSlot(slotSelection.index());
+    }
+
+    public boolean isSelectedMekanismFluidIngredient() {
+        return isSelectedMekanismFluidSlot()
+                && slotSelection.index() == MEKANISM_FLUID_INPUT_SLOT;
+    }
+
+    public MekanismFluidIngredientData getSelectedMekanismFluidIngredient() {
+        if (!isSelectedMekanismFluidIngredient()) {
+            return new MekanismFluidIngredientData();
+        }
+        var data = selectedEntry.getMekanism();
+        if (data.getFluidInput() == null) {
+            data.setFluidInput(new MekanismFluidIngredientData());
+        }
+        return data.getFluidInput();
+    }
+
+    public FluidStack getSelectedMekanismFluidOutput() {
+        if (!isSelectedMekanismFluidSlot() || isSelectedMekanismFluidIngredient()) {
+            return FluidStack.EMPTY;
+        }
+        var output = selectedEntry.getMekanism().getFluidOutput();
+        return output == null ? FluidStack.EMPTY : output;
+    }
+
+    public void setSelectedMekanismFluidOutput(FluidStack output) {
+        if (!isSelectedMekanismFluidSlot() || isSelectedMekanismFluidIngredient()) {
+            return;
+        }
+        selectedEntry.getMekanism().setFluidOutput(output == null ? FluidStack.EMPTY : output.copy());
+        notifyChanged();
+    }
+
+    private boolean isMekanismFluidSlot(int slot) {
+        if (selectedEntry == null || !isMekanismEntry(selectedEntry)) {
+            return false;
+        }
+        var kind = MekanismRecipeKind.byType(selectedEntry.getType()).orElse(null);
+        if (kind == null) {
+            return false;
+        }
+        return switch (slot) {
+            case MEKANISM_FLUID_INPUT_SLOT -> kind.fluidInputs() > 0;
+            case MEKANISM_FLUID_OUTPUT_SLOT -> kind.fluidOutputs() > 0;
+            default -> false;
+        };
+    }
+
+    public void selectMekanismItemSlot(int slot) {
+        if (selectedEntry == null || !isMekanismItemSlot(slot)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.mekanismItem(slot);
+        notifyChanged();
+    }
+
+    public boolean isSelectedMekanismItemSlot() {
+        return selectedEntry != null
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.MEKANISM_ITEM
+                && isMekanismItemSlot(slotSelection.index());
+    }
+
+    public ItemStack getSelectedMekanismItemOutput() {
+        if (!isSelectedMekanismItemSlot()) {
+            return ItemStack.EMPTY;
+        }
+        var output = selectedEntry.getMekanism().getSecondaryItemOutput();
+        return output == null ? ItemStack.EMPTY : output.copy();
+    }
+
+    public void setSelectedMekanismItemOutput(ItemStack output) {
+        if (!isSelectedMekanismItemSlot()) {
+            return;
+        }
+        selectedEntry.getMekanism().setSecondaryItemOutput(output == null ? ItemStack.EMPTY : output.copy());
+        notifyChanged();
+    }
+
+    private boolean isMekanismItemSlot(int slot) {
+        if (selectedEntry == null || !isMekanismEntry(selectedEntry)
+                || slot != MEKANISM_SECONDARY_ITEM_OUTPUT_SLOT) {
+            return false;
+        }
+        return MekanismRecipeKind.byType(selectedEntry.getType())
+                .map(kind -> kind.itemOutputs() > 1)
+                .orElse(false);
+    }
+
+    public void selectMysticalAgricultureEssenceSlot(int index) {
+        if (selectedEntry == null || !isMysticalAgricultureAwakeningEntry(selectedEntry)
+                || index < 0 || index >= MysticalAgricultureAwakeningRecipeData.ESSENCE_COUNT) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.mysticalEssence(index);
+        notifyChanged();
+    }
+
+    public boolean isSelectedMysticalAgricultureEssenceSlot() {
+        return selectedEntry != null
+                && isMysticalAgricultureAwakeningEntry(selectedEntry)
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.MYSTICAL_ESSENCE
+                && slotSelection.index() >= 0
+                && slotSelection.index() < MysticalAgricultureAwakeningRecipeData.ESSENCE_COUNT;
+    }
+
+    public ItemStack getSelectedMysticalAgricultureEssence() {
+        if (!isSelectedMysticalAgricultureEssenceSlot()) {
+            return ItemStack.EMPTY;
+        }
+        return selectedEntry.getMysticalAgricultureAwakening().essence(slotSelection.index()).copy();
+    }
+
+    public void setSelectedMysticalAgricultureEssence(ItemStack stack) {
+        if (!isSelectedMysticalAgricultureEssenceSlot()) {
+            return;
+        }
+        selectedEntry.getMysticalAgricultureAwakening().setEssence(
+                slotSelection.index(), stack == null ? ItemStack.EMPTY : stack.copy());
+        notifyChanged();
+    }
+
+    public void selectKaleidoscopeTeapotFluidSlot() {
+        if (selectedEntry == null || !isKaleidoscopeTeapotEntry(selectedEntry)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.kaleidoscopeFluid();
+        notifyChanged();
+    }
+
+    public ResourceLocation getSelectedKaleidoscopeTeapotFluid() {
+        if (selectedEntry == null || !isKaleidoscopeTeapotEntry(selectedEntry)
+                || slotSelection.kind() != WorkbenchSlotSelection.Kind.KALEIDOSCOPE_FLUID) {
+            return ResourceLocation.withDefaultNamespace("water");
+        }
+        var fluid = selectedEntry.getKaleidoscopeTeapot().getTeaFluid();
+        return fluid == null ? ResourceLocation.withDefaultNamespace("water") : fluid;
+    }
+
+    public void setSelectedKaleidoscopeTeapotFluid(ResourceLocation fluid) {
+        if (selectedEntry == null || !isKaleidoscopeTeapotEntry(selectedEntry)
+                || slotSelection.kind() != WorkbenchSlotSelection.Kind.KALEIDOSCOPE_FLUID) {
+            return;
+        }
+        selectedEntry.getKaleidoscopeTeapot().setTeaFluid(
+                fluid == null ? ResourceLocation.withDefaultNamespace("water") : fluid);
+        notifyChanged();
+    }
+
+    public void selectKaleidoscopeStockpotSoupBaseSlot() {
+        if (selectedEntry == null || !isKaleidoscopeStockpotEntry(selectedEntry)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.kaleidoscopeSoupBase();
+        notifyChanged();
+    }
+
+    public ResourceLocation getSelectedKaleidoscopeStockpotSoupBase() {
+        if (selectedEntry == null || !isKaleidoscopeStockpotEntry(selectedEntry)
+                || slotSelection.kind() != WorkbenchSlotSelection.Kind.KALEIDOSCOPE_SOUP_BASE) {
+            return KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE;
+        }
+        var soupBase = selectedEntry.getKaleidoscopeStockpot().getSoupBase();
+        return soupBase == null ? KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE : soupBase;
+    }
+
+    public void setSelectedKaleidoscopeStockpotSoupBase(ResourceLocation soupBase) {
+        if (selectedEntry == null || !isKaleidoscopeStockpotEntry(selectedEntry)
+                || slotSelection.kind() != WorkbenchSlotSelection.Kind.KALEIDOSCOPE_SOUP_BASE) {
+            return;
+        }
+        selectedEntry.getKaleidoscopeStockpot().setSoupBase(
+                soupBase == null ? KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE : soupBase);
+        notifyChanged();
+    }
+
+    public void resetKaleidoscopeStockpotSoupBase() {
+        if (selectedEntry == null || !isKaleidoscopeStockpotEntry(selectedEntry)) {
+            return;
+        }
+        selectedEntry.getKaleidoscopeStockpot().setSoupBase(KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE);
+        notifyChanged();
+    }
+
+    /** Selects one Industrial Foregoing fluid slot so the properties panel edits that slot only. */
+    public void selectIndustrialFluidSlot(int slot) {
+        if (selectedEntry == null || !isIndustrialFluidSlot(slot)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.fluid(slot);
+        notifyChanged();
+    }
+
+    /** Selects one non-slot Industrial Foregoing canvas component for focused editing. */
+    public void selectIndustrialComponent(int component) {
+        if (selectedEntry == null || !isIndustrialComponent(component)) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.industrialComponent(component);
+        notifyChanged();
+    }
+
+    /** Returns whether the properties view is focused on an Industrial Foregoing canvas component. */
+    public boolean isSelectedIndustrialComponent() {
+        return selectedEntry != null
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.INDUSTRIAL_COMPONENT
+                && isIndustrialComponent(slotSelection.index());
+    }
+
+    /** Returns whether the current selection is a fluid slot owned by an Industrial Foregoing recipe. */
+    public boolean isSelectedIndustrialFluidSlot() {
+        return selectedEntry != null
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.FLUID
+                && isIndustrialFluidSlot(slotSelection.index());
+    }
+
+    /** Returns whether the selected Industrial Foregoing slot uses a sized fluid ingredient rather than a stack. */
+    public boolean isSelectedIndustrialFluidIngredient() {
+        if (!isSelectedIndustrialFluidSlot()) {
+            return false;
+        }
+        return (isIndustrialDissolutionEntry(selectedEntry)
+                && slotSelection.index() == INDUSTRIAL_DISSOLUTION_INPUT_FLUID_SLOT)
+                || (isIndustrialLaserFluidEntry(selectedEntry)
+                && slotSelection.index() == INDUSTRIAL_LASER_FLUID_OUTPUT_SLOT);
+    }
+
+    /** Returns whether the dissolution chamber's optional item output is selected. */
+    public boolean isSelectedIndustrialDissolutionItemOutput() {
+        return selectedEntry != null
+                && isIndustrialDissolutionEntry(selectedEntry)
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.RESULT;
+    }
+
+    /** Returns whether the dissolution chamber's optional fluid output is selected. */
+    public boolean isSelectedIndustrialDissolutionFluidOutput() {
+        return selectedEntry != null
+                && isIndustrialDissolutionEntry(selectedEntry)
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.FLUID
+                && slotSelection.index() == INDUSTRIAL_DISSOLUTION_OUTPUT_FLUID_SLOT;
+    }
+
+    /** Gets the sized fluid ingredient data for the selected Industrial Foregoing slot. */
+    public IndustrialFluidIngredientData getSelectedIndustrialFluidIngredient() {
+        if (!isSelectedIndustrialFluidIngredient()) {
+            return new IndustrialFluidIngredientData();
+        }
+        if (isIndustrialDissolutionEntry(selectedEntry)) {
+            var data = selectedEntry.getIndustrialDissolution();
+            if (data.getInputFluid() == null) {
+                data.setInputFluid(new IndustrialFluidIngredientData());
+            }
+            return data.getInputFluid();
+        }
+        var data = selectedEntry.getIndustrialLaserDrillFluid();
+        if (data.getOutput() == null) {
+            data.setOutput(new IndustrialFluidIngredientData());
+        }
+        return data.getOutput();
+    }
+
+    private boolean isSelectedIndustrialFluidStack() {
+        return isSelectedIndustrialFluidSlot() && !isSelectedIndustrialFluidIngredient();
+    }
+
+    private boolean isIndustrialFluidSlot(int slot) {
+        if (isIndustrialDissolutionEntry(selectedEntry)) {
+            return slot == INDUSTRIAL_DISSOLUTION_INPUT_FLUID_SLOT
+                    || slot == INDUSTRIAL_DISSOLUTION_OUTPUT_FLUID_SLOT;
+        }
+        if (isIndustrialFluidExtractorEntry(selectedEntry)) {
+            return slot == INDUSTRIAL_FLUID_EXTRACTOR_OUTPUT_FLUID_SLOT;
+        }
+        return isIndustrialLaserFluidEntry(selectedEntry)
+                && slot == INDUSTRIAL_LASER_FLUID_OUTPUT_SLOT;
+    }
+
+    private boolean isIndustrialComponent(int component) {
+        if (isIndustrialDissolutionEntry(selectedEntry)) {
+            return component == INDUSTRIAL_DISSOLUTION_SETTINGS_COMPONENT;
+        }
+        if (isIndustrialFluidExtractorEntry(selectedEntry)) {
+            return component == INDUSTRIAL_FLUID_EXTRACTOR_BLOCK_COMPONENT
+                    || component == INDUSTRIAL_FLUID_EXTRACTOR_OPERATION_COMPONENT;
+        }
+        if (isIndustrialLaserOreEntry(selectedEntry)) {
+            return component == INDUSTRIAL_LASER_ORE_RARITY_COMPONENT
+                    || component == INDUSTRIAL_LASER_ORE_ENTITY_COMPONENT;
+        }
+        if (isIndustrialLaserFluidEntry(selectedEntry)) {
+            return component == INDUSTRIAL_LASER_FLUID_RARITY_COMPONENT
+                    || component == INDUSTRIAL_LASER_FLUID_ENTITY_COMPONENT;
+        }
+        return isIndustrialStoneWorkEntry(selectedEntry)
+                && (component == INDUSTRIAL_STONEWORK_NEEDS_COMPONENT
+                || component == INDUSTRIAL_STONEWORK_CONSUMES_COMPONENT);
+    }
+
+    private FluidStack selectedIndustrialFluidStack() {
+        if (isIndustrialDissolutionEntry(selectedEntry)) {
+            var stack = selectedEntry.getIndustrialDissolution().getOutputFluid();
+            return stack == null ? FluidStack.EMPTY : stack;
+        }
+        if (isIndustrialFluidExtractorEntry(selectedEntry)) {
+            var stack = selectedEntry.getIndustrialFluidExtractor().getOutput();
+            return stack == null ? FluidStack.EMPTY : stack;
+        }
+        return FluidStack.EMPTY;
+    }
+
+    private void setSelectedIndustrialFluidStack(FluidStack stack) {
+        if (isIndustrialDissolutionEntry(selectedEntry)) {
+            selectedEntry.getIndustrialDissolution().setOutputFluid(stack);
+        } else if (isIndustrialFluidExtractorEntry(selectedEntry)) {
+            selectedEntry.getIndustrialFluidExtractor().setOutput(stack);
+        }
     }
 
     public int selectedCreateFluidInputIndex() {
@@ -3307,6 +3964,36 @@ public class RecipeEditorController {
             writeGoetyPulverizeRecipe(selectedEntry.getGoetyPulverize());
         } else if (isGoetyBrewingEntry(selectedEntry)) {
             writeGoetyBrewingRecipe(selectedEntry.getGoetyBrewing());
+        } else if (isMysticalAgricultureInfusionEntry(selectedEntry)) {
+            writeMysticalAgricultureInfusionRecipe(selectedEntry);
+        } else if (isMysticalAgricultureAwakeningEntry(selectedEntry)) {
+            writeMysticalAgricultureAwakeningRecipe(selectedEntry);
+        } else if (isMysticalAgricultureEnchanterEntry(selectedEntry)) {
+            writeMysticalAgricultureEnchanterRecipe(selectedEntry);
+        } else if (isMysticalAgricultureReprocessorEntry(selectedEntry)) {
+            writeMysticalAgricultureReprocessorRecipe(selectedEntry);
+        } else if (isMysticalAgricultureSoulExtractionEntry(selectedEntry)) {
+            writeMysticalAgricultureSoulExtractionRecipe(selectedEntry);
+        } else if (isMysticalAgricultureSouliumSpawnerEntry(selectedEntry)) {
+            writeMysticalAgricultureSouliumSpawnerRecipe(selectedEntry);
+        } else if (isIndustrialDissolutionEntry(selectedEntry)) {
+            writeIndustrialDissolution(selectedEntry);
+        } else if (isIndustrialFluidExtractorEntry(selectedEntry)) {
+            selectedEntry.getIndustrialFluidExtractor().setInput(ingredientForVisualSlot(0));
+        } else if (isIndustrialCrusherEntry(selectedEntry)) {
+            selectedEntry.getIndustrialCrusher()
+                    .setInput(ingredientForVisualSlot(0))
+                    .setOutput(ingredientForVisualSlot(1));
+        } else if (isIndustrialLaserOreEntry(selectedEntry)) {
+            selectedEntry.getIndustrialLaserDrillOre()
+                    .setCatalyst(ingredientForVisualSlot(0))
+                    .setOutput(ingredientForVisualSlot(1));
+        } else if (isIndustrialLaserFluidEntry(selectedEntry)) {
+            selectedEntry.getIndustrialLaserDrillFluid().setCatalyst(ingredientForVisualSlot(0));
+        } else if (isIndustrialStoneWorkEntry(selectedEntry)) {
+            selectedEntry.getIndustrialStoneWork().setOutput(visualResult.copy());
+        } else if (isMekanismEntry(selectedEntry)) {
+            writeMekanismRecipe(selectedEntry);
         } else if (isFarmersCookingPotEntry(selectedEntry)) {
             writeFarmerCookingPotRecipe(selectedEntry.getFarmerCookingPot());
         } else if (isFarmersCuttingBoardEntry(selectedEntry)) {
@@ -3343,6 +4030,8 @@ public class RecipeEditorController {
             writeExtendedCraftingCompressorRecipe(selectedEntry.getExtendedCraftingCompressor());
         } else if (isAvaritiaTableEntry(selectedEntry)) {
             writeAvaritiaTableRecipe(selectedEntry);
+        } else if (isAvaritiaSpecialShapelessEntry(selectedEntry)) {
+            writeAvaritiaSpecialShapelessRecipe(selectedEntry);
         } else if (isAvaritiaCompressorEntry(selectedEntry)) {
             writeAvaritiaCompressorRecipe(selectedEntry.getAvaritiaCompressor());
         } else if (isAvaritiaExtremeSmithingEntry(selectedEntry)) {
@@ -3619,6 +4308,68 @@ public class RecipeEditorController {
         visualResult = data.visibleResult();
     }
 
+    private void writeMysticalAgricultureInfusionRecipe(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureInfusion();
+        var ingredients = new ArrayList<RecipeIngredient>();
+        for (int index = 0; index < MysticalAgricultureInfusionRecipeData.MAX_PEDESTAL_INGREDIENTS; index++) {
+            var ingredient = ingredientForVisualSlot(index + 1);
+            if (!isIngredientEmpty(ingredient)) {
+                ingredients.add(ingredient);
+            }
+        }
+        data.setInput(ingredientForVisualSlot(0));
+        data.setIngredients(ingredients);
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeMysticalAgricultureAwakeningRecipe(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureAwakening();
+        var ingredients = new ArrayList<RecipeIngredient>();
+        for (int index = 0; index < MysticalAgricultureAwakeningRecipeData.PEDESTAL_INGREDIENT_COUNT; index++) {
+            ingredients.add(ingredientForVisualSlot(index + 1));
+        }
+        data.setInput(ingredientForVisualSlot(0));
+        data.setIngredients(ingredients);
+        data.setResult(visualResult.copy());
+    }
+
+    private void writeMysticalAgricultureEnchanterRecipe(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureEnchanter();
+        for (int index = 0; index < MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS; index++) {
+            data.setIngredient(index, data.ingredient(index).setIngredient(ingredientForVisualSlot(index)));
+        }
+        visualResult = com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport
+                .firstEnchantedBook(data.getEnchantment());
+    }
+
+    private void writeMysticalAgricultureReprocessorRecipe(RecipeEntry entry) {
+        entry.getMysticalAgricultureReprocessor().setInput(ingredientForVisualSlot(0));
+        entry.getMysticalAgricultureReprocessor().setResult(visualResult.copy());
+    }
+
+    private void writeMysticalAgricultureSoulExtractionRecipe(RecipeEntry entry) {
+        entry.getMysticalAgricultureSoulExtraction().setInput(ingredientForVisualSlot(0));
+        visualResult = com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport
+                .soulJar(entry.getMysticalAgricultureSoulExtraction());
+    }
+
+    private void writeMysticalAgricultureSouliumSpawnerRecipe(RecipeEntry entry) {
+        entry.getMysticalAgricultureSouliumSpawner().getInput().setIngredient(ingredientForVisualSlot(0));
+        visualResult = com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport
+                .firstSpawnEgg(entry.getMysticalAgricultureSouliumSpawner().getEntities());
+    }
+
+    private void writeIndustrialDissolution(RecipeEntry entry) {
+        var inputs = new ArrayList<RecipeIngredient>();
+        for (int index = 0; index < IndustrialDissolutionRecipeData.MAX_INPUTS; index++) {
+            var ingredient = ingredientForVisualSlot(index);
+            if (!isIngredientEmpty(ingredient)) {
+                inputs.add(ingredient);
+            }
+        }
+        entry.getIndustrialDissolution().setInput(inputs).setOutput(visualResult.copy());
+    }
+
     private void writeFarmerCookingPotRecipe(FarmerCookingPotRecipeData cookingPot) {
         var ingredients = new ArrayList<RecipeIngredient>();
         for (int i = 0; i < 6; i++) {
@@ -3806,6 +4557,54 @@ public class RecipeEditorController {
         visualResult = outputs.isEmpty() ? ItemStack.EMPTY : outputs.getFirst().getItem().copy();
     }
 
+    private void writeMekanismRecipe(RecipeEntry entry) {
+        var kind = MekanismRecipeKind.byType(entry.getType()).orElse(null);
+        if (kind == null) {
+            return;
+        }
+        var data = entry.getMekanism();
+        if (kind.itemInputs() > 0) {
+            var ingredient = ingredientForVisualSlot(0);
+            data.setItemInput(ingredient);
+            syncMekanismItemInputFallbackAmount(entry, 0, ingredient);
+        }
+        if (kind.itemInputs() > 1) {
+            var ingredient = ingredientForVisualSlot(1);
+            data.setExtraItemInput(ingredient);
+            syncMekanismItemInputFallbackAmount(entry, 1, ingredient);
+        }
+        if (kind.itemOutputs() > 0) {
+            data.setItemOutput(visualResult.copy());
+        }
+    }
+
+    private void syncMekanismItemInputFallbackAmount(RecipeEntry entry, int index, RecipeIngredient ingredient) {
+        var amount = MekanismItemInputCounts.firstItemAmount(ingredient);
+        if (amount > 0) {
+            setMekanismItemInputFallbackAmount(entry, index, amount);
+        } else if (mekanismItemInputFallbackAmount(entry, index) <= 0) {
+            setMekanismItemInputFallbackAmount(entry, index, 1);
+        }
+    }
+
+    private int mekanismItemInputFallbackAmount(RecipeEntry entry, int index) {
+        if (entry == null || !isMekanismEntry(entry)) {
+            return 1;
+        }
+        return index == 0 ? entry.getMekanism().getItemInputAmount() : entry.getMekanism().getExtraItemInputAmount();
+    }
+
+    private void setMekanismItemInputFallbackAmount(RecipeEntry entry, int index, int amount) {
+        if (entry == null || !isMekanismEntry(entry)) {
+            return;
+        }
+        if (index == 0) {
+            entry.getMekanism().setItemInputAmount(Math.max(1, amount));
+        } else {
+            entry.getMekanism().setExtraItemInputAmount(Math.max(1, amount));
+        }
+    }
+
     private void writeExtendedCraftingTableRecipe(ExtendedCraftingTableRecipeData data) {
         if (selectedEntry != null && isExtendedCraftingShapedTableEntry(selectedEntry)) {
             var gridSize = ExtendedCraftingRecipeEditorTypes.tableGridSizeForTier(getExtendedCraftingTableTier(selectedEntry));
@@ -3889,6 +4688,17 @@ public class RecipeEditorController {
             data.setShapelessIngredients(visualIngredientList(gridSize * gridSize));
         }
         data.setResult(visualResult.copy());
+    }
+
+    private void writeAvaritiaSpecialShapelessRecipe(RecipeEntry entry) {
+        var ingredients = visualIngredientList(EXTENDED_CRAFTING_TABLE_GRID_SIZE * EXTENDED_CRAFTING_TABLE_GRID_SIZE);
+        if (entry.isType(AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            entry.getAvaritiaInfinityCatalyst().setIngredients(ingredients);
+        } else if (entry.isType(AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)) {
+            entry.getAvaritiaEternalSingularity().setIngredients(ingredients);
+        } else if (entry.isType(AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)) {
+            entry.getAvaritiaFullMatterCluster().setIngredients(ingredients);
+        }
     }
 
     private void writeAvaritiaCompressorRecipe(AvaritiaCompressorRecipeData data) {
@@ -4109,6 +4919,55 @@ public class RecipeEditorController {
         if (isGoetyBrewingEntry(entry) && index == 0) {
             return entry.getGoetyBrewing().getIngredient();
         }
+        if (isMysticalAgricultureInfusionEntry(entry)) {
+            return index == 0
+                    ? entry.getMysticalAgricultureInfusion().getInput()
+                    : entry.getMysticalAgricultureInfusion().ingredient(index - 1);
+        }
+        if (isMysticalAgricultureAwakeningEntry(entry)) {
+            return index == 0
+                    ? entry.getMysticalAgricultureAwakening().getInput()
+                    : entry.getMysticalAgricultureAwakening().ingredient(index - 1);
+        }
+        if (isMysticalAgricultureEnchanterEntry(entry) && index >= 0
+                && index < MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS) {
+            return entry.getMysticalAgricultureEnchanter().ingredient(index).getIngredient();
+        }
+        if (isMysticalAgricultureReprocessorEntry(entry) && index == 0) {
+            return entry.getMysticalAgricultureReprocessor().getInput();
+        }
+        if (isMysticalAgricultureSoulExtractionEntry(entry) && index == 0) {
+            return entry.getMysticalAgricultureSoulExtraction().getInput();
+        }
+        if (isMysticalAgricultureSouliumSpawnerEntry(entry) && index == 0) {
+            return entry.getMysticalAgricultureSouliumSpawner().getInput().getIngredient();
+        }
+        if (isIndustrialDissolutionEntry(entry) && index >= 0 && index < IndustrialDissolutionRecipeData.MAX_INPUTS) {
+            var inputs = entry.getIndustrialDissolution().getInput();
+            return inputs != null && index < inputs.size() && inputs.get(index) != null
+                    ? inputs.get(index) : new RecipeIngredient();
+        }
+        if (isIndustrialFluidExtractorEntry(entry) && index == 0) {
+            return entry.getIndustrialFluidExtractor().getInput();
+        }
+        if (isIndustrialCrusherEntry(entry)) {
+            return index == 0 ? entry.getIndustrialCrusher().getInput()
+                    : index == 1 ? entry.getIndustrialCrusher().getOutput() : new RecipeIngredient();
+        }
+        if (isIndustrialLaserOreEntry(entry)) {
+            return index == 0 ? entry.getIndustrialLaserDrillOre().getCatalyst()
+                    : index == 1 ? entry.getIndustrialLaserDrillOre().getOutput() : new RecipeIngredient();
+        }
+        if (isIndustrialLaserFluidEntry(entry) && index == 0) {
+            return entry.getIndustrialLaserDrillFluid().getCatalyst();
+        }
+        if (isMekanismEntry(entry)) {
+            var kind = MekanismRecipeKind.byType(entry.getType()).orElse(null);
+            if (kind == null || index < 0 || index >= kind.itemInputs()) {
+                return new RecipeIngredient();
+            }
+            return index == 0 ? entry.getMekanism().getItemInput() : entry.getMekanism().getExtraItemInput();
+        }
         if (isFarmersCookingPotEntry(entry) && index >= 0 && index < 6) {
             return getFarmerCookingPotSlotIngredient(entry.getFarmerCookingPot(), index);
         }
@@ -4165,6 +5024,9 @@ public class RecipeEditorController {
         }
         if (isAvaritiaTableEntry(entry)) {
             return getAvaritiaTableSlotIngredient(entry, index);
+        }
+        if (isAvaritiaSpecialShapelessEntry(entry)) {
+            return getArsNouveauListIngredient(avaritiaSpecialIngredients(entry), index);
         }
         if (isAvaritiaCompressorEntry(entry) && index == 0) {
             return entry.getAvaritiaCompressor().getIngredient() == null ? new RecipeIngredient() : entry.getAvaritiaCompressor().getIngredient();
@@ -4468,6 +5330,61 @@ public class RecipeEditorController {
             entry.getGoetyPulverize().setIngredient(ingredient);
         } else if (isGoetyBrewingEntry(entry) && index == 0) {
             entry.getGoetyBrewing().setIngredient(ingredient);
+        } else if (isMysticalAgricultureInfusionEntry(entry) && index == 0) {
+            entry.getMysticalAgricultureInfusion().setInput(ingredient);
+        } else if (isMysticalAgricultureInfusionEntry(entry)
+                && index > 0 && index <= MysticalAgricultureInfusionRecipeData.MAX_PEDESTAL_INGREDIENTS) {
+            entry.getMysticalAgricultureInfusion().setIngredient(index - 1, ingredient);
+        } else if (isMysticalAgricultureAwakeningEntry(entry) && index == 0) {
+            entry.getMysticalAgricultureAwakening().setInput(ingredient);
+        } else if (isMysticalAgricultureAwakeningEntry(entry)
+                && index > 0 && index <= MysticalAgricultureAwakeningRecipeData.PEDESTAL_INGREDIENT_COUNT) {
+            entry.getMysticalAgricultureAwakening().setIngredient(index - 1, ingredient);
+        } else if (isMysticalAgricultureEnchanterEntry(entry)
+                && index >= 0 && index < MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS) {
+            var data = entry.getMysticalAgricultureEnchanter();
+            data.setIngredient(index, data.ingredient(index).setIngredient(ingredient));
+        } else if (isMysticalAgricultureReprocessorEntry(entry) && index == 0) {
+            entry.getMysticalAgricultureReprocessor().setInput(ingredient);
+        } else if (isMysticalAgricultureSoulExtractionEntry(entry) && index == 0) {
+            entry.getMysticalAgricultureSoulExtraction().setInput(ingredient);
+        } else if (isMysticalAgricultureSouliumSpawnerEntry(entry) && index == 0) {
+            entry.getMysticalAgricultureSouliumSpawner().getInput().setIngredient(ingredient);
+        } else if (isIndustrialDissolutionEntry(entry) && index >= 0 && index < IndustrialDissolutionRecipeData.MAX_INPUTS) {
+            var inputs = entry.getIndustrialDissolution().getInput();
+            if (inputs == null) {
+                inputs = new ArrayList<>();
+                entry.getIndustrialDissolution().setInput(inputs);
+            }
+            while (inputs.size() <= index) {
+                inputs.add(new RecipeIngredient());
+            }
+            inputs.set(index, ingredient);
+            while (!inputs.isEmpty() && isIngredientEmpty(inputs.getLast())) {
+                inputs.removeLast();
+            }
+        } else if (isIndustrialFluidExtractorEntry(entry) && index == 0) {
+            entry.getIndustrialFluidExtractor().setInput(ingredient);
+        } else if (isIndustrialCrusherEntry(entry) && index == 0) {
+            entry.getIndustrialCrusher().setInput(ingredient);
+        } else if (isIndustrialCrusherEntry(entry) && index == 1) {
+            entry.getIndustrialCrusher().setOutput(ingredient);
+        } else if (isIndustrialLaserOreEntry(entry) && index == 0) {
+            entry.getIndustrialLaserDrillOre().setCatalyst(ingredient);
+        } else if (isIndustrialLaserOreEntry(entry) && index == 1) {
+            entry.getIndustrialLaserDrillOre().setOutput(ingredient);
+        } else if (isIndustrialLaserFluidEntry(entry) && index == 0) {
+            entry.getIndustrialLaserDrillFluid().setCatalyst(ingredient);
+        } else if (isMekanismEntry(entry)) {
+            var kind = MekanismRecipeKind.byType(entry.getType()).orElse(null);
+            if (kind != null && index >= 0 && index < kind.itemInputs()) {
+                if (index == 0) {
+                    entry.getMekanism().setItemInput(ingredient);
+                } else {
+                    entry.getMekanism().setExtraItemInput(ingredient);
+                }
+                syncMekanismItemInputFallbackAmount(entry, index, ingredient);
+            }
         } else if (isFarmersCookingPotEntry(entry) && index >= 0 && index < 6) {
             setFarmerCookingPotSlotIngredient(entry.getFarmerCookingPot(), index, ingredient);
         } else if (isFarmersCuttingBoardEntry(entry) && index >= 0 && index <= 1) {
@@ -4506,6 +5423,9 @@ public class RecipeEditorController {
             setExtendedCraftingCompressorSlotIngredient(entry.getExtendedCraftingCompressor(), index, ingredient);
         } else if (isAvaritiaTableEntry(entry)) {
             setAvaritiaTableSlotIngredient(entry, index, ingredient);
+        } else if (isAvaritiaSpecialShapelessEntry(entry) && index >= 0
+                && index < EXTENDED_CRAFTING_TABLE_GRID_SIZE * EXTENDED_CRAFTING_TABLE_GRID_SIZE) {
+            setAvaritiaSpecialShapelessSlotIngredient(entry, index, ingredient);
         } else if (isAvaritiaCompressorEntry(entry) && index == 0) {
             setAvaritiaCompressorSlotIngredient(entry.getAvaritiaCompressor(), ingredient);
         } else if (isAvaritiaExtremeSmithingEntry(entry) && index >= 0 && index <= 4) {
@@ -4652,6 +5572,11 @@ public class RecipeEditorController {
     private void setAvaritiaTableSlotIngredient(RecipeEntry entry, int index, RecipeIngredient ingredient) {
         setVisualIngredientData(index, ingredient);
         writeAvaritiaTableRecipe(entry);
+    }
+
+    private void setAvaritiaSpecialShapelessSlotIngredient(RecipeEntry entry, int index, RecipeIngredient ingredient) {
+        setVisualIngredientData(index, ingredient);
+        writeAvaritiaSpecialShapelessRecipe(entry);
     }
 
     private void setAvaritiaCompressorSlotIngredient(AvaritiaCompressorRecipeData data, RecipeIngredient ingredient) {
@@ -4844,6 +5769,35 @@ public class RecipeEditorController {
                 loadGoetyPulverize(selectedEntry.getGoetyPulverize());
             } else if (isGoetyBrewingEntry(selectedEntry)) {
                 loadGoetyBrewing(selectedEntry.getGoetyBrewing());
+            } else if (isMysticalAgricultureInfusionEntry(selectedEntry)) {
+                loadMysticalAgricultureInfusion(selectedEntry);
+            } else if (isMysticalAgricultureAwakeningEntry(selectedEntry)) {
+                loadMysticalAgricultureAwakening(selectedEntry);
+            } else if (isMysticalAgricultureEnchanterEntry(selectedEntry)) {
+                loadMysticalAgricultureEnchanter(selectedEntry);
+            } else if (isMysticalAgricultureReprocessorEntry(selectedEntry)) {
+                loadMysticalAgricultureReprocessor(selectedEntry);
+            } else if (isMysticalAgricultureSoulExtractionEntry(selectedEntry)) {
+                loadMysticalAgricultureSoulExtraction(selectedEntry);
+            } else if (isMysticalAgricultureSouliumSpawnerEntry(selectedEntry)) {
+                loadMysticalAgricultureSouliumSpawner(selectedEntry);
+            } else if (isIndustrialDissolutionEntry(selectedEntry)) {
+                loadIndustrialDissolution(selectedEntry);
+            } else if (isIndustrialFluidExtractorEntry(selectedEntry)) {
+                loadIngredientSlot(0, selectedEntry.getIndustrialFluidExtractor().getInput());
+            } else if (isIndustrialCrusherEntry(selectedEntry)) {
+                loadIngredientSlot(0, selectedEntry.getIndustrialCrusher().getInput());
+                loadIngredientSlot(1, selectedEntry.getIndustrialCrusher().getOutput());
+            } else if (isIndustrialLaserOreEntry(selectedEntry)) {
+                loadIngredientSlot(0, selectedEntry.getIndustrialLaserDrillOre().getCatalyst());
+                loadIngredientSlot(1, selectedEntry.getIndustrialLaserDrillOre().getOutput());
+            } else if (isIndustrialLaserFluidEntry(selectedEntry)) {
+                loadIngredientSlot(0, selectedEntry.getIndustrialLaserDrillFluid().getCatalyst());
+            } else if (isIndustrialStoneWorkEntry(selectedEntry)) {
+                visualResult = selectedEntry.getIndustrialStoneWork().getOutput() == null
+                        ? ItemStack.EMPTY : selectedEntry.getIndustrialStoneWork().getOutput().copy();
+            } else if (isMekanismEntry(selectedEntry)) {
+                loadMekanism(selectedEntry);
             } else if (isFarmersCookingPotEntry(selectedEntry)) {
                 loadFarmerCookingPot(selectedEntry.getFarmerCookingPot());
             } else if (isFarmersCuttingBoardEntry(selectedEntry)) {
@@ -4880,6 +5834,8 @@ public class RecipeEditorController {
                 loadExtendedCraftingCompressor(selectedEntry.getExtendedCraftingCompressor());
             } else if (isAvaritiaTableEntry(selectedEntry)) {
                 loadAvaritiaTable(selectedEntry);
+            } else if (isAvaritiaSpecialShapelessEntry(selectedEntry)) {
+                loadAvaritiaSpecialShapeless(selectedEntry);
             } else if (isAvaritiaCompressorEntry(selectedEntry)) {
                 loadAvaritiaCompressor(selectedEntry.getAvaritiaCompressor());
             } else if (isAvaritiaExtremeSmithingEntry(selectedEntry)) {
@@ -5133,6 +6089,62 @@ public class RecipeEditorController {
         visualResult = data.visibleResult();
     }
 
+    private void loadMysticalAgricultureInfusion(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureInfusion();
+        loadIngredientSlot(0, data.getInput());
+        for (int index = 0; index < MysticalAgricultureInfusionRecipeData.MAX_PEDESTAL_INGREDIENTS; index++) {
+            loadIngredientSlot(index + 1, data.ingredient(index));
+        }
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadMysticalAgricultureAwakening(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureAwakening();
+        loadIngredientSlot(0, data.getInput());
+        for (int index = 0; index < MysticalAgricultureAwakeningRecipeData.PEDESTAL_INGREDIENT_COUNT; index++) {
+            loadIngredientSlot(index + 1, data.ingredient(index));
+        }
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadMysticalAgricultureEnchanter(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureEnchanter();
+        for (int index = 0; index < MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS; index++) {
+            loadIngredientSlot(index, data.ingredient(index).getIngredient());
+        }
+        visualResult = com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport
+                .firstEnchantedBook(data.getEnchantment());
+    }
+
+    private void loadMysticalAgricultureReprocessor(RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureReprocessor();
+        loadIngredientSlot(0, data.getInput());
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+    }
+
+    private void loadMysticalAgricultureSoulExtraction(RecipeEntry entry) {
+        loadIngredientSlot(0, entry.getMysticalAgricultureSoulExtraction().getInput());
+        visualResult = com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport
+                .soulJar(entry.getMysticalAgricultureSoulExtraction());
+    }
+
+    private void loadMysticalAgricultureSouliumSpawner(RecipeEntry entry) {
+        loadIngredientSlot(0, entry.getMysticalAgricultureSouliumSpawner().getInput().getIngredient());
+        visualResult = com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport
+                .firstSpawnEgg(entry.getMysticalAgricultureSouliumSpawner().getEntities());
+    }
+
+    private void loadIndustrialDissolution(RecipeEntry entry) {
+        var data = entry.getIndustrialDissolution();
+        var inputs = data.getInput();
+        if (inputs != null) {
+            for (int index = 0; index < Math.min(IndustrialDissolutionRecipeData.MAX_INPUTS, inputs.size()); index++) {
+                loadIngredientSlot(index, inputs.get(index));
+            }
+        }
+        visualResult = data.getOutput() == null ? ItemStack.EMPTY : data.getOutput().copy();
+    }
+
     private void loadFarmerCookingPot(FarmerCookingPotRecipeData cookingPot) {
         var ingredients = cookingPot.getIngredients();
         if (ingredients != null) {
@@ -5301,6 +6313,23 @@ public class RecipeEditorController {
         visualResult = visualCreateOutputs[0].copy();
     }
 
+    private void loadMekanism(RecipeEntry entry) {
+        var kind = MekanismRecipeKind.byType(entry.getType()).orElse(null);
+        if (kind == null) {
+            return;
+        }
+        var data = entry.getMekanism();
+        if (kind.itemInputs() > 0) {
+            loadMekanismIngredientSlot(0, data.getItemInput(), data.getItemInputAmount());
+        }
+        if (kind.itemInputs() > 1) {
+            loadMekanismIngredientSlot(1, data.getExtraItemInput(), data.getExtraItemInputAmount());
+        }
+        if (kind.itemOutputs() > 0) {
+            visualResult = data.getItemOutput() == null ? ItemStack.EMPTY : data.getItemOutput().copy();
+        }
+    }
+
     private void loadCreateAutoPacking(CreateProcessingRecipeData data) {
         var gridSize = autoPackingGridSize(data);
         var ingredient = firstCreateIngredient(data);
@@ -5393,6 +6422,40 @@ public class RecipeEditorController {
             loadIngredientList(data.getShapelessIngredients(), gridSize * gridSize);
             visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
         }
+    }
+
+    private void loadAvaritiaSpecialShapeless(RecipeEntry entry) {
+        loadIngredientList(avaritiaSpecialIngredients(entry), EXTENDED_CRAFTING_TABLE_GRID_SIZE * EXTENDED_CRAFTING_TABLE_GRID_SIZE);
+        visualResult = avaritiaSpecialResult(entry);
+    }
+
+    private List<RecipeIngredient> avaritiaSpecialIngredients(RecipeEntry entry) {
+        if (entry.isType(AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            return entry.getAvaritiaInfinityCatalyst().getIngredients();
+        }
+        if (entry.isType(AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)) {
+            return entry.getAvaritiaEternalSingularity().getIngredients();
+        }
+        if (entry.isType(AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)) {
+            return entry.getAvaritiaFullMatterCluster().getIngredients();
+        }
+        return List.of();
+    }
+
+    private ItemStack avaritiaSpecialResult(RecipeEntry entry) {
+        if (entry.isType(AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            var data = entry.getAvaritiaInfinityCatalyst();
+            return data.result().copyWithCount(Math.max(1, data.getCount()));
+        }
+        if (entry.isType(AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)) {
+            var data = entry.getAvaritiaEternalSingularity();
+            return data.result().copyWithCount(Math.max(1, data.getCount()));
+        }
+        if (entry.isType(AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)) {
+            var data = entry.getAvaritiaFullMatterCluster();
+            return data.result().copyWithCount(Math.max(1, data.getCount()));
+        }
+        return ItemStack.EMPTY;
     }
 
     private void loadAvaritiaCompressor(AvaritiaCompressorRecipeData data) {
@@ -5547,6 +6610,15 @@ public class RecipeEditorController {
         visualRemainders[index] = CraftingRemainderRule.defaultRule();
     }
 
+    private void loadMekanismIngredientSlot(int index, RecipeIngredient ingredient, int fallbackAmount) {
+        if (containsUnsupportedIngredientValue(ingredient)) {
+            selectedContainsUnsupportedIngredients = true;
+        }
+        visualIngredients[index] = itemFromMekanismIngredient(ingredient, fallbackAmount);
+        visualIngredientData[index] = ingredient == null ? new RecipeIngredient() : ingredient;
+        visualRemainders[index] = CraftingRemainderRule.defaultRule();
+    }
+
     private boolean ingredientSlotsChanged() {
         if (loadedIngredientStacks.length != visualIngredients.length) {
             return true;
@@ -5651,6 +6723,32 @@ public class RecipeEditorController {
         return ItemStack.EMPTY;
     }
 
+    private ItemStack itemFromMekanismIngredient(@Nullable RecipeIngredient ingredient, int fallbackAmount) {
+        if (ingredient == null) {
+            return ItemStack.EMPTY;
+        }
+        var amount = MekanismItemInputCounts.amount(ingredient, fallbackAmount);
+        for (var value : ingredient.getValues()) {
+            if (value.getKind() == IngredientValueKind.ITEM && value.getItem() != null && !value.getItem().isEmpty()) {
+                var stack = value.getItem().copy();
+                stack.setCount(amount);
+                return stack;
+            }
+            if (value.getKind() == IngredientValueKind.TAG && value.getTag() != null) {
+                var tagItems = itemsFromTag(value.getTag());
+                if (tagItems.length > 0) {
+                    return tagItems[0].copyWithCount(amount);
+                }
+            }
+            if (value.getKind() == IngredientValueKind.ITEM_ABILITY && value.getItemAbility() != null) {
+                var stack = itemFromAbility(value.getItemAbility());
+                stack.setCount(amount);
+                return stack;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
     private ItemStack[] itemsFromTag(ResourceLocation tag) {
         if (tag == null) {
             return new ItemStack[0];
@@ -5663,6 +6761,47 @@ public class RecipeEditorController {
                         .filter(stack -> !stack.isEmpty())
                 .toArray(ItemStack[]::new))
                 .orElseGet(() -> new ItemStack[0]);
+    }
+
+    private ItemStack displayIngredientItemStack(int index, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        if (isCreateCountedItemInputSlot(index)) {
+            return stack.copy();
+        }
+        if (isMekanismItemInputSlot(index)) {
+            var copy = stack.copy();
+            copy.setCount(Math.max(Math.max(1, copy.getCount()), mekanismItemInputAmountForSlot(index)));
+            return copy;
+        }
+        return stack.copyWithCount(1);
+    }
+
+    private ItemStack[] ingredientTagDisplayStacks(int index, ResourceLocation tag) {
+        var stacks = itemsFromTag(tag);
+        if (!isMekanismItemInputSlot(index)) {
+            return stacks;
+        }
+        var amount = mekanismItemInputAmountForSlot(index);
+        var counted = new ItemStack[stacks.length];
+        for (int i = 0; i < stacks.length; i++) {
+            counted[i] = stacks[i].copyWithCount(amount);
+        }
+        return counted;
+    }
+
+    private int mekanismItemInputAmountForSlot(int index) {
+        if (selectedEntry == null || !isMekanismEntry(selectedEntry) || !isMekanismItemInputSlot(index)) {
+            return 1;
+        }
+        var data = selectedEntry.getMekanism();
+        var ingredient = index == 0 ? data.getItemInput() : data.getExtraItemInput();
+        if (index >= 0 && index < visualIngredientData.length && !isIngredientEmpty(visualIngredientData[index])) {
+            ingredient = visualIngredientData[index];
+        }
+        var fallback = index == 0 ? data.getItemInputAmount() : data.getExtraItemInputAmount();
+        return MekanismItemInputCounts.amount(ingredient, fallback);
     }
 
     private ItemStack[] blockItemsFromTag(ResourceLocation tag) {
@@ -5770,6 +6909,9 @@ public class RecipeEditorController {
             return ingredient;
         }
         var stack = visualIngredients[slot];
+        if (selectedEntry != null && isMekanismEntry(selectedEntry) && isMekanismItemInputSlot(slot)) {
+            return stack.isEmpty() ? new RecipeIngredient() : MekanismItemInputCounts.item(stack);
+        }
         return stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack);
     }
 
@@ -5926,6 +7068,10 @@ public class RecipeEditorController {
             copy.setCount(Math.max(1, Math.min(createItemInputMaxWeight(index, createVisibleItemInputCapacity(kind)), copy.getCount())));
             return copy;
         }
+        if (selectedEntry != null && isMekanismEntry(selectedEntry) && isMekanismItemInputSlot(index)) {
+            copy.setCount(Math.max(1, copy.getCount()));
+            return copy;
+        }
         return copy.copyWithCount(1);
     }
 
@@ -5937,6 +7083,9 @@ public class RecipeEditorController {
                 && index >= 0
                 && index < createVisibleItemInputCapacity(kind)) {
             return CreateItemInputCounts.item(stack, createItemInputMaxWeight(index, createVisibleItemInputCapacity(kind)));
+        }
+        if (selectedEntry != null && isMekanismEntry(selectedEntry) && isMekanismItemInputSlot(index)) {
+            return MekanismItemInputCounts.item(stack);
         }
         return RecipeIngredient.item(stack);
     }

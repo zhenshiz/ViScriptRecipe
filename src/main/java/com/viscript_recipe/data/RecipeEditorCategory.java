@@ -37,8 +37,7 @@ public record RecipeEditorCategory(
     }
 
     public Component displayName() {
-        var stack = workstationStack();
-        return stack.isEmpty() ? Component.translatable(translationKey) : stack.getHoverName();
+        return Component.translatable(translationKey);
     }
 
     public ItemStack workstationStack() {

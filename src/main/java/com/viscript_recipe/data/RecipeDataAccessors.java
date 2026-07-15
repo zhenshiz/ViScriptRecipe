@@ -20,7 +20,13 @@ import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.*;
 import com.viscript_recipe.data.kaleidoscope_cookery.*;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
+import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.*;
 import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
 import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
@@ -44,6 +50,9 @@ public final class RecipeDataAccessors {
         registerCataclysm(event);
         registerTouhouLittleMaid(event);
         registerGoety(event);
+        registerMysticalAgriculture(event);
+        registerIndustrialForegoing(event);
+        registerMekanism(event);
     }
 
     private static void registerBase(RegisterAccessorEvent event) {
@@ -147,5 +156,36 @@ public final class RecipeDataAccessors {
         event.register(GoetyBrazierRecipeData.class, GoetyBrazierRecipeData::new);
         event.register(GoetyPulverizeRecipeData.class, GoetyPulverizeRecipeData::new);
         event.register(GoetyBrewingRecipeData.class, GoetyBrewingRecipeData::new);
+    }
+
+    private static void registerMysticalAgriculture(RegisterAccessorEvent event) {
+        event.register(MysticalAgricultureCountedIngredientData.class, MysticalAgricultureCountedIngredientData::new);
+        event.register(MysticalAgricultureInfusionRecipeData.class, MysticalAgricultureInfusionRecipeData::new);
+        event.register(MysticalAgricultureAwakeningRecipeData.class, MysticalAgricultureAwakeningRecipeData::new);
+        event.register(MysticalAgricultureEnchanterRecipeData.class, MysticalAgricultureEnchanterRecipeData::new);
+        event.register(MysticalAgricultureReprocessorRecipeData.class, MysticalAgricultureReprocessorRecipeData::new);
+        event.register(MysticalAgricultureSoulExtractionRecipeData.class, MysticalAgricultureSoulExtractionRecipeData::new);
+        event.register(MysticalAgricultureWeightedEntityData.class, MysticalAgricultureWeightedEntityData::new);
+        event.register(MysticalAgricultureSouliumSpawnerRecipeData.class, MysticalAgricultureSouliumSpawnerRecipeData::new);
+    }
+
+    private static void registerIndustrialForegoing(RegisterAccessorEvent event) {
+        event.register(IndustrialFluidIngredientData.class, IndustrialFluidIngredientData::new);
+        event.register(IndustrialEntityConditionData.class, IndustrialEntityConditionData::new);
+        event.register(IndustrialBlockStatePropertyData.class, IndustrialBlockStatePropertyData::new);
+        event.register(IndustrialLaserDrillRarityData.class, IndustrialLaserDrillRarityData::new);
+        event.register(IndustrialCrusherRecipeData.class, IndustrialCrusherRecipeData::new);
+        event.register(IndustrialDissolutionRecipeData.class, IndustrialDissolutionRecipeData::new);
+        event.register(IndustrialFluidExtractorRecipeData.class, IndustrialFluidExtractorRecipeData::new);
+        event.register(IndustrialLaserDrillOreRecipeData.class, IndustrialLaserDrillOreRecipeData::new);
+        event.register(IndustrialLaserDrillFluidRecipeData.class, IndustrialLaserDrillFluidRecipeData::new);
+        event.register(IndustrialStoneWorkRecipeData.class, IndustrialStoneWorkRecipeData::new);
+    }
+
+    private static void registerMekanism(RegisterAccessorEvent event) {
+        event.register(MekanismChemicalIngredientData.class, MekanismChemicalIngredientData::new);
+        event.register(MekanismChemicalStackData.class, MekanismChemicalStackData::new);
+        event.register(MekanismFluidIngredientData.class, MekanismFluidIngredientData::new);
+        event.register(MekanismRecipeData.class, MekanismRecipeData::new);
     }
 }

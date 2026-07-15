@@ -16,6 +16,7 @@ import com.viscript_recipe.data.RecipeFile;
 import com.viscript_recipe.gui.editor.RecipeEditor;
 import com.viscript_recipe.gui.editor.RecipeProjectType;
 import com.viscript_recipe.network.StructureTagSnapshot;
+import com.viscript_recipe.network.RecipeRegistrySnapshot;
 import com.viscript_recipe.network.s2c.JeiShowcaseS2CPayload;
 import com.viscript_recipe.network.s2c.RecipeEditorS2CPayload;
 import com.viscript_recipe.recipe.RecipeOverrideManager;
@@ -73,6 +74,11 @@ public class ViScriptRecipeCommands implements ICommand {
                 player,
                 RecipeEditorS2CPayload.SYNC_STRUCTURE_TAGS,
                 StructureTagSnapshot.create(server.registryAccess())
+        );
+        RPCPacketDistributor.rpcToPlayer(
+                player,
+                RecipeEditorS2CPayload.SYNC_RECIPE_REGISTRIES,
+                RecipeRegistrySnapshot.create(server.registryAccess())
         );
         if (!PlayerUIMenuType.openUI(player, RecipeEditor.WINDOW_ID)) {
             return 0;

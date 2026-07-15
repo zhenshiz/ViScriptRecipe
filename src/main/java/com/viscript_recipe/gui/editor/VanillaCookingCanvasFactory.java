@@ -18,8 +18,8 @@ import net.neoforged.fml.ModList;
 
 final class VanillaCookingCanvasFactory {
     private static final int JEI_WIDTH = 82;
-    private static final int FURNACE_HEIGHT = 54;
-    private static final int CAMPFIRE_HEIGHT = 44;
+    private static final int FURNACE_HEIGHT = 58;
+    private static final int CAMPFIRE_HEIGHT = 48;
     private static final int SLOT_SIZE = 18;
     private static final int OUTPUT_SLOT_SIZE = 26;
 

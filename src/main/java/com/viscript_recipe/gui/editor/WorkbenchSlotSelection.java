@@ -33,6 +33,34 @@ public record WorkbenchSlotSelection(Kind kind, int index) {
         return new WorkbenchSlotSelection(Kind.ARS_NOUVEAU_OUTPUT, index);
     }
 
+    public static WorkbenchSlotSelection industrialComponent(int index) {
+        return new WorkbenchSlotSelection(Kind.INDUSTRIAL_COMPONENT, index);
+    }
+
+    public static WorkbenchSlotSelection mekanismChemical(int index) {
+        return new WorkbenchSlotSelection(Kind.MEKANISM_CHEMICAL, index);
+    }
+
+    public static WorkbenchSlotSelection mekanismFluid(int index) {
+        return new WorkbenchSlotSelection(Kind.MEKANISM_FLUID, index);
+    }
+
+    public static WorkbenchSlotSelection mekanismItem(int index) {
+        return new WorkbenchSlotSelection(Kind.MEKANISM_ITEM, index);
+    }
+
+    public static WorkbenchSlotSelection mysticalEssence(int index) {
+        return new WorkbenchSlotSelection(Kind.MYSTICAL_ESSENCE, index);
+    }
+
+    public static WorkbenchSlotSelection kaleidoscopeFluid() {
+        return new WorkbenchSlotSelection(Kind.KALEIDOSCOPE_FLUID, -1);
+    }
+
+    public static WorkbenchSlotSelection kaleidoscopeSoupBase() {
+        return new WorkbenchSlotSelection(Kind.KALEIDOSCOPE_SOUP_BASE, -1);
+    }
+
     public enum Kind {
         RECIPE,
         INGREDIENT,
@@ -43,6 +71,13 @@ public record WorkbenchSlotSelection(Kind kind, int index) {
         CREATE_RESULT,
         CREATE_TRANSITIONAL,
         CREATE_SEQUENCED_STEP,
-        ARS_NOUVEAU_OUTPUT
+        ARS_NOUVEAU_OUTPUT,
+        INDUSTRIAL_COMPONENT,
+        MEKANISM_CHEMICAL,
+        MEKANISM_FLUID,
+        MEKANISM_ITEM,
+        MYSTICAL_ESSENCE,
+        KALEIDOSCOPE_FLUID,
+        KALEIDOSCOPE_SOUP_BASE
     }
 }

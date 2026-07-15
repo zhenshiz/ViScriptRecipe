@@ -33,7 +33,18 @@ import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
+import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
+import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismFluidIngredientKind;
+import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureCountedIngredientData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureWeightedEntityData;
 import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
@@ -53,7 +64,39 @@ final class RecipeDefaultDataInitializer {
     }
 
     static void apply(RecipeEntry entry, ResourceLocation type) {
-        if (type.equals(RecipeEditorTypes.BLASTING)) {
+        var mekanismKind = MekanismRecipeKind.byType(type).orElse(null);
+        if (mekanismKind != null) {
+            applyMekanism(entry, mekanismKind);
+        } else if (type.equals(IndustrialForegoingRecipeEditorTypes.CRUSHER)) {
+            entry.getIndustrialCrusher()
+                    .setInput(RecipeIngredient.item(Items.COBBLESTONE))
+                    .setOutput(RecipeIngredient.item(Items.GRAVEL));
+        } else if (type.equals(IndustrialForegoingRecipeEditorTypes.DISSOLUTION_CHAMBER)) {
+            entry.getIndustrialDissolution()
+                    .setInput(new ArrayList<>(List.of(RecipeIngredient.item(Items.IRON_INGOT))))
+                    .setInputFluid(new IndustrialFluidIngredientData().setFluid(new FluidStack(Fluids.WATER, 1000)).setAmount(1000))
+                    .setProcessingTime(300)
+                    .setHasItemOutput(true)
+                    .setOutput(new ItemStack(Items.DIAMOND));
+        } else if (type.equals(IndustrialForegoingRecipeEditorTypes.FLUID_EXTRACTOR)) {
+            entry.getIndustrialFluidExtractor()
+                    .setInput(RecipeIngredient.item(Items.OAK_LOG))
+                    .setResultBlock(ResourceLocation.withDefaultNamespace("stripped_oak_log"))
+                    .setBreakChance(0.01F)
+                    .setOutput(new FluidStack(fluidFromRegistry("industrialforegoing:latex", Fluids.WATER), 4));
+        } else if (type.equals(IndustrialForegoingRecipeEditorTypes.LASER_DRILL_ORE)) {
+            entry.getIndustrialLaserDrillOre()
+                    .setCatalyst(RecipeIngredient.item(itemFromRegistry("industrialforegoing:white_laser_lens", Items.WHITE_STAINED_GLASS_PANE)))
+                    .setOutput(RecipeIngredient.item(Items.DIAMOND_ORE))
+                    .setOutputCount(1);
+        } else if (type.equals(IndustrialForegoingRecipeEditorTypes.LASER_DRILL_FLUID)) {
+            entry.getIndustrialLaserDrillFluid()
+                    .setCatalyst(RecipeIngredient.item(itemFromRegistry("industrialforegoing:red_laser_lens", Items.RED_STAINED_GLASS_PANE)))
+                    .setOutput(new IndustrialFluidIngredientData().setFluid(new FluidStack(Fluids.LAVA, 100)).setAmount(100));
+        } else if (type.equals(IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE)) {
+            entry.getIndustrialStoneWork().setOutput(new ItemStack(Items.COBBLESTONE))
+                    .setWaterNeed(1000).setLavaNeed(1000).setWaterConsume(0).setLavaConsume(0);
+        } else if (type.equals(RecipeEditorTypes.BLASTING)) {
             entry.getCooking().setCookingTime(100);
         } else if (type.equals(RecipeEditorTypes.SMOKING)) {
             entry.getCooking().setCookingTime(100);
@@ -164,6 +207,58 @@ final class RecipeDefaultDataInitializer {
                     .setSoulCost(25)
                     .setCapacityExtra(1)
                     .setDuration(600);
+        } else if (type.equals(MysticalAgricultureRecipeEditorTypes.INFUSION)) {
+            entry.getMysticalAgricultureInfusion()
+                    .setInput(RecipeIngredient.item(Items.DIAMOND))
+                    .setIngredients(new ArrayList<>(List.of(
+                            RecipeIngredient.item(itemFromRegistry("mysticalagriculture:inferium_essence", Items.REDSTONE)),
+                            RecipeIngredient.item(itemFromRegistry("mysticalagriculture:prosperity_shard", Items.AMETHYST_SHARD))
+                    )))
+                    .setResult(new ItemStack(itemFromRegistry("mysticalagriculture:prosperity_gemstone", Items.EMERALD)))
+                    .setTransferComponents(false);
+        } else if (type.equals(MysticalAgricultureRecipeEditorTypes.AWAKENING)) {
+            var awakening = entry.getMysticalAgricultureAwakening()
+                    .setInput(RecipeIngredient.item(itemFromRegistry("mysticalagriculture:supremium_essence", Items.NETHER_STAR)))
+                    .setIngredients(new ArrayList<>(List.of(
+                            RecipeIngredient.item(itemFromRegistry("mysticalagriculture:prosperity_gemstone", Items.EMERALD)),
+                            RecipeIngredient.item(Items.NETHER_STAR),
+                            RecipeIngredient.item(Items.DRAGON_BREATH),
+                            RecipeIngredient.item(Items.END_CRYSTAL)
+                    )))
+                    .setResult(new ItemStack(itemFromRegistry("mysticalagriculture:awakened_supremium_essence", Items.NETHER_STAR)))
+                    .setTransferComponents(false);
+            awakening.setEssence(0, new ItemStack(itemFromRegistry("mysticalagriculture:air_essence", Items.FEATHER)));
+            awakening.setEssence(1, new ItemStack(itemFromRegistry("mysticalagriculture:earth_essence", Items.DIRT)));
+            awakening.setEssence(2, new ItemStack(itemFromRegistry("mysticalagriculture:water_essence", Items.WATER_BUCKET)));
+            awakening.setEssence(3, new ItemStack(itemFromRegistry("mysticalagriculture:fire_essence", Items.BLAZE_POWDER)));
+        } else if (type.equals(MysticalAgricultureRecipeEditorTypes.ENCHANTER)) {
+            entry.getMysticalAgricultureEnchanter()
+                    .setIngredients(new ArrayList<>(List.of(
+                            new MysticalAgricultureCountedIngredientData()
+                                    .setIngredient(RecipeIngredient.item(itemFromRegistry("mysticalagriculture:experience_droplet", Items.EXPERIENCE_BOTTLE)))
+                                    .setCount(8),
+                            new MysticalAgricultureCountedIngredientData()
+                                    .setIngredient(RecipeIngredient.item(itemFromRegistry("mysticalagriculture:prosperity_shard", Items.LAPIS_LAZULI)))
+                                    .setCount(2)
+                    )))
+                    .setEnchantment(ResourceLocation.withDefaultNamespace("sharpness"));
+        } else if (type.equals(MysticalAgricultureRecipeEditorTypes.REPROCESSOR)) {
+            entry.getMysticalAgricultureReprocessor()
+                    .setInput(RecipeIngredient.item(itemFromRegistry("mysticalagriculture:inferium_seeds", Items.WHEAT_SEEDS)))
+                    .setResult(new ItemStack(itemFromRegistry("mysticalagriculture:inferium_essence", Items.WHEAT)));
+        } else if (type.equals(MysticalAgricultureRecipeEditorTypes.SOUL_EXTRACTION)) {
+            entry.getMysticalAgricultureSoulExtraction()
+                    .setInput(RecipeIngredient.item(itemFromRegistry("mysticalagriculture:corrupted_essence", Items.ROTTEN_FLESH)))
+                    .setSoulType(ResourceLocation.fromNamespaceAndPath("mysticalagriculture", "zombie"))
+                    .setSouls(1.0D);
+        } else if (type.equals(MysticalAgricultureRecipeEditorTypes.SOULIUM_SPAWNER)) {
+            entry.getMysticalAgricultureSouliumSpawner()
+                    .setInput(new MysticalAgricultureCountedIngredientData()
+                            .setIngredient(RecipeIngredient.item(itemFromRegistry("mysticalagriculture:soulium_ingot", Items.ROTTEN_FLESH)))
+                            .setCount(4))
+                    .setEntities(new ArrayList<>(List.of(new MysticalAgricultureWeightedEntityData()
+                            .setEntity(ResourceLocation.withDefaultNamespace("zombie"))
+                            .setWeight(1))));
         } else if (type.equals(FarmersDelightRecipeEditorTypes.COOKING)) {
             entry.getFarmerCookingPot()
                     .setIngredients(new ArrayList<>(List.of(
@@ -319,9 +414,64 @@ final class RecipeDefaultDataInitializer {
                             RecipeIngredient.item(itemFromRegistry("avaritia:infinity_catalyst", Items.NETHER_STAR))
                     )))
                     .setResult(new ItemStack(itemFromRegistry("avaritia:infinity_chestplate", Items.NETHERITE_CHESTPLATE)));
+        } else if (type.equals(AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            entry.getAvaritiaInfinityCatalyst()
+                    .setGroup("default")
+                    .setIngredients(new ArrayList<>(List.of(RecipeIngredient.item(itemFromRegistry("avaritia:neutron_ingot", Items.IRON_INGOT)))))
+                    .setCount(1);
+        } else if (type.equals(AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)) {
+            entry.getAvaritiaEternalSingularity()
+                    .setIngredients(new ArrayList<>(List.of(RecipeIngredient.item(itemFromRegistry("avaritia:singularity", Items.NETHER_STAR)))))
+                    .setCount(1);
+        } else if (type.equals(AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)) {
+            entry.getAvaritiaFullMatterCluster()
+                    .setGroup("default")
+                    .setIngredients(new ArrayList<>(List.of(RecipeIngredient.item(Items.CHEST))))
+                    .setCount(1);
         } else {
             CreateProcessingKind.byType(type).ifPresent(kind -> applyCreateProcessing(entry.getCreateProcessing(), kind));
         }
+    }
+
+    private static void applyMekanism(RecipeEntry entry, MekanismRecipeKind kind) {
+        var data = entry.getMekanism()
+                .setItemInput(RecipeIngredient.item(Items.COBBLESTONE))
+                .setExtraItemInput(RecipeIngredient.item(Items.COBBLESTONE))
+                .setItemInputAmount(1)
+                .setExtraItemInputAmount(1)
+                .setFluidInput(new MekanismFluidIngredientData()
+                        .setKind(MekanismFluidIngredientKind.FLUID)
+                        .setFluid(new FluidStack(Fluids.WATER, 1000))
+                        .setAmount(1000))
+                .setChemicalInput(mekanismChemicalIngredient("oxygen"))
+                .setExtraChemicalInput(mekanismChemicalIngredient("hydrogen"))
+                .setItemOutput(new ItemStack(Items.IRON_INGOT))
+                .setSecondaryItemOutput(ItemStack.EMPTY)
+                .setSecondaryChance(0)
+                .setFluidOutput(new FluidStack(Fluids.WATER, 1000))
+                .setChemicalOutput(mekanismChemicalOutput("hydrogen"))
+                .setSecondaryChemicalOutput(mekanismChemicalOutput("oxygen"))
+                .setPerTickUsage(false)
+                .setDuration(100)
+                .setEnergyRequired(0)
+                .setEnergyMultiplier(1)
+                .setEnergyOutput(1_000);
+        if (kind == MekanismRecipeKind.SAWING) {
+            data.setItemOutput(new ItemStack(Items.STICK));
+        }
+    }
+
+    private static MekanismChemicalIngredientData mekanismChemicalIngredient(String path) {
+        return new MekanismChemicalIngredientData()
+                .setKind(MekanismChemicalIngredientKind.CHEMICAL)
+                .setChemical(ResourceLocation.fromNamespaceAndPath("mekanism", path))
+                .setAmount(1);
+    }
+
+    private static MekanismChemicalStackData mekanismChemicalOutput(String path) {
+        return new MekanismChemicalStackData()
+                .setChemical(ResourceLocation.fromNamespaceAndPath("mekanism", path))
+                .setAmount(1);
     }
 
     private static void applyCreateMechanicalCrafting(CreateMechanicalCraftingRecipeData data) {
@@ -522,6 +672,16 @@ final class RecipeDefaultDataInitializer {
         }
         var item = BuiltInRegistries.ITEM.get(location);
         return item == null || item == Items.AIR ? fallback : item;
+    }
+
+    private static net.minecraft.world.level.material.Fluid fluidFromRegistry(
+            String id, net.minecraft.world.level.material.Fluid fallback) {
+        var location = ResourceLocation.tryParse(id);
+        if (location == null) {
+            return fallback;
+        }
+        var fluid = BuiltInRegistries.FLUID.get(location);
+        return fluid == null || fluid == Fluids.EMPTY ? fallback : fluid;
     }
 
     private static RecipeIngredient tagIngredient(String id) {

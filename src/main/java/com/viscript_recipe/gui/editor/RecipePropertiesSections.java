@@ -2,14 +2,11 @@ package com.viscript_recipe.gui.editor;
 
 import com.Polarice3.Goety.common.research.ResearchList;
 import com.lowdragmc.lowdraglib2.configurator.ui.ColorConfigurator;
-import com.lowdragmc.lowdraglib2.configurator.ui.RegistrySearchComponent;
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
-import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
-import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.create.CreateHeatCondition;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
@@ -17,22 +14,18 @@ import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
 import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
 import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSouliumSpawnerRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureWeightedEntityData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -160,7 +153,6 @@ final class RecipePropertiesSections {
         );
         var tooltip = Component.translatable("viscript_recipe.config.touhou_little_maid.altar.entity.tooltip");
         configurator.style(style -> style.tooltips(tooltip));
-        configurator.searchComponent.style(style -> style.tooltips(tooltip));
         return configurator;
     }
 
@@ -308,7 +300,11 @@ final class RecipePropertiesSections {
         );
     }
 
-    static void buildGoetyPulverize(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+    static boolean buildSelectedGoetyPulverizeResult(
+            UIElement content,
+            RecipeEditorController controller,
+            RecipeEntry entry
+    ) {
         var data = entry.getGoetyPulverize();
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.goety.pulverize"),
@@ -320,16 +316,21 @@ final class RecipePropertiesSections {
                                 value -> {
                                     data.setResultKind(value);
                                     controller.refreshVisualStateFromData();
+                                    controller.notifyChanged();
                                 }
-                        )),
-                RecipeSearchComponents.block(
-                        "viscript_recipe.config.goety.pulverize.block_result",
-                        data::getBlockResult,
-                        data::setBlockResult,
-                        controller::notifyChanged,
-                        Blocks.COBBLESTONE
-                )
+                        ))
         );
+        if (data.getResultKind() != GoetyPulverizeResultKind.BLOCK) {
+            return true;
+        }
+        content.addChild(RecipeSearchComponents.block(
+                "viscript_recipe.config.goety.pulverize.block_result",
+                data::getBlockResult,
+                data::setBlockResult,
+                controller::notifyChanged,
+                Blocks.COBBLESTONE
+        ));
+        return false;
     }
 
     static void buildGoetyBrewing(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
@@ -376,6 +377,190 @@ final class RecipePropertiesSections {
                     controller::notifyChanged
             ));
         }
+    }
+
+    static void buildMysticalAgricultureInfusion(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureInfusion();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.infusion"),
+                switchField("viscript_recipe.config.mysticalagriculture.transfer_components",
+                        data.isTransferComponents(), data::setTransferComponents, controller)
+        );
+    }
+
+    static void buildMysticalAgricultureAwakening(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureAwakening();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.awakening"),
+                switchField("viscript_recipe.config.mysticalagriculture.transfer_components",
+                        data.isTransferComponents(), data::setTransferComponents, controller)
+        );
+    }
+
+    static void buildMysticalAgricultureEnchanter(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureEnchanter();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.enchanter"),
+                RecipeSearchComponents.enchantment(
+                        "viscript_recipe.config.mysticalagriculture.enchanter.enchantment",
+                        data::getEnchantment,
+                        data::setEnchantment,
+                        controller::notifyChanged)
+        );
+    }
+
+    static void buildMysticalAgricultureReprocessor(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.reprocessor"));
+    }
+
+    static void buildMysticalAgricultureSoulExtraction(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureSoulExtraction();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.soul_extraction"),
+                MysticalAgricultureSearchComponents.mobSoulType(
+                        "viscript_recipe.config.mysticalagriculture.soul_extraction.soul_type",
+                        data::getSoulType,
+                        data::setSoulType,
+                        controller::notifyChanged),
+                RecipeEditorUi.fieldGroup("viscript_recipe.config.mysticalagriculture.soul_extraction.souls",
+                        RecipeEditorUi.doubleField(data.getSouls(), 0, Double.MAX_VALUE, value -> {
+                            data.setSouls(value);
+                            controller.notifyChanged();
+                        }))
+        );
+    }
+
+    static void buildMysticalAgricultureSouliumSpawner(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        var data = entry.getMysticalAgricultureSouliumSpawner();
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.soulium_spawner"),
+                RecipeEditorUi.sectionTitle("viscript_recipe.config.mysticalagriculture.soulium_spawner.entities")
+        );
+        buildMysticalAgricultureSpawnerEntities(content, controller, data);
+    }
+
+    static void buildSelectedIngredientSlot(
+            UIElement content,
+            RecipeEditorController controller,
+            RecipeEntry entry
+    ) {
+        var selection = controller.getSlotSelection();
+        if (selection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT) {
+            return;
+        }
+        var index = selection.index();
+        if (controller.isMysticalAgricultureEnchanterEntry(entry)
+                && index >= 0 && index < MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS) {
+            var data = entry.getMysticalAgricultureEnchanter();
+            var ingredient = data.ingredient(index);
+            content.addChild(RecipeEditorUi.fieldGroup(
+                    "viscript_recipe.config.mysticalagriculture.enchanter.ingredient_count",
+                    RecipeEditorUi.intField(Math.max(1, ingredient.getCount()), 1, Integer.MAX_VALUE, value -> {
+                        data.setIngredient(index, data.ingredient(index).setCount(Math.max(1, value)));
+                        controller.notifyChanged();
+                    })
+            ));
+        } else if (controller.isMysticalAgricultureSouliumSpawnerEntry(entry) && index == 0) {
+            var input = entry.getMysticalAgricultureSouliumSpawner().getInput();
+            content.addChild(RecipeEditorUi.fieldGroup(
+                    "viscript_recipe.config.mysticalagriculture.soulium_spawner.input_count",
+                    RecipeEditorUi.intField(Math.max(1, input.getCount()), 1, Integer.MAX_VALUE, value -> {
+                        input.setCount(Math.max(1, value));
+                        controller.notifyChanged();
+                    })
+            ));
+        } else if (controller.isAvaritiaCompressorEntry(entry) && index == 0) {
+            content.addChild(RecipeEditorUi.fieldGroup(
+                    "viscript_recipe.config.avaritia.compressor.input_count",
+                    RecipeEditorUi.intField(controller.getAvaritiaCompressorInputCount(entry), 1, Integer.MAX_VALUE,
+                            value -> controller.setAvaritiaCompressorInputCount(entry, value))
+            ));
+        } else if (controller.isKaleidoscopeTeapotEntry(entry) && index == 0) {
+            var data = entry.getKaleidoscopeTeapot();
+            content.addChild(RecipeEditorUi.fieldGroup(
+                    "viscript_recipe.config.kaleidoscope_cookery.ingredient_count",
+                    RecipeEditorUi.intField(Math.max(1, data.getIngredientCount()), 1, Integer.MAX_VALUE, value -> {
+                        data.setIngredientCount(Math.max(1, value));
+                        controller.notifyChanged();
+                    })
+            ));
+        } else if (controller.isIndustrialLaserOreEntry(entry) && index == 1) {
+            var data = entry.getIndustrialLaserDrillOre();
+            content.addChild(RecipeEditorUi.fieldGroup(
+                    "viscript_recipe.config.industrial_foregoing.laser.output_count",
+                    RecipeEditorUi.intField(Math.max(1, data.getOutputCount()), 1, Integer.MAX_VALUE, value -> {
+                        data.setOutputCount(Math.max(1, value));
+                        controller.notifyChanged();
+                    })
+            ));
+        }
+    }
+
+    private static void buildMysticalAgricultureSpawnerEntities(
+            UIElement content,
+            RecipeEditorController controller,
+            MysticalAgricultureSouliumSpawnerRecipeData data
+    ) {
+        var entities = mysticalAgricultureSpawnerEntities(data);
+        var totalWeight = entities.stream()
+                .filter(java.util.Objects::nonNull)
+                .mapToInt(entity -> Math.max(1, entity.getWeight()))
+                .sum();
+        for (int index = 0; index < entities.size(); index++) {
+            if (entities.get(index) == null) {
+                entities.set(index, new MysticalAgricultureWeightedEntityData());
+            }
+            var entityIndex = index;
+            var weightedEntity = entities.get(entityIndex);
+            var chance = totalWeight <= 0 ? 0D : Math.max(1, weightedEntity.getWeight()) * 100D / totalWeight;
+            content.addChildren(
+                    RecipeEditorUi.label(Component.translatable(
+                            "viscript_recipe.editor.mysticalagriculture.soulium_spawner.entity", entityIndex + 1)),
+                    RecipeSearchComponents.entityType(
+                            "viscript_recipe.config.mysticalagriculture.soulium_spawner.entity",
+                            weightedEntity::getEntity,
+                            weightedEntity::setEntity,
+                            controller::notifyChanged,
+                            EntityType.ZOMBIE),
+                    RecipeEditorUi.fieldGroup("viscript_recipe.config.mysticalagriculture.soulium_spawner.weight",
+                            RecipeEditorUi.intField(Math.max(1, weightedEntity.getWeight()), 1, Integer.MAX_VALUE, value -> {
+                                weightedEntity.setWeight(Math.max(1, value));
+                                controller.notifyChanged();
+                            })),
+                    RecipeEditorUi.label(Component.translatable(
+                            "viscript_recipe.editor.mysticalagriculture.soulium_spawner.chance",
+                            String.format(Locale.ROOT, "%.2f", chance)))
+            );
+            if (entities.size() > 1) {
+                content.addChild(RecipeEditorUi.textButton(
+                        Component.translatable("viscript_recipe.editor.mysticalagriculture.soulium_spawner.remove_entity"),
+                        Icons.DELETE,
+                        event -> {
+                            entities.remove(entityIndex);
+                            controller.notifyChanged();
+                        }
+                ).layout(layout -> layout.widthPercent(100).height(18)));
+            }
+        }
+        content.addChild(RecipeEditorUi.textButton(
+                Component.translatable("viscript_recipe.editor.mysticalagriculture.soulium_spawner.add_entity"),
+                Icons.ADD,
+                event -> {
+                    entities.add(new MysticalAgricultureWeightedEntityData());
+                    controller.notifyChanged();
+                }
+        ).layout(layout -> layout.widthPercent(100).height(18)));
+    }
+
+    private static List<MysticalAgricultureWeightedEntityData> mysticalAgricultureSpawnerEntities(
+            MysticalAgricultureSouliumSpawnerRecipeData data
+    ) {
+        if (data.getEntities() != null) {
+            return data.getEntities();
+        }
+        var entities = new ArrayList<MysticalAgricultureWeightedEntityData>();
+        data.setEntities(entities);
+        return entities;
     }
 
     private static UIElement switchField(String key, boolean value, Consumer<Boolean> setter,
@@ -601,12 +786,75 @@ final class RecipePropertiesSections {
         }
     }
 
+    static void buildAvaritiaSpecialShapeless(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
+        if (entry.isType(com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            var data = entry.getAvaritiaInfinityCatalyst();
+            content.addChildren(
+                    RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.avaritia.special_shapeless"),
+                    RecipeEditorUi.fieldGroup("viscript_recipe.config.avaritia.group",
+                            RecipeEditorUi.textField(data.getGroup(), value -> {
+                                data.setGroup(value == null || value.isBlank() ? "default" : value);
+                                controller.notifyChanged();
+                            }))
+            );
+        } else if (entry.isType(com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)) {
+            var data = entry.getAvaritiaFullMatterCluster();
+            content.addChildren(
+                    RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.avaritia.special_shapeless"),
+                    RecipeEditorUi.fieldGroup("viscript_recipe.config.avaritia.group",
+                            RecipeEditorUi.textField(data.getGroup(), value -> {
+                                data.setGroup(value == null || value.isBlank() ? "default" : value);
+                                controller.notifyChanged();
+                            }))
+            );
+        }
+    }
+
+    static boolean buildSelectedAvaritiaSpecialResult(
+            UIElement content,
+            RecipeEditorController controller,
+            RecipeEntry entry
+    ) {
+        if (!controller.isAvaritiaSpecialShapelessEntry(entry)) {
+            return true;
+        }
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.avaritia.special_shapeless"),
+                RecipeEditorUi.fieldGroup(
+                        "viscript_recipe.config.avaritia.count",
+                        RecipeEditorUi.intField(avaritiaSpecialCount(entry), 1, Integer.MAX_VALUE, value -> {
+                            setAvaritiaSpecialCount(entry, Math.max(1, value));
+                            controller.refreshVisualStateFromData();
+                            controller.notifyChanged();
+                        })
+                )
+        );
+        return false;
+    }
+
+    private static int avaritiaSpecialCount(RecipeEntry entry) {
+        if (entry.isType(com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            return Math.max(1, entry.getAvaritiaInfinityCatalyst().getCount());
+        }
+        if (entry.isType(com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)) {
+            return Math.max(1, entry.getAvaritiaEternalSingularity().getCount());
+        }
+        return Math.max(1, entry.getAvaritiaFullMatterCluster().getCount());
+    }
+
+    private static void setAvaritiaSpecialCount(RecipeEntry entry, int count) {
+        if (entry.isType(com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes.INFINITY_CATALYST)) {
+            entry.getAvaritiaInfinityCatalyst().setCount(count);
+        } else if (entry.isType(com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)) {
+            entry.getAvaritiaEternalSingularity().setCount(count);
+        } else {
+            entry.getAvaritiaFullMatterCluster().setCount(count);
+        }
+    }
+
     static void buildAvaritiaCompressor(UIElement content, RecipeEditorController controller, RecipeEntry entry) {
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.avaritia.compressor"),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.avaritia.compressor.input_count",
-                        RecipeEditorUi.intField(controller.getAvaritiaCompressorInputCount(entry), 1, Integer.MAX_VALUE,
-                                value -> controller.setAvaritiaCompressorInputCount(entry, value))),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.avaritia.compressor.time_cost",
                         RecipeEditorUi.intField(controller.getAvaritiaCompressorTimeCost(entry), 1, Integer.MAX_VALUE,
                                 value -> controller.setAvaritiaCompressorTimeCost(entry, value)))
@@ -684,11 +932,6 @@ final class RecipePropertiesSections {
                                 data.setTime(Math.max(1, value));
                                 controller.notifyChanged();
                             })),
-                    createFluidRegistryConfigurator("viscript_recipe.config.kaleidoscope_cookery.soup_base",
-                            data::getSoupBase, value -> {
-                                data.setSoupBase(value);
-                                controller.notifyChanged();
-                            }, rebuilding),
                     RecipeEditorUi.fieldGroup("viscript_recipe.config.kaleidoscope_cookery.cooking_texture",
                             RecipeEditorUi.resourceLocationField(data.getCookingTexture(), value -> {
                                 data.setCookingTexture(value);
@@ -734,16 +977,6 @@ final class RecipePropertiesSections {
         } else if (controller.isKaleidoscopeTeapotEntry(entry)) {
             var data = entry.getKaleidoscopeTeapot();
             content.addChildren(
-                    createFluidRegistryConfigurator("viscript_recipe.config.kaleidoscope_cookery.tea_fluid",
-                            data::getTeaFluid, value -> {
-                                data.setTeaFluid(value);
-                                controller.notifyChanged();
-                            }, rebuilding),
-                    RecipeEditorUi.fieldGroup("viscript_recipe.config.kaleidoscope_cookery.ingredient_count",
-                            RecipeEditorUi.intField(data.getIngredientCount(), 1, Integer.MAX_VALUE, value -> {
-                                data.setIngredientCount(Math.max(1, value));
-                                controller.notifyChanged();
-                            })),
                     RecipeEditorUi.fieldGroup("viscript_recipe.config.kaleidoscope_cookery.time",
                             RecipeEditorUi.intField(data.getTime(), 1, Integer.MAX_VALUE, value -> {
                                 data.setTime(Math.max(1, value));
@@ -770,60 +1003,17 @@ final class RecipePropertiesSections {
         return configurator;
     }
 
-    private static UIElement createFluidRegistryConfigurator(String nameKey, Supplier<ResourceLocation> supplier, Consumer<ResourceLocation> consumer, BooleanSupplier rebuilding) {
-        var configurator = new RegistrySearchComponent.Fluid(
-                nameKey,
-                () -> fluidFromRegistry(supplier.get()),
-                fluid -> {
-                    if (!rebuilding.getAsBoolean()) {
-                        consumer.accept(fluidRegistryName(fluid));
-                    }
-                },
-                Fluids.WATER,
-                true
-        );
-        configurator.layout(layout -> layout.widthPercent(100));
-        configurator.searchComponent.searchStyle(style -> {
-            style.maxItemCount(8);
-            style.scrollerViewHeight(120);
-        });
-        return configurator;
-    }
-
     private static UIElement createArsNouveauEnchantmentConfigurator(RecipeEditorController controller, RecipeEntry entry, BooleanSupplier rebuilding) {
-        var minecraft = Minecraft.getInstance();
-        var level = minecraft.level;
-        if (level == null) {
-            return RecipeEditorUi.fieldGroup("viscript_recipe.config.ars_nouveau.enchantment.enchantment",
-                    RecipeEditorUi.resourceLocationField(controller.getArsNouveauEnchantmentId(entry),
-                            value -> controller.setArsNouveauEnchantmentId(entry, value)));
-        }
-        var registry = level.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-        var defaultEnchantment = registry.getOptional(ResourceLocation.withDefaultNamespace("sharpness"))
-                .orElseGet(() -> registry.getAny().map(holder -> holder.value()).orElseThrow());
-        var configurator = new RegistrySearchComponent<>(
+        return RecipeSearchComponents.enchantment(
                 "viscript_recipe.config.ars_nouveau.enchantment.enchantment",
-                () -> registry.getOptional(controller.getArsNouveauEnchantmentId(entry)).orElse(defaultEnchantment),
-                enchantment -> {
+                () -> controller.getArsNouveauEnchantmentId(entry),
+                enchantmentId -> {
                     if (!rebuilding.getAsBoolean()) {
-                        controller.setArsNouveauEnchantmentId(entry, registry.getKey(enchantment));
+                        controller.setArsNouveauEnchantmentId(entry, enchantmentId);
                     }
                 },
-                defaultEnchantment,
-                true,
-                registry,
-                UIElementProvider.iconText(
-                        enchantment -> new ItemStackTexture(new ItemStack(Items.ENCHANTED_BOOK)),
-                        Enchantment::description
-                )
+                () -> { }
         );
-        configurator.layout(layout -> layout.widthPercent(100));
-        configurator.setTranslator(enchantment -> enchantment.description().getString());
-        configurator.searchComponent.searchStyle(style -> {
-            style.maxItemCount(8);
-            style.scrollerViewHeight(120);
-        });
-        return configurator;
     }
 
     private static int opaqueRgb(Integer color) {
@@ -834,16 +1024,4 @@ final class RecipePropertiesSections {
         return color == null ? 0xFFFFFF : color & 0xFFFFFF;
     }
 
-    private static Fluid fluidFromRegistry(ResourceLocation id) {
-        if (id == null) {
-            return Fluids.WATER;
-        }
-        var fluid = BuiltInRegistries.FLUID.get(id);
-        return fluid == null || fluid == Fluids.EMPTY ? Fluids.WATER : fluid;
-    }
-
-    private static ResourceLocation fluidRegistryName(Fluid fluid) {
-        var id = BuiltInRegistries.FLUID.getKey(fluid == null || fluid == Fluids.EMPTY ? Fluids.WATER : fluid);
-        return id == null ? ResourceLocation.withDefaultNamespace("water") : id;
-    }
 }

@@ -64,7 +64,7 @@ public final class ExtendedCraftingRecipeEditorTypes {
                 COMBINATION,
                 RecipeEditorLayout.CRAFTING_GRID
         ));
-        registerTableCategory(CRAFTING_TABLE, SHAPED_TABLE, "viscript_recipe.editor.category.extendedcrafting.crafting_table");
+        registerTableCategory(CRAFTING_TABLE, SHAPED_TABLE, "viscript_recipe.editor.category.extendedcrafting.crafting_table", BASIC_TABLE);
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 COMPRESSOR,
                 "viscript_recipe.editor.category.extendedcrafting.compressor",
@@ -91,14 +91,16 @@ public final class ExtendedCraftingRecipeEditorTypes {
         ));
     }
 
-    private static void registerTableCategory(ResourceLocation category, ResourceLocation defaultType, String translationKey) {
+    private static void registerTableCategory(ResourceLocation category, ResourceLocation defaultType, String translationKey,
+                                              ResourceLocation workstationItem) {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 category,
                 translationKey,
                 MOD_ID,
                 REQUIRED_MODS,
                 defaultType,
-                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE
+                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
+                workstationItem
         ));
     }
 

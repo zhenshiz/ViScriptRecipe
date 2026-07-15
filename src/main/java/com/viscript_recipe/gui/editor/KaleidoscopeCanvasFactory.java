@@ -25,9 +25,15 @@ final class KaleidoscopeCanvasFactory {
         return centerPanel(panel);
     }
 
-    static UIElement createStockpotCanvas(UIElement[] ingredientSlots, UIElement carrierSlot, UIElement resultSlot) {
+    static UIElement createStockpotCanvas(
+            UIElement[] ingredientSlots,
+            UIElement soupBaseSlot,
+            UIElement carrierSlot,
+            UIElement resultSlot
+    ) {
         var panel = createPanel("stockpot", 176, 102);
         addGridSlots(panel, ingredientSlots, 15, 25);
+        panel.addChild(createCell(soupBaseSlot, 72, 61));
         panel.addChild(createCell(carrierSlot, 133, 18));
         panel.addChild(createCell(resultSlot, 143, 60));
         return centerPanel(panel);

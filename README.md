@@ -15,7 +15,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - 普通重载会向客户端同步配方包和配方书状态；`/viscript_recipe reload full` 会额外同步标签包，适合需要 JEI 重建标签相关配方时使用。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持多个配方模组的专用编辑 UI 与导入器，包括 Create、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Ice and Fire、灾变、菌类感染：孢子、东方女仆和 Goety。
+- 支持多个配方模组的专用编辑 UI 与导入器，包括 Create、Mekanism、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Ice and Fire、灾变、菌类感染：孢子、东方女仆和 Goety。
 
 ## 基本信息
 
@@ -142,6 +142,50 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 
 Create 处理配方支持物品输入、流体输入、物品输出、流体输出、处理时间、热量需求和保留手持物品等参数。带流体输入的 Create 配方可以使用具体流体或流体标签，当前包括 `create:filling`、`create:mixing`、`create:compacting`、`create:automatic_brewing`，以及序列组装中的注液步骤；`create:emptying` 的流体是输出，仍使用具体流体。动力搅拌、动力压缩和自动无序配方支持在单个物品槽中设置数量，保存时会展开为多个 Create `Ingredient`。`create:block_cutting` 会根据多个输出派生多个配方 ID。序列组装支持部署、冲压、切削和注液步骤。
 
+### Mekanism / 通用机械 (`mekanism`)
+
+| 工作站或处理方式 | 支持的配方类型 |
+| --- | --- |
+| 物品处理 | `mekanism:crushing`、`mekanism:enriching`、`mekanism:smelting`、`mekanism:combining`、`mekanism:sawing` |
+| 化学品处理 | `mekanism:chemical_infusing`、`mekanism:activating`、`mekanism:centrifuging`、`mekanism:chemical_conversion`、`mekanism:oxidizing`、`mekanism:pigment_extracting`、`mekanism:pigment_mixing` |
+| 流体和化学品处理 | `mekanism:separating`、`mekanism:washing`、`mekanism:evaporating`、`mekanism:condensentrating`、`mekanism:decondensentrating` |
+| 物品 + 化学品机器 | `mekanism:crystallizing`、`mekanism:dissolution`、`mekanism:compressing`、`mekanism:purifying`、`mekanism:injecting`、`mekanism:nucleosynthesizing`、`mekanism:metallurgic_infusing`、`mekanism:painting` |
+| 其他 | `mekanism:energy_conversion`、`mekanism:reaction` |
+
+通用机械的工作区采用与 JEI 相同的“输入 → 箭头 → 输出”阅读方向；物品输入继续使用现有物品/物品标签编辑和 Shift+左键拖拽复制。流体、流体标签、化学品、化学品标签均使用注册表搜索补全；化学品候选显示本地化名称，ID 仍可作为搜索词。各类型会按原生 Codec 显示数量、每刻消耗、时长、能量和概率等实际参数；旋转式冷凝机的冷凝与反冷凝方向分别对应 `mekanism:condensentrating` 和 `mekanism:decondensentrating`。
+
+导入器当前无损支持单一化学品与化学品标签。Mekanism 的复合、差集、交集化学品原料表达式不会被静默降级：导入时会明确拒绝，需手动重建或等待专用 UI 支持。JEI 中的营养液化器、锅炉和 SPS 是动态展示分类，不是普通 `RecipeManager` 配方，因此不会被伪装成可上传的配方条目。
+
+### Mystical Agriculture / 神秘农业 (`mysticalagriculture`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 注魔祭坛 | `mysticalagriculture:infusion` |
+| 觉醒祭坛 | `mysticalagriculture:awakening` |
+| 附魔器 | `mysticalagriculture:enchanter` |
+| 种子再处理器 | `mysticalagriculture:reprocessor` |
+| 灵魂提取器 | `mysticalagriculture:soul_extraction` |
+| 灵魂刷怪笼 | `mysticalagriculture:soulium_spawner` |
+
+注魔祭坛支持中心输入、基座材料、结果和组件转移；觉醒祭坛额外支持四个觉醒精华槽。附魔器支持带数量的材料与附魔 ID 自动补全，其附魔书结果由附魔参数派生。种子再处理器支持输入和结果。灵魂提取器支持生物灵魂类型自动补全与灵魂数量，其灵魂罐为只读派生预览。灵魂刷怪笼支持带数量的输入，以及包含实体 ID 和权重的实体列表；实体 ID 可自动补全，JEI 槽位中的刷怪蛋同样是派生预览。
+
+上述六类均提供专用 JEI 风格工作区和已加载配方导入。神秘农业 JEI 中的 Crux/生长基座信息页来自作物注册表，不是由 Recipe Codec 和 RecipeManager 管理的配方，因此不会作为可编辑配方类型注册。
+
+### Industrial Foregoing / 工业先锋 (`industrialforegoing`)
+
+| 工作站或处理方式 | 支持的配方类型 |
+| --- | --- |
+| 材料石工作厂粉碎 | `industrialforegoing:crusher` |
+| 溶解室 | `industrialforegoing:dissolution_chamber` |
+| 流体提取机 | `industrialforegoing:fluid_extractor` |
+| 激光钻矿物 | `industrialforegoing:laser_drill_ore` |
+| 激光钻流体 | `industrialforegoing:laser_drill_fluid` |
+| 材料石工作厂生成 | `industrialforegoing:stonework_generate` |
+
+粉碎配方支持输入与输出 Ingredient。溶解室支持最多八个物品输入、流体或流体标签输入、处理时间，以及可分别启用的物品和流体输出。流体提取机支持输入、输出方块及方块状态、破坏概率、输出流体和默认配方标记。激光钻矿物与流体配方支持催化剂、输出数量或流体量、实体 ID/实体标签条件，以及深度、权重、群系和维度黑白名单。材料石工作厂生成配方支持输出，以及水和岩浆的需求量与消耗量。
+
+这六类均提供对应 JEI 布局的可视化工作区和已加载配方导入。流体参数支持具体流体或流体标签；方块、实体、实体标签、群系标签和维度条件均使用自动补全。导入器只接受原生 Codec 能无损表达的单一流体或流体标签原料，遇到其它自定义流体原料类型时会明确拒绝，而不会静默替换数据。
+
 ### Extended Crafting (`extendedcrafting`)
 
 | 工作站 | 支持的配方类型 |
@@ -182,11 +226,11 @@ Extended Crafting 合成台在编辑器里统一为一个工作台，通过配�
 
 | 工作站 | 支持的配方类型 |
 | --- | --- |
-| 合成台 | `avaritia:shaped_table`、`avaritia:shapeless_table`、`avaritia:no_consume_catalyst_shaped` |
+| 合成台 | `avaritia:shaped_table`、`avaritia:shapeless_table`、`avaritia:no_consume_catalyst_shaped`、`avaritia:infinity_catalyst`、`avaritia:eternal_singularity`、`avaritia:full_matter_cluster` |
 | 中子压缩机 | `avaritia:compressor` |
 | 终极锻造台 | `avaritia:extreme_smithing` |
 
-Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据中的层级和尺寸字段选择幽匿、下界、末地、终极合成台规格。旧的幽匿、下界、末地、终极类型 ID 会被兼容归一到当前合成台类型。
+Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据中的层级和尺寸字段选择幽匿、下界、末地、终极合成台规格。旧的幽匿、下界、末地、终极类型 ID 会被兼容归一到当前合成台类型。无限催化剂、永恒奇点和完整物质团是模组自带的特殊无序合成类型，编辑器允许修改材料和固定结果数量；无限催化剂与完整物质团还支持配方分组。
 
 ### L_Ender's Cataclysm / 灾变 (`cataclysm`)
 
@@ -229,7 +273,7 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Avaritia、灾变、菌类感染：孢子、东方女仆和 Goety 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Mekanism、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Avaritia、灾变、菌类感染：孢子、东方女仆和 Goety 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 

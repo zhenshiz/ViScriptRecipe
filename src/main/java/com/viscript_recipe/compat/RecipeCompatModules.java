@@ -10,7 +10,10 @@ import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeImporter;
 import com.viscript_recipe.compat.goety.GoetyRecipeImporter;
 import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeImporter;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeImporter;
+import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeImporter;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeImporter;
+import com.viscript_recipe.compat.mekanism.MekanismRecipeImporter;
+import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeImporter;
 import com.viscript_recipe.compat.spore.SporeRecipeImporter;
 import com.viscript_recipe.compat.touhou_little_maid.TouhouLittleMaidRecipeImporter;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
@@ -22,7 +25,10 @@ import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
+import com.viscript_recipe.data.mekanism.MekanismRecipeEditorTypes;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
 import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.VanillaRecipeEditorTypes;
@@ -44,7 +50,11 @@ public final class RecipeCompatModules {
             new Module(SporeRecipeEditorTypes.MOD_ID, SporeRecipeEditorTypes::registerAll, () -> SporeRecipeImporter.INSTANCE),
             new Module(CataclysmRecipeEditorTypes.MOD_ID, CataclysmRecipeEditorTypes::registerAll, () -> CataclysmRecipeImporter.INSTANCE),
             new Module(TouhouLittleMaidRecipeEditorTypes.MOD_ID, TouhouLittleMaidRecipeEditorTypes::registerAll, () -> TouhouLittleMaidRecipeImporter.INSTANCE),
-            new Module(GoetyRecipeEditorTypes.MOD_ID, GoetyRecipeEditorTypes::registerAll, () -> GoetyRecipeImporter.INSTANCE)
+            new Module(GoetyRecipeEditorTypes.MOD_ID, GoetyRecipeEditorTypes::registerAll, () -> GoetyRecipeImporter.INSTANCE),
+            new Module(MysticalAgricultureRecipeEditorTypes.MOD_ID, MysticalAgricultureRecipeEditorTypes::registerAll,
+                    () -> MysticalAgricultureRecipeImporter.INSTANCE),
+            new Module(IndustrialForegoingRecipeEditorTypes.MOD_ID, IndustrialForegoingRecipeEditorTypes::registerAll, () -> IndustrialForegoingRecipeImporter.INSTANCE),
+            new Module(MekanismRecipeEditorTypes.MOD_ID, MekanismRecipeEditorTypes::registerAll, () -> MekanismRecipeImporter.INSTANCE)
     );
 
     private RecipeCompatModules() {

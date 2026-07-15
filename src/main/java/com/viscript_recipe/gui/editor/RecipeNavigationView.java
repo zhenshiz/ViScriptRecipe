@@ -10,9 +10,9 @@ import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Button;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
-import com.lowdragmc.lowdraglib2.gui.ui.elements.SearchComponent;
 import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
 import com.viscript_lib.gui.components.DraggableUI;
+import com.viscript_lib.gui.components.search.RegistrySearchBox;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
@@ -35,9 +35,9 @@ public class RecipeNavigationView extends View {
     private final UIElement entryList = RecipeEditorUi.column();
     private final UIElement addRow = createAddRow();
     private final UIElement importPanel = createImportPanel();
-    private WorkstationSearchComponent workstationSearch;
+    private WorkstationSearchBox workstationSearch;
     private List<WorkstationSearchEntry> workstationSearchEntries = List.of();
-    private RecipeIdSearchComponent importRecipeSearch;
+    private RecipeIdSearchBox importRecipeSearch;
     private Label importStatusLabel;
     private boolean importOpen;
     private String importRecipeId = "";
@@ -66,30 +66,10 @@ public class RecipeNavigationView extends View {
         return root;
     }
 
-    private WorkstationSearchComponent createWorkstationSearch() {
+    private WorkstationSearchBox createWorkstationSearch() {
         workstationSearchEntries = createWorkstationSearchEntries();
-        workstationSearch = new WorkstationSearchComponent(new SearchComponent.ISearchUI<>() {
-            @Override
-            public String resultText(RecipeEditorCategory category) {
-                return category == null ? "" : category.displayName().getString();
-            }
-
-            @Override
-            public void onResultSelected(RecipeEditorCategory value) {
-            }
-
-            @Override
-            public void search(String word, IResultHandler<RecipeEditorCategory> searchHandler) {
-                var normalized = normalizeSearch(word);
-                for (var entry : workstationSearchEntries) {
-                    if (entry.matches(normalized)) {
-                        searchHandler.acceptResult(entry.category());
-                    }
-                }
-            }
-        });
-        workstationSearch.setCandidateUIProvider(this::createWorkstationCandidate)
-                .setSelected(controller.getSelectedCategoryData(), false)
+        workstationSearch = new WorkstationSearchBox(controller.getSelectedCategoryData());
+        workstationSearch.setSelected(controller.getSelectedCategoryData(), false)
                 .setOnValueChanged(controller::setSelectedCategory)
                 .searchStyle(style -> {
                     style.maxItemCount(8);
@@ -218,43 +198,9 @@ public class RecipeNavigationView extends View {
         return panel;
     }
 
-    private RecipeIdSearchComponent createImportRecipeSearch() {
-        var search = new RecipeIdSearchComponent(new SearchComponent.ISearchUI<>() {
-            @Override
-            public String resultText(ResourceLocation value) {
-                return value == null ? "" : value.toString();
-            }
-
-            @Override
-            public void onResultSelected(ResourceLocation value) {
-                importRecipeId = value == null ? "" : value.toString();
-            }
-
-            @Override
-            public void search(String word, IResultHandler<ResourceLocation> searchHandler) {
-                var minecraft = Minecraft.getInstance();
-                if (minecraft.level == null) {
-                    return;
-                }
-                var normalized = normalizeSearch(word);
-                var accepted = 0;
-                var recipeIds = minecraft.level.getRecipeManager().getRecipeIds()
-                        .sorted(Comparator.comparing(ResourceLocation::toString))
-                        .toList();
-                for (var recipeId : recipeIds) {
-                    var holder = minecraft.level.getRecipeManager().byKey(recipeId).orElse(null);
-                    if (holder != null && RecipeImporter.canImport(holder) && matchesRecipeId(recipeId, normalized)) {
-                        searchHandler.acceptResult(recipeId);
-                        accepted++;
-                        if (accepted >= MAX_RECIPE_ID_CANDIDATES) {
-                            return;
-                        }
-                    }
-                }
-            }
-        });
-        search.setCandidateUIProvider(this::createRecipeIdCandidate)
-                .setOnValueChanged(value -> importRecipeId = value == null ? "" : value.toString())
+    private RecipeIdSearchBox createImportRecipeSearch() {
+        var search = new RecipeIdSearchBox();
+        search.setOnValueChanged(value -> importRecipeId = value == null ? "" : value.toString())
                 .searchStyle(style -> {
                     style.maxItemCount(8);
                     style.scrollerViewHeight(128);
@@ -269,6 +215,42 @@ public class RecipeNavigationView extends View {
             layout.height(18);
         });
         return search;
+    }
+
+    private void searchWorkstations(String word, IResultHandler<RecipeEditorCategory> result) {
+        var normalized = normalizeSearch(word);
+        for (var entry : workstationSearchEntries) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
+            if (entry.matches(normalized)) {
+                result.acceptResult(entry.category());
+            }
+        }
+    }
+
+    private void searchRecipeIds(String word, IResultHandler<ResourceLocation> result) {
+        var minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        var normalized = normalizeSearch(word);
+        var accepted = 0;
+        var recipeIds = minecraft.level.getRecipeManager().getRecipeIds()
+                .sorted(Comparator.comparing(ResourceLocation::toString))
+                .toList();
+        for (var recipeId : recipeIds) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
+            var holder = minecraft.level.getRecipeManager().byKey(recipeId).orElse(null);
+            if (holder != null && RecipeImporter.canImport(holder) && matchesRecipeId(recipeId, normalized)) {
+                result.acceptResult(recipeId);
+                if (++accepted >= MAX_RECIPE_ID_CANDIDATES) {
+                    return;
+                }
+            }
+        }
     }
 
     private boolean matchesRecipeId(ResourceLocation recipeId, String normalizedWord) {
@@ -516,9 +498,16 @@ public class RecipeNavigationView extends View {
         }
     }
 
-    private static class WorkstationSearchComponent extends SearchComponent<RecipeEditorCategory> {
-        private WorkstationSearchComponent(ISearchUI<RecipeEditorCategory> searchUI) {
-            super(searchUI);
+    private final class WorkstationSearchBox extends RegistrySearchBox<RecipeEditorCategory> {
+        private WorkstationSearchBox(RecipeEditorCategory defaultValue) {
+            super(
+                    defaultValue,
+                    () -> null,
+                    RecipeEditorCategory::id,
+                    category -> category.displayName().getString(),
+                    RecipeNavigationView.this::searchWorkstations,
+                    RecipeNavigationView.this::createWorkstationCandidate
+            );
         }
 
         @Override
@@ -529,9 +518,16 @@ public class RecipeNavigationView extends View {
         }
     }
 
-    private class RecipeIdSearchComponent extends SearchComponent<ResourceLocation> {
-        private RecipeIdSearchComponent(ISearchUI<ResourceLocation> searchUI) {
-            super(searchUI);
+    private final class RecipeIdSearchBox extends RegistrySearchBox<ResourceLocation> {
+        private RecipeIdSearchBox() {
+            super(
+                    null,
+                    () -> null,
+                    value -> value,
+                    ResourceLocation::toString,
+                    RecipeNavigationView.this::searchRecipeIds,
+                    RecipeNavigationView.this::createRecipeIdCandidate
+            );
         }
 
         @Override
@@ -542,9 +538,11 @@ public class RecipeNavigationView extends View {
 
         @Override
         public void show() {
+            var currentText = importRecipeId == null ? "" : importRecipeId;
             super.show();
-            textField.setText(importRecipeId == null ? "" : importRecipeId, false);
-            onSearchWordChanged(importRecipeId == null ? "" : importRecipeId);
+            importRecipeId = currentText;
+            textField.setText(currentText, false);
+            onSearchWordChanged(currentText);
         }
     }
 }

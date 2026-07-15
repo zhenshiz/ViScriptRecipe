@@ -82,6 +82,12 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies."${mod_id}"]]
+modId = "mysticalagriculture"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
 modId = "cataclysm"
 type = "optional"
 ordering = "AFTER"
@@ -101,6 +107,18 @@ side = "BOTH"
 
 [[dependencies."${mod_id}"]]
 modId = "touhou_little_maid"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "industrialforegoing"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "mekanism"
 type = "optional"
 ordering = "AFTER"
 side = "BOTH"

@@ -4,15 +4,11 @@ import com.lowdragmc.lowdraglib2.configurator.accessors.ItemStackAccessor;
 import com.lowdragmc.lowdraglib2.configurator.accessors.BlockAccessor;
 import com.lowdragmc.lowdraglib2.configurator.accessors.FluidStackAccessor;
 import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
-import com.lowdragmc.lowdraglib2.configurator.ui.TagKeySearchComponent;
 import com.lowdragmc.lowdraglib2.editor.ui.View;
-import com.lowdragmc.lowdraglib2.gui.texture.FluidStackTexture;
-import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
-import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeEntry;
@@ -23,21 +19,18 @@ import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
 import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
+import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
 import com.viscript_recipe.data.vanilla.CraftingRemainderMode;
 import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
@@ -97,13 +90,20 @@ public class RecipePropertiesView extends View {
                 case RECIPE -> buildRecipeProperties(entry);
                 case INGREDIENT -> buildIngredientProperties(entry);
                 case FLUID -> buildFluidProperties();
-                case RESULT -> buildResultProperties();
+                case RESULT -> buildResultProperties(entry);
                 case CONTAINER -> buildContainerProperties();
                 case CUTTING_RESULT -> buildCuttingResultProperties();
                 case CREATE_RESULT -> buildCreateResultProperties();
                 case CREATE_TRANSITIONAL -> buildCreateSequencedTransitionalProperties();
                 case CREATE_SEQUENCED_STEP -> buildCreateSequencedStepProperties(entry);
                 case ARS_NOUVEAU_OUTPUT -> buildArsNouveauOutputProperties();
+                case INDUSTRIAL_COMPONENT -> buildIndustrialComponentProperties();
+                case MEKANISM_CHEMICAL -> buildMekanismChemicalProperties();
+                case MEKANISM_FLUID -> buildMekanismFluidProperties();
+                case MEKANISM_ITEM -> buildMekanismItemProperties();
+                case MYSTICAL_ESSENCE -> buildMysticalEssenceProperties();
+                case KALEIDOSCOPE_FLUID -> buildKaleidoscopeFluidProperties();
+                case KALEIDOSCOPE_SOUP_BASE -> buildKaleidoscopeSoupBaseProperties();
             }
         } finally {
             rebuilding = false;
@@ -152,6 +152,9 @@ public class RecipePropertiesView extends View {
                 entry != null && controller.isGoetyBrewingEntry(entry)
                         ? entry.getGoetyBrewing().getEntityKind()
                         : null,
+                entry != null && controller.isGoetyPulverizeEntry(entry)
+                        ? entry.getGoetyPulverize().getResultKind()
+                        : null,
                 controller.isSelectedExtendedCraftingCompressorInput(),
                 controller.isSelectedCreateFluidInput(),
                 controller.isSelectedCreateFluidOutput(),
@@ -160,7 +163,12 @@ public class RecipePropertiesView extends View {
                 controller.selectedCreateKeepHeldItemAllowed(),
                 controller.selectedCreateOutputChanceAllowed(),
                 controller.selectedCreateCountedInputSignature(),
-                createSequencedStructureSignature(entry)
+                createSequencedStructureSignature(entry),
+                IndustrialForegoingPropertiesSections.structureSignature(entry),
+                MekanismPropertiesSections.structureSignature(entry),
+                selectedMekanismChemicalIngredientKind(),
+                selectedMekanismChemicalOutputSignature(),
+                mysticalAgricultureSpawnerEntityCount(entry)
         );
     }
 
@@ -173,6 +181,14 @@ public class RecipePropertiesView extends View {
             builder.append(controller.getCreateSequencedStepKind(entry, i).getSerializedName()).append(';');
         }
         return builder.toString();
+    }
+
+    private int mysticalAgricultureSpawnerEntityCount(RecipeEntry entry) {
+        if (entry == null || !controller.isMysticalAgricultureSouliumSpawnerEntry(entry)
+                || entry.getMysticalAgricultureSouliumSpawner().getEntities() == null) {
+            return 0;
+        }
+        return entry.getMysticalAgricultureSouliumSpawner().getEntities().size();
     }
 
     private IngredientValueKind selectedIngredientKind(RecipeEntry entry, WorkbenchSlotSelection selection) {
@@ -214,6 +230,22 @@ public class RecipePropertiesView extends View {
         return "fluid:" + fluidId + ":" + stack.getAmount();
     }
 
+    private MekanismChemicalIngredientKind selectedMekanismChemicalIngredientKind() {
+        if (!controller.isSelectedMekanismChemicalIngredient()) {
+            return null;
+        }
+        var ingredient = controller.getSelectedMekanismChemicalIngredient();
+        return ingredient.getKind() == null ? MekanismChemicalIngredientKind.CHEMICAL : ingredient.getKind();
+    }
+
+    private String selectedMekanismChemicalOutputSignature() {
+        if (!controller.isSelectedMekanismChemicalSlot() || controller.isSelectedMekanismChemicalIngredient()) {
+            return "";
+        }
+        var output = controller.getSelectedMekanismChemicalOutput();
+        return output.getChemical() + ":" + output.getAmount();
+    }
+
     private record PropertiesStructureKey(
             int entryIdentity,
             ResourceLocation selectedCategory,
@@ -251,6 +283,7 @@ public class RecipePropertiesView extends View {
             boolean goetyRitualStructure,
             boolean goetyRitualEnchantment,
             GoetyBrewingEntityKind goetyBrewingEntityKind,
+            GoetyPulverizeResultKind goetyPulverizeResultKind,
             boolean selectedExtendedCraftingCompressorInput,
             boolean selectedCreateFluidInput,
             boolean selectedCreateFluidOutput,
@@ -259,7 +292,12 @@ public class RecipePropertiesView extends View {
             boolean createKeepHeldItemAllowed,
             boolean createOutputChanceAllowed,
             int createCountedInputSignature,
-            String createSequencedSignature
+            String createSequencedSignature,
+            String industrialForegoingSignature,
+            String mekanismSignature,
+            MekanismChemicalIngredientKind mekanismChemicalIngredientKind,
+            String mekanismChemicalOutputSignature,
+            int mysticalAgricultureSpawnerEntityCount
     ) {
     }
 
@@ -280,11 +318,10 @@ public class RecipePropertiesView extends View {
                                     entry.setEnabled(value);
                                     controller.notifyChanged();
                                 })),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.recipe_id",
-                        RecipeEditorUi.resourceLocationField(entry.getRecipeId(), value -> {
-                            entry.setRecipeId(value);
-                            controller.notifyChanged();
-                        })),
+                RecipeSearchComponents.recipeId("viscript_recipe.config.entry.recipe_id",
+                        entry::getRecipeId,
+                        entry::setRecipeId,
+                        controller::notifyChanged),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.operation",
                         RecipeEditorUi.selector(
                                 List.of(RecipeOperation.ADD, RecipeOperation.REPLACE, RecipeOperation.REMOVE),
@@ -332,11 +369,26 @@ public class RecipePropertiesView extends View {
         if (controller.isGoetyBrazierEntry(entry)) {
             RecipePropertiesSections.buildGoetyBrazier(content, controller, entry);
         }
-        if (controller.isGoetyPulverizeEntry(entry)) {
-            RecipePropertiesSections.buildGoetyPulverize(content, controller, entry);
-        }
         if (controller.isGoetyBrewingEntry(entry)) {
             RecipePropertiesSections.buildGoetyBrewing(content, controller, entry);
+        }
+        if (controller.isMysticalAgricultureInfusionEntry(entry)) {
+            RecipePropertiesSections.buildMysticalAgricultureInfusion(content, controller, entry);
+        }
+        if (controller.isMysticalAgricultureAwakeningEntry(entry)) {
+            RecipePropertiesSections.buildMysticalAgricultureAwakening(content, controller, entry);
+        }
+        if (controller.isMysticalAgricultureEnchanterEntry(entry)) {
+            RecipePropertiesSections.buildMysticalAgricultureEnchanter(content, controller, entry);
+        }
+        if (controller.isMysticalAgricultureReprocessorEntry(entry)) {
+            RecipePropertiesSections.buildMysticalAgricultureReprocessor(content, controller, entry);
+        }
+        if (controller.isMysticalAgricultureSoulExtractionEntry(entry)) {
+            RecipePropertiesSections.buildMysticalAgricultureSoulExtraction(content, controller, entry);
+        }
+        if (controller.isMysticalAgricultureSouliumSpawnerEntry(entry)) {
+            RecipePropertiesSections.buildMysticalAgricultureSouliumSpawner(content, controller, entry);
         }
         if (controller.isCreateMechanicalCraftingEntry(entry)) {
             RecipePropertiesSections.buildCreateMechanicalCrafting(content, controller, entry);
@@ -365,6 +417,9 @@ public class RecipePropertiesView extends View {
         if (controller.isAvaritiaTableEntry(entry)) {
             RecipePropertiesSections.buildAvaritiaTable(content, controller, entry);
         }
+        if (controller.isAvaritiaSpecialShapelessEntry(entry)) {
+            RecipePropertiesSections.buildAvaritiaSpecialShapeless(content, controller, entry);
+        }
         if (controller.isAvaritiaCompressorEntry(entry)) {
             RecipePropertiesSections.buildAvaritiaCompressor(content, controller, entry);
         }
@@ -382,6 +437,7 @@ public class RecipePropertiesView extends View {
                 || controller.isKaleidoscopeTeapotEntry(entry)) {
             RecipePropertiesSections.buildKaleidoscope(content, controller, entry, () -> rebuilding);
         }
+        MekanismPropertiesSections.build(content, controller, entry);
     }
 
     private void buildIngredientProperties(RecipeEntry entry) {
@@ -423,6 +479,11 @@ public class RecipePropertiesView extends View {
             ));
         } else if (selectedKind == IngredientValueKind.TAG) {
             content.addChild(createItemTagConfigurator(ingredient, value));
+            if (controller.isSelectedMekanismItemInput()) {
+                content.addChild(RecipeEditorUi.fieldGroup(controller.selectedMekanismItemInputAmountKey(),
+                        RecipeEditorUi.intField(controller.getSelectedMekanismItemInputAmount(), 1, Integer.MAX_VALUE,
+                                controller::setSelectedMekanismItemInputAmount)));
+            }
         } else if (selectedKind == IngredientValueKind.ITEM_ABILITY) {
             content.addChild(createItemAbilityConfigurator(ingredient, value));
         }
@@ -434,6 +495,7 @@ public class RecipePropertiesView extends View {
         if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
             buildRemainderProperties();
         }
+        RecipePropertiesSections.buildSelectedIngredientSlot(content, controller, entry);
     }
 
     private void buildRemainderProperties() {
@@ -474,15 +536,26 @@ public class RecipePropertiesView extends View {
         }
     }
 
-    private void buildResultProperties() {
-        content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.result"),
-                createItemStackConfigurator(
-                        "viscript_recipe.config.recipe.result",
-                        controller::getSelectedResult,
-                        stack -> controller.setSelectedResult(normalizeResultStack(stack))
-                )
-        );
+    private void buildResultProperties(RecipeEntry entry) {
+        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.result"));
+        if (!IndustrialForegoingPropertiesSections.buildDissolutionItemOutputEnabled(content, controller)) {
+            return;
+        }
+        if (!MekanismPropertiesSections.buildSelectedReactionItemOutputEnabled(content, controller)) {
+            return;
+        }
+        if (controller.isGoetyPulverizeEntry(entry)
+                && !RecipePropertiesSections.buildSelectedGoetyPulverizeResult(content, controller, entry)) {
+            return;
+        }
+        if (!RecipePropertiesSections.buildSelectedAvaritiaSpecialResult(content, controller, entry)) {
+            return;
+        }
+        content.addChild(createItemStackConfigurator(
+                "viscript_recipe.config.recipe.result",
+                controller::getSelectedResult,
+                stack -> controller.setSelectedResult(normalizeResultStack(stack))
+        ));
     }
 
     private void buildCreateSequencedTransitionalProperties() {
@@ -573,16 +646,76 @@ public class RecipePropertiesView extends View {
     }
 
     private void buildFluidProperties() {
+        if (controller.isSelectedIndustrialFluidIngredient()) {
+            IndustrialForegoingPropertiesSections.buildSelectedFluid(content, controller);
+            return;
+        }
         if (controller.isSelectedCreateFluidInput()) {
             buildCreateFluidIngredientProperties();
             return;
         }
+        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.fluid"));
+        if (!IndustrialForegoingPropertiesSections.buildDissolutionFluidOutputEnabled(content, controller)) {
+            return;
+        }
+        content.addChild(createFluidStackConfigurator(
+                controller.selectedFluidConfigNameKey(),
+                controller::getSelectedFluid,
+                stack -> controller.setSelectedFluid(stack == null ? FluidStack.EMPTY : stack.copy())
+        ));
+    }
+
+    private void buildIndustrialComponentProperties() {
+        IndustrialForegoingPropertiesSections.buildSelectedComponent(content, controller);
+    }
+
+    private void buildMekanismChemicalProperties() {
+        MekanismPropertiesSections.buildSelectedChemical(content, controller);
+    }
+
+    private void buildMekanismFluidProperties() {
+        MekanismPropertiesSections.buildSelectedFluid(content, controller);
+    }
+
+    private void buildMekanismItemProperties() {
+        MekanismPropertiesSections.buildSelectedItem(content, controller);
+    }
+
+    private void buildMysticalEssenceProperties() {
+        if (!controller.isSelectedMysticalAgricultureEssenceSlot()) {
+            return;
+        }
         content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.fluid"),
-                createFluidStackConfigurator(
-                        controller.selectedFluidConfigNameKey(),
-                        controller::getSelectedFluid,
-                        stack -> controller.setSelectedFluid(stack == null ? FluidStack.EMPTY : stack.copy())
+                RecipeEditorUi.sectionTitle("viscript_recipe.config.mysticalagriculture.awakening.essences"),
+                createItemStackConfigurator(
+                        "viscript_recipe.config.mysticalagriculture.awakening.essences",
+                        controller::getSelectedMysticalAgricultureEssence,
+                        controller::setSelectedMysticalAgricultureEssence
+                )
+        );
+    }
+
+    private void buildKaleidoscopeFluidProperties() {
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.config.kaleidoscope_cookery.tea_fluid"),
+                RecipeSearchComponents.fluid(
+                        "viscript_recipe.config.kaleidoscope_cookery.tea_fluid",
+                        controller::getSelectedKaleidoscopeTeapotFluid,
+                        controller::setSelectedKaleidoscopeTeapotFluid,
+                        () -> { },
+                        Fluids.WATER
+                )
+        );
+    }
+
+    private void buildKaleidoscopeSoupBaseProperties() {
+        content.addChildren(
+                RecipeEditorUi.sectionTitle("viscript_recipe.config.kaleidoscope_cookery.soup_base"),
+                RecipeSearchComponents.soupBase(
+                        "viscript_recipe.config.kaleidoscope_cookery.soup_base",
+                        controller::getSelectedKaleidoscopeStockpotSoupBase,
+                        controller::setSelectedKaleidoscopeStockpotSoupBase,
+                        () -> { }
                 )
         );
     }
@@ -684,73 +817,33 @@ public class RecipePropertiesView extends View {
     }
 
     private UIElement createItemTagConfigurator(RecipeIngredient ingredient, RecipeIngredientValue value) {
-        var configurator = new TagKeySearchComponent.Item(
+        return RecipeSearchComponents.itemTag(
                 "viscript_recipe.config.ingredient.value.tag",
-                () -> itemTag(value.getTag()),
-                tag -> {
+                value::getTag,
+                tagId -> {
                     if (!rebuilding) {
                         ingredient.getValues().clear();
                         value.setKind(IngredientValueKind.TAG);
-                        value.setTag(tag.location());
+                        value.setTag(tagId);
                         ingredient.getValues().add(value);
                         controller.setSelectedIngredient(ingredient);
                     }
                 },
-                itemTag(defaultTag()),
-                true
+                () -> { }
         );
-        configurator.layout(layout -> layout.widthPercent(100));
-        configurator.searchComponent.searchStyle(style -> {
-            style.maxItemCount(8);
-            style.scrollerViewHeight(120);
-        });
-        return configurator;
     }
 
     private UIElement createFluidTagConfigurator(CreateFluidIngredientData ingredient) {
-        var configurator = new TagKeySearchComponent<Fluid>(
+        return RecipeSearchComponents.fluidTag(
                 "viscript_recipe.config.create.fluid_ingredient.tag",
-                () -> fluidTag(ingredient.getTag()),
-                tag -> {
+                ingredient::getTag,
+                tagId -> {
                     if (!rebuilding) {
-                        controller.setSelectedCreateFluidIngredientTag(tag.location());
+                        controller.setSelectedCreateFluidIngredientTag(tagId);
                     }
                 },
-                fluidTag(defaultFluidTag()),
-                true,
-                BuiltInRegistries.FLUID,
-                UIElementProvider.iconText(
-                        this::fluidTagIcon,
-                        tag -> Component.literal(tag.location().toString())
-                )
+                () -> { }
         );
-        configurator.layout(layout -> layout.widthPercent(100));
-        configurator.searchComponent.searchStyle(style -> {
-            style.maxItemCount(8);
-            style.scrollerViewHeight(120);
-        });
-        return configurator;
-    }
-
-    private IGuiTexture fluidTagIcon(TagKey<Fluid> tag) {
-        var fluids = BuiltInRegistries.FLUID.getTag(tag)
-                .map(holders -> holders.stream()
-                        .map(holder -> holder.value())
-                        .filter(fluid -> fluid != Fluids.EMPTY)
-                        .toList())
-                .orElseGet(List::of);
-        var sourceFluids = fluids.stream()
-                .filter(fluid -> fluid.defaultFluidState().isSource())
-                .toList();
-        var displayFluids = sourceFluids.isEmpty() ? fluids : sourceFluids;
-        if (displayFluids.isEmpty()) {
-            return IGuiTexture.EMPTY;
-        }
-        var stacks = displayFluids.stream()
-                .map(fluid -> new FluidStack(fluid, 1000))
-                .filter(stack -> !stack.isEmpty())
-                .toArray(FluidStack[]::new);
-        return stacks.length == 0 ? IGuiTexture.EMPTY : new FluidStackTexture(stacks);
     }
 
     private UIElement createItemAbilityConfigurator(RecipeIngredient ingredient, RecipeIngredientValue value) {
@@ -771,22 +864,6 @@ public class RecipePropertiesView extends View {
                         }
                 )
         );
-    }
-
-    private TagKey<Item> itemTag(ResourceLocation tag) {
-        return TagKey.create(Registries.ITEM, tag == null ? defaultTag() : tag);
-    }
-
-    private TagKey<Fluid> fluidTag(ResourceLocation tag) {
-        return TagKey.create(Registries.FLUID, tag == null ? defaultFluidTag() : tag);
-    }
-
-    private ResourceLocation defaultTag() {
-        return ResourceLocation.fromNamespaceAndPath("minecraft", "planks");
-    }
-
-    private ResourceLocation defaultFluidTag() {
-        return ResourceLocation.fromNamespaceAndPath("c", "water");
     }
 
     private ItemStack normalizeResultStack(ItemStack stack) {

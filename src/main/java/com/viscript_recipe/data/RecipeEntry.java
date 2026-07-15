@@ -39,12 +39,25 @@ import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialDissolutionRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialCrusherRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidExtractorRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillFluidRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillOreRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.IndustrialStoneWorkRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeChoppingBoardRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeMillstoneRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
+import com.viscript_recipe.data.mekanism.MekanismRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureAwakeningRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureInfusionRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureReprocessorRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSoulExtractionRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSouliumSpawnerRecipeData;
 import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
 import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
@@ -222,6 +235,45 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
 
     @Configurable(name = "viscript_recipe.config.entry.goety.brewing", subConfigurable = true)
     private GoetyBrewingRecipeData goetyBrewing = new GoetyBrewingRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.infusion", subConfigurable = true)
+    private MysticalAgricultureInfusionRecipeData mysticalAgricultureInfusion = new MysticalAgricultureInfusionRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.awakening", subConfigurable = true)
+    private MysticalAgricultureAwakeningRecipeData mysticalAgricultureAwakening = new MysticalAgricultureAwakeningRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.enchanter", subConfigurable = true)
+    private MysticalAgricultureEnchanterRecipeData mysticalAgricultureEnchanter = new MysticalAgricultureEnchanterRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.reprocessor", subConfigurable = true)
+    private MysticalAgricultureReprocessorRecipeData mysticalAgricultureReprocessor = new MysticalAgricultureReprocessorRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.soul_extraction", subConfigurable = true)
+    private MysticalAgricultureSoulExtractionRecipeData mysticalAgricultureSoulExtraction = new MysticalAgricultureSoulExtractionRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.soulium_spawner", subConfigurable = true)
+    private MysticalAgricultureSouliumSpawnerRecipeData mysticalAgricultureSouliumSpawner = new MysticalAgricultureSouliumSpawnerRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.dissolution", subConfigurable = true)
+    private IndustrialDissolutionRecipeData industrialDissolution = new IndustrialDissolutionRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.crusher", subConfigurable = true)
+    private IndustrialCrusherRecipeData industrialCrusher = new IndustrialCrusherRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.fluid_extractor", subConfigurable = true)
+    private IndustrialFluidExtractorRecipeData industrialFluidExtractor = new IndustrialFluidExtractorRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.laser_drill_ore", subConfigurable = true)
+    private IndustrialLaserDrillOreRecipeData industrialLaserDrillOre = new IndustrialLaserDrillOreRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.laser_drill_fluid", subConfigurable = true)
+    private IndustrialLaserDrillFluidRecipeData industrialLaserDrillFluid = new IndustrialLaserDrillFluidRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.stonework", subConfigurable = true)
+    private IndustrialStoneWorkRecipeData industrialStoneWork = new IndustrialStoneWorkRecipeData();
+
+    @Configurable(name = "viscript_recipe.config.entry.mekanism", subConfigurable = true)
+    private MekanismRecipeData mekanism = new MekanismRecipeData();
 
     public Recipe<?> compile() {
         return RecipeEditorTypes.require(getType()).compile(this);

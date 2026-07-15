@@ -144,6 +144,17 @@ final class RecipeEditorUi {
         return field;
     }
 
+    static TextField longField(long value, long min, long max, Consumer<Long> consumer) {
+        var field = textField(String.valueOf(value), text -> {
+            try {
+                consumer.accept(Long.parseLong(text));
+            } catch (NumberFormatException ignored) {
+            }
+        });
+        field.setNumbersOnlyLong(min, max);
+        return field;
+    }
+
     static TextField floatField(float value, float min, float max, Consumer<Float> consumer) {
         var field = textField(String.valueOf(value), text -> {
             try {
@@ -155,6 +166,20 @@ final class RecipeEditorUi {
             }
         });
         field.setNumbersOnlyFloat(min, max);
+        return field;
+    }
+
+    static TextField doubleField(double value, double min, double max, Consumer<Double> consumer) {
+        var field = textField(String.valueOf(value), text -> {
+            try {
+                var parsed = Double.parseDouble(text);
+                if (parsed >= min && parsed <= max) {
+                    consumer.accept(parsed);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        });
+        field.setNumbersOnlyDouble(min, max);
         return field;
     }
 
