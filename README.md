@@ -13,7 +13,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - 支持通过配方 ID 导入当前世界已经加载的配方，兼容时会自动切换到对应配方类型并填充参数。
 - 支持 `add`、`replace`、`remove` 三种操作，可以把 `.recipe` 当作一个轻量配方覆盖包使用。
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
-- 普通重载会向客户端同步配方包和配方书状态；`/viscript_recipe reload full` 会额外同步标签包，适合需要 JEI 重建标签相关配方时使用。
+- `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
 - 支持多个配方模组的专用编辑 UI 与导入器，包括 Create、Mekanism、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Ice and Fire、灾变、菌类感染：孢子、东方女仆和 Goety。
 
@@ -34,10 +34,11 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 | `/viscript_recipe editor` | 打开配方编辑器。 |
 | `/viscript_recipe editor <file>` | 打开或创建指定 `.recipe` 文件，文件名支持补全。 |
 | `/viscript_recipe reload` | 重新读取并应用本模组 `.recipe` 配方文件。 |
+| `/viscript_recipe reload delta` | 只同步新增、修改和删除的配方，并局部更新 JEI；不刷新原版配方书和标签。 |
 | `/viscript_recipe reload full` | 在普通重载基础上额外同步标签包，帮助 JEI 重建依赖标签的配方显示。 |
 | `/viscript_recipe status` | 查看上一次加载的文件数、条目数、成功/跳过/失败数量。 |
 
-编辑器目前只能在单人/集成服务器中打开。专用服务器可以把 `.recipe` 文件放到服务器的 `ldlib2/assets/viscript_recipe/recipes` 目录下，然后使用 `/viscript_recipe reload` 或 `/viscript_recipe reload full` 应用。
+编辑器目前只能在单人/集成服务器中打开。专用服务器可以把 `.recipe` 文件放到服务器的 `ldlib2/assets/viscript_recipe/recipes` 目录下，然后使用 `/viscript_recipe reload delta`、`/viscript_recipe reload` 或 `/viscript_recipe reload full` 应用。
 
 ## 配方文件与操作
 
@@ -67,6 +68,10 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 `/viscript_recipe reload` 会重新读取 `ldlib2/assets/viscript_recipe/recipes` 下的 `.recipe` 文件，然后把结果应用到当前 RecipeManager。它不会触发完整数据包 reload，因此不会额外重载其它模组的战利品表、标签生成器或数据包监听器。
 
 安装 Create 时，重载会同时刷新 Create 的配方查找缓存，避免机器侧继续命中已经删除或替换前的旧配方。
+
+`/viscript_recipe reload delta` 会比较本次与上一次由 ViScriptRecipe 管理的最终配方状态，只向在线玩家发送新增、修改和删除的配方。客户端会局部替换 RecipeManager 索引，并通过 JEI 公开运行时接口隐藏旧页面、加入新页面，不触发标准完整配方包所引发的原版配方书、搜索树和 JEI 全量重启。这个模式不会刷新原版配方书或标签，适合编辑期间频繁预览普通配方内容修改。
+
+如果展示模式已开启、变化数量过多、配方无法安全编码，或者客户端发现配方版本不一致，增量模式会自动回退或请求一次普通完整配方同步。JEI 分类使用专用展示对象而不能安全局部替换时，只重建 JEI，不重新传输服务器全部配方。Create 自动酿造和 Iron's Spells 黑暗铁砧属于这种专用展示类型。
 
 普通重载会向在线玩家发送新的配方包，并同步配方书。它不会同步标签包，因此卡顿更少，适合只改配方内容的开发流程。
 
@@ -283,4 +288,4 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 - 联动模组没有安装时，对应工作站和配方类型不会出现在编辑器中。
 - `.recipe` 文件是本模组自己的配方覆盖文件，不是原版 JSON 数据包文件。
 - 展示模式 `recipes.showcase_only_viscript_recipes` 会清空基础配方后再应用 `.recipe`，更适合调试和展示，不建议在不了解效果时直接用于正式整合包。
-- 如果只改配方内容，优先使用 `/viscript_recipe reload`；如果 JEI 对标签相关配方没有立刻刷新，再使用 `/viscript_recipe reload full`。
+- 如果只改配方内容并主要通过 JEI 检查，优先使用 `/viscript_recipe reload delta`；需要同步原版配方书时使用 `/viscript_recipe reload`；新增、删除或修改标签后使用 `/viscript_recipe reload full`。

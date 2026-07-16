@@ -11,7 +11,10 @@ import com.viscript_recipe.data.RecipeOperation;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -21,13 +24,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class RecipeOverrideManager {
+    private static final int MAX_DELTA_RECIPE_CHANGES = 256;
+    private static final int DELTA_FULL_RELOAD_RATIO = 5;
     private static final Object LOCK = new Object();
-    @Nullable
-    private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> baseRecipes;
+    private static final Map<RecipeManager, ManagerState> MANAGER_STATES = new WeakHashMap<>();
     private static LinkedHashMap<ResourceLocation, ResourceLocation> lastAppliedRecipeTypes = new LinkedHashMap<>();
     private static ApplyResult lastResult = ApplyResult.empty();
 
@@ -40,8 +47,9 @@ public final class RecipeOverrideManager {
 
     public static ApplyResult apply(RecipeManager recipeManager, HolderLookup.Provider provider, @Nullable ResourceManager resourceManager) {
         synchronized (LOCK) {
-            baseRecipes = snapshot(recipeManager.getRecipes());
-            return applyOverrides(recipeManager, provider, baseRecipes, resourceManager);
+            var state = stateFor(recipeManager);
+            state.baseRecipes = snapshot(recipeManager.getRecipes());
+            return applyOverrides(recipeManager, provider, state, resourceManager);
         }
     }
 
@@ -51,10 +59,87 @@ public final class RecipeOverrideManager {
 
     public static ApplyResult reload(RecipeManager recipeManager, HolderLookup.Provider provider, @Nullable ResourceManager resourceManager) {
         synchronized (LOCK) {
-            if (baseRecipes == null) {
-                baseRecipes = snapshot(recipeManager.getRecipes());
+            var state = stateFor(recipeManager);
+            if (state.baseRecipes == null) {
+                state.baseRecipes = snapshot(recipeManager.getRecipes());
             }
-            return applyOverrides(recipeManager, provider, baseRecipes, resourceManager);
+            return applyOverrides(recipeManager, provider, state, resourceManager);
+        }
+    }
+
+    public static DeltaReloadResult reloadDelta(RecipeManager recipeManager, HolderLookup.Provider provider) {
+        return reloadDelta(recipeManager, provider, null);
+    }
+
+    public static DeltaReloadResult reloadDelta(
+            RecipeManager recipeManager,
+            HolderLookup.Provider provider,
+            @Nullable ResourceManager resourceManager
+    ) {
+        synchronized (LOCK) {
+            var state = stateFor(recipeManager);
+            if (state.baseRecipes == null) {
+                state.baseRecipes = snapshot(recipeManager.getRecipes());
+            }
+
+            var oldRecipes = snapshot(recipeManager.getRecipes());
+            var oldManagedRecipeTypes = new LinkedHashMap<>(state.managedRecipeTypes);
+            var oldArcaneAnvilRecipes = state.arcaneAnvilRecipes;
+            var oldShowcaseOnly = state.showcaseOnly;
+            var baseRevision = state.revision;
+            var result = applyOverrides(recipeManager, provider, state, resourceManager);
+
+            RecipeDeltaSnapshot delta;
+            try {
+                delta = createDeltaSnapshot(
+                        provider,
+                        baseRevision,
+                        recipeManager,
+                        state,
+                        oldRecipes,
+                        oldManagedRecipeTypes,
+                        oldArcaneAnvilRecipes
+                );
+            } catch (RuntimeException | LinkageError e) {
+                ViScriptRecipe.LOGGER.warn("Failed to encode recipe delta; falling back to a full recipe sync", e);
+                return new DeltaReloadResult(result, null, DeltaFallbackReason.ENCODING_FAILED);
+            }
+
+            if (oldShowcaseOnly || state.showcaseOnly) {
+                return new DeltaReloadResult(result, delta, DeltaFallbackReason.SHOWCASE_MODE);
+            }
+            var changed = delta.changedRecipeCount();
+            var tooManyAbsolute = changed > MAX_DELTA_RECIPE_CHANGES;
+            var tooManyRelative = changed > 32
+                    && changed * DELTA_FULL_RELOAD_RATIO > Math.max(1, result.resultRecipeCount());
+            if (tooManyAbsolute || tooManyRelative) {
+                return new DeltaReloadResult(result, delta, DeltaFallbackReason.TOO_MANY_CHANGES);
+            }
+            return new DeltaReloadResult(result, delta, null);
+        }
+    }
+
+    public static RecipeDeltaSnapshot createBaseline(
+            RecipeManager recipeManager,
+            HolderLookup.Provider provider
+    ) {
+        synchronized (LOCK) {
+            var state = stateFor(recipeManager);
+            if (state.baseRecipes == null) {
+                state.baseRecipes = snapshot(recipeManager.getRecipes());
+            }
+            return new RecipeDeltaSnapshot(
+                    state.revision,
+                    state.revision,
+                    true,
+                    state.showcaseOnly,
+                    false,
+                    List.of(),
+                    List.of(),
+                    state.managedRecipeTypes,
+                    state.recipeTypeHints,
+                    state.arcaneAnvilRecipes
+            );
         }
     }
 
@@ -74,11 +159,20 @@ public final class RecipeOverrideManager {
         }
     }
 
-    private static ApplyResult applyOverrides(RecipeManager recipeManager, HolderLookup.Provider provider, LinkedHashMap<ResourceLocation, RecipeHolder<?>> base, @Nullable ResourceManager resourceManager) {
+    private static ApplyResult applyOverrides(
+            RecipeManager recipeManager,
+            HolderLookup.Provider provider,
+            ManagerState state,
+            @Nullable ResourceManager resourceManager
+    ) {
+        var base = state.baseRecipes == null
+                ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>()
+                : state.baseRecipes;
         var loadedFiles = RecipeFileLoader.loadAll(provider);
         var showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();
         var recipes = showcaseOnly ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>() : new LinkedHashMap<>(base);
         var appliedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
+        var managedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
         var arcaneAnvilRecipes = new LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe>();
         var alchemistCauldronFluids = new ArrayList<FluidStack>();
 
@@ -99,7 +193,15 @@ public final class RecipeOverrideManager {
                     continue;
                 }
                 enabled++;
-                var entryResult = applyEntry(loaded.relativePath(), entry, recipes, appliedRecipeTypes, arcaneAnvilRecipes, showcaseOnly);
+                var entryResult = applyEntry(
+                        loaded.relativePath(),
+                        entry,
+                        recipes,
+                        appliedRecipeTypes,
+                        managedRecipeTypes,
+                        arcaneAnvilRecipes,
+                        showcaseOnly
+                );
                 if (entryResult == ApplyEntryResult.APPLIED) {
                     collectAlchemistCauldronRecipeFluids(entry, alchemistCauldronFluids);
                 }
@@ -116,6 +218,11 @@ public final class RecipeOverrideManager {
         recipeManager.replaceRecipes(recipes.values());
         invalidateCompatRecipeCaches(resourceManager);
         lastAppliedRecipeTypes = appliedRecipeTypes;
+        state.managedRecipeTypes = managedRecipeTypes;
+        state.recipeTypeHints = buildRecipeTypeHints(base, recipes, managedRecipeTypes.keySet());
+        state.arcaneAnvilRecipes = List.copyOf(arcaneAnvilRecipes.values());
+        state.showcaseOnly = showcaseOnly;
+        state.revision++;
         lastResult = new ApplyResult(
                 loadedFiles.size(),
                 entries,
@@ -167,7 +274,98 @@ public final class RecipeOverrideManager {
         return snapshot;
     }
 
-    private static ApplyEntryResult applyEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes, LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes, boolean showcaseOnly) {
+    private static ManagerState stateFor(RecipeManager recipeManager) {
+        return MANAGER_STATES.computeIfAbsent(recipeManager, ignored -> new ManagerState());
+    }
+
+    private static RecipeDeltaSnapshot createDeltaSnapshot(
+            HolderLookup.Provider provider,
+            long baseRevision,
+            RecipeManager recipeManager,
+            ManagerState state,
+            Map<ResourceLocation, RecipeHolder<?>> oldRecipes,
+            Map<ResourceLocation, ResourceLocation> oldManagedRecipeTypes,
+            List<IronArcaneAnvilOverrideManager.CompiledRecipe> oldArcaneAnvilRecipes
+    ) {
+        var currentRecipes = snapshot(recipeManager.getRecipes());
+        var affectedIds = new LinkedHashSet<ResourceLocation>();
+        affectedIds.addAll(oldManagedRecipeTypes.keySet());
+        affectedIds.addAll(state.managedRecipeTypes.keySet());
+
+        var removed = new ArrayList<ResourceLocation>();
+        var upserted = new ArrayList<RecipeHolder<?>>();
+        for (var id : affectedIds) {
+            var oldHolder = oldRecipes.get(id);
+            var newHolder = currentRecipes.get(id);
+            if (oldHolder == null && newHolder == null) {
+                continue;
+            }
+            if (newHolder == null) {
+                removed.add(id);
+                continue;
+            }
+            if (oldHolder == null || !sameRecipe(provider, oldHolder, newHolder)) {
+                upserted.add(newHolder);
+            }
+        }
+
+        var oldArcaneTag = RecipeDeltaSnapshot.encodeArcaneAnvilRecipes(provider, oldArcaneAnvilRecipes);
+        var newArcaneTag = RecipeDeltaSnapshot.encodeArcaneAnvilRecipes(provider, state.arcaneAnvilRecipes);
+        return new RecipeDeltaSnapshot(
+                baseRevision,
+                state.revision,
+                false,
+                state.showcaseOnly,
+                !oldArcaneTag.equals(newArcaneTag),
+                removed,
+                upserted,
+                state.managedRecipeTypes,
+                state.recipeTypeHints,
+                state.arcaneAnvilRecipes
+        );
+    }
+
+    private static boolean sameRecipe(
+            HolderLookup.Provider provider,
+            RecipeHolder<?> left,
+            RecipeHolder<?> right
+    ) {
+        Tag leftTag = RecipeDeltaSnapshot.encodeRecipe(provider, left);
+        Tag rightTag = RecipeDeltaSnapshot.encodeRecipe(provider, right);
+        return leftTag.equals(rightTag);
+    }
+
+    private static LinkedHashMap<ResourceLocation, ResourceLocation> buildRecipeTypeHints(
+            Map<ResourceLocation, RecipeHolder<?>> base,
+            Map<ResourceLocation, RecipeHolder<?>> recipes,
+            Collection<ResourceLocation> managedRecipeIds
+    ) {
+        var hints = new LinkedHashMap<ResourceLocation, ResourceLocation>();
+        for (var id : managedRecipeIds) {
+            var holder = recipes.get(id);
+            if (holder == null) {
+                holder = base.get(id);
+            }
+            if (holder == null) {
+                continue;
+            }
+            var recipeTypeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
+            if (recipeTypeId != null) {
+                hints.put(id, recipeTypeId);
+            }
+        }
+        return hints;
+    }
+
+    private static ApplyEntryResult applyEntry(
+            String source,
+            RecipeEntry entry,
+            LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes,
+            LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes,
+            LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes,
+            LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes,
+            boolean showcaseOnly
+    ) {
         if (entry.getRecipeId() == null) {
             ViScriptRecipe.LOGGER.warn("Skipping recipe entry with empty id in {}", source);
             return ApplyEntryResult.FAILED;
@@ -178,8 +376,15 @@ public final class RecipeOverrideManager {
                 return applyArcaneAnvilEntry(source, entry, arcaneAnvilRecipes);
             }
             return switch (entry.getOperation()) {
-                case REMOVE -> removeEntry(source, id, entry, recipes, showcaseOnly);
-                case ADD, REPLACE -> upsertEntry(source, entry, recipes, appliedRecipeTypes, showcaseOnly);
+                case REMOVE -> removeEntry(source, id, entry, recipes, managedRecipeTypes, showcaseOnly);
+                case ADD, REPLACE -> upsertEntry(
+                        source,
+                        entry,
+                        recipes,
+                        appliedRecipeTypes,
+                        managedRecipeTypes,
+                        showcaseOnly
+                );
             };
         } catch (Exception e) {
             ViScriptRecipe.LOGGER.error("Failed to apply recipe override {} from {}", id, source, e);
@@ -233,9 +438,17 @@ public final class RecipeOverrideManager {
         }
     }
 
-    private static ApplyEntryResult removeEntry(String source, ResourceLocation id, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, boolean showcaseOnly) {
+    private static ApplyEntryResult removeEntry(
+            String source,
+            ResourceLocation id,
+            RecipeEntry entry,
+            LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes,
+            LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes,
+            boolean showcaseOnly
+    ) {
         var removed = false;
         for (var recipeId : removableRecipeIds(id, entry)) {
+            managedRecipeTypes.put(recipeId, entry.getType());
             removed |= recipes.remove(recipeId) != null;
         }
         if (!removed) {
@@ -247,7 +460,14 @@ public final class RecipeOverrideManager {
         return ApplyEntryResult.APPLIED;
     }
 
-    private static ApplyEntryResult upsertEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes, LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes, boolean showcaseOnly) {
+    private static ApplyEntryResult upsertEntry(
+            String source,
+            RecipeEntry entry,
+            LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes,
+            LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes,
+            LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes,
+            boolean showcaseOnly
+    ) {
         var id = entry.getRecipeId();
         var holders = compileRecipeHolders(id, entry);
         if (holders.isEmpty()) {
@@ -263,6 +483,7 @@ public final class RecipeOverrideManager {
             }
             recipes.put(holder.id(), holder);
             appliedRecipeTypes.put(holder.id(), entry.getType());
+            managedRecipeTypes.put(holder.id(), entry.getType());
         }
         return ApplyEntryResult.APPLIED;
     }
@@ -310,6 +531,32 @@ public final class RecipeOverrideManager {
         FAILED
     }
 
+    public enum DeltaFallbackReason {
+        SHOWCASE_MODE("commands.viscript_recipe.reload.delta.fallback.showcase_mode"),
+        TOO_MANY_CHANGES("commands.viscript_recipe.reload.delta.fallback.too_many_changes"),
+        ENCODING_FAILED("commands.viscript_recipe.reload.delta.fallback.encoding_failed");
+
+        private final String translationKey;
+
+        DeltaFallbackReason(String translationKey) {
+            this.translationKey = translationKey;
+        }
+
+        public String translationKey() {
+            return translationKey;
+        }
+    }
+
+    public record DeltaReloadResult(
+            ApplyResult applyResult,
+            @Nullable RecipeDeltaSnapshot delta,
+            @Nullable DeltaFallbackReason fallbackReason
+    ) {
+        public boolean requiresFullSync() {
+            return fallbackReason != null || delta == null;
+        }
+    }
+
     public record ApplyResult(
             int fileCount,
             int entryCount,
@@ -323,5 +570,15 @@ public final class RecipeOverrideManager {
         public static ApplyResult empty() {
             return new ApplyResult(0, 0, 0, 0, 0, 0, 0, 0);
         }
+    }
+
+    private static final class ManagerState {
+        @Nullable
+        private LinkedHashMap<ResourceLocation, RecipeHolder<?>> baseRecipes;
+        private LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes = new LinkedHashMap<>();
+        private LinkedHashMap<ResourceLocation, ResourceLocation> recipeTypeHints = new LinkedHashMap<>();
+        private List<IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes = List.of();
+        private boolean showcaseOnly;
+        private long revision;
     }
 }

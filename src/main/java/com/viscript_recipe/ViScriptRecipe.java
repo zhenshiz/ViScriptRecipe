@@ -4,7 +4,9 @@ import com.lowdragmc.lowdraglib2.gui.factory.PlayerUIMenuType;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.mojang.logging.LogUtils;
+import com.viscript_recipe.client.RecipeDeltaClientEvents;
 import com.viscript_recipe.gui.editor.RecipeEditor;
+import com.viscript_recipe.recipe.RecipeDeltaServerEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -25,6 +27,7 @@ public class ViScriptRecipe {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public ViScriptRecipe(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
+        RecipeDeltaServerEvents.register();
         PlayerUIMenuType.register(RecipeEditor.WINDOW_ID, ignored -> player -> {
             if (player.level().isClientSide) {
                 return RecipeEditor.createUI();
@@ -33,6 +36,7 @@ public class ViScriptRecipe {
         });
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC, Config.CONFIG_FILE_NAME);
         if (dist == Dist.CLIENT) {
+            RecipeDeltaClientEvents.register();
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         }
     }

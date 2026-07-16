@@ -21,12 +21,14 @@ public final class ViScriptRecipeJeiPlugin implements IModPlugin {
 
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        RecipeDeltaJeiSynchronizer.onRuntimeAvailable(jeiRuntime);
         JeiShowcaseModeState.setRuntimeApplier(() -> applyRuntime(jeiRuntime));
         JeiShowcaseModeState.updateFromLocalConfig(localShowcaseMode());
     }
 
     @Override
     public void onRuntimeUnavailable() {
+        RecipeDeltaJeiSynchronizer.onRuntimeUnavailable();
         JeiShowcaseModeState.clearRuntimeApplier();
     }
 
