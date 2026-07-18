@@ -51,38 +51,17 @@ public final class FarmersDelightRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                COOKING,
-                COOKING_POT,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                COOKING, COOKING_POT,
                 "viscript_recipe.editor.type.farmersdelight.cooking",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getFarmerCookingPot().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getFarmerCookingPot().getResult(),
-                (entry, stack) -> entry.getFarmerCookingPot().setResult(stack.copy())
+                FarmerCookingPotRecipeData.class, FarmerCookingPotRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CUTTING,
-                CUTTING_BOARD,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CUTTING, CUTTING_BOARD,
                 "viscript_recipe.editor.type.farmersdelight.cutting",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getFarmerCuttingBoard().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getFarmerCuttingBoard().getResults().isEmpty()
-                        ? net.minecraft.world.item.ItemStack.EMPTY
-                        : entry.getFarmerCuttingBoard().getResults().getFirst().getItem(),
-                (entry, stack) -> {
-                    if (entry.getFarmerCuttingBoard().getResults().isEmpty()) {
-                        entry.getFarmerCuttingBoard().getResults().add(new FarmerCuttingResultData());
-                    }
-                    entry.getFarmerCuttingBoard().getResults().getFirst().setItem(stack.copy());
-                }
+                FarmerCuttingRecipeData.class, FarmerCuttingRecipeData::new,
+                MOD_ID
         ));
     }
 

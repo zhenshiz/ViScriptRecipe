@@ -1,19 +1,19 @@
 package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
-import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class FarmersDelightCanvasFactory {
     private static final ResourceLocation JEI_COOKING_POT = ResourceLocation.fromNamespaceAndPath(
@@ -73,7 +73,7 @@ final class FarmersDelightCanvasFactory {
     }
 
     static boolean hasJeiCookingPotSkin() {
-        if (!ModList.get().isLoaded("jei") || !ModList.get().isLoaded("farmersdelight")) {
+        if (!ViScriptRecipe.isModLoaded("jei") || !ViScriptRecipe.isModLoaded("farmersdelight")) {
             return false;
         }
         var resources = Minecraft.getInstance().getResourceManager();
@@ -114,7 +114,7 @@ final class FarmersDelightCanvasFactory {
     }
 
     static void updateJeiCuttingResultCells(UIElement[] resultCells, int visibleCount, boolean[] chanceResults) {
-        var count = Math.max(1, Math.min(4, visibleCount));
+        var count = Math.clamp(visibleCount, 1, 4);
         var offsetX = count > 1 ? 1 : 10;
         var offsetY = count > 2 ? 1 : 10;
         for (int index = 0; index < resultCells.length; index++) {
@@ -141,7 +141,7 @@ final class FarmersDelightCanvasFactory {
     }
 
     static boolean hasJeiCuttingBoardSkin() {
-        if (!ModList.get().isLoaded("jei") || !ModList.get().isLoaded("farmersdelight")) {
+        if (!ViScriptRecipe.isModLoaded("jei") || !ViScriptRecipe.isModLoaded("farmersdelight")) {
             return false;
         }
         return Minecraft.getInstance().getResourceManager().getResource(JEI_CUTTING_BOARD).isPresent();

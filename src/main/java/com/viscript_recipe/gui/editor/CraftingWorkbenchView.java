@@ -2,10 +2,10 @@ package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.editor.ui.View;
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
-import com.lowdragmc.lowdraglib2.gui.texture.Icons;
-import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
-import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.FluidStackTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.Icons;
+import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
@@ -17,23 +17,23 @@ import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import com.lowdragmc.lowdraglib2.utils.data.BlockInfo;
 import com.lowdragmc.lowdraglib2.utils.virtuallevel.TrackedDummyWorld;
-import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeUiSupport;
 import com.viscript_recipe.compat.goety.GoetyRecipeUiSupport;
-import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeUiSupport;
 import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientKind;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.core.BlockPos;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -49,8 +49,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Locale;
+import java.util.Map;
 
 public class CraftingWorkbenchView extends View {
     private static final int SLOT_SIZE = 24;
@@ -3768,7 +3768,7 @@ public class CraftingWorkbenchView extends View {
     }
 
     private int mechanicalCraftingGridInnerDimension(int slots) {
-        var normalized = Math.max(1, Math.min(MECHANICAL_CRAFTING_GRID_SIZE, slots));
+        var normalized = Math.clamp(slots, 1, MECHANICAL_CRAFTING_GRID_SIZE);
         return MECHANICAL_CRAFTING_SLOT_SIZE * normalized
                 + Math.max(0, normalized - 1) * mechanicalCraftingGridGap();
     }
@@ -4118,7 +4118,7 @@ public class CraftingWorkbenchView extends View {
         statusLabel.setText(Component.translatable(
                 "viscript_recipe.editor.status",
                 controller.recipeFile().getEntries().size(),
-                controller.recipeFile().getEntries().stream().filter(entry -> entry.isEnabled()).count(),
+                controller.recipeFile().getEntries().stream().filter(RecipeEntry::isEnabled).count(),
                 Component.translatable(warningKey)
         ));
     }
@@ -4187,24 +4187,24 @@ public class CraftingWorkbenchView extends View {
         });
         slot.addEventListener(UIEvents.DRAG_PERFORM, event -> {
             var draggingObject = event.dragHandler == null ? null : event.dragHandler.getDraggingObject();
-            if (!(draggingObject instanceof ItemSlotDragPayload payload)) {
+            if (!(draggingObject instanceof ItemSlotDragPayload(ItemSlot source, ItemStack stack, RecipeIngredient ingredient))) {
                 return;
             }
-            if (payload.source() == slot || payload.stack().isEmpty()) {
+            if (source == slot || stack.isEmpty()) {
                 event.stopPropagation();
                 return;
             }
 
-            if (slot instanceof IngredientDisplaySlot ingredientSlot && payload.ingredient() != null) {
+            if (slot instanceof IngredientDisplaySlot ingredientSlot && ingredient != null) {
                 var ingredientIndex = ingredientDragSlotIndices.get(ingredientSlot);
                 if (ingredientIndex != null) {
-                    controller.setVisualIngredientFromDrag(ingredientIndex, payload.ingredient());
+                    controller.setVisualIngredientFromDrag(ingredientIndex, ingredient);
                     event.stopPropagation();
                     return;
                 }
             }
 
-            var copiedStack = payload.stack().copy();
+            var copiedStack = stack.copy();
             if (!slot.getSlot().mayPlace(copiedStack)) {
                 event.stopPropagation();
                 return;

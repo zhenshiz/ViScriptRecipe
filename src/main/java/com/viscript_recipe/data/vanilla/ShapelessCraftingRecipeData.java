@@ -1,15 +1,15 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapelessRecipe;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -22,9 +22,9 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ShapelessCraftingRecipeData implements IPersistedSerializable, IConfigurable {
+public class ShapelessCraftingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.recipe.show_notification")
-    private boolean showNotification = true;
+    private Boolean showNotification = true;
 
     @Configurable(name = "viscript_recipe.config.shapeless.ingredients")
     @ConfigList(addDefaultMethod = "createDefaultIngredient")
@@ -39,7 +39,11 @@ public class ShapelessCraftingRecipeData implements IPersistedSerializable, ICon
         return RecipeIngredient.item(Items.OAK_PLANKS);
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public String getDataName() {return "shapeless";}
+
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
         if (ingredients.isEmpty()) {
             throw new IllegalArgumentException("Shapeless recipe must have at least one ingredient");
         }

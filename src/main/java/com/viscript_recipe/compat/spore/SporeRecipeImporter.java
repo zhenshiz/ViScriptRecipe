@@ -37,14 +37,14 @@ public final class SporeRecipeImporter implements RecipeImportHandler {
                     .setIngredients(importPositionedIngredients(recipe.getIngredients(), 0, SporeSurgeryRecipeData.INPUT_COUNT))
                     .setResult(RecipeImporter.copyResult(recipe, provider));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), SporeRecipeEditorTypes.SURGERY)
-                    .setSporeSurgery(data));
+                    .setData(data));
         }
         if (holder.value() instanceof GraftingRecipe recipe) {
             var data = new SporeGraftingRecipeData()
                     .setIngredients(importPositionedIngredients(recipe.getIngredients(), GRAFTING_FIRST_INPUT_SLOT, SporeGraftingRecipeData.INPUT_COUNT))
                     .setResult(RecipeImporter.copyResult(recipe, provider));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), SporeRecipeEditorTypes.GRAFTING)
-                    .setSporeGrafting(data));
+                    .setData(data));
         }
         return null;
     }

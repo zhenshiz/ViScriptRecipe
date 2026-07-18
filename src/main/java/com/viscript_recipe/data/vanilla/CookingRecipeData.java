@@ -1,22 +1,23 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.viscript_recipe.data.IVSRecipeData;
+import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.CookingBookCategory;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.*;
+
+import java.util.Map;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-public class CookingRecipeData implements IPersistedSerializable, IConfigurable {
+public class CookingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.cooking.ingredient", subConfigurable = true)
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.RAW_IRON);
 
@@ -29,7 +30,11 @@ public class CookingRecipeData implements IPersistedSerializable, IConfigurable 
     @Configurable(name = "viscript_recipe.config.cooking.cooking_time")
     private int cookingTime = 200;
 
-    public Recipe<?> compile(AbstractCookingRecipe.Factory<? extends AbstractCookingRecipe> factory) {
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
+        var factory = factories.get(typeId);
+        if (factory == null) return null;
+
         var compiledIngredient = ingredient == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : ingredient.compile();
         if (compiledIngredient.isEmpty()) {
             throw new IllegalArgumentException("Cooking recipe ingredient cannot be empty");
@@ -37,6 +42,13 @@ public class CookingRecipeData implements IPersistedSerializable, IConfigurable 
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
-        return factory.create("", CookingBookCategory.MISC, compiledIngredient, result.copy(), Math.max(0, Math.min(Integer.MAX_VALUE, experience)), Math.max(1, cookingTime));
+        return factory.create("", CookingBookCategory.MISC, compiledIngredient, result.copy(), Math.clamp(experience, 0, Integer.MAX_VALUE), Math.max(1, cookingTime));
     }
+
+    static final Map<ResourceLocation, AbstractCookingRecipe.Factory<? extends AbstractCookingRecipe>> factories = Map.of(
+            RecipeEditorTypes.SMELTING, SmeltingRecipe::new,
+            RecipeEditorTypes.BLASTING, BlastingRecipe::new,
+            RecipeEditorTypes.SMOKING, SmokingRecipe::new,
+            RecipeEditorTypes.CAMPFIRE_COOKING, CampfireCookingRecipe::new
+    );
 }

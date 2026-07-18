@@ -42,18 +42,11 @@ public final class IceAndFireRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                DRAGONFORGE,
-                DRAGON_FORGE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                DRAGONFORGE, DRAGON_FORGE,
                 "viscript_recipe.editor.type.iceandfire.dragonforge",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getIceAndFireDragonForge().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getIceAndFireDragonForge().getResult(),
-                (entry, stack) -> entry.getIceAndFireDragonForge().setResult(stack.copy())
+                DragonForgeRecipeData.class, DragonForgeRecipeData::new,
+                MOD_ID
         ));
     }
 

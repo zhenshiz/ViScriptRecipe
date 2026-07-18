@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.extendedcrafting;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import lombok.Getter;
@@ -21,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ExtendedCraftingTableRecipeData implements IPersistedSerializable, IConfigurable {
+public class ExtendedCraftingTableRecipeData implements IVSRecipeData {
     public static final int MIN_SIZE = 1;
     public static final int MAX_SIZE = 9;
 
@@ -74,7 +73,7 @@ public class ExtendedCraftingTableRecipeData implements IPersistedSerializable, 
     }
 
     public int normalizedTier() {
-        return Math.max(0, Math.min(4, tier));
+        return Math.clamp(tier, 0, 4);
     }
 
     public ExtendedCraftingTableRecipeData setWidth(int width) {
@@ -88,15 +87,16 @@ public class ExtendedCraftingTableRecipeData implements IPersistedSerializable, 
     }
 
     public ExtendedCraftingTableRecipeData setTier(int tier) {
-        this.tier = Math.max(0, Math.min(4, tier));
+        this.tier = Math.clamp(tier, 0, 4);
         return this;
     }
 
+    @Override
     public Recipe<?> compile(ResourceLocation type) {
         return ExtendedCraftingRecipeFactory.compileTable(type, this);
     }
 
     private static int clampSize(int value) {
-        return Math.max(MIN_SIZE, Math.min(MAX_SIZE, value));
+        return Math.clamp(value, MIN_SIZE, MAX_SIZE);
     }
 }

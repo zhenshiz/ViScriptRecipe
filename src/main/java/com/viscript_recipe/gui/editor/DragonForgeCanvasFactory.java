@@ -4,13 +4,13 @@ import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class DragonForgeCanvasFactory {
     private static final String ICE_AND_FIRE_MOD_ID = "iceandfire";
@@ -70,7 +70,7 @@ final class DragonForgeCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        if (!ModList.get().isLoaded(JEI_MOD_ID) || !ModList.get().isLoaded(ICE_AND_FIRE_MOD_ID)) {
+        if (!ViScriptRecipe.isModLoaded(JEI_MOD_ID) || !ViScriptRecipe.isModLoaded(ICE_AND_FIRE_MOD_ID)) {
             return false;
         }
         var resources = Minecraft.getInstance().getResourceManager();

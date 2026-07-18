@@ -11,15 +11,7 @@ import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.create.CreateFluidIngredientData;
-import com.viscript_recipe.data.create.CreateFluidIngredientKind;
-import com.viscript_recipe.data.create.CreateHeatCondition;
-import com.viscript_recipe.data.create.CreateProcessingKind;
-import com.viscript_recipe.data.create.CreateProcessingOutputData;
-import com.viscript_recipe.data.create.CreateProcessingRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
+import com.viscript_recipe.data.create.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -95,7 +87,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         if (recipe instanceof ItemApplicationRecipe itemApplication) {
             data.setKeepHeldItem(itemApplication.shouldKeepHeldItem());
         }
-        return RecipeImporter.baseEntry(id, kind.typeId()).setCreateProcessing(data);
+        return RecipeImporter.baseEntry(id, kind.typeId()).setData(data);
     }
 
     private static CreateProcessingKind kindFor(ProcessingRecipe<?, ?> recipe) throws RecipeImportException {
@@ -126,7 +118,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         }
         data.setSequence(steps);
         return RecipeImporter.baseEntry(id, com.viscript_recipe.data.RecipeEditorTypes.CREATE_SEQUENCED_ASSEMBLY)
-                .setCreateSequencedAssembly(data);
+                .setData(data);
     }
 
     private static CreateSequencedAssemblyStepData importSequencedStep(ProcessingRecipe<?, ?> recipe) throws RecipeImportException {

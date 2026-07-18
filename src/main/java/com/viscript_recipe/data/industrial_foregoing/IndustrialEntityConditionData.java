@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 
-/** Stores the optional entity, NBT predicate, and tooltip text applied to a laser drill recipe. */
 @Getter
 @Setter
 @Accessors(chain = true)

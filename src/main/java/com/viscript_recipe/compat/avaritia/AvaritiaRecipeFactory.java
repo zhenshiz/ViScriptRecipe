@@ -1,22 +1,9 @@
 package com.viscript_recipe.compat.avaritia;
 
-import committee.nova.mods.avaritia.common.crafting.recipe.CompressorRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.EternalSingularityCraftRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.ExtremeSmithingRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.FullMatterClusterRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.InfinityCatalystCraftRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.NoConsumeCatalystShapedRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.ShapedTableCraftingRecipe;
-import committee.nova.mods.avaritia.common.crafting.recipe.ShapelessTableCraftingRecipe;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaEternalSingularityRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaExtremeSmithingRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaFullMatterClusterRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaInfinityCatalystRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
-import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
+import com.viscript_recipe.data.avaritia.*;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
+import committee.nova.mods.avaritia.common.crafting.recipe.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -134,8 +121,8 @@ public final class AvaritiaRecipeFactory {
 
     private static List<String> normalizePattern(List<String> pattern, int width, int height) {
         var normalized = new ArrayList<String>();
-        var safeWidth = Math.max(1, Math.min(9, width));
-        var safeHeight = Math.max(1, Math.min(9, height));
+        var safeWidth = Math.clamp(width, 1, 9);
+        var safeHeight = Math.clamp(height, 1, 9);
         for (int row = 0; row < safeHeight; row++) {
             var line = pattern != null && row < pattern.size() && pattern.get(row) != null ? pattern.get(row) : "";
             if (line.length() > safeWidth) {
@@ -191,7 +178,7 @@ public final class AvaritiaRecipeFactory {
             throw new IllegalArgumentException(message);
         }
         var copy = stack.copy();
-        copy.setCount(Math.max(1, Math.min(99, copy.getCount())));
+        copy.setCount(Math.clamp(copy.getCount(), 1, 99));
         return copy;
     }
 

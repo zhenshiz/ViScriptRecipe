@@ -1,11 +1,12 @@
 package com.viscript_recipe.gui.editor;
 
-import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
@@ -17,7 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import net.neoforged.fml.ModList;
 
 /**
  * Builds Goety recipe canvases from its official JEI coordinates with an LDLib2 fallback skin.
@@ -40,7 +40,7 @@ final class GoetyCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        if (!ModList.get().isLoaded("goety") || !ModList.get().isLoaded("jei")) {
+        if (!ViScriptRecipe.isModLoaded("goety") || !ViScriptRecipe.isModLoaded("jei")) {
             return false;
         }
         var resources = Minecraft.getInstance().getResourceManager();
@@ -205,13 +205,12 @@ final class GoetyCanvasFactory {
     }
 
     static UIElement readOnlyItem(String itemId, String tooltipKey, int size) {
-        var icon = new UIElement().layout(layout -> {
+        return new UIElement().layout(layout -> {
             layout.width(size);
             layout.height(size);
         }).style(style -> style
                 .backgroundTexture(new ItemStackTexture(itemStack(itemId)))
                 .tooltips(Component.translatable(tooltipKey)));
-        return icon;
     }
 
     private static UIElement fallbackProcess(UIElement input, UIElement machine, UIElement output, Label label) {

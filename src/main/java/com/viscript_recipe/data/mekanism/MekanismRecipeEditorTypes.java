@@ -4,7 +4,6 @@ import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -38,18 +37,11 @@ public final class MekanismRecipeEditorTypes {
                     RecipeEditorLayout.MEKANISM,
                     kind.workstationId()
             ));
-            RecipeEditorTypes.register(new RecipeEditorType(
-                    kind.typeId(),
-                    kind.typeId(),
+            RecipeEditorTypes.register(RecipeEditorType.of(
+                    kind.typeId(), kind.typeId(),
                     "viscript_recipe.editor.type.mekanism." + path,
-                    REQUIRED_MODS,
-                    false,
-                    entry -> entry.getMekanism().compile(kind.typeId()),
-                    entry -> false,
-                    (entry, value) -> {
-                    },
-                    entry -> kind.itemOutputs() > 0 ? entry.getMekanism().getItemOutput() : ItemStack.EMPTY,
-                    (entry, stack) -> entry.getMekanism().setItemOutput(stack == null ? ItemStack.EMPTY : stack.copy())
+                    MekanismRecipeData.class, MekanismRecipeData::new,
+                    MOD_ID
             ));
         }
     }

@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.farmersdelight;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeIngredientValue;
 import lombok.Getter;
@@ -21,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class FarmerCuttingRecipeData implements IPersistedSerializable, IConfigurable {
+public class FarmerCuttingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.farmersdelight.cutting.input", subConfigurable = true)
     private RecipeIngredient input = RecipeIngredient.item(Items.BEEF);
 
@@ -44,7 +43,21 @@ public class FarmerCuttingRecipeData implements IPersistedSerializable, IConfigu
         return new FarmerCuttingResultData();
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public ItemStack getResult() {
+        return getResults().isEmpty() ? ItemStack.EMPTY : getResults().getFirst().getItem();
+    }
+
+    @Override
+    public <T extends IVSRecipeData> T setResult(ItemStack result) {
+        if (getResults().isEmpty()) getResults().add(new FarmerCuttingResultData());
+        getResults().getFirst().setItem(result.copy());
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
         return FarmersDelightRecipeFactory.compileCutting(this);
     }
 

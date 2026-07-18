@@ -1,40 +1,23 @@
 package com.viscript_recipe.compat.industrial_foregoing;
 
-import com.buuz135.industrial.recipe.DissolutionChamberRecipe;
-import com.buuz135.industrial.recipe.FluidExtractorRecipe;
-import com.buuz135.industrial.recipe.LaserDrillFluidRecipe;
-import com.buuz135.industrial.recipe.LaserDrillOreRecipe;
-import com.buuz135.industrial.recipe.LaserDrillRarity;
-import com.buuz135.industrial.recipe.CrusherRecipe;
-import com.buuz135.industrial.recipe.StoneWorkGenerateRecipe;
+import com.buuz135.industrial.recipe.*;
 import com.buuz135.industrial.recipe.data.EntityData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialBlockStatePropertyData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialCrusherRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialDissolutionRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialEntityConditionData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialEntityIngredientKind;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidExtractorRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientKind;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillFluidRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillOreRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillRarityData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialStoneWorkRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SingleFluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
 import java.util.ArrayList;
@@ -64,7 +47,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
                     .setInput(RecipeImporter.importIngredient(recipe.input))
                     .setOutput(RecipeImporter.importIngredient(recipe.output));
             return success(holder, IndustrialForegoingRecipeEditorTypes.CRUSHER,
-                    entry -> entry.setIndustrialCrusher(data));
+                    entry -> entry.setData(data));
         }
         if (holder.value() instanceof DissolutionChamberRecipe recipe) {
             var data = new IndustrialDissolutionRecipeData()
@@ -76,7 +59,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
                     .setHasFluidOutput(recipe.outputFluid.isPresent())
                     .setOutputFluid(recipe.outputFluid.map(FluidStack::copy).orElse(FluidStack.EMPTY));
             return success(holder, IndustrialForegoingRecipeEditorTypes.DISSOLUTION_CHAMBER,
-                    entry -> entry.setIndustrialDissolution(data));
+                    entry -> entry.setData(data));
         }
         if (holder.value() instanceof FluidExtractorRecipe recipe) {
             var data = new IndustrialFluidExtractorRecipeData()
@@ -87,7 +70,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
                     .setOutput(recipe.output.copy())
                     .setDefaultRecipe(recipe.defaultRecipe);
             return success(holder, IndustrialForegoingRecipeEditorTypes.FLUID_EXTRACTOR,
-                    entry -> entry.setIndustrialFluidExtractor(data));
+                    entry -> entry.setData(data));
         }
         if (holder.value() instanceof LaserDrillOreRecipe recipe) {
             var data = new IndustrialLaserDrillOreRecipeData()
@@ -97,7 +80,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
                     .setEntityCondition(importEntityCondition(recipe.entityData.orElse(null)))
                     .setRarity(recipe.rarity.stream().map(IndustrialForegoingRecipeImporter::importRarity).collect(java.util.stream.Collectors.toCollection(ArrayList::new)));
             return success(holder, IndustrialForegoingRecipeEditorTypes.LASER_DRILL_ORE,
-                    entry -> entry.setIndustrialLaserDrillOre(data));
+                    entry -> entry.setData(data));
         }
         if (holder.value() instanceof LaserDrillFluidRecipe recipe) {
             var data = new IndustrialLaserDrillFluidRecipeData()
@@ -106,7 +89,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
                     .setEntityCondition(importEntityCondition(recipe.entityData.orElse(null)))
                     .setRarity(recipe.rarity.stream().map(IndustrialForegoingRecipeImporter::importRarity).collect(java.util.stream.Collectors.toCollection(ArrayList::new)));
             return success(holder, IndustrialForegoingRecipeEditorTypes.LASER_DRILL_FLUID,
-                    entry -> entry.setIndustrialLaserDrillFluid(data));
+                    entry -> entry.setData(data));
         }
         if (holder.value() instanceof StoneWorkGenerateRecipe recipe) {
             var data = new IndustrialStoneWorkRecipeData()
@@ -116,7 +99,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
                     .setWaterConsume(Math.max(0, recipe.waterConsume))
                     .setLavaConsume(Math.max(0, recipe.lavaConsume));
             return success(holder, IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE,
-                    entry -> entry.setIndustrialStoneWork(data));
+                    entry -> entry.setData(data));
         }
         return null;
     }
@@ -152,10 +135,10 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
 
     private static IndustrialLaserDrillRarityData importRarity(LaserDrillRarity rarity) {
         return new IndustrialLaserDrillRarityData()
-                .setBiomeWhitelist(rarity.biomeRarity().whitelist().stream().map(tag -> tag.location()).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
-                .setBiomeBlacklist(rarity.biomeRarity().blacklist().stream().map(tag -> tag.location()).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
-                .setDimensionWhitelist(rarity.dimensionRarity().whitelist().stream().map(key -> key.location()).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
-                .setDimensionBlacklist(rarity.dimensionRarity().blacklist().stream().map(key -> key.location()).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
+                .setBiomeWhitelist(rarity.biomeRarity().whitelist().stream().map(TagKey::location).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
+                .setBiomeBlacklist(rarity.biomeRarity().blacklist().stream().map(TagKey::location).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
+                .setDimensionWhitelist(rarity.dimensionRarity().whitelist().stream().map(ResourceKey::location).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
+                .setDimensionBlacklist(rarity.dimensionRarity().blacklist().stream().map(ResourceKey::location).collect(java.util.stream.Collectors.toCollection(ArrayList::new)))
                 .setDepthMin(rarity.depth_min())
                 .setDepthMax(rarity.depth_max())
                 .setWeight(Math.max(1, rarity.weight()));

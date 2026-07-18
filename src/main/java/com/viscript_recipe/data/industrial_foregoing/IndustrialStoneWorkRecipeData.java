@@ -1,21 +1,20 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 
-/** Editable representation of {@code StoneWorkGenerateRecipe.CODEC}. */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class IndustrialStoneWorkRecipeData implements IPersistedSerializable, IConfigurable {
+public class IndustrialStoneWorkRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.recipe.result")
     private ItemStack output = new ItemStack(Items.COBBLESTONE);
 
@@ -31,8 +30,18 @@ public class IndustrialStoneWorkRecipeData implements IPersistedSerializable, IC
     @Configurable(name = "viscript_recipe.config.industrial_foregoing.stonework.lava_consume")
     private int lavaConsume;
 
-    /** Compiles the editor data into Industrial Foregoing's native recipe. */
-    public Recipe<?> compile() {
+    @Override
+    public ItemStack getResult() {return getOutput();}
+
+    @Override
+    public <T extends IVSRecipeData> T setResult(ItemStack result) {
+        setOutput(result);
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return IndustrialForegoingRecipeFactory.compileStoneWork(this);
     }
 }

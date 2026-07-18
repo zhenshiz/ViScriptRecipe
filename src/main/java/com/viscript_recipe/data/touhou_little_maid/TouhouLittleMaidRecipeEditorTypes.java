@@ -8,9 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-/**
- * Registers Touhou Little Maid's altar category and recipe editor type.
- */
 public final class TouhouLittleMaidRecipeEditorTypes {
     public static final String MOD_ID = "touhou_little_maid";
 
@@ -37,18 +34,11 @@ public final class TouhouLittleMaidRecipeEditorTypes {
                 RecipeEditorLayout.TOUHOU_LITTLE_MAID_ALTAR,
                 touhouLittleMaid("hakurei_gohei")
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ALTAR_RECIPE,
-                ALTAR,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ALTAR_RECIPE, ALTAR,
                 "viscript_recipe.editor.type.touhou_little_maid.altar",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getTouhouLittleMaidAltar().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getTouhouLittleMaidAltar().getResult(),
-                (entry, stack) -> entry.getTouhouLittleMaidAltar().setResult(stack.copy())
+                TouhouLittleMaidAltarRecipeData.class, TouhouLittleMaidAltarRecipeData::new,
+                MOD_ID
         ));
     }
 

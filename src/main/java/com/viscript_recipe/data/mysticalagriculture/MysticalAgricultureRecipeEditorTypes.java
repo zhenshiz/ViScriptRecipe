@@ -1,20 +1,11 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport;
-import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
-import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.data.*;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-/**
- * Registers the six Recipe Codec-backed Mystical Agriculture editor types.
- *
- * <p>The JEI-only crux information page is intentionally excluded because it is generated from the crop registry
- * and is not represented by a recipe serializer.
- */
 public final class MysticalAgricultureRecipeEditorTypes {
     public static final String MOD_ID = "mysticalagriculture";
 
@@ -65,57 +56,27 @@ public final class MysticalAgricultureRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(type(INFUSION, INFUSION_ALTAR,
-                entry -> entry.getMysticalAgricultureInfusion().compile(),
-                entry -> entry.getMysticalAgricultureInfusion().getResult(),
-                (entry, stack) -> entry.getMysticalAgricultureInfusion().setResult(stack.copy())));
-        RecipeEditorTypes.register(type(AWAKENING, AWAKENING_ALTAR,
-                entry -> entry.getMysticalAgricultureAwakening().compile(),
-                entry -> entry.getMysticalAgricultureAwakening().getResult(),
-                (entry, stack) -> entry.getMysticalAgricultureAwakening().setResult(stack.copy())));
-        RecipeEditorTypes.register(type(ENCHANTER, ENCHANTER_BLOCK,
-                entry -> entry.getMysticalAgricultureEnchanter().compile(),
-                entry -> MysticalAgricultureRecipeUiSupport.firstEnchantedBook(
-                        entry.getMysticalAgricultureEnchanter().getEnchantment()),
-                (entry, stack) -> {
-                }));
-        RecipeEditorTypes.register(type(REPROCESSOR, REPROCESSOR_BLOCK,
-                entry -> entry.getMysticalAgricultureReprocessor().compile(),
-                entry -> entry.getMysticalAgricultureReprocessor().getResult(),
-                (entry, stack) -> entry.getMysticalAgricultureReprocessor().setResult(stack.copy())));
-        RecipeEditorTypes.register(type(SOUL_EXTRACTION, SOUL_EXTRACTOR_BLOCK,
-                entry -> entry.getMysticalAgricultureSoulExtraction().compile(),
-                entry -> MysticalAgricultureRecipeUiSupport.soulJar(entry.getMysticalAgricultureSoulExtraction()),
-                (entry, stack) -> {
-                }));
-        RecipeEditorTypes.register(type(SOULIUM_SPAWNER, SOULIUM_SPAWNER_BLOCK,
-                entry -> entry.getMysticalAgricultureSouliumSpawner().compile(),
-                entry -> MysticalAgricultureRecipeUiSupport.firstSpawnEgg(
-                        entry.getMysticalAgricultureSouliumSpawner().getEntities()),
-                (entry, stack) -> {
-                }));
+        register(INFUSION, INFUSION_ALTAR,
+                MysticalAgricultureInfusionRecipeData.class, MysticalAgricultureInfusionRecipeData::new);
+        register(AWAKENING, AWAKENING_ALTAR,
+                MysticalAgricultureAwakeningRecipeData.class, MysticalAgricultureAwakeningRecipeData::new);
+        register(ENCHANTER, ENCHANTER_BLOCK,
+                MysticalAgricultureEnchanterRecipeData.class, MysticalAgricultureEnchanterRecipeData::new);
+        register(REPROCESSOR, REPROCESSOR_BLOCK,
+                MysticalAgricultureReprocessorRecipeData.class, MysticalAgricultureReprocessorRecipeData::new);
+        register(SOUL_EXTRACTION, SOUL_EXTRACTOR_BLOCK,
+                MysticalAgricultureSoulExtractionRecipeData.class, MysticalAgricultureSoulExtractionRecipeData::new);
+        register(SOULIUM_SPAWNER, SOULIUM_SPAWNER_BLOCK,
+                MysticalAgricultureSouliumSpawnerRecipeData.class, MysticalAgricultureSouliumSpawnerRecipeData::new);
     }
 
-    private static RecipeEditorType type(
-            ResourceLocation id,
-            ResourceLocation category,
-            java.util.function.Function<com.viscript_recipe.data.RecipeEntry, net.minecraft.world.item.crafting.Recipe<?>> compiler,
-            java.util.function.Function<com.viscript_recipe.data.RecipeEntry, net.minecraft.world.item.ItemStack> resultGetter,
-            java.util.function.BiConsumer<com.viscript_recipe.data.RecipeEntry, net.minecraft.world.item.ItemStack> resultSetter
+    private static void register(ResourceLocation id, ResourceLocation category,
+            Class<? extends IVSRecipeData> dataClass, Supplier<? extends IVSRecipeData> dataSupplier
     ) {
-        return new RecipeEditorType(
-                id,
-                category,
+        RecipeEditorTypes.register(RecipeEditorType.of(id, category,
                 "viscript_recipe.editor.type.mysticalagriculture." + id.getPath(),
-                REQUIRED_MODS,
-                false,
-                compiler,
-                entry -> false,
-                (entry, value) -> {
-                },
-                resultGetter,
-                resultSetter
-        );
+                dataClass, dataSupplier, MOD_ID
+        ));
     }
 
     public static ResourceLocation mystical(String path) {

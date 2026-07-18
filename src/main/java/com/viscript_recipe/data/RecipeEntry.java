@@ -4,78 +4,48 @@ import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauApparatusRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauArmorUpgradeRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauEnchantmentRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauGlyphRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauImbuementRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauPedestalOnlyRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaEternalSingularityRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaExtremeSmithingRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaFullMatterClusterRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaInfinityCatalystRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
+import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.data.ars_nouveau.*;
+import com.viscript_recipe.data.avaritia.*;
+import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.create.CreateProcessingRecipeData;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCombinationRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCompressorRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingEnderCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingFluxCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingTableRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingUltimateSingularityRecipeData;
-import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
+import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
-import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
-import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
-import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
-import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
+import com.viscript_recipe.data.goety.*;
+import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
+import com.viscript_recipe.data.industrial_foregoing.*;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialDissolutionRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialCrusherRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidExtractorRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillFluidRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillOreRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialStoneWorkRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeChoppingBoardRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeMillstoneRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.*;
 import com.viscript_recipe.data.mekanism.MekanismRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureAwakeningRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureInfusionRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureReprocessorRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSoulExtractionRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSouliumSpawnerRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.*;
 import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
 import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
-import com.viscript_recipe.data.vanilla.CookingRecipeData;
-import com.viscript_recipe.data.vanilla.ShapedCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.ShapelessCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.SmithingTransformRecipeData;
-import com.viscript_recipe.data.vanilla.StonecuttingRecipeData;
+import com.viscript_recipe.data.vanilla.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 
 @Getter
 @Setter
 @Accessors(chain = true)
+@SuppressWarnings("unchecked")
 public class RecipeEntry implements IPersistedSerializable, IConfigurable {
+    private final HashMap<Class<? extends IVSRecipeData>, IVSRecipeData> recipeData = new HashMap<>();
+
     @Configurable(name = "viscript_recipe.config.entry.enabled")
     private boolean enabled = true;
 
@@ -84,200 +54,119 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
     private RecipeOperation operation = RecipeOperation.REPLACE;
 
     @Configurable(name = "viscript_recipe.config.entry.recipe_id")
-    private ResourceLocation recipeId = ResourceLocation.fromNamespaceAndPath("viscript_recipe", "example");
+    private ResourceLocation recipeId = ViScriptRecipe.id("example");
 
     @Configurable(name = "viscript_recipe.config.entry.type")
     private ResourceLocation type = RecipeEditorTypes.CRAFTING_SHAPED;
 
-    @Configurable(name = "viscript_recipe.config.entry.shaped", subConfigurable = true)
-    private ShapedCraftingRecipeData shaped = new ShapedCraftingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.shapeless", subConfigurable = true)
-    private ShapelessCraftingRecipeData shapeless = new ShapelessCraftingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.cooking", subConfigurable = true)
-    private CookingRecipeData cooking = new CookingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.stonecutting", subConfigurable = true)
-    private StonecuttingRecipeData stonecutting = new StonecuttingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.smithing_transform", subConfigurable = true)
-    private SmithingTransformRecipeData smithingTransform = new SmithingTransformRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.irons_spellbooks.alchemist_cauldron", subConfigurable = true)
-    private IronAlchemistCauldronRecipeData ironAlchemistCauldron = new IronAlchemistCauldronRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.irons_spellbooks.arcane_anvil", subConfigurable = true)
-    private IronArcaneAnvilRecipeData ironArcaneAnvil = new IronArcaneAnvilRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.irons_spellbooks.smithing_no_addition", subConfigurable = true)
-    private IronNoAdditionSmithingRecipeData ironNoAdditionSmithing = new IronNoAdditionSmithingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.iceandfire.dragon_forge", subConfigurable = true)
-    private DragonForgeRecipeData iceAndFireDragonForge = new DragonForgeRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.spore.surgery", subConfigurable = true)
-    private SporeSurgeryRecipeData sporeSurgery = new SporeSurgeryRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.spore.grafting", subConfigurable = true)
-    private SporeGraftingRecipeData sporeGrafting = new SporeGraftingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.farmersdelight.cooking_pot", subConfigurable = true)
-    private FarmerCookingPotRecipeData farmerCookingPot = new FarmerCookingPotRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.farmersdelight.cutting_board", subConfigurable = true)
-    private FarmerCuttingRecipeData farmerCuttingBoard = new FarmerCuttingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.create.processing", subConfigurable = true)
-    private CreateProcessingRecipeData createProcessing = new CreateProcessingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.create.mechanical_crafting", subConfigurable = true)
-    private CreateMechanicalCraftingRecipeData createMechanicalCrafting = new CreateMechanicalCraftingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.create.sequenced_assembly", subConfigurable = true)
-    private CreateSequencedAssemblyRecipeData createSequencedAssembly = new CreateSequencedAssemblyRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.table", subConfigurable = true)
-    private ExtendedCraftingTableRecipeData extendedCraftingTable = new ExtendedCraftingTableRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.ender_crafter", subConfigurable = true)
-    private ExtendedCraftingEnderCrafterRecipeData extendedCraftingEnderCrafter = new ExtendedCraftingEnderCrafterRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.flux_crafter", subConfigurable = true)
-    private ExtendedCraftingFluxCrafterRecipeData extendedCraftingFluxCrafter = new ExtendedCraftingFluxCrafterRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.combination", subConfigurable = true)
-    private ExtendedCraftingCombinationRecipeData extendedCraftingCombination = new ExtendedCraftingCombinationRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.compressor", subConfigurable = true)
-    private ExtendedCraftingCompressorRecipeData extendedCraftingCompressor = new ExtendedCraftingCompressorRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.extendedcrafting.ultimate_singularity", subConfigurable = true)
-    private ExtendedCraftingUltimateSingularityRecipeData extendedCraftingUltimateSingularity = new ExtendedCraftingUltimateSingularityRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.apparatus", subConfigurable = true)
-    private ArsNouveauApparatusRecipeData arsNouveauApparatus = new ArsNouveauApparatusRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.armor_upgrade", subConfigurable = true)
-    private ArsNouveauArmorUpgradeRecipeData arsNouveauArmorUpgrade = new ArsNouveauArmorUpgradeRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.enchantment", subConfigurable = true)
-    private ArsNouveauEnchantmentRecipeData arsNouveauEnchantment = new ArsNouveauEnchantmentRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.imbuement", subConfigurable = true)
-    private ArsNouveauImbuementRecipeData arsNouveauImbuement = new ArsNouveauImbuementRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.glyph", subConfigurable = true)
-    private ArsNouveauGlyphRecipeData arsNouveauGlyph = new ArsNouveauGlyphRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.crush", subConfigurable = true)
-    private ArsNouveauCrushRecipeData arsNouveauCrush = new ArsNouveauCrushRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.ars_nouveau.pedestal_only", subConfigurable = true)
-    private ArsNouveauPedestalOnlyRecipeData arsNouveauPedestalOnly = new ArsNouveauPedestalOnlyRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.pot", subConfigurable = true)
-    private KaleidoscopePotRecipeData kaleidoscopePot = new KaleidoscopePotRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.stockpot", subConfigurable = true)
-    private KaleidoscopeStockpotRecipeData kaleidoscopeStockpot = new KaleidoscopeStockpotRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.millstone", subConfigurable = true)
-    private KaleidoscopeMillstoneRecipeData kaleidoscopeMillstone = new KaleidoscopeMillstoneRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.chopping_board", subConfigurable = true)
-    private KaleidoscopeChoppingBoardRecipeData kaleidoscopeChoppingBoard = new KaleidoscopeChoppingBoardRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.steamer", subConfigurable = true)
-    private KaleidoscopeSteamerRecipeData kaleidoscopeSteamer = new KaleidoscopeSteamerRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.kaleidoscope_cookery.teapot", subConfigurable = true)
-    private KaleidoscopeTeapotRecipeData kaleidoscopeTeapot = new KaleidoscopeTeapotRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.avaritia.table", subConfigurable = true)
-    private AvaritiaTableRecipeData avaritiaTable = new AvaritiaTableRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.avaritia.compressor", subConfigurable = true)
-    private AvaritiaCompressorRecipeData avaritiaCompressor = new AvaritiaCompressorRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.avaritia.extreme_smithing", subConfigurable = true)
-    private AvaritiaExtremeSmithingRecipeData avaritiaExtremeSmithing = new AvaritiaExtremeSmithingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.avaritia.infinity_catalyst", subConfigurable = true)
-    private AvaritiaInfinityCatalystRecipeData avaritiaInfinityCatalyst = new AvaritiaInfinityCatalystRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.avaritia.eternal_singularity", subConfigurable = true)
-    private AvaritiaEternalSingularityRecipeData avaritiaEternalSingularity = new AvaritiaEternalSingularityRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.avaritia.full_matter_cluster", subConfigurable = true)
-    private AvaritiaFullMatterClusterRecipeData avaritiaFullMatterCluster = new AvaritiaFullMatterClusterRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.cataclysm.weapon_fusion", subConfigurable = true)
-    private CataclysmWeaponFusionRecipeData cataclysmWeaponFusion = new CataclysmWeaponFusionRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.cataclysm.amethyst_bless", subConfigurable = true)
-    private CataclysmAmethystBlessRecipeData cataclysmAmethystBless = new CataclysmAmethystBlessRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.touhou_little_maid.altar", subConfigurable = true)
-    private TouhouLittleMaidAltarRecipeData touhouLittleMaidAltar = new TouhouLittleMaidAltarRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.goety.cursed_infuser", subConfigurable = true)
-    private GoetyCursedInfuserRecipeData goetyCursedInfuser = new GoetyCursedInfuserRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.goety.ritual", subConfigurable = true)
-    private GoetyRitualRecipeData goetyRitual = new GoetyRitualRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.goety.brazier", subConfigurable = true)
-    private GoetyBrazierRecipeData goetyBrazier = new GoetyBrazierRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.goety.pulverize", subConfigurable = true)
-    private GoetyPulverizeRecipeData goetyPulverize = new GoetyPulverizeRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.goety.brewing", subConfigurable = true)
-    private GoetyBrewingRecipeData goetyBrewing = new GoetyBrewingRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.infusion", subConfigurable = true)
-    private MysticalAgricultureInfusionRecipeData mysticalAgricultureInfusion = new MysticalAgricultureInfusionRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.awakening", subConfigurable = true)
-    private MysticalAgricultureAwakeningRecipeData mysticalAgricultureAwakening = new MysticalAgricultureAwakeningRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.enchanter", subConfigurable = true)
-    private MysticalAgricultureEnchanterRecipeData mysticalAgricultureEnchanter = new MysticalAgricultureEnchanterRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.reprocessor", subConfigurable = true)
-    private MysticalAgricultureReprocessorRecipeData mysticalAgricultureReprocessor = new MysticalAgricultureReprocessorRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.soul_extraction", subConfigurable = true)
-    private MysticalAgricultureSoulExtractionRecipeData mysticalAgricultureSoulExtraction = new MysticalAgricultureSoulExtractionRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mysticalagriculture.soulium_spawner", subConfigurable = true)
-    private MysticalAgricultureSouliumSpawnerRecipeData mysticalAgricultureSouliumSpawner = new MysticalAgricultureSouliumSpawnerRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.dissolution", subConfigurable = true)
-    private IndustrialDissolutionRecipeData industrialDissolution = new IndustrialDissolutionRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.crusher", subConfigurable = true)
-    private IndustrialCrusherRecipeData industrialCrusher = new IndustrialCrusherRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.fluid_extractor", subConfigurable = true)
-    private IndustrialFluidExtractorRecipeData industrialFluidExtractor = new IndustrialFluidExtractorRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.laser_drill_ore", subConfigurable = true)
-    private IndustrialLaserDrillOreRecipeData industrialLaserDrillOre = new IndustrialLaserDrillOreRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.laser_drill_fluid", subConfigurable = true)
-    private IndustrialLaserDrillFluidRecipeData industrialLaserDrillFluid = new IndustrialLaserDrillFluidRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.industrial_foregoing.stonework", subConfigurable = true)
-    private IndustrialStoneWorkRecipeData industrialStoneWork = new IndustrialStoneWorkRecipeData();
-
-    @Configurable(name = "viscript_recipe.config.entry.mekanism", subConfigurable = true)
-    private MekanismRecipeData mekanism = new MekanismRecipeData();
-
-    public Recipe<?> compile() {
-        return RecipeEditorTypes.require(getType()).compile(this);
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.@NotNull Provider provider) {
+        var tag = IPersistedSerializable.super.serializeNBT(provider);
+        tag.put(getData().getDataName(), getData().serializeNBT(provider));
+        return tag;
     }
+
+    @Override
+    public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
+        IPersistedSerializable.super.deserializeNBT(provider, tag);
+        getData().deserializeNBT(provider, tag);
+    }
+
+    public <T extends IVSRecipeData> Class<T> getDataClass() {
+        return (Class<T>) RecipeEditorTypes.require(getType()).dataClass();
+    }
+
+    public <T extends IVSRecipeData> T getData() {
+        var clazz = getDataClass();
+        if (!recipeData.containsKey(clazz)) recipeData.put(clazz, RecipeEditorTypes.require(getType()).dataSupplier().get());
+        return (T) recipeData.get(clazz);
+    }
+
+    public RecipeEntry setData(IVSRecipeData data) {
+        var dataClass = getDataClass();
+        if (data != null && data.getClass().equals(dataClass)) recipeData.put(dataClass, data);
+        return this;
+    }
+
+    public ShapedCraftingRecipeData getShaped() {return getData();}
+    public ShapelessCraftingRecipeData getShapeless() {return getData();}
+    public CookingRecipeData getCooking() {return getData();}
+    public StonecuttingRecipeData getStonecutting() {return getData();}
+    public SmithingTransformRecipeData getSmithingTransform() {return getData();}
+
+    public IronAlchemistCauldronRecipeData getIronAlchemistCauldron() {return getData();}
+    public IronArcaneAnvilRecipeData getIronArcaneAnvil() {return getData();}
+    public IronNoAdditionSmithingRecipeData getIronNoAdditionSmithing() {return getData();}
+
+    public DragonForgeRecipeData getIceAndFireDragonForge() {return getData();}
+
+    public SporeSurgeryRecipeData getSporeSurgery() {return getData();}
+    public SporeGraftingRecipeData getSporeGrafting() {return getData();}
+
+    public FarmerCookingPotRecipeData getFarmerCookingPot() {return getData();}
+    public FarmerCuttingRecipeData getFarmerCuttingBoard() {return getData();}
+
+    public CreateProcessingRecipeData getCreateProcessing() {return getData();}
+    public CreateMechanicalCraftingRecipeData getCreateMechanicalCrafting() {return getData();}
+    public CreateSequencedAssemblyRecipeData getCreateSequencedAssembly() {return getData();}
+
+    public ExtendedCraftingTableRecipeData getExtendedCraftingTable() {return getData();}
+    public ExtendedCraftingEnderCrafterRecipeData getExtendedCraftingEnderCrafter() {return getData();}
+    public ExtendedCraftingFluxCrafterRecipeData getExtendedCraftingFluxCrafter() {return getData();}
+    public ExtendedCraftingCombinationRecipeData getExtendedCraftingCombination() {return getData();}
+    public ExtendedCraftingCompressorRecipeData getExtendedCraftingCompressor() {return getData();}
+    public ExtendedCraftingUltimateSingularityRecipeData getExtendedCraftingUltimateSingularity() {return getData();}
+
+    public ArsNouveauApparatusRecipeData getArsNouveauApparatus() {return getData();}
+    public ArsNouveauArmorUpgradeRecipeData getArsNouveauArmorUpgrade() {return getData();}
+    public ArsNouveauEnchantmentRecipeData getArsNouveauEnchantment() {return getData();}
+    public ArsNouveauImbuementRecipeData getArsNouveauImbuement() {return getData();}
+    public ArsNouveauGlyphRecipeData getArsNouveauGlyph() {return getData();}
+    public ArsNouveauCrushRecipeData getArsNouveauCrush() {return getData();}
+    public ArsNouveauPedestalOnlyRecipeData getArsNouveauPedestalOnly() {return getData();}
+
+    public KaleidoscopePotRecipeData getKaleidoscopePot() {return getData();}
+    public KaleidoscopeStockpotRecipeData getKaleidoscopeStockpot() {return getData();}
+    public KaleidoscopeMillstoneRecipeData getKaleidoscopeMillstone() {return getData();}
+    public KaleidoscopeChoppingBoardRecipeData getKaleidoscopeChoppingBoard() {return getData();}
+    public KaleidoscopeSteamerRecipeData getKaleidoscopeSteamer() {return getData();}
+    public KaleidoscopeTeapotRecipeData getKaleidoscopeTeapot() {return getData();}
+
+    public AvaritiaTableRecipeData getAvaritiaTable() {return getData();}
+    public AvaritiaCompressorRecipeData getAvaritiaCompressor() {return getData();}
+    public AvaritiaExtremeSmithingRecipeData getAvaritiaExtremeSmithing() {return getData();}
+    public AvaritiaInfinityCatalystRecipeData getAvaritiaInfinityCatalyst() {return getData();}
+    public AvaritiaEternalSingularityRecipeData getAvaritiaEternalSingularity() {return getData();}
+    public AvaritiaFullMatterClusterRecipeData getAvaritiaFullMatterCluster() {return getData();}
+
+    public CataclysmWeaponFusionRecipeData getCataclysmWeaponFusion() {return getData();}
+    public CataclysmAmethystBlessRecipeData getCataclysmAmethystBless() {return getData();}
+
+    public TouhouLittleMaidAltarRecipeData getTouhouLittleMaidAltar() {return getData();}
+
+    public GoetyCursedInfuserRecipeData getGoetyCursedInfuser() {return getData();}
+    public GoetyRitualRecipeData getGoetyRitual() {return getData();}
+    public GoetyBrazierRecipeData getGoetyBrazier() {return getData();}
+    public GoetyPulverizeRecipeData getGoetyPulverize() {return getData();}
+    public GoetyBrewingRecipeData getGoetyBrewing() {return getData();}
+
+    public MysticalAgricultureInfusionRecipeData getMysticalAgricultureInfusion() {return getData();}
+    public MysticalAgricultureAwakeningRecipeData getMysticalAgricultureAwakening() {return getData();}
+    public MysticalAgricultureEnchanterRecipeData getMysticalAgricultureEnchanter() {return getData();}
+    public MysticalAgricultureReprocessorRecipeData getMysticalAgricultureReprocessor() {return getData();}
+    public MysticalAgricultureSoulExtractionRecipeData getMysticalAgricultureSoulExtraction() {return getData();}
+    public MysticalAgricultureSouliumSpawnerRecipeData getMysticalAgricultureSouliumSpawner() {return getData();}
+
+    public IndustrialDissolutionRecipeData getIndustrialDissolution() {return getData();}
+    public IndustrialCrusherRecipeData getIndustrialCrusher() {return getData();}
+    public IndustrialFluidExtractorRecipeData getIndustrialFluidExtractor() {return getData();}
+    public IndustrialLaserDrillOreRecipeData getIndustrialLaserDrillOre() {return getData();}
+    public IndustrialLaserDrillFluidRecipeData getIndustrialLaserDrillFluid() {return getData();}
+    public IndustrialStoneWorkRecipeData getIndustrialStoneWork() {return getData();}
+
+    public MekanismRecipeData getMekanism() {return getData();}
+
+    public Recipe<?> compile() {return getData().compile(getType());}
 
     public ResourceLocation getType() {
         return type == null ? RecipeEditorTypes.CRAFTING_SHAPED : type;

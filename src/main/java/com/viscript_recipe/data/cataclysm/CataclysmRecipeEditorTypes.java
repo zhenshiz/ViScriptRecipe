@@ -8,9 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-/**
- * Registers the explicitly supported Cataclysm recipe editor categories and types.
- */
 public final class CataclysmRecipeEditorTypes {
     public static final String MOD_ID = "cataclysm";
 
@@ -25,9 +22,6 @@ public final class CataclysmRecipeEditorTypes {
     private CataclysmRecipeEditorTypes() {
     }
 
-    /**
-     * Registers Cataclysm categories and editor types once.
-     */
     public static synchronized void registerAll() {
         if (registered) {
             return;
@@ -59,40 +53,20 @@ public final class CataclysmRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                WEAPON_FUSION,
-                MECHANICAL_FUSION_ANVIL,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                WEAPON_FUSION, MECHANICAL_FUSION_ANVIL,
                 "viscript_recipe.editor.type.cataclysm.weapon_fusion",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getCataclysmWeaponFusion().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCataclysmWeaponFusion().getResult(),
-                (entry, stack) -> entry.getCataclysmWeaponFusion().setResult(stack.copy())
+                CataclysmWeaponFusionRecipeData.class, CataclysmWeaponFusionRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                AMETHYST_BLESS,
-                ALTAR_OF_AMETHYST,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                AMETHYST_BLESS, ALTAR_OF_AMETHYST,
                 "viscript_recipe.editor.type.cataclysm.amethyst_bless",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getCataclysmAmethystBless().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCataclysmAmethystBless().getResult(),
-                (entry, stack) -> entry.getCataclysmAmethystBless().setResult(stack.copy())
+                CataclysmAmethystBlessRecipeData.class, CataclysmAmethystBlessRecipeData::new,
+                MOD_ID
         ));
     }
 
-    /**
-     * Creates a resource location in the Cataclysm namespace.
-     *
-     * @param path resource path
-     * @return Cataclysm resource location
-     */
     public static ResourceLocation cataclysm(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }

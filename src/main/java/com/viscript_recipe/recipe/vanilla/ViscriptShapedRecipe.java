@@ -7,6 +7,7 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ViscriptShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+    public @NotNull NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
         var remaining = NonNullList.withSize(input.size(), ItemStack.EMPTY);
         var mirrored = shouldUseMirroredRemainders(input);
         for (int index = 0; index < remaining.size(); index++) {

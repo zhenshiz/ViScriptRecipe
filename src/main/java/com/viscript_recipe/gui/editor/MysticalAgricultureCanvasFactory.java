@@ -4,13 +4,13 @@ import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.FlexWrap;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 /**
  * Builds Mystical Agriculture recipe canvases from the coordinates used by its JEI categories.
@@ -30,7 +30,7 @@ final class MysticalAgricultureCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        if (!ModList.get().isLoaded("mysticalagriculture") || !ModList.get().isLoaded("jei")) {
+        if (!ViScriptRecipe.isModLoaded("mysticalagriculture") || !ViScriptRecipe.isModLoaded("jei")) {
             return false;
         }
         var resources = Minecraft.getInstance().getResourceManager();

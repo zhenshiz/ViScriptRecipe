@@ -2,8 +2,8 @@ package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.editor.ui.View;
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
-import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
@@ -244,7 +244,7 @@ public class RecipeNavigationView extends View {
                 return;
             }
             var holder = minecraft.level.getRecipeManager().byKey(recipeId).orElse(null);
-            if (holder != null && RecipeImporter.canImport(holder) && matchesRecipeId(recipeId, normalized)) {
+            if (RecipeImporter.canImport(holder) && matchesRecipeId(recipeId, normalized)) {
                 result.acceptResult(recipeId);
                 if (++accepted >= MAX_RECIPE_ID_CANDIDATES) {
                     return;
@@ -326,7 +326,7 @@ public class RecipeNavigationView extends View {
 
     private void submitImport() {
         var rawText = importRecipeSearch == null ? "" : importRecipeSearch.textField.getRawText();
-        var recipeIdText = rawText == null || rawText.isBlank() ? importRecipeId : rawText.trim();
+        var recipeIdText = rawText.isBlank() ? importRecipeId : rawText.trim();
         var recipeId = ResourceLocation.tryParse(recipeIdText);
         if (recipeId == null) {
             setImportStatus(Component.translatable("viscript_recipe.editor.import_recipe.error.invalid_id"), ColorPattern.RED.color);

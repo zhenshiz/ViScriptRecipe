@@ -1,6 +1,7 @@
 package com.viscript_recipe.compat.jei;
 
 import com.viscript_recipe.ViScriptRecipe;
+import lombok.Getter;
 
 /**
  * Keeps the server-synced showcase mode flag without depending on JEI classes.
@@ -9,15 +10,12 @@ public final class JeiShowcaseModeState {
     private static final Runnable NOOP = () -> {
     };
 
+    @Getter
     private static volatile boolean showcaseOnly;
     private static volatile boolean syncedFromServer;
     private static volatile Runnable runtimeApplier = NOOP;
 
     private JeiShowcaseModeState() {
-    }
-
-    public static boolean isShowcaseOnly() {
-        return showcaseOnly;
     }
 
     public static void updateFromLocalConfig(boolean showcaseOnly) {

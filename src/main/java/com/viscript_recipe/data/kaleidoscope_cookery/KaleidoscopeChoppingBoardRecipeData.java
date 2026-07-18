@@ -1,9 +1,8 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +15,7 @@ import net.minecraft.world.item.crafting.Recipe;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class KaleidoscopeChoppingBoardRecipeData implements IPersistedSerializable, IConfigurable {
+public class KaleidoscopeChoppingBoardRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredient")
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.BEEF);
 
@@ -27,9 +26,10 @@ public class KaleidoscopeChoppingBoardRecipeData implements IPersistedSerializab
     private int cutCount = 4;
 
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.model_id")
-    private ResourceLocation modelId = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookeryRecipeEditorTypes.MOD_ID, "empty");
+    private ResourceLocation modelId = KaleidoscopeCookeryRecipeEditorTypes.kaleidoscope("empty");
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return KaleidoscopeCookeryRecipeFactory.compileChoppingBoard(this);
     }
 }

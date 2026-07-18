@@ -3,6 +3,7 @@ package com.viscript_recipe.gui.editor;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.rendering.GUIContext;
 import com.simibubi.create.compat.jei.category.animations.AnimatedCrafter;
+import org.jetbrains.annotations.NotNull;
 
 final class CreateMechanicalCrafterElement extends UIElement {
     private final AnimatedCrafter crafter = new AnimatedCrafter();
@@ -12,7 +13,7 @@ final class CreateMechanicalCrafterElement extends UIElement {
     }
 
     @Override
-    public void drawBackgroundAdditional(GUIContext guiContext) {
+    public void drawBackgroundAdditional(@NotNull GUIContext guiContext) {
         super.drawBackgroundAdditional(guiContext);
         guiContext.graphics.flush();
         crafter.draw(

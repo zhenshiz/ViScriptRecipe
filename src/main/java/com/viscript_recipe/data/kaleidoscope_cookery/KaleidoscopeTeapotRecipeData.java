@@ -1,9 +1,8 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +15,7 @@ import net.minecraft.world.item.crafting.Recipe;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class KaleidoscopeTeapotRecipeData implements IPersistedSerializable, IConfigurable {
+public class KaleidoscopeTeapotRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.tea_fluid")
     private ResourceLocation teaFluid = ResourceLocation.withDefaultNamespace("water");
 
@@ -32,7 +31,8 @@ public class KaleidoscopeTeapotRecipeData implements IPersistedSerializable, ICo
     @Configurable(name = "viscript_recipe.config.recipe.result")
     private ItemStack result = new ItemStack(Items.POTION);
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return KaleidoscopeCookeryRecipeFactory.compileTeapot(this);
     }
 }

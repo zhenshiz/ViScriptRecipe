@@ -6,14 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /** Transfers server-owned dynamic registry identifiers needed by client-side recipe completion fields. */
 public final class RecipeRegistrySnapshot {
@@ -36,7 +32,7 @@ public final class RecipeRegistrySnapshot {
                     row.putString(ID, pair.getFirst().location().toString());
                     var members = new ListTag();
                     pair.getSecond().stream().flatMap(holder -> holder.unwrapKey().stream())
-                            .map(key -> key.location()).sorted(Comparator.comparing(ResourceLocation::toString))
+                            .map(ResourceKey::location).sorted(Comparator.comparing(ResourceLocation::toString))
                             .forEach(member -> members.add(StringTag.valueOf(member.toString())));
                     row.put(MEMBERS, members);
                     biomeTags.add(row);

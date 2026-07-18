@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.goety;
 
 import com.Polarice3.Goety.api.ritual.RitualType;
-import com.Polarice3.Goety.common.items.research.ResearchScroll;
 import com.Polarice3.Goety.common.items.ModItems;
+import com.Polarice3.Goety.common.items.research.ResearchScroll;
 import com.Polarice3.Goety.common.research.ResearchList;
 import com.Polarice3.Goety.utils.BrewUtils;
 import net.minecraft.core.component.DataComponents;

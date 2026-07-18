@@ -1,23 +1,12 @@
 package com.viscript_recipe.compat.mysticalagriculture;
 
 import com.blakebr0.cucumber.crafting.ingredient.IngredientWithCount;
-import com.blakebr0.mysticalagriculture.crafting.recipe.AwakeningRecipe;
-import com.blakebr0.mysticalagriculture.crafting.recipe.EnchanterRecipe;
-import com.blakebr0.mysticalagriculture.crafting.recipe.InfusionRecipe;
-import com.blakebr0.mysticalagriculture.crafting.recipe.ReprocessorRecipe;
-import com.blakebr0.mysticalagriculture.crafting.recipe.SoulExtractionRecipe;
-import com.blakebr0.mysticalagriculture.crafting.recipe.SouliumSpawnerRecipe;
+import com.blakebr0.mysticalagriculture.crafting.recipe.*;
 import com.blakebr0.mysticalagriculture.registry.MobSoulTypeRegistry;
 import com.lowdragmc.lowdraglib2.Platform;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureAwakeningRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureCountedIngredientData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureInfusionRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureReprocessorRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSoulExtractionRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSouliumSpawnerRecipeData;
+import com.viscript_recipe.data.mysticalagriculture.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;

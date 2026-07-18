@@ -1,14 +1,14 @@
 package com.viscript_recipe.data.extendedcrafting;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ExtendedCraftingCombinationRecipeData implements IPersistedSerializable, IConfigurable {
+public class ExtendedCraftingCombinationRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.extendedcrafting.combination.input", subConfigurable = true)
     private RecipeIngredient input = RecipeIngredient.item(Items.DIAMOND);
 
@@ -42,7 +42,8 @@ public class ExtendedCraftingCombinationRecipeData implements IPersistedSerializ
         return RecipeIngredient.item(Items.GOLD_INGOT);
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return ExtendedCraftingRecipeFactory.compileCombination(this);
     }
 }

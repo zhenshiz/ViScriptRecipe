@@ -1,18 +1,8 @@
 package com.viscript_recipe.compat.kaleidoscope_cookery;
 
-import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.ChoppingBoardRecipe;
-import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.MillstoneRecipe;
-import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.PotRecipe;
-import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.SteamerRecipe;
-import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.StockpotRecipe;
-import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.TeapotRecipe;
+import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeChoppingBoardRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeMillstoneRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
+import com.viscript_recipe.data.kaleidoscope_cookery.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -139,7 +129,7 @@ public final class KaleidoscopeCookeryRecipeFactory {
             throw new IllegalArgumentException(message);
         }
         var copy = stack.copy();
-        copy.setCount(Math.max(1, Math.min(99, copy.getCount())));
+        copy.setCount(Math.clamp(copy.getCount(), 1, 99));
         return copy;
     }
 

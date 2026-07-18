@@ -1,14 +1,14 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -16,13 +16,10 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Stores the altar input, pedestal ingredients, essences, and result of an awakening recipe.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class MysticalAgricultureAwakeningRecipeData implements IPersistedSerializable, IConfigurable {
+public class MysticalAgricultureAwakeningRecipeData implements IVSRecipeData {
     public static final int PEDESTAL_INGREDIENT_COUNT = 4;
     public static final int ESSENCE_COUNT = 4;
 
@@ -76,7 +73,8 @@ public class MysticalAgricultureAwakeningRecipeData implements IPersistedSeriali
         return this;
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return MysticalAgricultureRecipeFactory.compileAwakening(this);
     }
 }

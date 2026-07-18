@@ -1,19 +1,9 @@
 package com.viscript_recipe.compat.goety;
 
-import com.Polarice3.Goety.common.crafting.BrazierRecipe;
-import com.Polarice3.Goety.common.crafting.BrewingRecipe;
-import com.Polarice3.Goety.common.crafting.CursedInfuserRecipes;
-import com.Polarice3.Goety.common.crafting.PulverizeRecipe;
-import com.Polarice3.Goety.common.crafting.RitualRecipe;
+import com.Polarice3.Goety.common.crafting.*;
 import com.Polarice3.Goety.common.ritual.ModRituals;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
-import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
-import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
-import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
-import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
-import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
-import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
+import com.viscript_recipe.data.goety.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;

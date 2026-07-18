@@ -1,14 +1,14 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class AvaritiaFullMatterClusterRecipeData implements IPersistedSerializable, IConfigurable {
+public class AvaritiaFullMatterClusterRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.avaritia.group")
     private String group = "default";
 
@@ -40,7 +40,11 @@ public class AvaritiaFullMatterClusterRecipeData implements IPersistedSerializab
         return AvaritiaRecipeFactory.defaultItemStack("avaritia:full_matter_cluster", Items.CHEST);
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public ItemStack getResult() {return result();}
+
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return AvaritiaRecipeFactory.compileFullMatterCluster(this);
     }
 }

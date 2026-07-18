@@ -4,11 +4,8 @@ import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -84,89 +81,45 @@ public final class ArsNouveauRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                APPARATUS,
-                ENCHANTING_APPARATUS,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                APPARATUS, ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.type.ars_nouveau.enchanting_apparatus",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getArsNouveauApparatus().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getArsNouveauApparatus().getResult(),
-                (entry, stack) -> entry.getArsNouveauApparatus().setResult(copy(stack))
+                ArsNouveauApparatusRecipeData.class, ArsNouveauApparatusRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ARMOR_UPGRADE,
-                ENCHANTING_APPARATUS,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ARMOR_UPGRADE, ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.type.ars_nouveau.armor_upgrade",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getArsNouveauArmorUpgrade().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> new ItemStack(itemFromRegistry("ars_nouveau:arcanist_robes", Items.LEATHER_CHESTPLATE)),
-                (entry, stack) -> {
-                }
+                ArsNouveauArmorUpgradeRecipeData.class, ArsNouveauArmorUpgradeRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ENCHANTMENT,
-                ENCHANTING_APPARATUS,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ENCHANTMENT, ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.type.ars_nouveau.enchantment",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getArsNouveauEnchantment().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> new ItemStack(Items.ENCHANTED_BOOK),
-                (entry, stack) -> {
-                }
+                ArsNouveauEnchantmentRecipeData.class, ArsNouveauEnchantmentRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                IMBUEMENT,
-                IMBUEMENT_CHAMBER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                IMBUEMENT, IMBUEMENT_CHAMBER,
                 "viscript_recipe.editor.type.ars_nouveau.imbuement",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getArsNouveauImbuement().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getArsNouveauImbuement().getResult(),
-                (entry, stack) -> entry.getArsNouveauImbuement().setResult(copy(stack))
+                ArsNouveauImbuementRecipeData.class, ArsNouveauImbuementRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                GLYPH,
-                SCRIBES_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                GLYPH, SCRIBES_TABLE,
                 "viscript_recipe.editor.type.ars_nouveau.glyph",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getArsNouveauGlyph().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getArsNouveauGlyph().getResult(),
-                (entry, stack) -> entry.getArsNouveauGlyph().setResult(copy(stack))
+                ArsNouveauGlyphRecipeData.class, ArsNouveauGlyphRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CRUSH,
-                CRUSHING,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CRUSH, CRUSHING,
                 "viscript_recipe.editor.type.ars_nouveau.crush",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getArsNouveauCrush().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> firstCrushOutput(entry.getArsNouveauCrush()),
-                (entry, stack) -> setFirstCrushOutput(entry.getArsNouveauCrush(), stack)
+                ArsNouveauCrushRecipeData.class, ArsNouveauCrushRecipeData::new,
+                MOD_ID
         ));
     }
 
-    private static ItemStack firstCrushOutput(ArsNouveauCrushRecipeData data) {
+    static ItemStack firstCrushOutput(ArsNouveauCrushRecipeData data) {
         if (data.getOutputs() == null || data.getOutputs().isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -174,7 +127,7 @@ public final class ArsNouveauRecipeEditorTypes {
         return output == null || output.getItem() == null ? ItemStack.EMPTY : output.getItem();
     }
 
-    private static void setFirstCrushOutput(ArsNouveauCrushRecipeData data, ItemStack stack) {
+    static void setFirstCrushOutput(ArsNouveauCrushRecipeData data, ItemStack stack) {
         if (data.getOutputs() == null) {
             data.setOutputs(new java.util.ArrayList<>());
         }
@@ -186,15 +139,6 @@ public final class ArsNouveauRecipeEditorTypes {
 
     private static ItemStack copy(ItemStack stack) {
         return stack == null ? ItemStack.EMPTY : stack.copy();
-    }
-
-    private static Item itemFromRegistry(String id, Item fallback) {
-        var location = ResourceLocation.tryParse(id);
-        if (location == null) {
-            return fallback;
-        }
-        var item = BuiltInRegistries.ITEM.get(location);
-        return item == Items.AIR ? fallback : item;
     }
 
     public static ResourceLocation ars(String path) {

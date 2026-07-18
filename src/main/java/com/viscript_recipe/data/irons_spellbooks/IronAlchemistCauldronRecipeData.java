@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.irons_spellbooks;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class IronAlchemistCauldronRecipeData implements IPersistedSerializable, IConfigurable {
+public class IronAlchemistCauldronRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.input", subConfigurable = true)
     private RecipeIngredient input = RecipeIngredient.item(Items.WATER_BUCKET);
 
@@ -52,16 +51,26 @@ public class IronAlchemistCauldronRecipeData implements IPersistedSerializable, 
         return new FluidStack(Fluids.WATER, 1000);
     }
 
-    public Recipe<?> compileFill() {
-        return IronSpellbooksRecipeFactory.compileFill(this);
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
+        return typeId.equals(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_FILL) ?
+                IronSpellbooksRecipeFactory.compileFill(this) : IronSpellbooksRecipeFactory.compileEmpty(this);
     }
 
-    public Recipe<?> compileEmpty() {
-        return IronSpellbooksRecipeFactory.compileEmpty(this);
-    }
+    public static class Brew extends IronAlchemistCauldronRecipeData {
+        @Override
+        public String getDataName() {return "ironAlchemistCauldron";}
 
-    public Recipe<?> compileBrew() {
-        return IronSpellbooksRecipeFactory.compileBrew(this);
+        @Override
+        public Recipe<?> compile(ResourceLocation typeId) {
+            return IronSpellbooksRecipeFactory.compileBrew(this);
+        }
+
+        @Override
+        public ItemStack getResult() {return ItemStack.EMPTY;}
+
+        @Override
+        public IronAlchemistCauldronRecipeData setResult(ItemStack result) {return setByproduct(ItemStack.EMPTY);}
     }
 
     public FluidStack firstResultFluid() {

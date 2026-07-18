@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.touhou_little_maid;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.touhou_little_maid.TouhouLittleMaidRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,13 +16,10 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Stores the editable fields of a Touhou Little Maid altar recipe.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class TouhouLittleMaidAltarRecipeData implements IPersistedSerializable, IConfigurable {
+public class TouhouLittleMaidAltarRecipeData implements IVSRecipeData {
     public static final int INPUT_COUNT = 6;
 
     @Configurable(name = "viscript_recipe.config.touhou_little_maid.altar.ingredients")
@@ -73,7 +69,8 @@ public class TouhouLittleMaidAltarRecipeData implements IPersistedSerializable, 
         return normalized;
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
         return TouhouLittleMaidRecipeFactory.compileAltar(this);
     }
 

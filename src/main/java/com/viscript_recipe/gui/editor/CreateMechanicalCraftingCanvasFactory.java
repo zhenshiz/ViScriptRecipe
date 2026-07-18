@@ -1,20 +1,19 @@
 package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.gui.ColorPattern;
-import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Vertical;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class CreateMechanicalCraftingCanvasFactory {
     private static final String CREATE_MOD_ID = "create";
@@ -61,9 +60,7 @@ final class CreateMechanicalCraftingCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        return ModList.get().isLoaded(CREATE_MOD_ID)
-                && ModList.get().isLoaded(JEI_MOD_ID)
-                && hasCreateWidgets();
+        return ViScriptRecipe.isModLoaded(CREATE_MOD_ID) && ViScriptRecipe.isModLoaded(JEI_MOD_ID) && hasCreateWidgets();
     }
 
     static void configureJeiOutputCell(UIElement cell) {
@@ -130,8 +127,7 @@ final class CreateMechanicalCraftingCanvasFactory {
     }
 
     private static boolean hasCreateWidgets() {
-        return ModList.get().isLoaded(CREATE_MOD_ID)
-                && Minecraft.getInstance().getResourceManager().getResource(CREATE_JEI_WIDGETS).isPresent();
+        return ViScriptRecipe.isModLoaded(CREATE_MOD_ID) && ViScriptRecipe.isPresentResource(CREATE_JEI_WIDGETS);
     }
 
     private static UIElement hiddenPlaceholder() {

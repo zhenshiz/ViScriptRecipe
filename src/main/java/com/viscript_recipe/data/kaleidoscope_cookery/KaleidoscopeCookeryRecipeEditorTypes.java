@@ -5,7 +5,6 @@ import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -56,88 +55,42 @@ public final class KaleidoscopeCookeryRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                POT,
-                POT,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                POT, POT,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.pot",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getKaleidoscopePot().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getKaleidoscopePot().getResult(),
-                (entry, stack) -> entry.getKaleidoscopePot().setResult(copy(stack))
+                KaleidoscopePotRecipeData.class, KaleidoscopePotRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                STOCKPOT,
-                STOCKPOT,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                STOCKPOT, STOCKPOT,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.stockpot",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getKaleidoscopeStockpot().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getKaleidoscopeStockpot().getResult(),
-                (entry, stack) -> entry.getKaleidoscopeStockpot().setResult(copy(stack))
+                KaleidoscopeStockpotRecipeData.class, KaleidoscopeStockpotRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                MILLSTONE,
-                MILLSTONE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                MILLSTONE, MILLSTONE,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.millstone",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getKaleidoscopeMillstone().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getKaleidoscopeMillstone().getResult(),
-                (entry, stack) -> entry.getKaleidoscopeMillstone().setResult(copy(stack))
+                KaleidoscopeMillstoneRecipeData.class, KaleidoscopeMillstoneRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CHOPPING_BOARD,
-                CHOPPING_BOARD,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CHOPPING_BOARD, CHOPPING_BOARD,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.chopping_board",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getKaleidoscopeChoppingBoard().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getKaleidoscopeChoppingBoard().getResult(),
-                (entry, stack) -> entry.getKaleidoscopeChoppingBoard().setResult(copy(stack))
+                KaleidoscopeChoppingBoardRecipeData.class, KaleidoscopeChoppingBoardRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                STEAMER,
-                STEAMER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                STEAMER, STEAMER,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.steamer",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getKaleidoscopeSteamer().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getKaleidoscopeSteamer().getResult(),
-                (entry, stack) -> entry.getKaleidoscopeSteamer().setResult(copy(stack))
+                KaleidoscopeSteamerRecipeData.class, KaleidoscopeSteamerRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                TEAPOT,
-                TEAPOT,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                TEAPOT, TEAPOT,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.teapot",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getKaleidoscopeTeapot().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getKaleidoscopeTeapot().getResult(),
-                (entry, stack) -> entry.getKaleidoscopeTeapot().setResult(copy(stack))
+                KaleidoscopeTeapotRecipeData.class, KaleidoscopeTeapotRecipeData::new,
+                MOD_ID
         ));
-    }
-
-    private static ItemStack copy(ItemStack stack) {
-        return stack == null ? ItemStack.EMPTY : stack.copy();
     }
 
     public static ResourceLocation kaleidoscope(String path) {

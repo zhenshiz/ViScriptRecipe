@@ -1,11 +1,10 @@
 package com.viscript_recipe.data.create;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.create.CreateRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class CreateProcessingRecipeData implements IPersistedSerializable, IConfigurable {
+public class CreateProcessingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.create.ingredients")
     @ConfigList(addDefaultMethod = "createDefaultIngredient")
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(RecipeIngredient.item(Items.COBBLESTONE)));
@@ -68,6 +67,17 @@ public class CreateProcessingRecipeData implements IPersistedSerializable, IConf
         return new FluidStack(Fluids.WATER, 1000);
     }
 
+    @Override
+    public ItemStack getResult() {return CreateRecipeEditorTypes.firstOutput(this);}
+
+    @Override
+    public <T extends IVSRecipeData> T setResult(ItemStack result) {
+        CreateRecipeEditorTypes.setFirstOutput(this, result);
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    @Override
     public Recipe<?> compile(ResourceLocation type) {
         return CreateRecipeFactory.compileProcessing(type, this);
     }

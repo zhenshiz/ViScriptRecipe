@@ -1,23 +1,9 @@
 package com.viscript_recipe.compat.mysticalagriculture;
 
-import com.blakebr0.mysticalagriculture.api.crafting.IAwakeningRecipe;
-import com.blakebr0.mysticalagriculture.api.crafting.IEnchanterRecipe;
-import com.blakebr0.mysticalagriculture.api.crafting.IInfusionRecipe;
-import com.blakebr0.mysticalagriculture.api.crafting.IReprocessorRecipe;
-import com.blakebr0.mysticalagriculture.api.crafting.ISoulExtractionRecipe;
-import com.blakebr0.mysticalagriculture.api.crafting.ISouliumSpawnerRecipe;
+import com.blakebr0.mysticalagriculture.api.crafting.*;
 import com.blakebr0.mysticalagriculture.crafting.recipe.AwakeningRecipe;
 import com.blakebr0.mysticalagriculture.crafting.recipe.InfusionRecipe;
-import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureAwakeningRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureCountedIngredientData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureInfusionRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureReprocessorRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSoulExtractionRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureSouliumSpawnerRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureWeightedEntityData;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
+import com.viscript_recipe.data.mysticalagriculture.*;
 import com.viscript_recipe.mixin.MysticalAgricultureAwakeningRecipeAccessor;
 import com.viscript_recipe.mixin.MysticalAgricultureInfusionRecipeAccessor;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
@@ -26,6 +12,7 @@ import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -43,7 +30,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
 
     @Override
     public boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null || holder.value() == null) {
+        if (holder == null) {
             return false;
         }
         var recipe = holder.value();
@@ -74,7 +61,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                 data.setEssence(index, RecipeImporter.copyStack(essence));
             }
             return success(holder, MysticalAgricultureRecipeEditorTypes.AWAKENING,
-                    entry -> entry.setMysticalAgricultureAwakening(data));
+                    entry -> entry.setData(data));
         }
         if (recipe instanceof IInfusionRecipe infusion) {
             var data = new MysticalAgricultureInfusionRecipeData()
@@ -90,10 +77,10 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                 }
             }
             return success(holder, MysticalAgricultureRecipeEditorTypes.INFUSION,
-                    entry -> entry.setMysticalAgricultureInfusion(data));
+                    entry -> entry.setData(data));
         }
         if (recipe instanceof IEnchanterRecipe enchanter) {
-            var enchantmentId = enchanter.getEnchantment().unwrapKey().map(key -> key.location()).orElse(null);
+            var enchantmentId = enchanter.getEnchantment().unwrapKey().map(ResourceKey::location).orElse(null);
             if (enchantmentId == null) {
                 throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_type", "unbound Mystical Agriculture enchantment");
             }
@@ -105,7 +92,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                         .setCount(Math.max(1, enchanter.getCount(index))));
             }
             return success(holder, MysticalAgricultureRecipeEditorTypes.ENCHANTER,
-                    entry -> entry.setMysticalAgricultureEnchanter(data));
+                    entry -> entry.setData(data));
         }
         if (recipe instanceof IReprocessorRecipe reprocessor) {
             if (reprocessor.getIngredients().isEmpty()) {
@@ -115,7 +102,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                     .setInput(RecipeImporter.importIngredient(reprocessor.getIngredients().getFirst()))
                     .setResult(RecipeImporter.copyResult(reprocessor, provider));
             return success(holder, MysticalAgricultureRecipeEditorTypes.REPROCESSOR,
-                    entry -> entry.setMysticalAgricultureReprocessor(data));
+                    entry -> entry.setData(data));
         }
         if (recipe instanceof ISoulExtractionRecipe extraction) {
             if (extraction.getIngredients().isEmpty() || extraction.getMobSoulType() == null) {
@@ -126,7 +113,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                     .setSoulType(extraction.getMobSoulType().getId())
                     .setSouls(extraction.getSouls());
             return success(holder, MysticalAgricultureRecipeEditorTypes.SOUL_EXTRACTION,
-                    entry -> entry.setMysticalAgricultureSoulExtraction(data));
+                    entry -> entry.setData(data));
         }
         if (recipe instanceof ISouliumSpawnerRecipe spawner) {
             if (spawner.getIngredients().isEmpty()) {
@@ -135,11 +122,9 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
             var entities = new ArrayList<MysticalAgricultureWeightedEntityData>();
             for (var entry : spawner.getEntityTypes().unwrap()) {
                 var id = BuiltInRegistries.ENTITY_TYPE.getKey(entry.data());
-                if (id != null) {
-                    entities.add(new MysticalAgricultureWeightedEntityData()
-                            .setEntity(id)
-                            .setWeight(Math.max(1, entry.weight().asInt())));
-                }
+                entities.add(new MysticalAgricultureWeightedEntityData()
+                        .setEntity(id)
+                        .setWeight(Math.max(1, entry.weight().asInt())));
             }
             var data = new MysticalAgricultureSouliumSpawnerRecipeData()
                     .setInput(new MysticalAgricultureCountedIngredientData()
@@ -147,7 +132,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                             .setCount(Math.max(1, spawner.getCount(0))))
                     .setEntities(entities);
             return success(holder, MysticalAgricultureRecipeEditorTypes.SOULIUM_SPAWNER,
-                    entry -> entry.setMysticalAgricultureSouliumSpawner(data));
+                    entry -> entry.setData(data));
         }
         return null;
     }

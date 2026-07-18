@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,13 +16,10 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Stores editable data shared by all Goety dark ritual JEI subcategories.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class GoetyRitualRecipeData implements IPersistedSerializable, IConfigurable {
+public class GoetyRitualRecipeData implements IVSRecipeData {
     public static final int MAX_PEDESTAL_INGREDIENTS = 12;
 
     @Configurable(name = "viscript_recipe.config.goety.ritual.activation_item", subConfigurable = true)
@@ -99,11 +95,6 @@ public class GoetyRitualRecipeData implements IPersistedSerializable, IConfigura
     @Configurable(name = "viscript_recipe.config.goety.ritual.research")
     private String research = "";
 
-    /**
-     * Creates an empty ingredient for the persisted pedestal list.
-     *
-     * @return an empty editable ingredient
-     */
     public RecipeIngredient createDefaultIngredient() {
         return new RecipeIngredient();
     }
@@ -168,12 +159,8 @@ public class GoetyRitualRecipeData implements IPersistedSerializable, IConfigura
         return ingredient == null || ingredient.getValues() == null || ingredient.getValues().isEmpty();
     }
 
-    /**
-     * Compiles this data into Goety's native ritual recipe.
-     *
-     * @return the compiled ritual recipe
-     */
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return GoetyRecipeFactory.compileRitual(this);
     }
 }

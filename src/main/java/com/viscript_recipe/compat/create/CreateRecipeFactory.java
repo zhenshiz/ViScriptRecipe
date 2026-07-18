@@ -1,6 +1,5 @@
 package com.viscript_recipe.compat.create;
 
-import com.simibubi.create.compat.jei.ConversionRecipe;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperPolishingRecipe;
 import com.simibubi.create.content.fluids.transfer.EmptyingRecipe;
 import com.simibubi.create.content.fluids.transfer.FillingRecipe;
@@ -15,7 +14,6 @@ import com.simibubi.create.content.kinetics.mixer.CompactingRecipe;
 import com.simibubi.create.content.kinetics.mixer.MixingRecipe;
 import com.simibubi.create.content.kinetics.press.PressingRecipe;
 import com.simibubi.create.content.kinetics.saw.CuttingRecipe;
-import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
@@ -24,16 +22,7 @@ import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeB
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.create.CreateFluidIngredientData;
-import com.viscript_recipe.data.create.CreateFluidIngredientKind;
-import com.viscript_recipe.data.create.CreateHeatCondition;
-import com.viscript_recipe.data.create.CreateItemInputCounts;
-import com.viscript_recipe.data.create.CreateProcessingKind;
-import com.viscript_recipe.data.create.CreateProcessingOutputData;
-import com.viscript_recipe.data.create.CreateProcessingRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
+import com.viscript_recipe.data.create.*;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapelessRecipe;
 import com.viscript_recipe.recipe.vanilla.ViscriptStonecutterRecipe;
 import net.minecraft.core.NonNullList;
@@ -43,14 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.CookingBookCategory;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.item.crafting.SmokingRecipe;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.crafting.*;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -386,7 +368,7 @@ public final class CreateRecipeFactory {
             return ItemStack.EMPTY;
         }
         var stack = outputData.getItem().copy();
-        stack.setCount(Math.max(1, Math.min(99, stack.getCount())));
+        stack.setCount(Math.clamp(stack.getCount(), 1, 99));
         return stack;
     }
 
@@ -400,7 +382,7 @@ public final class CreateRecipeFactory {
     }
 
     private static float clampChance(float chance) {
-        return Math.max(0, Math.min(1, chance));
+        return Math.clamp(chance, 0, 1);
     }
 
     private static FluidStack copyFluid(FluidStack stack) {

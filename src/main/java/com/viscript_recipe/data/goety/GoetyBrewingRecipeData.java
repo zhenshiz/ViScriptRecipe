@@ -1,9 +1,8 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +19,7 @@ import net.minecraft.world.item.crafting.Recipe;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class GoetyBrewingRecipeData implements IPersistedSerializable, IConfigurable {
+public class GoetyBrewingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.goety.brewing.ingredient", subConfigurable = true)
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.SPIDER_EYE);
 
@@ -52,12 +51,11 @@ public class GoetyBrewingRecipeData implements IPersistedSerializable, IConfigur
         return new ItemStack(brew);
     }
 
-    /**
-     * Compiles this data into Goety's native brewing recipe.
-     *
-     * @return the compiled brewing recipe
-     */
-    public Recipe<?> compile() {
+    @Override
+    public ItemStack getResult() {return visibleResult();}
+
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return GoetyRecipeFactory.compileBrewing(this);
     }
 }

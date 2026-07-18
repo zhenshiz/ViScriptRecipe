@@ -54,59 +54,29 @@ public final class IronSpellbooksRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ALCHEMIST_CAULDRON_FILL,
-                ALCHEMIST_CAULDRON,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ALCHEMIST_CAULDRON_FILL, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_fill",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getIronAlchemistCauldron().compileFill(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getIronAlchemistCauldron().getResult(),
-                (entry, stack) -> entry.getIronAlchemistCauldron().setResult(stack.copy())
+                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ALCHEMIST_CAULDRON_EMPTY,
-                ALCHEMIST_CAULDRON,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ALCHEMIST_CAULDRON_EMPTY, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_empty",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getIronAlchemistCauldron().compileEmpty(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getIronAlchemistCauldron().getResult(),
-                (entry, stack) -> entry.getIronAlchemistCauldron().setResult(stack.copy())
+                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ALCHEMIST_CAULDRON_BREW,
-                ALCHEMIST_CAULDRON,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ALCHEMIST_CAULDRON_BREW, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_brew",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getIronAlchemistCauldron().compileBrew(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> net.minecraft.world.item.ItemStack.EMPTY,
-                (entry, stack) -> entry.getIronAlchemistCauldron().setByproduct(net.minecraft.world.item.ItemStack.EMPTY)
+                IronAlchemistCauldronRecipeData.Brew.class, IronAlchemistCauldronRecipeData.Brew::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ARCANE_ANVIL_TRANSFORM,
-                ARCANE_ANVIL,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ARCANE_ANVIL_TRANSFORM, ARCANE_ANVIL,
                 "viscript_recipe.editor.type.irons_spellbooks.arcane_anvil_transform",
-                REQUIRED_MODS,
-                false,
-                entry -> {
-                    throw new UnsupportedOperationException("Iron's Spells Arcane Anvil recipes are handled by ViScriptRecipe's Arcane Anvil menu hook");
-                },
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getIronArcaneAnvil().getResult(),
-                (entry, stack) -> entry.getIronArcaneAnvil().setResult(stack.copy())
+                IronArcaneAnvilRecipeData.class, IronArcaneAnvilRecipeData::new,
+                MOD_ID
         ));
     }
 

@@ -1,14 +1,14 @@
 package com.viscript_recipe.data.spore;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.spore.SporeRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class SporeGraftingRecipeData implements IPersistedSerializable, IConfigurable {
+public class SporeGraftingRecipeData implements IVSRecipeData {
     public static final int INPUT_COUNT = 3;
 
     @Configurable(name = "viscript_recipe.config.spore.grafting.ingredients")
@@ -52,7 +52,8 @@ public class SporeGraftingRecipeData implements IPersistedSerializable, IConfigu
         return SporeSurgeryRecipeData.normalizedIngredients(ingredients, INPUT_COUNT);
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
         return SporeRecipeFactory.compileGrafting(this);
     }
 }

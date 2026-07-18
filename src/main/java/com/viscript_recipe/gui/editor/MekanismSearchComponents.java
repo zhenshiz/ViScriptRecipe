@@ -35,7 +35,7 @@ final class MekanismSearchComponents {
         searchBox.setCandidateFilter(MekanismSearchComponents::isUsableChemical);
         return configure(nameKey, searchBox, value -> {
             var id = registry.getKey(value);
-            if (id != null && !Objects.equals(id, supplier.get())) {
+            if (!Objects.equals(id, supplier.get())) {
                 consumer.accept(id);
                 onChanged.run();
             }

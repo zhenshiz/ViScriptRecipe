@@ -35,7 +35,7 @@ public class ViScriptRecipe {
             return new ModularUI(UI.empty());
         });
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC, Config.CONFIG_FILE_NAME);
-        if (dist == Dist.CLIENT) {
+        if (dist.isClient()) {
             RecipeDeltaClientEvents.register();
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         }

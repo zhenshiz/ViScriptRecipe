@@ -1,26 +1,11 @@
 package com.viscript_recipe.compat.extendedcrafting;
 
 import com.blakebr0.cucumber.crafting.ingredient.IngredientWithCount;
-import com.blakebr0.extendedcrafting.crafting.recipe.CombinationRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.CompressorRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.ShapedEnderCrafterRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.ShapedFluxCrafterRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.ShapedTableRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.ShapelessEnderCrafterRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.ShapelessFluxCrafterRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.ShapelessTableRecipe;
-import com.blakebr0.extendedcrafting.crafting.recipe.UltimateSingularityRecipe;
+import com.blakebr0.extendedcrafting.crafting.recipe.*;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeIngredientValue;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCombinationRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCompressorRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCountedIngredientData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingEnderCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingFluxCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingTableRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingUltimateSingularityRecipeData;
+import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
@@ -160,8 +145,8 @@ public final class ExtendedCraftingRecipeFactory {
 
     private static List<String> normalizePattern(List<String> pattern, int width, int height) {
         var normalized = new ArrayList<String>();
-        var safeWidth = Math.max(1, Math.min(9, width));
-        var safeHeight = Math.max(1, Math.min(9, height));
+        var safeWidth = Math.clamp(width, 1, 9);
+        var safeHeight = Math.clamp(height, 1, 9);
         for (int row = 0; row < safeHeight; row++) {
             var line = pattern != null && row < pattern.size() && pattern.get(row) != null ? pattern.get(row) : "";
             if (line.length() > safeWidth) {
@@ -236,7 +221,7 @@ public final class ExtendedCraftingRecipeFactory {
             throw new IllegalArgumentException(message);
         }
         var copy = stack.copy();
-        copy.setCount(Math.max(1, Math.min(99, copy.getCount())));
+        copy.setCount(Math.clamp(copy.getCount(), 1, 99));
         return copy;
     }
 

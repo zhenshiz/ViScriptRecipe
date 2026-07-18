@@ -13,9 +13,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
 
-/**
- * Imports Touhou Little Maid altar recipes without losing their power or entity output fields.
- */
 public final class TouhouLittleMaidRecipeImporter implements RecipeImportHandler {
     public static final TouhouLittleMaidRecipeImporter INSTANCE = new TouhouLittleMaidRecipeImporter();
 
@@ -55,6 +52,6 @@ public final class TouhouLittleMaidRecipeImporter implements RecipeImportHandler
                 .setEntityType(recipe.getEntityType())
                 .setLangKey(recipe.getLangKey());
         return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), TouhouLittleMaidRecipeEditorTypes.ALTAR_RECIPE)
-                .setTouhouLittleMaidAltar(data));
+                .setData(data));
     }
 }

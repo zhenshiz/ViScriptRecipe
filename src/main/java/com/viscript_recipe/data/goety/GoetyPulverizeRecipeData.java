@@ -1,9 +1,8 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,13 +14,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Blocks;
 
-/**
- * Stores Goety pulverize input and mutually selected item or block result data.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class GoetyPulverizeRecipeData implements IPersistedSerializable, IConfigurable {
+public class GoetyPulverizeRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.goety.pulverize.ingredient", subConfigurable = true)
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.STONE);
 
@@ -65,12 +61,18 @@ public class GoetyPulverizeRecipeData implements IPersistedSerializable, IConfig
         blockResult = BuiltInRegistries.BLOCK.getKey(block);
     }
 
-    /**
-     * Compiles this data into Goety's native pulverize recipe.
-     *
-     * @return the compiled pulverize recipe
-     */
-    public Recipe<?> compile() {
+    @Override
+    public ItemStack getResult() {return visibleResult();}
+
+    @Override
+    public <T extends IVSRecipeData> T setResult(ItemStack result) {
+        setVisibleResult(result);
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return GoetyRecipeFactory.compilePulverize(this);
     }
 }

@@ -76,50 +76,29 @@ public final class CreateRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                MECHANICAL_CRAFTING,
-                MECHANICAL_CRAFTER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                MECHANICAL_CRAFTING, MECHANICAL_CRAFTER,
                 "viscript_recipe.editor.type.create.mechanical_crafting",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getCreateMechanicalCrafting().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCreateMechanicalCrafting().getResult(),
-                (entry, stack) -> entry.getCreateMechanicalCrafting().setResult(stack.copy())
+                CreateMechanicalCraftingRecipeData.class, CreateMechanicalCraftingRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                SEQUENCED_ASSEMBLY,
-                SEQUENCED_ASSEMBLY,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                SEQUENCED_ASSEMBLY, SEQUENCED_ASSEMBLY,
                 "viscript_recipe.editor.type.create.sequenced_assembly",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getCreateSequencedAssembly().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> firstOutput(entry.getCreateSequencedAssembly()),
-                (entry, stack) -> setFirstOutput(entry.getCreateSequencedAssembly(), stack)
+                CreateSequencedAssemblyRecipeData.class, CreateSequencedAssemblyRecipeData::new,
+                MOD_ID
         ));
         for (var kind : CreateProcessingKind.values()) {
-            RecipeEditorTypes.register(new RecipeEditorType(
-                    kind.typeId(),
-                    kind.categoryId(),
+            RecipeEditorTypes.register(RecipeEditorType.of(
+                    kind.typeId(), kind.categoryId(),
                     "viscript_recipe.editor.type.create." + kind.translationPath(),
-                    REQUIRED_MODS,
-                    false,
-                    entry -> entry.getCreateProcessing().compile(entry.getType()),
-                    entry -> false,
-                    (entry, value) -> {
-                    },
-                    entry -> firstOutput(entry.getCreateProcessing()),
-                    (entry, stack) -> setFirstOutput(entry.getCreateProcessing(), stack)
+                    CreateProcessingRecipeData.class, CreateProcessingRecipeData::new,
+                    MOD_ID
             ));
         }
     }
 
-    private static ItemStack firstOutput(CreateProcessingRecipeData data) {
+    static ItemStack firstOutput(CreateProcessingRecipeData data) {
         if (data.getOutputs() == null || data.getOutputs().isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -127,7 +106,7 @@ public final class CreateRecipeEditorTypes {
         return output == null || output.getItem() == null ? ItemStack.EMPTY : output.getItem();
     }
 
-    private static void setFirstOutput(CreateProcessingRecipeData data, ItemStack stack) {
+    static void setFirstOutput(CreateProcessingRecipeData data, ItemStack stack) {
         if (data.getOutputs() == null) {
             data.setOutputs(new java.util.ArrayList<>());
         }
@@ -137,7 +116,7 @@ public final class CreateRecipeEditorTypes {
         data.getOutputs().getFirst().setItem(stack == null ? ItemStack.EMPTY : stack.copy());
     }
 
-    private static ItemStack firstOutput(CreateSequencedAssemblyRecipeData data) {
+    static ItemStack firstOutput(CreateSequencedAssemblyRecipeData data) {
         if (data.getOutputs() == null || data.getOutputs().isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -145,7 +124,7 @@ public final class CreateRecipeEditorTypes {
         return output == null || output.getItem() == null ? ItemStack.EMPTY : output.getItem();
     }
 
-    private static void setFirstOutput(CreateSequencedAssemblyRecipeData data, ItemStack stack) {
+    static void setFirstOutput(CreateSequencedAssemblyRecipeData data, ItemStack stack) {
         if (data.getOutputs() == null) {
             data.setOutputs(new java.util.ArrayList<>());
         }

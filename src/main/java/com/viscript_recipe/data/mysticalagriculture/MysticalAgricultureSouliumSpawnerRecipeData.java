@@ -1,27 +1,26 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeFactory;
+import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Stores the counted input and weighted entity results of a Soulium spawner recipe.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class MysticalAgricultureSouliumSpawnerRecipeData implements IPersistedSerializable, IConfigurable {
+public class MysticalAgricultureSouliumSpawnerRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.mysticalagriculture.soulium_spawner.input", subConfigurable = true)
     private MysticalAgricultureCountedIngredientData input = new MysticalAgricultureCountedIngredientData()
             .setIngredient(RecipeIngredient.item(Items.ROTTEN_FLESH));
@@ -34,7 +33,11 @@ public class MysticalAgricultureSouliumSpawnerRecipeData implements IPersistedSe
         return new MysticalAgricultureWeightedEntityData();
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public ItemStack getResult() {return MysticalAgricultureRecipeUiSupport.firstSpawnEgg(getEntities());}
+
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return MysticalAgricultureRecipeFactory.compileSouliumSpawner(this);
     }
 }

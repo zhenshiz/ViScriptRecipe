@@ -3,12 +3,12 @@ package com.viscript_recipe.gui.editor;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class VanillaSmithingCanvasFactory {
     private static final int JEI_WIDTH = 108;
@@ -54,7 +54,7 @@ final class VanillaSmithingCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        if (!ModList.get().isLoaded("jei")) {
+        if (!ViScriptRecipe.isModLoaded("jei")) {
             return false;
         }
         var resources = Minecraft.getInstance().getResourceManager();

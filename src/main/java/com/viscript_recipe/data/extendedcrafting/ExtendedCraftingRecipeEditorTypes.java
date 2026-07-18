@@ -5,7 +5,6 @@ import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -64,7 +63,15 @@ public final class ExtendedCraftingRecipeEditorTypes {
                 COMBINATION,
                 RecipeEditorLayout.CRAFTING_GRID
         ));
-        registerTableCategory(CRAFTING_TABLE, SHAPED_TABLE, "viscript_recipe.editor.category.extendedcrafting.crafting_table", BASIC_TABLE);
+        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+                CRAFTING_TABLE,
+                "viscript_recipe.editor.category.extendedcrafting.crafting_table",
+                MOD_ID,
+                REQUIRED_MODS,
+                SHAPED_TABLE,
+                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
+                BASIC_TABLE
+        ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 COMPRESSOR,
                 "viscript_recipe.editor.category.extendedcrafting.compressor",
@@ -91,60 +98,26 @@ public final class ExtendedCraftingRecipeEditorTypes {
         ));
     }
 
-    private static void registerTableCategory(ResourceLocation category, ResourceLocation defaultType, String translationKey,
-                                              ResourceLocation workstationItem) {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                category,
-                translationKey,
-                MOD_ID,
-                REQUIRED_MODS,
-                defaultType,
-                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
-                workstationItem
-        ));
-    }
-
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                COMBINATION,
-                CRAFTING_CORE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                COMBINATION, CRAFTING_CORE,
                 "viscript_recipe.editor.type.extendedcrafting.combination",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getExtendedCraftingCombination().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getExtendedCraftingCombination().getResult(),
-                (entry, stack) -> entry.getExtendedCraftingCombination().setResult(copy(stack))
+                ExtendedCraftingCombinationRecipeData.class, ExtendedCraftingCombinationRecipeData::new,
+                MOD_ID
         ));
-        registerTableType(SHAPED_TABLE, CRAFTING_TABLE, "viscript_recipe.editor.type.extendedcrafting.shaped_table");
-        registerTableType(SHAPELESS_TABLE, CRAFTING_TABLE, "viscript_recipe.editor.type.extendedcrafting.shapeless_table");
-        RecipeEditorTypes.register(new RecipeEditorType(
-                ULTIMATE_SINGULARITY,
-                CRAFTING_TABLE,
+        registerTableType(SHAPED_TABLE, "viscript_recipe.editor.type.extendedcrafting.shaped_table");
+        registerTableType(SHAPELESS_TABLE, "viscript_recipe.editor.type.extendedcrafting.shapeless_table");
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ULTIMATE_SINGULARITY, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.extendedcrafting.ultimate_singularity",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getExtendedCraftingUltimateSingularity().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getExtendedCraftingUltimateSingularity().getResult(),
-                (entry, stack) -> entry.getExtendedCraftingUltimateSingularity().setResult(copy(stack))
+                ExtendedCraftingUltimateSingularityRecipeData.class, ExtendedCraftingUltimateSingularityRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                COMPRESSOR_RECIPE,
-                COMPRESSOR,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                COMPRESSOR_RECIPE, COMPRESSOR,
                 "viscript_recipe.editor.type.extendedcrafting.compressor",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getExtendedCraftingCompressor().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getExtendedCraftingCompressor().getResult(),
-                (entry, stack) -> entry.getExtendedCraftingCompressor().setResult(copy(stack))
+                ExtendedCraftingCompressorRecipeData.class, ExtendedCraftingCompressorRecipeData::new,
+                MOD_ID
         ));
         registerEnderType(SHAPED_ENDER_CRAFTER, "viscript_recipe.editor.type.extendedcrafting.shaped_ender_crafter");
         registerEnderType(SHAPELESS_ENDER_CRAFTER, "viscript_recipe.editor.type.extendedcrafting.shapeless_ender_crafter");
@@ -152,51 +125,27 @@ public final class ExtendedCraftingRecipeEditorTypes {
         registerFluxType(SHAPELESS_FLUX_CRAFTER, "viscript_recipe.editor.type.extendedcrafting.shapeless_flux_crafter");
     }
 
-    private static void registerTableType(ResourceLocation type, ResourceLocation category, String translationKey) {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                type,
-                category,
-                translationKey,
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getExtendedCraftingTable().compile(entry.getType()),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getExtendedCraftingTable().getResult(),
-                (entry, stack) -> entry.getExtendedCraftingTable().setResult(copy(stack))
+    private static void registerTableType(ResourceLocation type, String translationKey) {
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                type, CRAFTING_TABLE, translationKey,
+                ExtendedCraftingTableRecipeData.class, ExtendedCraftingTableRecipeData::new,
+                MOD_ID
         ));
     }
 
     private static void registerEnderType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                type,
-                ENDER_CRAFTER,
-                translationKey,
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getExtendedCraftingEnderCrafter().compile(entry.getType()),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getExtendedCraftingEnderCrafter().getResult(),
-                (entry, stack) -> entry.getExtendedCraftingEnderCrafter().setResult(copy(stack))
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                type, ENDER_CRAFTER, translationKey,
+                ExtendedCraftingEnderCrafterRecipeData.class, ExtendedCraftingEnderCrafterRecipeData::new,
+                MOD_ID
         ));
     }
 
     private static void registerFluxType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                type,
-                FLUX_CRAFTER,
-                translationKey,
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getExtendedCraftingFluxCrafter().compile(entry.getType()),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getExtendedCraftingFluxCrafter().getResult(),
-                (entry, stack) -> entry.getExtendedCraftingFluxCrafter().setResult(copy(stack))
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                type, FLUX_CRAFTER, translationKey,
+                ExtendedCraftingFluxCrafterRecipeData.class, ExtendedCraftingFluxCrafterRecipeData::new,
+                MOD_ID
         ));
     }
 
@@ -264,7 +213,7 @@ public final class ExtendedCraftingRecipeEditorTypes {
     }
 
     public static int tableGridSizeForTier(int tier) {
-        return switch (Math.max(1, Math.min(4, tier))) {
+        return switch (Math.clamp(tier, 1, 4)) {
             case 1 -> 3;
             case 2 -> 5;
             case 3 -> 7;
@@ -273,7 +222,7 @@ public final class ExtendedCraftingRecipeEditorTypes {
     }
 
     public static ResourceLocation tableItemForTier(int tier) {
-        return switch (Math.max(1, Math.min(4, tier))) {
+        return switch (Math.clamp(tier, 1, 4)) {
             case 1 -> BASIC_TABLE;
             case 2 -> ADVANCED_TABLE;
             case 3 -> ELITE_TABLE;
@@ -283,9 +232,5 @@ public final class ExtendedCraftingRecipeEditorTypes {
 
     public static ResourceLocation create(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
-    }
-
-    private static ItemStack copy(ItemStack stack) {
-        return stack == null ? ItemStack.EMPTY : stack.copy();
     }
 }

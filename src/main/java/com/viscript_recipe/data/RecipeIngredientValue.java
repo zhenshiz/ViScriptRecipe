@@ -4,7 +4,7 @@ import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigRL;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.viscript_lib.util.ISkipDefaultedSerialize;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +22,7 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class RecipeIngredientValue implements IPersistedSerializable, IConfigurable {
+public class RecipeIngredientValue implements ISkipDefaultedSerialize, IConfigurable {
     @Configurable(name = "viscript_recipe.config.ingredient.value.kind")
     @ConfigSelector(candidate = {"item", "tag", "item_ability"})
     private IngredientValueKind kind = IngredientValueKind.ITEM;

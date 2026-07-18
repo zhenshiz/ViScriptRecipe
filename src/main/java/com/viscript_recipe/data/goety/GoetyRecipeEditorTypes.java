@@ -8,9 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-/**
- * Registers Goety's five JEI-backed custom recipe types.
- */
 public final class GoetyRecipeEditorTypes {
     public static final String MOD_ID = "goety";
 
@@ -32,9 +29,6 @@ public final class GoetyRecipeEditorTypes {
     private GoetyRecipeEditorTypes() {
     }
 
-    /**
-     * Registers all Goety categories and editor types once.
-     */
     public static synchronized void registerAll() {
         if (registered) {
             return;
@@ -66,80 +60,38 @@ public final class GoetyRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CURSED_INFUSER_RECIPE,
-                CURSED_INFUSER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CURSED_INFUSER_RECIPE, CURSED_INFUSER,
                 "viscript_recipe.editor.type.goety.cursed_infuser",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getGoetyCursedInfuser().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getGoetyCursedInfuser().getResult(),
-                (entry, stack) -> entry.getGoetyCursedInfuser().setResult(stack.copy())
+                GoetyCursedInfuserRecipeData.class, GoetyCursedInfuserRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                RITUAL,
-                DARK_ALTAR,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                RITUAL, DARK_ALTAR,
                 "viscript_recipe.editor.type.goety.ritual",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getGoetyRitual().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getGoetyRitual().getResult(),
-                (entry, stack) -> entry.getGoetyRitual().setResult(stack.copy())
+                GoetyRitualRecipeData.class, GoetyRitualRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                BRAZIER,
-                NECRO_BRAZIER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                BRAZIER, NECRO_BRAZIER,
                 "viscript_recipe.editor.type.goety.brazier",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getGoetyBrazier().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getGoetyBrazier().getResult(),
-                (entry, stack) -> entry.getGoetyBrazier().setResult(stack.copy())
+                GoetyBrazierRecipeData.class, GoetyBrazierRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                PULVERIZE,
-                PULVERIZE_FOCUS,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                PULVERIZE, PULVERIZE_FOCUS,
                 "viscript_recipe.editor.type.goety.pulverize",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getGoetyPulverize().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getGoetyPulverize().visibleResult(),
-                (entry, stack) -> entry.getGoetyPulverize().setVisibleResult(stack)
+                GoetyPulverizeRecipeData.class, GoetyPulverizeRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                BREWING,
-                WITCH_CAULDRON,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                BREWING, WITCH_CAULDRON,
                 "viscript_recipe.editor.type.goety.brewing",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getGoetyBrewing().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getGoetyBrewing().visibleResult(),
-                (entry, stack) -> {
-                }
+                GoetyBrewingRecipeData.class, GoetyBrewingRecipeData::new,
+                MOD_ID
         ));
     }
 
-    /**
-     * Creates a resource location in the Goety namespace.
-     *
-     * @param  path resource path
-     * @return Goety resource location
-     */
     public static ResourceLocation goety(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }

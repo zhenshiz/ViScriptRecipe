@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class KaleidoscopeStockpotRecipeData implements IPersistedSerializable, IConfigurable {
+public class KaleidoscopeStockpotRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredients")
     @ConfigList(addDefaultMethod = "createDefaultIngredient")
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
@@ -42,10 +41,10 @@ public class KaleidoscopeStockpotRecipeData implements IPersistedSerializable, I
     private RecipeIngredient carrier = RecipeIngredient.item(Items.BOWL);
 
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.cooking_texture")
-    private ResourceLocation cookingTexture = kaleidoscope("stockpot/default_cooking");
+    private ResourceLocation cookingTexture = KaleidoscopeCookeryRecipeEditorTypes.kaleidoscope("stockpot/default_cooking");
 
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.finished_texture")
-    private ResourceLocation finishedTexture = kaleidoscope("stockpot/default_finished");
+    private ResourceLocation finishedTexture = KaleidoscopeCookeryRecipeEditorTypes.kaleidoscope("stockpot/default_finished");
 
     @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.cooking_bubble_color")
     private int cookingBubbleColor = 0xFFECC3;
@@ -57,11 +56,8 @@ public class KaleidoscopeStockpotRecipeData implements IPersistedSerializable, I
         return RecipeIngredient.item(Items.CARROT);
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return KaleidoscopeCookeryRecipeFactory.compileStockpot(this);
-    }
-
-    private static ResourceLocation kaleidoscope(String path) {
-        return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookeryRecipeEditorTypes.MOD_ID, path);
     }
 }

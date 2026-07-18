@@ -8,13 +8,13 @@ import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Vertical;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class VanillaCookingCanvasFactory {
     private static final int JEI_WIDTH = 82;
@@ -128,7 +128,7 @@ final class VanillaCookingCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        if (!ModList.get().isLoaded("jei")) {
+        if (!ViScriptRecipe.isModLoaded("jei")) {
             return false;
         }
         var resources = Minecraft.getInstance().getResourceManager();

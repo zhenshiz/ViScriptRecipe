@@ -5,12 +5,7 @@ import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
-import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientKind;
-import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
+import com.viscript_recipe.data.mekanism.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -173,7 +168,7 @@ final class MekanismPropertiesSections {
             content.addChild(RecipeSearchComponents.fluid("viscript_recipe.config.mekanism.fluid_ingredient.fluid",
                     () -> fluidId(data.getFluid()), id -> {
                         var fluid = BuiltInRegistries.FLUID.get(id);
-                        data.setFluid(new FluidStack(fluid == null ? Fluids.WATER : fluid, Math.max(1, data.getAmount())));
+                        data.setFluid(new FluidStack(fluid, Math.max(1, data.getAmount())));
                     }, controller::notifyChanged, Fluids.WATER));
         }
         content.addChild(intField("viscript_recipe.config.mekanism.fluid_ingredient.amount", amount(data), 1,
@@ -196,7 +191,7 @@ final class MekanismPropertiesSections {
                         id -> {
                             var fluid = BuiltInRegistries.FLUID.get(id);
                             controller.setSelectedMekanismFluidOutput(new FluidStack(
-                                    fluid == null ? Fluids.WATER : fluid,
+                                    fluid,
                                     Math.max(1, controller.getSelectedMekanismFluidOutput().getAmount())
                             ));
                         },

@@ -6,11 +6,9 @@
   "mixins": [
     "IronAlchemistCauldronFluidHandlerMixin",
     "IronArcaneAnvilMenuMixin",
-    "ItemCombinerMenuAccessor",
     "MysticalAgricultureAwakeningRecipeAccessor",
     "MysticalAgricultureInfusionRecipeAccessor",
-    "RecipeManagerMixin",
-    "SmithingTransformRecipeAccessor"
+    "RecipeManagerMixin"
   ],
   "client": [
   ],

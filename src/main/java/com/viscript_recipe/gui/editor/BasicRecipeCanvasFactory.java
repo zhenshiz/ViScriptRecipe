@@ -5,12 +5,11 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class BasicRecipeCanvasFactory {
     private static final String JEI_MOD_ID = "jei";
@@ -115,8 +114,7 @@ final class BasicRecipeCanvasFactory {
     }
 
     private static UIElement craftingArrow() {
-        if (!ModList.get().isLoaded(JEI_MOD_ID)
-                || Minecraft.getInstance().getResourceManager().getResource(JEI_RECIPE_ARROW).isEmpty()) {
+        if (!ViScriptRecipe.isModLoaded(JEI_MOD_ID) || !ViScriptRecipe.isPresentResource(JEI_RECIPE_ARROW)) {
             return rightLeftArrow(28, 16);
         }
         return new UIElement().layout(layout -> {

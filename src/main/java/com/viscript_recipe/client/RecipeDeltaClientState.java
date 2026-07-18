@@ -16,12 +16,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /** Owns the client recipe revision and JEI reconciliation metadata for incremental reloads. */
 public final class RecipeDeltaClientState {
@@ -126,8 +121,7 @@ public final class RecipeDeltaClientState {
 
         var recipeManager = level.getRecipeManager();
         var recipes = snapshotRecipes(recipeManager);
-        var affectedIds = new LinkedHashSet<ResourceLocation>();
-        affectedIds.addAll(snapshot.removedRecipeIds());
+        var affectedIds = new LinkedHashSet<>(snapshot.removedRecipeIds());
         snapshot.upsertedRecipes().forEach(holder -> affectedIds.add(holder.id()));
         var oldRecipes = selectedRecipes(recipes, affectedIds);
         var oldEditorTypes = new LinkedHashMap<>(MANAGED_EDITOR_TYPES);

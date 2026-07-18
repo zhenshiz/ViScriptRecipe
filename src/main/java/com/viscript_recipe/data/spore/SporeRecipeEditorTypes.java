@@ -39,31 +39,17 @@ public final class SporeRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                SURGERY,
-                SURGERY_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                SURGERY, SURGERY_TABLE,
                 "viscript_recipe.editor.type.spore.surgery",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getSporeSurgery().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getSporeSurgery().getResult(),
-                (entry, stack) -> entry.getSporeSurgery().setResult(stack.copy())
+                SporeSurgeryRecipeData.class, SporeSurgeryRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                GRAFTING,
-                SURGERY_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                GRAFTING, SURGERY_TABLE,
                 "viscript_recipe.editor.type.spore.grafting",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getSporeGrafting().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getSporeGrafting().getResult(),
-                (entry, stack) -> entry.getSporeGrafting().setResult(stack.copy())
+                SporeGraftingRecipeData.class, SporeGraftingRecipeData::new,
+                MOD_ID
         ));
     }
 

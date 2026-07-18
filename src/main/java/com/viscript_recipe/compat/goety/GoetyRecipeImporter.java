@@ -1,25 +1,14 @@
 package com.viscript_recipe.compat.goety;
 
-import com.Polarice3.Goety.common.crafting.BrazierRecipe;
-import com.Polarice3.Goety.common.crafting.BrewingRecipe;
-import com.Polarice3.Goety.common.crafting.CursedInfuserRecipes;
-import com.Polarice3.Goety.common.crafting.PulverizeRecipe;
-import com.Polarice3.Goety.common.crafting.RitualRecipe;
-import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
-import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
-import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
-import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
-import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
-import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
-import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
-import com.viscript_recipe.data.goety.GoetyRitualCraftType;
-import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
+import com.Polarice3.Goety.common.crafting.*;
+import com.viscript_recipe.data.goety.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
@@ -50,12 +39,12 @@ public final class GoetyRecipeImporter implements RecipeImportHandler {
                     .setResult(RecipeImporter.copyResult(recipe, provider))
                     .setCookingTime(Math.max(1, recipe.getCookingTime()))
                     .setGrim(recipe.isGrim());
-            return success(holder, GoetyRecipeEditorTypes.CURSED_INFUSER_RECIPE, entry -> entry.setGoetyCursedInfuser(data));
+            return success(holder, GoetyRecipeEditorTypes.CURSED_INFUSER_RECIPE, entry -> entry.setData(data));
         }
         if (holder.value() instanceof RitualRecipe recipe) {
             var enchantmentId = recipe.getEnchantmentHolder() == null
                     ? null
-                    : recipe.getEnchantmentHolder().unwrapKey().map(key -> key.location()).orElse(null);
+                    : recipe.getEnchantmentHolder().unwrapKey().map(ResourceKey::location).orElse(null);
             var data = new GoetyRitualRecipeData()
                     .setActivationItem(RecipeImporter.importIngredient(recipe.getActivationItem()))
                     .setIngredients(RecipeImporter.importIngredientList(recipe.getIngredients(), GoetyRitualRecipeData.MAX_PEDESTAL_INGREDIENTS))
@@ -81,14 +70,14 @@ public final class GoetyRecipeImporter implements RecipeImportHandler {
                     .setEnchantment(enchantmentId)
                     .setXpLevelCost(Math.max(0, recipe.getXPLevelCost()))
                     .setResearch(recipe.getResearch());
-            return success(holder, GoetyRecipeEditorTypes.RITUAL, entry -> entry.setGoetyRitual(data));
+            return success(holder, GoetyRecipeEditorTypes.RITUAL, entry -> entry.setData(data));
         }
         if (holder.value() instanceof BrazierRecipe recipe) {
             var data = new GoetyBrazierRecipeData()
                     .setIngredients(RecipeImporter.importIngredientList(recipe.getIngredients(), GoetyBrazierRecipeData.INPUT_COUNT))
                     .setResult(RecipeImporter.copyResult(recipe, provider))
                     .setSoulCost(Math.max(0, recipe.getSoulCost()));
-            return success(holder, GoetyRecipeEditorTypes.BRAZIER, entry -> entry.setGoetyBrazier(data));
+            return success(holder, GoetyRecipeEditorTypes.BRAZIER, entry -> entry.setData(data));
         }
         if (holder.value() instanceof PulverizeRecipe recipe) {
             var itemResult = RecipeImporter.copyResult(recipe, provider);
@@ -101,7 +90,7 @@ public final class GoetyRecipeImporter implements RecipeImportHandler {
                     .setBlockResult(blockResult == null || blockResult == Blocks.CAVE_AIR
                             ? ResourceLocation.withDefaultNamespace("cobblestone")
                             : BuiltInRegistries.BLOCK.getKey(blockResult));
-            return success(holder, GoetyRecipeEditorTypes.PULVERIZE, entry -> entry.setGoetyPulverize(data));
+            return success(holder, GoetyRecipeEditorTypes.PULVERIZE, entry -> entry.setData(data));
         }
         if (holder.value() instanceof BrewingRecipe recipe) {
             var entityKind = recipe.getEntityTypeTag() != null
@@ -118,7 +107,7 @@ public final class GoetyRecipeImporter implements RecipeImportHandler {
                     .setDuration(Math.max(1, recipe.getDuration()))
                     .setEntityKind(entityKind)
                     .setEntity(entity);
-            return success(holder, GoetyRecipeEditorTypes.BREWING, entry -> entry.setGoetyBrewing(data));
+            return success(holder, GoetyRecipeEditorTypes.BREWING, entry -> entry.setData(data));
         }
         return null;
     }

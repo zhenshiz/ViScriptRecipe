@@ -1,40 +1,18 @@
 package com.viscript_recipe.recipe.importer;
 
 import com.viscript_recipe.compat.RecipeCompatModules;
-import com.viscript_recipe.data.IngredientValueKind;
-import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.RecipeIngredientValue;
-import com.viscript_recipe.data.RecipeOperation;
+import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.CookingRecipeData;
-import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
-import com.viscript_recipe.data.vanilla.ShapedCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
-import com.viscript_recipe.data.vanilla.ShapelessCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.SmithingTransformRecipeData;
-import com.viscript_recipe.data.vanilla.StonecuttingRecipeData;
-import com.viscript_recipe.mixin.SmithingTransformRecipeAccessor;
+import com.viscript_recipe.data.vanilla.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.BlastingRecipe;
-import net.minecraft.world.item.crafting.CampfireCookingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
-import net.minecraft.world.item.crafting.SmithingTransformRecipe;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.item.crafting.SmokingRecipe;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.minecraft.world.item.crafting.*;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +26,7 @@ public final class RecipeImporter {
     private static final RecipeImportHandler VANILLA_HANDLER = new RecipeImportHandler() {
         @Override
         public boolean canImport(RecipeHolder<?> holder) {
-            if (holder == null || holder.value() == null) {
+            if (holder == null) {
                 return false;
             }
             var recipe = holder.value();
@@ -62,22 +40,14 @@ public final class RecipeImporter {
         @Override
         public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
             var recipe = holder.value();
-            if (recipe instanceof ShapedRecipe shaped) {
-                return success(importShaped(holder.id(), shaped, provider));
-            }
-            if (recipe instanceof ShapelessRecipe shapeless) {
-                return success(importShapeless(holder.id(), shapeless, provider));
-            }
-            if (recipe instanceof AbstractCookingRecipe cooking) {
-                return success(importCooking(holder.id(), cooking, provider));
-            }
-            if (recipe instanceof StonecutterRecipe stonecutter) {
-                return success(importStonecutting(holder.id(), stonecutter, provider));
-            }
-            if (recipe instanceof SmithingTransformRecipe smithing) {
-                return success(importSmithingTransform(holder.id(), smithing));
-            }
-            return null;
+            return switch (recipe) {
+                case ShapedRecipe shaped -> success(importShaped(holder.id(), shaped, provider));
+                case ShapelessRecipe shapeless -> success(importShapeless(holder.id(), shapeless, provider));
+                case AbstractCookingRecipe cooking -> success(importCooking(holder.id(), cooking, provider));
+                case StonecutterRecipe stonecutter -> success(importStonecutting(holder.id(), stonecutter, provider));
+                case SmithingTransformRecipe smithing -> success(importSmithingTransform(holder.id(), smithing));
+                default -> null;
+            };
         }
     };
     private static final List<RecipeImportHandler> HANDLERS = createHandlers();
@@ -97,7 +67,7 @@ public final class RecipeImporter {
     }
 
     public static boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null || holder.value() == null) {
+        if (holder == null) {
             return false;
         }
         for (var handler : HANDLERS) {
@@ -109,7 +79,7 @@ public final class RecipeImporter {
     }
 
     public static String recipeTypeName(RecipeHolder<?> holder) {
-        return holder == null || holder.value() == null ? "" : recipeTypeName(holder.value());
+        return holder == null ? "" : recipeTypeName(holder.value());
     }
 
     private static RecipeImportResult importHolder(RecipeHolder<?> holder, HolderLookup.Provider provider) {
@@ -151,7 +121,7 @@ public final class RecipeImporter {
                 .setKey(shapedPattern.key())
                 .setRemainders(defaultRemainders(recipe.getWidth() * recipe.getHeight()))
                 .setResult(copyResult(recipe, provider));
-        return baseEntry(id, RecipeEditorTypes.CRAFTING_SHAPED).setShaped(data);
+        return baseEntry(id, RecipeEditorTypes.CRAFTING_SHAPED).setData(data);
     }
 
     private static RecipeEntry importShapeless(ResourceLocation id, ShapelessRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
@@ -168,7 +138,7 @@ public final class RecipeImporter {
                 .setShowNotification(recipe.showNotification())
                 .setIngredients(ingredients)
                 .setResult(copyResult(recipe, provider));
-        return baseEntry(id, RecipeEditorTypes.CRAFTING_SHAPELESS).setShapeless(data);
+        return baseEntry(id, RecipeEditorTypes.CRAFTING_SHAPELESS).setData(data);
     }
 
     private static RecipeEntry importCooking(ResourceLocation id, AbstractCookingRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
@@ -185,7 +155,7 @@ public final class RecipeImporter {
                 .setResult(copyResult(recipe, provider))
                 .setExperience(recipe.getExperience())
                 .setCookingTime(Math.max(1, recipe.getCookingTime()));
-        return baseEntry(id, type).setCooking(data);
+        return baseEntry(id, type).setData(data);
     }
 
     @Nullable
@@ -214,18 +184,17 @@ public final class RecipeImporter {
                 .setShowNotification(recipe.showNotification())
                 .setIngredient(importIngredient(ingredients.getFirst()))
                 .setResult(copyResult(recipe, provider));
-        return baseEntry(id, RecipeEditorTypes.STONECUTTING).setStonecutting(data);
+        return baseEntry(id, RecipeEditorTypes.STONECUTTING).setData(data);
     }
 
     private static RecipeEntry importSmithingTransform(ResourceLocation id, SmithingTransformRecipe recipe) throws RecipeImportException {
-        var accessor = (SmithingTransformRecipeAccessor) recipe;
         var data = new SmithingTransformRecipeData()
                 .setShowNotification(recipe.showNotification())
-                .setTemplate(importIngredient(accessor.viscriptRecipe$getTemplate()))
-                .setBase(importIngredient(accessor.viscriptRecipe$getBase()))
-                .setAddition(importIngredient(accessor.viscriptRecipe$getAddition()))
-                .setResult(copyStack(accessor.viscriptRecipe$getResult()));
-        return baseEntry(id, RecipeEditorTypes.SMITHING_TRANSFORM).setSmithingTransform(data);
+                .setTemplate(importIngredient(recipe.template))
+                .setBase(importIngredient(recipe.base))
+                .setAddition(importIngredient(recipe.addition))
+                .setResult(copyStack(recipe.result));
+        return baseEntry(id, RecipeEditorTypes.SMITHING_TRANSFORM).setData(data);
     }
 
     public static RecipeEntry importMechanicalCrafting(ResourceLocation id, ShapedRecipe recipe, boolean acceptMirrored, HolderLookup.Provider provider) throws RecipeImportException {
@@ -240,7 +209,7 @@ public final class RecipeImporter {
                 .setPattern(shapedPattern.pattern())
                 .setKey(shapedPattern.key())
                 .setResult(copyResult(recipe, provider));
-        return baseEntry(id, RecipeEditorTypes.CREATE_MECHANICAL_CRAFTING).setCreateMechanicalCrafting(data);
+        return baseEntry(id, RecipeEditorTypes.CREATE_MECHANICAL_CRAFTING).setData(data);
     }
 
     public static ImportedShapedPattern importShapedPattern(List<Ingredient> ingredients, int width, int height) throws RecipeImportException {
@@ -329,10 +298,10 @@ public final class RecipeImporter {
             return;
         }
         for (var value : ingredient.getValues()) {
-            if (value instanceof Ingredient.ItemValue itemValue) {
-                imported.getValues().add(RecipeIngredientValue.item(itemValue.item().copyWithCount(1)));
-            } else if (value instanceof Ingredient.TagValue tagValue) {
-                imported.getValues().add(RecipeIngredientValue.tag(tagValue.tag().location()));
+            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
+                imported.getValues().add(RecipeIngredientValue.item(item.copyWithCount(1)));
+            } else if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
+                imported.getValues().add(RecipeIngredientValue.tag(tag.location()));
             } else {
                 throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_ingredient");
             }
@@ -341,8 +310,8 @@ public final class RecipeImporter {
 
     private static void appendCustomIngredientValues(RecipeIngredient imported, Ingredient ingredient) throws RecipeImportException {
         var custom = ingredient.getCustomIngredient();
-        if (custom instanceof CompoundIngredient compound) {
-            for (var child : compound.children()) {
+        if (custom instanceof CompoundIngredient(List<Ingredient> children)) {
+            for (var child : children) {
                 appendIngredientValues(imported, child);
             }
             return;

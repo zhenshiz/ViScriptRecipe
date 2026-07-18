@@ -31,7 +31,7 @@ public final class IceAndFireRecipeImporter implements RecipeImportHandler {
                     .setDragonType(IceAndFireRecipeFactory.normalizeDragonType(recipe.getDragonType()))
                     .setCookTime(Math.max(1, recipe.getCookTime()));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ICEANDFIRE_DRAGONFORGE)
-                    .setIceAndFireDragonForge(data));
+                    .setData(data));
         }
         return null;
     }

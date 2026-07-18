@@ -2,12 +2,11 @@ package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
+import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 final class ArcaneAnvilCanvasFactory {
     private static final ResourceLocation JEI_BACKGROUND = ResourceLocation.fromNamespaceAndPath(
@@ -53,9 +52,8 @@ final class ArcaneAnvilCanvasFactory {
     }
 
     static boolean hasJeiSkin() {
-        return ModList.get().isLoaded("jei")
-                && ModList.get().isLoaded("irons_spellbooks")
-                && Minecraft.getInstance().getResourceManager().getResource(JEI_BACKGROUND).isPresent();
+        return ViScriptRecipe.isModLoaded("jei") && ViScriptRecipe.isModLoaded("irons_spellbooks")
+                && ViScriptRecipe.isPresentResource(JEI_BACKGROUND);
     }
 
     private static UIElement positionedSlot(UIElement slot, int left) {

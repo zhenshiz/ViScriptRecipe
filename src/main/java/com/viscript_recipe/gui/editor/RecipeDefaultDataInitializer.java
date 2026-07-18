@@ -8,40 +8,21 @@ import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushOutputData;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
 import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
-import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
-import com.viscript_recipe.data.create.CreateFluidIngredientData;
-import com.viscript_recipe.data.create.CreateHeatCondition;
-import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
-import com.viscript_recipe.data.create.CreateProcessingKind;
-import com.viscript_recipe.data.create.CreateProcessingOutputData;
-import com.viscript_recipe.data.create.CreateProcessingRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCombinationRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCompressorRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCountedIngredientData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingEnderCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingFluxCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingTableRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
+import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
-import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
+import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
-import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientKind;
-import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
+import com.viscript_recipe.data.mekanism.*;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureCountedIngredientData;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureWeightedEntityData;
@@ -558,14 +539,14 @@ final class RecipeDefaultDataInitializer {
 
     private static ArrayList<String> singleSlotPattern(int size) {
         var pattern = new ArrayList<String>();
-        for (int row = 0; row < Math.max(1, Math.min(9, size)); row++) {
+        for (int row = 0; row < Math.clamp(size, 1, 9); row++) {
             pattern.add(row == 0 ? "A" + " ".repeat(Math.max(0, size - 1)) : " ".repeat(size));
         }
         return pattern;
     }
 
     private static String defaultTableResultItem(int tier) {
-        return switch (Math.max(1, Math.min(4, tier))) {
+        return switch (Math.clamp(tier, 1, 4)) {
             case 1 -> "extendedcrafting:basic_component";
             case 2 -> "extendedcrafting:advanced_component";
             case 3 -> "extendedcrafting:elite_component";
@@ -650,7 +631,7 @@ final class RecipeDefaultDataInitializer {
     }
 
     private static String defaultAvaritiaTableResultItem(int tier) {
-        return switch (Math.max(1, Math.min(4, tier))) {
+        return switch (Math.clamp(tier, 1, 4)) {
             case 1 -> "avaritia:neutron_pile";
             case 2 -> "avaritia:neutron_nugget";
             case 3 -> "avaritia:neutron_ingot";
@@ -671,7 +652,7 @@ final class RecipeDefaultDataInitializer {
             return fallback;
         }
         var item = BuiltInRegistries.ITEM.get(location);
-        return item == null || item == Items.AIR ? fallback : item;
+        return item == Items.AIR ? fallback : item;
     }
 
     private static net.minecraft.world.level.material.Fluid fluidFromRegistry(
@@ -681,7 +662,7 @@ final class RecipeDefaultDataInitializer {
             return fallback;
         }
         var fluid = BuiltInRegistries.FLUID.get(location);
-        return fluid == null || fluid == Fluids.EMPTY ? fallback : fluid;
+        return fluid == Fluids.EMPTY ? fallback : fluid;
     }
 
     private static RecipeIngredient tagIngredient(String id) {

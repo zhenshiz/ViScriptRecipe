@@ -1,14 +1,14 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapedRecipe;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -23,9 +23,9 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ShapedCraftingRecipeData implements IPersistedSerializable, IConfigurable {
+public class ShapedCraftingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.recipe.show_notification")
-    private boolean showNotification = true;
+    private Boolean showNotification = true;
 
     @Configurable(name = "viscript_recipe.config.shaped.pattern")
     @ConfigList(addDefaultMethod = "createDefaultPatternRow")
@@ -56,7 +56,11 @@ public class ShapedCraftingRecipeData implements IPersistedSerializable, IConfig
         return CraftingRemainderRule.defaultRule();
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public String getDataName() {return "shaped";}
+
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
         if (pattern.isEmpty()) {
             throw new IllegalArgumentException("Shaped recipe pattern cannot be empty");
         }
@@ -69,7 +73,7 @@ public class ShapedCraftingRecipeData implements IPersistedSerializable, IConfig
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
         var compiledRemainders = remainders == null ? List.<CraftingRemainderRule>of() : remainders;
-        if (compiledRemainders.stream().anyMatch(rule -> rule != null && !rule.isDefault())) {
+        if (compiledRemainders.stream().anyMatch(rule -> !rule.isDefault())) {
             return new ViscriptShapedRecipe("", CraftingBookCategory.MISC, compiledPattern, result.copy(), showNotification, compiledRemainders);
         }
         return new ShapedRecipe("", CraftingBookCategory.MISC, compiledPattern, result.copy(), showNotification);

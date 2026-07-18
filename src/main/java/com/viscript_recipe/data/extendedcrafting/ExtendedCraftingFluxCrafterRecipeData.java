@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.extendedcrafting;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import lombok.Getter;
@@ -21,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ExtendedCraftingFluxCrafterRecipeData implements IPersistedSerializable, IConfigurable {
+public class ExtendedCraftingFluxCrafterRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.shaped.pattern")
     @ConfigList(addDefaultMethod = "createDefaultPatternRow")
     private List<String> pattern = new ArrayList<>(List.of("A"));
@@ -59,6 +58,7 @@ public class ExtendedCraftingFluxCrafterRecipeData implements IPersistedSerializ
         return RecipeIngredient.item(Items.REDSTONE);
     }
 
+    @Override
     public Recipe<?> compile(ResourceLocation type) {
         return ExtendedCraftingRecipeFactory.compileFluxCrafter(type, this);
     }

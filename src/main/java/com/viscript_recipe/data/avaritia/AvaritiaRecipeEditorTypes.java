@@ -5,7 +5,6 @@ import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -53,7 +52,15 @@ public final class AvaritiaRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        registerTableCategory(CRAFTING_TABLE, SHAPED_TABLE, "viscript_recipe.editor.category.avaritia.crafting_table", SCULK_CRAFTING_TABLE);
+        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+                AvaritiaRecipeEditorTypes.CRAFTING_TABLE,
+                "viscript_recipe.editor.category.avaritia.crafting_table",
+                MOD_ID,
+                REQUIRED_MODS,
+                AvaritiaRecipeEditorTypes.SHAPED_TABLE,
+                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
+                AvaritiaRecipeEditorTypes.SCULK_CRAFTING_TABLE
+        ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 NEUTRON_COMPRESSOR,
                 "viscript_recipe.editor.category.avaritia.neutron_compressor",
@@ -72,100 +79,48 @@ public final class AvaritiaRecipeEditorTypes {
         ));
     }
 
-    private static void registerTableCategory(ResourceLocation category, ResourceLocation defaultType, String translationKey,
-                                              ResourceLocation workstationItem) {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                category,
-                translationKey,
-                MOD_ID,
-                REQUIRED_MODS,
-                defaultType,
-                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
-                workstationItem
-        ));
-    }
-
     private static void registerTypes() {
-        registerTableType(SHAPED_TABLE, CRAFTING_TABLE, "viscript_recipe.editor.type.avaritia.shaped_table");
-        registerTableType(SHAPELESS_TABLE, CRAFTING_TABLE, "viscript_recipe.editor.type.avaritia.shapeless_table");
-        registerTableType(NO_CONSUME_CATALYST_SHAPED, CRAFTING_TABLE, "viscript_recipe.editor.type.avaritia.no_consume_catalyst_shaped");
-        registerSpecialShapelessType(INFINITY_CATALYST, "viscript_recipe.editor.type.avaritia.infinity_catalyst");
-        registerSpecialShapelessType(ETERNAL_SINGULARITY, "viscript_recipe.editor.type.avaritia.eternal_singularity");
-        registerSpecialShapelessType(FULL_MATTER_CLUSTER, "viscript_recipe.editor.type.avaritia.full_matter_cluster");
-        RecipeEditorTypes.register(new RecipeEditorType(
+        registerTableType(SHAPED_TABLE, "viscript_recipe.editor.type.avaritia.shaped_table");
+        registerTableType(SHAPELESS_TABLE, "viscript_recipe.editor.type.avaritia.shapeless_table");
+        registerTableType(NO_CONSUME_CATALYST_SHAPED, "viscript_recipe.editor.type.avaritia.no_consume_catalyst_shaped");
+        RecipeEditorTypes.register(RecipeEditorType.of(
                 COMPRESSOR,
                 NEUTRON_COMPRESSOR,
                 "viscript_recipe.editor.type.avaritia.compressor",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getAvaritiaCompressor().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getAvaritiaCompressor().getResult(),
-                (entry, stack) -> entry.getAvaritiaCompressor().setResult(copy(stack))
+                AvaritiaCompressorRecipeData.class, AvaritiaCompressorRecipeData::new,
+                MOD_ID
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                EXTREME_SMITHING,
-                EXTREME_SMITHING_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                EXTREME_SMITHING, EXTREME_SMITHING_TABLE,
                 "viscript_recipe.editor.type.avaritia.extreme_smithing",
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getAvaritiaExtremeSmithing().compile(),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getAvaritiaExtremeSmithing().getResult(),
-                (entry, stack) -> entry.getAvaritiaExtremeSmithing().setResult(copy(stack))
+                AvaritiaExtremeSmithingRecipeData.class, AvaritiaExtremeSmithingRecipeData::new,
+                MOD_ID
+        ));
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                INFINITY_CATALYST, CRAFTING_TABLE,
+                "viscript_recipe.editor.type.avaritia.infinity_catalyst",
+                AvaritiaInfinityCatalystRecipeData.class, AvaritiaInfinityCatalystRecipeData::new,
+                MOD_ID
+        ));
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                ETERNAL_SINGULARITY, CRAFTING_TABLE,
+                "viscript_recipe.editor.type.avaritia.eternal_singularity",
+                AvaritiaEternalSingularityRecipeData.class, AvaritiaEternalSingularityRecipeData::new,
+                MOD_ID
+        ));
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                FULL_MATTER_CLUSTER, CRAFTING_TABLE,
+                "viscript_recipe.editor.type.avaritia.full_matter_cluster",
+                AvaritiaFullMatterClusterRecipeData.class, AvaritiaFullMatterClusterRecipeData::new,
+                MOD_ID
         ));
     }
 
-    private static void registerSpecialShapelessType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                type,
-                CRAFTING_TABLE,
-                translationKey,
-                REQUIRED_MODS,
-                false,
-                entry -> {
-                    if (INFINITY_CATALYST.equals(type)) {
-                        return entry.getAvaritiaInfinityCatalyst().compile();
-                    }
-                    if (ETERNAL_SINGULARITY.equals(type)) {
-                        return entry.getAvaritiaEternalSingularity().compile();
-                    }
-                    return entry.getAvaritiaFullMatterCluster().compile();
-                },
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> {
-                    if (INFINITY_CATALYST.equals(type)) {
-                        return entry.getAvaritiaInfinityCatalyst().result();
-                    }
-                    if (ETERNAL_SINGULARITY.equals(type)) {
-                        return entry.getAvaritiaEternalSingularity().result();
-                    }
-                    return entry.getAvaritiaFullMatterCluster().result();
-                },
-                (entry, stack) -> {
-                }
-        ));
-    }
-
-    private static void registerTableType(ResourceLocation type, ResourceLocation category, String translationKey) {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                type,
-                category,
-                translationKey,
-                REQUIRED_MODS,
-                false,
-                entry -> entry.getAvaritiaTable().compile(entry.getType()),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getAvaritiaTable().getResult(),
-                (entry, stack) -> entry.getAvaritiaTable().setResult(copy(stack))
+    private static void registerTableType(ResourceLocation type, String translationKey) {
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                type, CRAFTING_TABLE, translationKey,
+                AvaritiaTableRecipeData.class, AvaritiaTableRecipeData::new,
+                MOD_ID
         ));
     }
 
@@ -238,7 +193,7 @@ public final class AvaritiaRecipeEditorTypes {
     }
 
     public static int tableGridSizeForTier(int tier) {
-        return switch (Math.max(1, Math.min(4, tier))) {
+        return switch (Math.clamp(tier, 1, 4)) {
             case 1 -> 3;
             case 2 -> 5;
             case 3 -> 7;
@@ -247,7 +202,7 @@ public final class AvaritiaRecipeEditorTypes {
     }
 
     public static ResourceLocation tableItemForTier(int tier) {
-        return switch (Math.max(1, Math.min(4, tier))) {
+        return switch (Math.clamp(tier, 1, 4)) {
             case 1 -> SCULK_CRAFTING_TABLE;
             case 2 -> NETHER_CRAFTING_TABLE;
             case 3 -> END_CRAFTING_TABLE;
@@ -257,9 +212,5 @@ public final class AvaritiaRecipeEditorTypes {
 
     public static ResourceLocation create(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
-    }
-
-    private static ItemStack copy(ItemStack stack) {
-        return stack == null ? ItemStack.EMPTY : stack.copy();
     }
 }

@@ -1,7 +1,7 @@
 package com.viscript_recipe.recipe;
 
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.Config;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.CreateRecipeFactory;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.irons_spellbooks.IronAlchemistCauldronFluidSupport;
@@ -22,13 +22,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 public final class RecipeOverrideManager {
     private static final int MAX_DELTA_RECIPE_CHANGES = 256;

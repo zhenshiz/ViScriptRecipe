@@ -1,95 +1,40 @@
 package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.Platform;
-import com.viscript_recipe.data.IngredientValueKind;
-import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
-import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeFile;
-import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.RecipeIngredientValue;
-import com.viscript_recipe.data.create.CreateFluidIngredientData;
-import com.viscript_recipe.data.create.CreateFluidIngredientKind;
-import com.viscript_recipe.data.create.CreateHeatCondition;
-import com.viscript_recipe.data.create.CreateItemInputCounts;
-import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
-import com.viscript_recipe.data.create.CreateProcessingKind;
-import com.viscript_recipe.data.create.CreateProcessingOutputData;
-import com.viscript_recipe.data.create.CreateProcessingRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCombinationRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCompressorRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingCountedIngredientData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingEnderCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingFluxCrafterRecipeData;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingTableRecipeData;
-import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
-import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
+import com.viscript_recipe.data.*;
+import com.viscript_recipe.data.ars_nouveau.*;
+import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
+import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
+import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
+import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
+import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
-import com.viscript_recipe.data.goety.GoetyBrazierRecipeData;
-import com.viscript_recipe.data.goety.GoetyBrewingRecipeData;
-import com.viscript_recipe.data.goety.GoetyCursedInfuserRecipeData;
-import com.viscript_recipe.data.goety.GoetyPulverizeRecipeData;
-import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
-import com.viscript_recipe.data.goety.GoetyRitualRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.data.goety.*;
+import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
+import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialDissolutionRecipeData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismItemInputCounts;
-import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
+import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
+import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.data.kaleidoscope_cookery.*;
+import com.viscript_recipe.data.mekanism.*;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureAwakeningRecipeData;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureEnchanterRecipeData;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureInfusionRecipeData;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeChoppingBoardRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeMillstoneRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopePotRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeSteamerRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeStockpotRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeTeapotRecipeData;
 import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
 import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
 import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauApparatusRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauArmorUpgradeRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushOutputData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauEnchantmentRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauGlyphRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauImbuementRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauPedestalOnlyRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
-import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
-import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
-import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
-import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
-import com.viscript_recipe.data.vanilla.CookingRecipeData;
-import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
-import com.viscript_recipe.data.vanilla.ShapedCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
-import com.viscript_recipe.data.vanilla.ShapelessCraftingRecipeData;
-import com.viscript_recipe.data.vanilla.SmithingTransformRecipeData;
-import com.viscript_recipe.data.vanilla.StonecuttingRecipeData;
+import com.viscript_recipe.data.vanilla.*;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import lombok.Getter;
@@ -101,17 +46,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class RecipeEditorController {
     private static final char[] SHAPED_SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>/?|~".toCharArray();
@@ -1089,7 +1030,7 @@ public class RecipeEditorController {
         if (index < 0 || index >= visualCuttingChances.length) {
             return 1.0F;
         }
-        return Math.max(0, Math.min(1, visualCuttingChances[index]));
+        return Math.clamp(visualCuttingChances[index], 0, 1);
     }
 
     public void setVisualCuttingResult(int index, ItemStack stack) {
@@ -1290,28 +1231,25 @@ public class RecipeEditorController {
     }
 
     public boolean showNotification(RecipeEntry entry) {
-        return RecipeEditorTypes.require(entry.getType()).showNotification(entry);
+        return supportsNotification(entry) && entry.getData().getShowNotification();
     }
 
     public boolean supportsNotification(RecipeEntry entry) {
-        return RecipeEditorTypes.require(entry.getType()).supportsNotification();
+        return entry.getData().getShowNotification() != null;
     }
 
     public void setShowNotification(RecipeEntry entry, boolean value) {
-        var type = RecipeEditorTypes.require(entry.getType());
-        if (!type.supportsNotification()) {
-            return;
-        }
-        type.setShowNotification(entry, value);
+        if (!supportsNotification(entry)) return;
+        entry.getData().setShowNotification(value);
         notifyChanged();
     }
 
     public ItemStack getResult(RecipeEntry entry) {
-        return RecipeEditorTypes.require(entry.getType()).result(entry);
+        return entry.getData().getResult();
     }
 
     public void setResult(RecipeEntry entry, ItemStack result) {
-        RecipeEditorTypes.require(entry.getType()).setResult(entry, result);
+        entry.getData().setResult(result);
     }
 
     public FluidStack getSelectedFluid() {
@@ -3367,13 +3305,13 @@ public class RecipeEditorController {
 
     public int selectedCreateFluidInputIndex() {
         if (selectedEntry != null && isCreateSequencedAssemblyEntry(selectedEntry)) {
-            return Math.max(0, Math.min(CREATE_SEQUENCED_MAX_STEPS - 1, slotSelection.index()));
+            return Math.clamp(slotSelection.index(), 0, CREATE_SEQUENCED_MAX_STEPS - 1);
         }
-        return Math.max(0, Math.min(CREATE_MAX_FLUID_INPUTS - 1, slotSelection.index()));
+        return Math.clamp(slotSelection.index(), 0, CREATE_MAX_FLUID_INPUTS - 1);
     }
 
     public int selectedCreateFluidOutputIndex() {
-        return Math.max(0, Math.min(CREATE_MAX_FLUID_OUTPUTS - 1, slotSelection.index() - CREATE_FLUID_OUTPUT_INDEX_OFFSET));
+        return Math.clamp(slotSelection.index() - CREATE_FLUID_OUTPUT_INDEX_OFFSET, 0, CREATE_MAX_FLUID_OUTPUTS - 1);
     }
 
     public boolean isSelectedFarmersCuttingToolSlot() {
@@ -3465,11 +3403,11 @@ public class RecipeEditorController {
     }
 
     public float getCookingExperience(RecipeEntry entry) {
-        return Math.max(0, Math.min(Integer.MAX_VALUE, entry.getCooking().getExperience()));
+        return Math.clamp(entry.getCooking().getExperience(), 0, Integer.MAX_VALUE);
     }
 
     public void setCookingExperience(RecipeEntry entry, float experience) {
-        entry.getCooking().setExperience(Math.max(0, Math.min(Integer.MAX_VALUE, experience)));
+        entry.getCooking().setExperience(Math.clamp(experience, 0, Integer.MAX_VALUE));
         notifyChanged();
     }
 
@@ -3483,11 +3421,11 @@ public class RecipeEditorController {
     }
 
     public float getFarmersCookingExperience(RecipeEntry entry) {
-        return Math.max(0, Math.min(Integer.MAX_VALUE, entry.getFarmerCookingPot().getExperience()));
+        return Math.clamp(entry.getFarmerCookingPot().getExperience(), 0, Integer.MAX_VALUE);
     }
 
     public void setFarmersCookingExperience(RecipeEntry entry, float experience) {
-        entry.getFarmerCookingPot().setExperience(Math.max(0, Math.min(Integer.MAX_VALUE, experience)));
+        entry.getFarmerCookingPot().setExperience(Math.clamp(experience, 0, Integer.MAX_VALUE));
         notifyChanged();
     }
 
@@ -3651,7 +3589,7 @@ public class RecipeEditorController {
         if (index < 0 || index >= visualCuttingChances.length) {
             return 1.0F;
         }
-        return Math.max(0, Math.min(1, visualCuttingChances[index]));
+        return Math.clamp(visualCuttingChances[index], 0, 1);
     }
 
     public void setSelectedCuttingChance(float chance) {
@@ -3662,7 +3600,7 @@ public class RecipeEditorController {
         if (index < 0 || index >= visualCuttingChances.length) {
             return;
         }
-        visualCuttingChances[index] = Math.max(0, Math.min(1, chance));
+        visualCuttingChances[index] = Math.clamp(chance, 0, 1);
         saveVisualStateToSelectedEntry();
         notifyChanged();
     }
@@ -3701,7 +3639,7 @@ public class RecipeEditorController {
         if (index < 0 || index >= visualArsNouveauOutputChances.length) {
             return 1.0F;
         }
-        return Math.max(0, Math.min(1, visualArsNouveauOutputChances[index]));
+        return Math.clamp(visualArsNouveauOutputChances[index], 0, 1);
     }
 
     public void setSelectedArsNouveauOutputChance(float chance) {
@@ -3712,7 +3650,7 @@ public class RecipeEditorController {
         if (index < 0 || index >= visualArsNouveauOutputChances.length) {
             return;
         }
-        visualArsNouveauOutputChances[index] = Math.max(0, Math.min(1, chance));
+        visualArsNouveauOutputChances[index] = Math.clamp(chance, 0, 1);
         saveVisualStateToSelectedEntry();
         notifyChanged();
     }
@@ -3751,7 +3689,7 @@ public class RecipeEditorController {
         }
         return isCreateSequencedAssemblyEntry(selectedEntry)
                 ? Math.max(0, visualCreateOutputChances[index])
-                : Math.max(0, Math.min(1, visualCreateOutputChances[index]));
+                : Math.clamp(visualCreateOutputChances[index], 0, 1);
     }
 
     public void setSelectedCreateOutputChance(float chance) {
@@ -3764,7 +3702,7 @@ public class RecipeEditorController {
         }
         visualCreateOutputChances[index] = isCreateSequencedAssemblyEntry(selectedEntry)
                 ? Math.max(0, chance)
-                : Math.max(0, Math.min(1, chance));
+                : Math.clamp(chance, 0, 1);
         saveVisualStateToSelectedEntry();
         notifyChanged();
     }
@@ -3870,7 +3808,7 @@ public class RecipeEditorController {
         }
         var fluidId = selectedEntry.getKaleidoscopeTeapot().getTeaFluid();
         var fluid = fluidId == null ? Fluids.WATER : BuiltInRegistries.FLUID.get(fluidId);
-        var bucket = fluid == null || fluid == Fluids.EMPTY ? Items.WATER_BUCKET : fluid.getBucket();
+        var bucket = fluid == Fluids.EMPTY ? Items.WATER_BUCKET : fluid.getBucket();
         return bucket == Items.AIR ? ItemStack.EMPTY : new ItemStack(bucket);
     }
 
@@ -4392,7 +4330,7 @@ public class RecipeEditorController {
             if (stack != null && !stack.isEmpty()) {
                 results.add(new FarmerCuttingResultData()
                         .setItem(stack.copy())
-                        .setChance(Math.max(0, Math.min(1, visualCuttingChances[i]))));
+                        .setChance(Math.clamp(visualCuttingChances[i], 0, 1)));
             }
         }
         cutting.setResults(results);
@@ -4531,7 +4469,7 @@ public class RecipeEditorController {
             if (stack != null && !stack.isEmpty()) {
                 outputs.add(new CreateProcessingOutputData()
                         .setItem(stack.copy())
-                        .setChance(Math.max(0, Math.min(1, visualCreateOutputChances[i]))));
+                        .setChance(Math.clamp(visualCreateOutputChances[i], 0, 1)));
             }
         }
         var existingOutputs = data.getOutputs();
@@ -4793,7 +4731,7 @@ public class RecipeEditorController {
             if (stack != null && !stack.isEmpty()) {
                 outputs.add(new ArsNouveauCrushOutputData()
                         .setItem(stack.copy())
-                        .setChance(Math.max(0, Math.min(1, visualArsNouveauOutputChances[i])))
+                        .setChance(Math.clamp(visualArsNouveauOutputChances[i], 0, 1))
                         .setMaxRange(Math.max(1, visualArsNouveauOutputMaxRanges[i])));
             }
         }
@@ -4840,7 +4778,7 @@ public class RecipeEditorController {
         if (stack != null && !stack.isEmpty()) {
             outputs.add(new CreateProcessingOutputData()
                     .setItem(stack.copy())
-                    .setChance(Math.max(0, Math.min(1, visualCreateOutputChances[0]))));
+                    .setChance(Math.clamp(visualCreateOutputChances[0], 0, 1)));
         }
         data.setIngredients(ingredients);
         data.setFluidIngredients(new ArrayList<>());
@@ -6299,7 +6237,7 @@ public class RecipeEditorController {
                     continue;
                 }
                 visualCreateOutputs[i] = output.getItem() == null ? ItemStack.EMPTY : output.getItem().copy();
-                visualCreateOutputChances[i] = Math.max(0, Math.min(1, output.getChance()));
+                visualCreateOutputChances[i] = Math.clamp(output.getChance(), 0, 1);
             }
         }
         visualCreateFluidOutputs = emptyCreateFluidOutputs();
@@ -6344,7 +6282,7 @@ public class RecipeEditorController {
             var output = outputs.getFirst();
             if (output != null) {
                 visualCreateOutputs[0] = output.getItem() == null ? ItemStack.EMPTY : output.getItem().copy();
-                visualCreateOutputChances[0] = Math.max(0, Math.min(1, output.getChance()));
+                visualCreateOutputChances[0] = Math.clamp(output.getChance(), 0, 1);
             }
         }
         visualResult = visualCreateOutputs[0].copy();
@@ -6811,7 +6749,7 @@ public class RecipeEditorController {
         return BuiltInRegistries.BLOCK.getTag(TagKey.create(Registries.BLOCK, tag))
                 .map(holders -> holders.stream()
                         .map(Holder::value)
-                        .map(block -> block.asItem())
+                        .map(Block::asItem)
                         .filter(item -> item != Items.AIR)
                         .map(ItemStack::new)
                         .filter(stack -> !stack.isEmpty())
@@ -6974,7 +6912,7 @@ public class RecipeEditorController {
             inputs = new ArrayList<>();
             data.setInputs(inputs);
         }
-        var normalizedIndex = Math.max(0, Math.min(EXTENDED_CRAFTING_COMPRESSOR_MAX_INPUTS - 1, index));
+        var normalizedIndex = Math.clamp(index, 0, EXTENDED_CRAFTING_COMPRESSOR_MAX_INPUTS - 1);
         while (inputs.size() <= normalizedIndex) {
             inputs.add(new ExtendedCraftingCountedIngredientData());
         }
@@ -7111,7 +7049,7 @@ public class RecipeEditorController {
             return fallback;
         }
         var item = BuiltInRegistries.ITEM.get(location);
-        return item == null || item == Items.AIR ? fallback : item;
+        return item == Items.AIR ? fallback : item;
     }
 
     private static <T> List<T> safeList(List<T> list) {

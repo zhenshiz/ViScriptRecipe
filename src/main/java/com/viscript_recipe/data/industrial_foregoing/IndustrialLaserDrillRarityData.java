@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Stores one ordered laser-drill rarity rule, including biome tags and dimension-type filters. */
 @Getter
 @Setter
 @Accessors(chain = true)

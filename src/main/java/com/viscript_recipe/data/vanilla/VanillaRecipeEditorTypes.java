@@ -5,10 +5,6 @@ import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.BlastingRecipe;
-import net.minecraft.world.item.crafting.CampfireCookingRecipe;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.item.crafting.SmokingRecipe;
 
 import java.util.List;
 
@@ -105,105 +101,45 @@ public final class VanillaRecipeEditorTypes {
     }
 
     private static void registerTypes() {
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CRAFTING_SHAPED,
-                CRAFTING_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CRAFTING_SHAPED, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shaped",
-                List.of(),
-                true,
-                entry -> entry.getShaped().compile(),
-                entry -> entry.getShaped().isShowNotification(),
-                (entry, value) -> entry.getShaped().setShowNotification(value),
-                entry -> entry.getShaped().getResult(),
-                (entry, stack) -> entry.getShaped().setResult(stack.copy())
+                ShapedCraftingRecipeData.class, ShapedCraftingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CRAFTING_SHAPELESS,
-                CRAFTING_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CRAFTING_SHAPELESS, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shapeless",
-                List.of(),
-                true,
-                entry -> entry.getShapeless().compile(),
-                entry -> entry.getShapeless().isShowNotification(),
-                (entry, value) -> entry.getShapeless().setShowNotification(value),
-                entry -> entry.getShapeless().getResult(),
-                (entry, stack) -> entry.getShapeless().setResult(stack.copy())
+                ShapelessCraftingRecipeData.class, ShapelessCraftingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                SMELTING,
-                FURNACE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                SMELTING, FURNACE,
                 "viscript_recipe.editor.type.minecraft.smelting",
-                List.of(),
-                false,
-                entry -> entry.getCooking().compile(SmeltingRecipe::new),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCooking().getResult(),
-                (entry, stack) -> entry.getCooking().setResult(stack.copy())
+                CookingRecipeData.class, CookingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                BLASTING,
-                BLAST_FURNACE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                BLASTING, BLAST_FURNACE,
                 "viscript_recipe.editor.type.minecraft.blasting",
-                List.of(),
-                false,
-                entry -> entry.getCooking().compile(BlastingRecipe::new),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCooking().getResult(),
-                (entry, stack) -> entry.getCooking().setResult(stack.copy())
+                CookingRecipeData.class, CookingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                SMOKING,
-                SMOKER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                SMOKING, SMOKER,
                 "viscript_recipe.editor.type.minecraft.smoking",
-                List.of(),
-                false,
-                entry -> entry.getCooking().compile(SmokingRecipe::new),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCooking().getResult(),
-                (entry, stack) -> entry.getCooking().setResult(stack.copy())
+                CookingRecipeData.class, CookingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                CAMPFIRE_COOKING,
-                CAMPFIRE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                CAMPFIRE_COOKING, CAMPFIRE,
                 "viscript_recipe.editor.type.minecraft.campfire_cooking",
-                List.of(),
-                false,
-                entry -> entry.getCooking().compile(CampfireCookingRecipe::new),
-                entry -> false,
-                (entry, value) -> {
-                },
-                entry -> entry.getCooking().getResult(),
-                (entry, stack) -> entry.getCooking().setResult(stack.copy())
+                CookingRecipeData.class, CookingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                STONECUTTING,
-                STONECUTTER,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                STONECUTTING, STONECUTTER,
                 "viscript_recipe.editor.type.minecraft.stonecutting",
-                List.of(),
-                true,
-                entry -> entry.getStonecutting().compile(),
-                entry -> entry.getStonecutting().isShowNotification(),
-                (entry, value) -> entry.getStonecutting().setShowNotification(value),
-                entry -> entry.getStonecutting().getResult(),
-                (entry, stack) -> entry.getStonecutting().setResult(stack.copy())
+                StonecuttingRecipeData.class, StonecuttingRecipeData::new
         ));
-        RecipeEditorTypes.register(new RecipeEditorType(
-                SMITHING_TRANSFORM,
-                SMITHING_TABLE,
+        RecipeEditorTypes.register(RecipeEditorType.of(
+                SMITHING_TRANSFORM, SMITHING_TABLE,
                 "viscript_recipe.editor.type.minecraft.smithing_transform",
-                List.of(),
-                true,
-                entry -> entry.getSmithingTransform().compile(),
-                entry -> entry.getSmithingTransform().isShowNotification(),
-                (entry, value) -> entry.getSmithingTransform().setShowNotification(value),
-                entry -> entry.getSmithingTransform().getResult(),
-                (entry, stack) -> entry.getSmithingTransform().setResult(stack.copy())
+                SmithingTransformRecipeData.class, SmithingTransformRecipeData::new
         ));
     }
 

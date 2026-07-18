@@ -1,12 +1,7 @@
 package com.viscript_recipe.compat.jei.irons_spellbooks;
 
 import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
-import io.redspace.ironsspellbooks.jei.AlchemistCauldronJeiRecipe;
-import io.redspace.ironsspellbooks.jei.AlchemistCauldronRecipeCategory;
-import io.redspace.ironsspellbooks.jei.AlchemistCauldronRecipeMaker;
-import io.redspace.ironsspellbooks.jei.ArcaneAnvilJeiRecipe;
-import io.redspace.ironsspellbooks.jei.ArcaneAnvilRecipeCategory;
-import io.redspace.ironsspellbooks.jei.ScrollForgeRecipeCategory;
+import io.redspace.ironsspellbooks.jei.*;
 import io.redspace.ironsspellbooks.recipe_types.alchemist_cauldron.BrewAlchemistCauldronRecipe;
 import io.redspace.ironsspellbooks.registries.RecipeRegistry;
 import mezz.jei.api.recipe.IRecipeManager;

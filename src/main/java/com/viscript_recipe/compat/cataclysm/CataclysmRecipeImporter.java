@@ -35,7 +35,7 @@ public final class CataclysmRecipeImporter implements RecipeImportHandler {
                     .setAddition(RecipeImporter.importIngredient(recipe.getAdditionIngredient()))
                     .setResult(RecipeImporter.copyResult(recipe, provider));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), CataclysmRecipeEditorTypes.WEAPON_FUSION)
-                    .setCataclysmWeaponFusion(data));
+                    .setData(data));
         }
         if (holder.value() instanceof AltarOfAmethystRecipe recipe) {
             var data = new CataclysmAmethystBlessRecipeData()
@@ -43,7 +43,7 @@ public final class CataclysmRecipeImporter implements RecipeImportHandler {
                     .setResult(RecipeImporter.copyResult(recipe, provider))
                     .setTime(Math.max(1, recipe.getTime()));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), CataclysmRecipeEditorTypes.AMETHYST_BLESS)
-                    .setCataclysmAmethystBless(data));
+                    .setData(data));
         }
         return null;
     }

@@ -3,7 +3,6 @@ package com.viscript_recipe.compat.farmersdelight;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
@@ -62,7 +61,7 @@ public final class FarmersDelightRecipeFactory {
         for (var resultData : safeList(data.getResults())) {
             var stack = resultData == null ? ItemStack.EMPTY : resultData.getItem();
             if (stack != null && !stack.isEmpty()) {
-                results.add(new ChanceResult(stack.copy(), Math.max(0, Math.min(1, resultData.getChance()))));
+                results.add(new ChanceResult(stack.copy(), Math.clamp(resultData.getChance(), 0, 1)));
             }
         }
         if (results.isEmpty()) {

@@ -29,7 +29,7 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
 
     @Override
     public boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null || holder.value() == null) {
+        if (holder == null) {
             return false;
         }
         var recipe = holder.value();
@@ -55,7 +55,7 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
                 .setContainer(RecipeImporter.copyStack(recipe.getOutputContainer()))
                 .setExperience(recipe.getExperience())
                 .setCookingTime(Math.max(1, recipe.getCookTime()));
-        return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_COOKING).setFarmerCookingPot(data);
+        return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_COOKING).setData(data);
     }
 
     private static RecipeEntry importCutting(ResourceLocation id, CuttingBoardRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
@@ -83,7 +83,7 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
         if (data.getResults().isEmpty()) {
             data.getResults().add(new FarmerCuttingResultData().setItem(RecipeImporter.copyResult(recipe, provider)));
         }
-        return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_CUTTING).setFarmerCuttingBoard(data);
+        return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_CUTTING).setData(data);
     }
 
     private static RecipeIngredient importTool(Ingredient ingredient) throws RecipeImportException {

@@ -1,15 +1,12 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
-import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.data.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-/** Registers the codec-backed Industrial Foregoing recipe types exposed by the editor. */
 public final class IndustrialForegoingRecipeEditorTypes {
     public static final String MOD_ID = "industrialforegoing";
     public static final ResourceLocation CRUSHER = id("crusher");
@@ -25,7 +22,6 @@ public final class IndustrialForegoingRecipeEditorTypes {
     private IndustrialForegoingRecipeEditorTypes() {
     }
 
-    /** Registers Industrial Foregoing categories and editor types once. */
     public static synchronized void registerAll() {
         if (registered) {
             return;
@@ -38,30 +34,12 @@ public final class IndustrialForegoingRecipeEditorTypes {
         registerCategory(LASER_DRILL_FLUID, LASER_DRILL_FLUID, "laser_drill");
         registerCategory(STONEWORK_GENERATE, STONEWORK_GENERATE, "material_stonework_factory");
 
-        RecipeEditorTypes.register(type(CRUSHER,
-                entry -> entry.getIndustrialCrusher().compile(),
-                entry -> firstStack(entry.getIndustrialCrusher().getOutput()),
-                (entry, stack) -> entry.getIndustrialCrusher().setOutput(com.viscript_recipe.data.RecipeIngredient.item(stack))));
-        RecipeEditorTypes.register(type(DISSOLUTION_CHAMBER,
-                entry -> entry.getIndustrialDissolution().compile(),
-                entry -> entry.getIndustrialDissolution().isHasItemOutput() ? entry.getIndustrialDissolution().getOutput() : ItemStack.EMPTY,
-                (entry, stack) -> entry.getIndustrialDissolution().setHasItemOutput(!stack.isEmpty()).setOutput(stack.copy())));
-        RecipeEditorTypes.register(type(FLUID_EXTRACTOR,
-                entry -> entry.getIndustrialFluidExtractor().compile(),
-                entry -> ItemStack.EMPTY,
-                (entry, stack) -> { }));
-        RecipeEditorTypes.register(type(LASER_DRILL_ORE,
-                entry -> entry.getIndustrialLaserDrillOre().compile(),
-                entry -> firstStack(entry.getIndustrialLaserDrillOre().getOutput()),
-                (entry, stack) -> entry.getIndustrialLaserDrillOre().setOutput(com.viscript_recipe.data.RecipeIngredient.item(stack))));
-        RecipeEditorTypes.register(type(LASER_DRILL_FLUID,
-                entry -> entry.getIndustrialLaserDrillFluid().compile(),
-                entry -> ItemStack.EMPTY,
-                (entry, stack) -> { }));
-        RecipeEditorTypes.register(type(STONEWORK_GENERATE,
-                entry -> entry.getIndustrialStoneWork().compile(),
-                entry -> entry.getIndustrialStoneWork().getOutput(),
-                (entry, stack) -> entry.getIndustrialStoneWork().setOutput(stack.copy())));
+        register(CRUSHER, IndustrialCrusherRecipeData.class, IndustrialCrusherRecipeData::new);
+        register(DISSOLUTION_CHAMBER, IndustrialDissolutionRecipeData.class, IndustrialDissolutionRecipeData::new);
+        register(FLUID_EXTRACTOR, IndustrialFluidExtractorRecipeData.class, IndustrialFluidExtractorRecipeData::new);
+        register(LASER_DRILL_ORE, IndustrialLaserDrillOreRecipeData.class, IndustrialLaserDrillOreRecipeData::new);
+        register(LASER_DRILL_FLUID, IndustrialLaserDrillFluidRecipeData.class, IndustrialLaserDrillFluidRecipeData::new);
+        register(STONEWORK_GENERATE, IndustrialStoneWorkRecipeData.class, IndustrialStoneWorkRecipeData::new);
     }
 
     private static void registerCategory(ResourceLocation id, ResourceLocation defaultType, String workstationPath) {
@@ -76,17 +54,15 @@ public final class IndustrialForegoingRecipeEditorTypes {
         ));
     }
 
-    private static RecipeEditorType type(ResourceLocation id,
-                                         java.util.function.Function<com.viscript_recipe.data.RecipeEntry, net.minecraft.world.item.crafting.Recipe<?>> compiler,
-                                         java.util.function.Function<com.viscript_recipe.data.RecipeEntry, ItemStack> getter,
-                                         java.util.function.BiConsumer<com.viscript_recipe.data.RecipeEntry, ItemStack> setter) {
-        return new RecipeEditorType(
-                id, id, "viscript_recipe.editor.type.industrial_foregoing." + id.getPath(), REQUIRED_MODS, false,
-                compiler, entry -> false, (entry, value) -> { }, getter, setter
-        );
+    private static void register(ResourceLocation id,
+                                 Class<? extends IVSRecipeData> dataClass, Supplier<? extends IVSRecipeData> dataSupplier) {
+        RecipeEditorTypes.register(RecipeEditorType.of(id, id,
+                "viscript_recipe.editor.type.industrial_foregoing." + id.getPath(),
+                dataClass, dataSupplier, MOD_ID
+        ));
     }
 
-    private static ItemStack firstStack(com.viscript_recipe.data.RecipeIngredient ingredient) {
+    static ItemStack firstStack(com.viscript_recipe.data.RecipeIngredient ingredient) {
         if (ingredient == null || ingredient.getValues() == null || ingredient.getValues().isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -94,7 +70,6 @@ public final class IndustrialForegoingRecipeEditorTypes {
         return stacks.length == 0 ? ItemStack.EMPTY : stacks[0].copy();
     }
 
-    /** Creates an Industrial Foregoing resource identifier. */
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }

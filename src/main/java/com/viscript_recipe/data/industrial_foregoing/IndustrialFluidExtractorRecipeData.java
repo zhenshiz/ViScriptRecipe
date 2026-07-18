@@ -1,10 +1,9 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,11 +17,10 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Editable representation of {@code FluidExtractorRecipe.CODEC}. */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class IndustrialFluidExtractorRecipeData implements IPersistedSerializable, IConfigurable {
+public class IndustrialFluidExtractorRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.industrial_foregoing.fluid_extractor.input", subConfigurable = true)
     private RecipeIngredient input = RecipeIngredient.item(Items.OAK_LOG);
 
@@ -47,8 +45,8 @@ public class IndustrialFluidExtractorRecipeData implements IPersistedSerializabl
         return new IndustrialBlockStatePropertyData();
     }
 
-    /** Compiles the editor data into Industrial Foregoing's native recipe. */
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return IndustrialForegoingRecipeFactory.compileFluidExtractor(this);
     }
 }

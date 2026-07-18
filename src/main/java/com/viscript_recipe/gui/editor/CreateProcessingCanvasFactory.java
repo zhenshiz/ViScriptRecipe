@@ -568,7 +568,7 @@ final class CreateProcessingCanvasFactory {
             return fallback;
         }
         var item = BuiltInRegistries.ITEM.get(location);
-        return item == null || item == Items.AIR ? fallback : item;
+        return item == Items.AIR ? fallback : item;
     }
 
     record FanCanvas(UIElement root, UIElement singleOutputPanel, UIElement multiOutputPanel) {

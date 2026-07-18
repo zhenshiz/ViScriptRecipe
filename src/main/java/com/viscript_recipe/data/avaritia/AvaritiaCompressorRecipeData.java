@@ -1,13 +1,13 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.Recipe;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class AvaritiaCompressorRecipeData implements IPersistedSerializable, IConfigurable {
+public class AvaritiaCompressorRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.avaritia.compressor.ingredient", subConfigurable = true)
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.COBBLESTONE);
 
@@ -28,7 +28,8 @@ public class AvaritiaCompressorRecipeData implements IPersistedSerializable, ICo
     @Configurable(name = "viscript_recipe.config.avaritia.compressor.time_cost")
     private int timeCost = 240;
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return AvaritiaRecipeFactory.compileCompressor(this);
     }
 }

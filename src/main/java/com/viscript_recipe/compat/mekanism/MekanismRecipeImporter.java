@@ -1,34 +1,12 @@
 package com.viscript_recipe.compat.mekanism;
 
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
-import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientKind;
-import com.viscript_recipe.data.mekanism.MekanismItemInputCounts;
-import com.viscript_recipe.data.mekanism.MekanismRecipeData;
-import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
+import com.viscript_recipe.data.mekanism.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import mekanism.api.chemical.ChemicalStack;
-import mekanism.api.recipes.ChemicalChemicalToChemicalRecipe;
-import mekanism.api.recipes.ChemicalCrystallizerRecipe;
-import mekanism.api.recipes.ChemicalDissolutionRecipe;
-import mekanism.api.recipes.ChemicalToChemicalRecipe;
-import mekanism.api.recipes.CombinerRecipe;
-import mekanism.api.recipes.ElectrolysisRecipe;
-import mekanism.api.recipes.FluidChemicalToChemicalRecipe;
-import mekanism.api.recipes.FluidToFluidRecipe;
-import mekanism.api.recipes.ItemStackChemicalToItemStackRecipe;
-import mekanism.api.recipes.ItemStackToChemicalRecipe;
-import mekanism.api.recipes.ItemStackToEnergyRecipe;
-import mekanism.api.recipes.ItemStackToItemStackRecipe;
-import mekanism.api.recipes.NucleosynthesizingRecipe;
-import mekanism.api.recipes.PressurizedReactionRecipe;
-import mekanism.api.recipes.RotaryRecipe;
-import mekanism.api.recipes.SawmillRecipe;
+import mekanism.api.recipes.*;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import mekanism.api.recipes.ingredients.ItemStackIngredient;
@@ -37,6 +15,7 @@ import mekanism.api.recipes.ingredients.chemical.TagChemicalIngredient;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -56,7 +35,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
 
     @Override
     public boolean canImport(RecipeHolder<?> holder) {
-        return holder != null && holder.value() != null && kind(holder) != null;
+        return holder != null && kind(holder) != null;
     }
 
     @Override
@@ -172,7 +151,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
                         .setSecondaryChance(typed.getSecondaryChance());
             }
         }
-        return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), kind.typeId()).setMekanism(data));
+        return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), kind.typeId()).setData(data));
     }
 
     private static RecipeImportResult importRotary(RecipeHolder<?> holder, RotaryRecipe recipe)
@@ -185,7 +164,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
                     .setFluidOutput(recipe.getFluidOutputDefinition().getFirst().copy());
             var id = split ? splitRotaryId(holder.id(), "condensentrating") : holder.id();
             entries.add(RecipeImporter.baseEntry(id, MekanismRecipeKind.CONDENSENTRATING.typeId())
-                    .setMekanism(data));
+                    .setData(data));
         }
         if (recipe.hasFluidToChemical()) {
             var data = new MekanismRecipeData()
@@ -193,7 +172,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
                     .setChemicalOutput(copyFirstChemical(recipe.getChemicalOutputDefinition()));
             var id = split ? splitRotaryId(holder.id(), "decondensentrating") : holder.id();
             entries.add(RecipeImporter.baseEntry(id, MekanismRecipeKind.DECONDENSENTRATING.typeId())
-                    .setMekanism(data));
+                    .setData(data));
         }
         if (entries.isEmpty()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_result");
@@ -273,7 +252,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
     }
 
     private static ResourceLocation holderId(net.minecraft.core.Holder<?> holder) {
-        return holder.unwrapKey().map(key -> key.location()).orElseThrow();
+        return holder.unwrapKey().map(ResourceKey::location).orElseThrow();
     }
 
     private static ItemStack copyFirstItem(java.util.List<ItemStack> stacks) throws RecipeImportException {

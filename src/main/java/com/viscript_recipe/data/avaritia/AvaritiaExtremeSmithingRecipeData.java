@@ -1,14 +1,14 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class AvaritiaExtremeSmithingRecipeData implements IPersistedSerializable, IConfigurable {
+public class AvaritiaExtremeSmithingRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.smithing_transform.template", subConfigurable = true)
     private RecipeIngredient template = RecipeIngredient.item(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
 
@@ -51,7 +51,7 @@ public class AvaritiaExtremeSmithingRecipeData implements IPersistedSerializable
 
     public AvaritiaExtremeSmithingRecipeData setAddition(int index, RecipeIngredient ingredient) {
         ensureAdditionSize();
-        additions.set(Math.max(0, Math.min(2, index)), ingredient == null ? new RecipeIngredient() : ingredient);
+        additions.set(Math.clamp(index, 0, 2), ingredient == null ? new RecipeIngredient() : ingredient);
         return this;
     }
 
@@ -69,7 +69,8 @@ public class AvaritiaExtremeSmithingRecipeData implements IPersistedSerializable
         }
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return AvaritiaRecipeFactory.compileExtremeSmithing(this);
     }
 }

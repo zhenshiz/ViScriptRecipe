@@ -1,24 +1,21 @@
 package com.viscript_recipe.data.cataclysm;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.cataclysm.CataclysmRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 
-/**
- * Persisted editor data for Cataclysm's Altar of Amethyst blessing recipe.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
-public class CataclysmAmethystBlessRecipeData implements IPersistedSerializable, IConfigurable {
+public class CataclysmAmethystBlessRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.cataclysm.amethyst_bless.ingredient", subConfigurable = true)
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.AMETHYST_SHARD);
 
@@ -28,12 +25,8 @@ public class CataclysmAmethystBlessRecipeData implements IPersistedSerializable,
     @Configurable(name = "viscript_recipe.config.cataclysm.amethyst_bless.time")
     private int time = 200;
 
-    /**
-     * Compiles this data into Cataclysm's native recipe implementation.
-     *
-     * @return the compiled amethyst blessing recipe
-     */
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation type) {
         return CataclysmRecipeFactory.compileAmethystBless(this);
     }
 }

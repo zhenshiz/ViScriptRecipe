@@ -1,9 +1,8 @@
 package com.viscript_recipe.data.mekanism;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.viscript_recipe.compat.mekanism.MekanismRecipeFactory;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +17,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class MekanismRecipeData implements IPersistedSerializable, IConfigurable {
+public class MekanismRecipeData implements IVSRecipeData {
     @Configurable(name = "viscript_recipe.config.mekanism.item_input", subConfigurable = true)
     private RecipeIngredient itemInput = RecipeIngredient.item(Items.COBBLESTONE);
     @Configurable(name = "viscript_recipe.config.mekanism.extra_item_input", subConfigurable = true)
@@ -60,6 +59,18 @@ public class MekanismRecipeData implements IPersistedSerializable, IConfigurable
     private long energyMultiplier = 1;
     @Configurable(name = "viscript_recipe.config.mekanism.energy_output")
     private long energyOutput = 1000;
+
+    @Override
+    public ItemStack getResult() {return getItemOutput();}
+
+    @Override
+    public <T extends IVSRecipeData> T setResult(ItemStack result) {
+        setItemOutput(result == null ? ItemStack.EMPTY : result);
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    @Override
     public Recipe<?> compile(ResourceLocation type) {
         return MekanismRecipeFactory.compile(type, this);
     }

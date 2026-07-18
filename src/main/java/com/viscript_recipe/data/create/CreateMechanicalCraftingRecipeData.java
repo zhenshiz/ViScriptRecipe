@@ -1,15 +1,15 @@
 package com.viscript_recipe.data.create;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
 import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCraftingRecipe;
+import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class CreateMechanicalCraftingRecipeData implements IPersistedSerializable, IConfigurable {
+public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
     public static final int MIN_SIZE = 1;
     public static final int MAX_SIZE = 9;
 
@@ -75,7 +75,8 @@ public class CreateMechanicalCraftingRecipeData implements IPersistedSerializabl
         return this;
     }
 
-    public Recipe<?> compile() {
+    @Override
+    public Recipe<?> compile(ResourceLocation typeId) {
         var normalizedPattern = normalizedPattern();
         if (normalizedPattern.stream().allMatch(String::isBlank)) {
             throw new IllegalArgumentException("Mechanical crafting recipe pattern cannot be empty");
@@ -111,6 +112,6 @@ public class CreateMechanicalCraftingRecipeData implements IPersistedSerializabl
     }
 
     private static int clampSize(int value) {
-        return Math.max(MIN_SIZE, Math.min(MAX_SIZE, value));
+        return Math.clamp(value, MIN_SIZE, MAX_SIZE);
     }
 }

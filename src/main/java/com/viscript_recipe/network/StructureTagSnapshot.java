@@ -6,13 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Encodes the server-owned structure tag catalog needed by client editor search fields.
@@ -43,7 +40,7 @@ public final class StructureTagSnapshot {
                     var members = new ListTag();
                     pair.getSecond().stream()
                             .flatMap(holder -> holder.unwrapKey().stream())
-                            .map(key -> key.location())
+                            .map(ResourceKey::location)
                             .sorted(Comparator.comparing(ResourceLocation::toString))
                             .forEach(id -> members.add(StringTag.valueOf(id.toString())));
                     entry.put(MEMBERS_KEY, members);

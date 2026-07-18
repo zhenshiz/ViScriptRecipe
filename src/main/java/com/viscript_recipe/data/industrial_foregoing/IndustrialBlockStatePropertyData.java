@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-/** Stores one named value from Minecraft's block-state codec. */
 @Getter
 @Setter
 @Accessors(chain = true)

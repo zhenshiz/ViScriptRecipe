@@ -14,6 +14,7 @@ import mekanism.client.gui.GuiUtils;
 import mekanism.client.recipe_viewer.RecipeViewerUtils;
 import mekanism.client.render.MekanismRenderer;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -114,7 +115,7 @@ final class MekanismChemicalVisualDisplay implements MekanismCanvasFactory.Chemi
             var tag = data.getTag() == null ? null : TagKey.create(MekanismAPI.CHEMICAL_REGISTRY_NAME, data.getTag());
             chemical = tag == null ? null : MekanismAPI.CHEMICAL_REGISTRY.getTag(tag)
                     .flatMap(holders -> holders.stream().findFirst())
-                    .map(holder -> holder.value())
+                    .map(Holder::value)
                     .orElse(null);
         } else {
             chemical = chemical(data.getChemical());
@@ -142,7 +143,7 @@ final class MekanismChemicalVisualDisplay implements MekanismCanvasFactory.Chemi
             var tag = data.getTag() == null ? null : TagKey.create(MekanismAPI.CHEMICAL_REGISTRY_NAME, data.getTag());
             var chemical = tag == null ? null : MekanismAPI.CHEMICAL_REGISTRY.getTag(tag)
                     .flatMap(holders -> holders.stream().findFirst())
-                    .map(holder -> holder.value())
+                    .map(Holder::value)
                     .orElse(null);
             set(chemical, Component.literal("#" + data.getTag() + " × " + amount));
             return;

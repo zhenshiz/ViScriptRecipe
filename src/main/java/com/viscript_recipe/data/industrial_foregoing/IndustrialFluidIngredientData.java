@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-/** Stores the flattened {@code SizedFluidIngredient} fields used by Industrial Foregoing codecs. */
 @Getter
 @Setter
 @Accessors(chain = true)

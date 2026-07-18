@@ -1,20 +1,15 @@
 package com.viscript_recipe.gui.editor;
 
-import com.lowdragmc.lowdraglib2.configurator.accessors.ItemStackAccessor;
 import com.lowdragmc.lowdraglib2.configurator.accessors.BlockAccessor;
 import com.lowdragmc.lowdraglib2.configurator.accessors.FluidStackAccessor;
+import com.lowdragmc.lowdraglib2.configurator.accessors.ItemStackAccessor;
 import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
 import com.lowdragmc.lowdraglib2.editor.ui.View;
 import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
-import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.IngredientValueKind;
-import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.RecipeIngredientValue;
-import com.viscript_recipe.data.RecipeOperation;
+import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
@@ -308,7 +303,7 @@ public class RecipePropertiesView extends View {
                         RecipeEditorUi.selector(
                                 controller.availableTypesForSelectedCategory(),
                                 controller.getSelectedRecipeType(),
-                                type -> type.displayName(),
+                                RecipeEditorType::displayName,
                                 controller::setSelectedRecipeType
                         )),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.enabled",
@@ -871,7 +866,7 @@ public class RecipePropertiesView extends View {
             return ItemStack.EMPTY;
         }
         var copy = stack.copy();
-        copy.setCount(Math.max(0, Math.min(99, copy.getCount())));
+        copy.setCount(Math.clamp(copy.getCount(), 0, 99));
         return copy;
     }
 

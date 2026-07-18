@@ -1,24 +1,8 @@
 package com.viscript_recipe.compat.ars_nouveau;
 
-import com.hollingsworth.arsnouveau.common.crafting.recipes.CrushRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.ArmorUpgradeRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.EnchantmentRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.EnchantingApparatusRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.GlyphRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.ImbuementRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.PrestidigitationRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.ReactiveEnchantmentRecipe;
-import com.hollingsworth.arsnouveau.common.crafting.recipes.SpellWriteRecipe;
+import com.hollingsworth.arsnouveau.common.crafting.recipes.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauApparatusRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauArmorUpgradeRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushOutputData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauEnchantmentRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauGlyphRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauImbuementRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauPedestalOnlyRecipeData;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
+import com.viscript_recipe.data.ars_nouveau.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -160,7 +144,7 @@ public final class ArsNouveauRecipeFactory {
             if (!stack.isEmpty()) {
                 compiled.add(new CrushRecipe.CrushOutput(
                         stack,
-                        Math.max(0, Math.min(1, output.getChance())),
+                        Math.clamp(output.getChance(), 0, 1),
                         Math.max(1, output.getMaxRange())
                 ));
             }
@@ -185,7 +169,7 @@ public final class ArsNouveauRecipeFactory {
             return ItemStack.EMPTY;
         }
         var copy = stack.copy();
-        copy.setCount(Math.max(1, Math.min(99, copy.getCount())));
+        copy.setCount(Math.clamp(copy.getCount(), 1, 99));
         return copy;
     }
 

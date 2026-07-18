@@ -6,13 +6,7 @@ import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialBlockStatePropertyData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialEntityConditionData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialEntityIngredientKind;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientKind;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillRarityData;
+import com.viscript_recipe.data.industrial_foregoing.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -282,7 +276,7 @@ final class IndustrialForegoingPropertiesSections {
                                                   ResourceLocation blockId,
                                                   List<IndustrialBlockStatePropertyData> stored) {
         var block = blockId == null ? Blocks.AIR : BuiltInRegistries.BLOCK.get(blockId);
-        if (block == null || block == Blocks.AIR || block.getStateDefinition().getProperties().isEmpty()) {
+        if (block == Blocks.AIR || block.getStateDefinition().getProperties().isEmpty()) {
             return;
         }
         content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.config.industrial_foregoing.block_state.properties"));
