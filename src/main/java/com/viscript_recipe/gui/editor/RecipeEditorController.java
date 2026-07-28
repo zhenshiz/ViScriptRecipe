@@ -101,7 +101,6 @@ public class RecipeEditorController {
     public static final int MEKANISM_FLUID_OUTPUT_SLOT = 305;
     static final int MEKANISM_SECONDARY_ITEM_OUTPUT_SLOT = 306;
     private static final int CREATE_SEQUENCED_STEP_INGREDIENT_OFFSET = 10;
-    private static final int CREATE_SEQUENCED_MAX_STEPS = 8;
     private static final int CREATE_SEQUENCED_MAX_OUTPUTS = 9;
     private static final int ARS_NOUVEAU_MAX_INPUTS = 9;
     private static final int ARS_NOUVEAU_IMBUEMENT_INPUTS = 4;
@@ -606,11 +605,14 @@ public class RecipeEditorController {
     }
 
     private boolean isValidIngredientSlotIndex(int index) {
-        if (index < 0 || index >= visualIngredients.length) {
+        if (index < 0) {
             return false;
         }
         if (isSelectedCreateSequencedAssemblyLayout()) {
             return isValidCreateSequencedIngredientIndex(index);
+        }
+        if (index >= visualIngredients.length) {
+            return false;
         }
         if (isSelectedCreateMechanicalCraftingLayout()) {
             var row = index / MECHANICAL_CRAFTING_GRID_SIZE;
@@ -863,21 +865,21 @@ public class RecipeEditorController {
     }
 
     public ItemStack getVisualIngredient(int index) {
+        if (isCreateSequencedStepIngredientSlot(index)) {
+            return itemFromIngredient(visualIngredientForSlot(index));
+        }
+        if (index < 0 || index >= visualIngredients.length) {
+            return ItemStack.EMPTY;
+        }
         return visualIngredients[index].copy();
     }
 
     public RecipeIngredient snapshotVisualIngredient(int index) {
-        if (index < 0 || index >= visualIngredientData.length) {
-            return new RecipeIngredient();
-        }
-        return copyIngredient(visualIngredientData[index]);
+        return copyIngredient(visualIngredientForSlot(index));
     }
 
     public ItemStack[] getVisualIngredientTagStacks(int index) {
-        if (index < 0 || index >= visualIngredientData.length) {
-            return new ItemStack[0];
-        }
-        var ingredient = visualIngredientData[index];
+        var ingredient = visualIngredientForSlot(index);
         if (ingredient == null || ingredient.getValues().isEmpty()) {
             return new ItemStack[0];
         }
@@ -921,10 +923,7 @@ public class RecipeEditorController {
 
     @Nullable
     public ResourceLocation getVisualIngredientTag(int index) {
-        if (index < 0 || index >= visualIngredientData.length) {
-            return null;
-        }
-        var ingredient = visualIngredientData[index];
+        var ingredient = visualIngredientForSlot(index);
         if (ingredient == null || ingredient.getValues().size() != 1) {
             return null;
         }
@@ -934,10 +933,7 @@ public class RecipeEditorController {
 
     @Nullable
     public String getVisualIngredientItemAbility(int index) {
-        if (index < 0 || index >= visualIngredientData.length) {
-            return null;
-        }
-        var ingredient = visualIngredientData[index];
+        var ingredient = visualIngredientForSlot(index);
         if (ingredient == null || ingredient.getValues().size() != 1) {
             return null;
         }
@@ -947,6 +943,14 @@ public class RecipeEditorController {
 
     public void setVisualIngredient(int index, ItemStack stack) {
         if (selectedEntry == null) {
+            return;
+        }
+        if (isCreateSequencedStepIngredientSlot(index)) {
+            var normalized = normalizeVisualIngredientStack(index, stack);
+            setIngredientForSlot(selectedEntry, index, normalized.isEmpty()
+                    ? new RecipeIngredient()
+                    : RecipeIngredient.item(normalized));
+            notifyChanged();
             return;
         }
         if (index < 0 || index >= visualIngredients.length) {
@@ -973,7 +977,8 @@ public class RecipeEditorController {
     }
 
     public void setVisualIngredientFromDrag(int index, RecipeIngredient ingredient) {
-        if (selectedEntry == null || index < 0 || index >= visualIngredientData.length) {
+        if (selectedEntry == null || index < 0
+                || (index >= visualIngredientData.length && !isCreateSequencedStepIngredientSlot(index))) {
             return;
         }
         setIngredientForSlot(selectedEntry, index, copyIngredient(ingredient));
@@ -1171,8 +1176,7 @@ public class RecipeEditorController {
         if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT) {
             return new RecipeIngredient();
         }
-        var ingredient = visualIngredientData[slotSelection.index()];
-        return ingredient == null ? getIngredientForSlot(selectedEntry, slotSelection.index()) : ingredient;
+        return visualIngredientForSlot(slotSelection.index());
     }
 
     public CraftingRemainderRule getSelectedRemainder() {
@@ -2409,9 +2413,6 @@ public class RecipeEditorController {
             sequence = new ArrayList<>();
             entry.getCreateSequencedAssembly().setSequence(sequence);
         }
-        if (sequence.size() >= CREATE_SEQUENCED_MAX_STEPS) {
-            return;
-        }
         sequence.add(new CreateSequencedAssemblyStepData());
         slotSelection = WorkbenchSlotSelection.createSequencedStep(sequence.size() - 1);
         loadSelectedEntryToVisualState();
@@ -3305,7 +3306,7 @@ public class RecipeEditorController {
 
     public int selectedCreateFluidInputIndex() {
         if (selectedEntry != null && isCreateSequencedAssemblyEntry(selectedEntry)) {
-            return Math.clamp(slotSelection.index(), 0, CREATE_SEQUENCED_MAX_STEPS - 1);
+            return Math.clamp(slotSelection.index(), 0, Math.max(0, createSequencedStepCount(selectedEntry) - 1));
         }
         return Math.clamp(slotSelection.index(), 0, CREATE_MAX_FLUID_INPUTS - 1);
     }
@@ -4388,15 +4389,10 @@ public class RecipeEditorController {
             sequence = new ArrayList<>();
             data.setSequence(sequence);
         }
-        for (int i = 0; i < Math.min(sequence.size(), CREATE_SEQUENCED_MAX_STEPS); i++) {
+        for (int i = 0; i < sequence.size(); i++) {
             var step = sequence.get(i);
             if (step == null) {
-                step = new CreateSequencedAssemblyStepData();
-                sequence.set(i, step);
-            }
-            var ingredientSlot = createSequencedIngredientSlotIndex(i);
-            if (ingredientSlot >= 0 && ingredientSlot < visualIngredientData.length) {
-                step.setIngredient(ingredientForVisualSlot(ingredientSlot));
+                sequence.set(i, new CreateSequencedAssemblyStepData());
             }
         }
         var outputs = new ArrayList<CreateProcessingOutputData>();
@@ -5457,10 +5453,23 @@ public class RecipeEditorController {
     }
 
     private void setCreateSequencedAssemblySlotIngredient(CreateSequencedAssemblyRecipeData data, int index, RecipeIngredient ingredient) {
-        visualIngredients[index] = itemFromIngredient(ingredient);
-        visualIngredientData[index] = ingredient == null ? new RecipeIngredient() : ingredient;
-        visualRemainders[index] = CraftingRemainderRule.defaultRule();
-        writeCreateSequencedAssemblyRecipe(data);
+        var normalized = ingredient == null ? new RecipeIngredient() : ingredient;
+        if (index == 0) {
+            setVisualIngredientData(0, normalized);
+            data.setIngredient(normalized);
+            return;
+        }
+        var stepIndex = createSequencedStepIndexFromIngredientSlot(index);
+        var sequence = data.getSequence();
+        if (stepIndex < 0 || sequence == null || stepIndex >= sequence.size()) {
+            return;
+        }
+        var step = sequence.get(stepIndex);
+        if (step == null) {
+            step = new CreateSequencedAssemblyStepData();
+            sequence.set(stepIndex, step);
+        }
+        step.setIngredient(normalized);
     }
 
     private void setCreateMechanicalCraftingSlotIngredient(CreateMechanicalCraftingRecipeData data, int index, RecipeIngredient ingredient) {
@@ -6159,16 +6168,6 @@ public class RecipeEditorController {
         visualCreateSequencedTransitional = data.getTransitionalItem() == null
                 ? ItemStack.EMPTY
                 : data.getTransitionalItem().copyWithCount(1);
-        var sequence = data.getSequence();
-        if (sequence != null) {
-            for (int i = 0; i < Math.min(CREATE_SEQUENCED_MAX_STEPS, sequence.size()); i++) {
-                var step = sequence.get(i);
-                if (step == null) {
-                    continue;
-                }
-                loadIngredientSlot(createSequencedIngredientSlotIndex(i), step.getIngredient());
-            }
-        }
         visualCreateOutputs = emptyCreateOutputStacks();
         visualCreateOutputChances = emptyCreateOutputChances();
         var outputs = data.getOutputs();
@@ -6884,7 +6883,29 @@ public class RecipeEditorController {
             return 0;
         }
         var sequence = entry.getCreateSequencedAssembly().getSequence();
-        return sequence == null ? 0 : Math.min(CREATE_SEQUENCED_MAX_STEPS, sequence.size());
+        return sequence == null ? 0 : sequence.size();
+    }
+
+    private boolean isCreateSequencedStepIngredientSlot(int slotIndex) {
+        if (selectedEntry == null || !isCreateSequencedAssemblyEntry(selectedEntry)) {
+            return false;
+        }
+        var stepIndex = createSequencedStepIndexFromIngredientSlot(slotIndex);
+        return stepIndex >= 0 && stepIndex < createSequencedStepCount(selectedEntry);
+    }
+
+    private RecipeIngredient visualIngredientForSlot(int index) {
+        if (selectedEntry == null || index < 0) {
+            return new RecipeIngredient();
+        }
+        if (isCreateSequencedStepIngredientSlot(index)) {
+            return getIngredientForSlot(selectedEntry, index);
+        }
+        if (index >= visualIngredientData.length) {
+            return new RecipeIngredient();
+        }
+        var ingredient = visualIngredientData[index];
+        return ingredient == null ? getIngredientForSlot(selectedEntry, index) : ingredient;
     }
 
     private CreateSequencedAssemblyStepData getCreateSequencedStep(RecipeEntry entry, int index) {

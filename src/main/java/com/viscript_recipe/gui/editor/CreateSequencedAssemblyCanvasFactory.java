@@ -9,10 +9,10 @@ import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
+import dev.vfyjxf.taffy.style.FlexWrap;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
 
 final class CreateSequencedAssemblyCanvasFactory {
     private static final int SLOT_SIZE = 24;
@@ -25,15 +25,10 @@ final class CreateSequencedAssemblyCanvasFactory {
             UIElement transitionalSlot,
             UIElement[] outputSlots,
             UIElement[] outputSlotCells,
-            UIElement[] stepCards,
-            UIElement[] stepIcons,
-            Label[] stepLabels,
-            Label loopsLabel,
-            IntFunction<UIElement> ingredientCellFactory,
-            IntFunction<UIElement> fluidCellFactory,
-            IntConsumer selectStep
+            Label loopsLabel
     ) {
         var secondaryOutputColumn = createSecondaryOutputColumn(outputSlots, outputSlotCells);
+        var stepRow = createStepRow();
         var root = RecipeEditorUi.column().layout(layout -> {
             layout.widthPercent(100);
             layout.flex(1);
@@ -41,41 +36,28 @@ final class CreateSequencedAssemblyCanvasFactory {
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         }).addChildren(
-                createStepRow(stepCards, stepIcons, stepLabels, ingredientCellFactory, fluidCellFactory, selectStep),
+                stepRow,
                 createFlowRow(inputSlot, transitionalSlot, loopsLabel, outputSlots[0], secondaryOutputColumn)
         );
-        return new Canvas(root, secondaryOutputColumn);
+        return new Canvas(root, secondaryOutputColumn, stepRow);
     }
 
-    private static UIElement createStepRow(
-            UIElement[] stepCards,
-            UIElement[] stepIcons,
-            Label[] stepLabels,
-            IntFunction<UIElement> ingredientCellFactory,
-            IntFunction<UIElement> fluidCellFactory,
-            IntConsumer selectStep
-    ) {
-        var row = RecipeEditorUi.row().layout(layout -> {
+    private static UIElement createStepRow() {
+        return RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);
-            layout.height(112);
+            layout.minHeight(112);
             layout.gapAll(6);
+            layout.flexWrap(FlexWrap.WRAP);
             layout.alignItems(AlignItems.CENTER);
+            layout.alignContent(AlignContent.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         });
-        for (int i = 0; i < stepCards.length; i++) {
-            var card = createStepCard(i, stepIcons, stepLabels, ingredientCellFactory, fluidCellFactory, selectStep);
-            stepCards[i] = card;
-            row.addChild(card);
-        }
-        return row;
     }
 
-    private static UIElement createStepCard(
+    static StepCard createStepCard(
             int index,
-            UIElement[] stepIcons,
-            Label[] stepLabels,
-            IntFunction<UIElement> ingredientCellFactory,
-            IntFunction<UIElement> fluidCellFactory,
+            UIElement ingredientCell,
+            UIElement fluidCell,
             IntConsumer selectStep
     ) {
         var icon = new UIElement().layout(layout -> layout.width(36).height(36));
@@ -85,8 +67,6 @@ final class CreateSequencedAssemblyCanvasFactory {
                 .textColor(ColorPattern.LIGHT_GRAY.color)
                 .textWrap(com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap.HOVER_ROLL));
         label.layout(layout -> layout.widthPercent(100).height(14));
-        stepIcons[index] = icon;
-        stepLabels[index] = label;
 
         var slotRow = RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);
@@ -95,8 +75,8 @@ final class CreateSequencedAssemblyCanvasFactory {
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         }).addChildren(
-                ingredientCellFactory.apply(index),
-                fluidCellFactory.apply(index)
+                ingredientCell,
+                fluidCell
         );
 
         var card = RecipeEditorUi.column().layout(layout -> {
@@ -108,7 +88,7 @@ final class CreateSequencedAssemblyCanvasFactory {
         }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK))
                 .addChildren(label, icon, slotRow);
         card.addEventListener(UIEvents.MOUSE_DOWN, event -> selectStep.accept(index));
-        return card;
+        return new StepCard(card, icon, label);
     }
 
     private static UIElement createFlowRow(UIElement inputSlot, UIElement transitionalSlot, Label loopsLabel, UIElement mainOutputSlot, UIElement secondaryOutputColumn) {
@@ -225,6 +205,9 @@ final class CreateSequencedAssemblyCanvasFactory {
         }).style(style -> style.backgroundTexture(Icons.DOWN_ARROW_NO_BAR.copy().rotate(-90)));
     }
 
-    record Canvas(UIElement root, UIElement secondaryOutputColumn) {
+    record Canvas(UIElement root, UIElement secondaryOutputColumn, UIElement stepRow) {
+    }
+
+    record StepCard(UIElement root, UIElement icon, Label label) {
     }
 }

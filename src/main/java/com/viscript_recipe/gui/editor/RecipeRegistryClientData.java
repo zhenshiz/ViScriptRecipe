@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.Map;
 
-/** Holds immutable dynamic-registry completion data supplied by the current integrated server. */
+/** Holds immutable dynamic-registry completion data supplied by the current server connection. */
 public final class RecipeRegistryClientData {
     private static volatile Map<ResourceLocation, List<ResourceLocation>> biomeTags = Map.of();
     private static volatile List<ResourceLocation> dimensionTypes = List.of();

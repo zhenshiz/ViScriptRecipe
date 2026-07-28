@@ -65,10 +65,6 @@ public class ViScriptRecipeCommands implements ICommand {
         if (player == null) {
             return 0;
         }
-        if (!server.isSingleplayer()) {
-            source.sendFailure(Component.translatable("commands.viscript_recipe.editor.singleplayer_only"));
-            return 0;
-        }
         RPCPacketDistributor.rpcToPlayer(
                 player,
                 RecipeEditorS2CPayload.SYNC_STRUCTURE_TAGS,

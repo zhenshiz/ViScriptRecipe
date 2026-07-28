@@ -47,6 +47,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -249,15 +250,16 @@ public class CraftingWorkbenchView extends View {
     private final UIElement[] createManualApplicationOutputRows = new UIElement[2];
     private final IngredientDisplaySlot createSequencedInputSlot = createIngredientSlot(SLOT_SIZE);
     private final ItemSlot createSequencedTransitionalSlot = createEditorSlot(SLOT_SIZE);
-    private final IngredientDisplaySlot[] createSequencedStepIngredientSlots = new IngredientDisplaySlot[8];
-    private final UIElement[] createSequencedStepIngredientCells = new UIElement[8];
-    private final FluidDisplaySlot[] createSequencedStepFluidSlots = new FluidDisplaySlot[8];
-    private final UIElement[] createSequencedStepFluidCells = new UIElement[8];
-    private final UIElement[] createSequencedStepCards = new UIElement[8];
-    private final UIElement[] createSequencedStepIcons = new UIElement[8];
-    private final Label[] createSequencedStepLabels = new Label[8];
+    private final List<IngredientDisplaySlot> createSequencedStepIngredientSlots = new ArrayList<>();
+    private final List<UIElement> createSequencedStepIngredientCells = new ArrayList<>();
+    private final List<FluidDisplaySlot> createSequencedStepFluidSlots = new ArrayList<>();
+    private final List<UIElement> createSequencedStepFluidCells = new ArrayList<>();
+    private final List<UIElement> createSequencedStepCards = new ArrayList<>();
+    private final List<UIElement> createSequencedStepIcons = new ArrayList<>();
+    private final List<Label> createSequencedStepLabels = new ArrayList<>();
     private final ItemSlot[] createSequencedOutputSlots = new ItemSlot[9];
     private final UIElement[] createSequencedOutputSlotCells = new UIElement[9];
+    private UIElement createSequencedStepRow;
     private UIElement createSequencedSecondaryOutputColumn;
     private final Label createSequencedLoopsLabel = RecipeEditorUi.label(Component.empty());
     private final IngredientDisplaySlot[] arsNouveauIngredientSlots = new IngredientDisplaySlot[9];
@@ -1283,14 +1285,9 @@ public class CraftingWorkbenchView extends View {
                 createSequencedTransitionalSlot,
                 createSequencedOutputSlots,
                 createSequencedOutputSlotCells,
-                createSequencedStepCards,
-                createSequencedStepIcons,
-                createSequencedStepLabels,
-                createSequencedLoopsLabel,
-                this::createCreateSequencedStepIngredientCell,
-                this::createCreateSequencedStepFluidCell,
-                controller::selectCreateSequencedStep
+                createSequencedLoopsLabel
         );
+        createSequencedStepRow = canvas.stepRow();
         createSequencedSecondaryOutputColumn = canvas.secondaryOutputColumn();
         return canvas.root();
     }
@@ -1298,20 +1295,20 @@ public class CraftingWorkbenchView extends View {
     private UIElement createCreateSequencedStepIngredientCell(int index) {
         var ingredientSlot = createIngredientSlot(SLOT_SIZE);
         configureCreateSequencedStepIngredientSlot(ingredientSlot, createSequencedIngredientSlotIndex(index));
-        createSequencedStepIngredientSlots[index] = ingredientSlot;
+        createSequencedStepIngredientSlots.add(ingredientSlot);
         var ingredientCell = createCreateFramedSlot(ingredientSlot, 36);
         configureCreateSequencedStepIngredientCell(ingredientCell, createSequencedIngredientSlotIndex(index));
-        createSequencedStepIngredientCells[index] = ingredientCell;
+        createSequencedStepIngredientCells.add(ingredientCell);
         return ingredientCell;
     }
 
     private UIElement createCreateSequencedStepFluidCell(int index) {
         var fluidSlot = createFluidDisplaySlot();
         configureCreateSequencedStepFluidSlot(fluidSlot, index);
-        createSequencedStepFluidSlots[index] = fluidSlot;
+        createSequencedStepFluidSlots.add(fluidSlot);
         var fluidCell = createCreateFramedSlot(fluidSlot, 36);
         configureCreateSequencedStepFluidCell(fluidCell, index);
-        createSequencedStepFluidCells[index] = fluidCell;
+        createSequencedStepFluidCells.add(fluidCell);
         return fluidCell;
     }
 
@@ -3321,14 +3318,9 @@ public class CraftingWorkbenchView extends View {
                 controller.getSelectedEntry() == null ? 1 : controller.getCreateSequencedLoops(controller.getSelectedEntry())
         ));
         var stepCount = controller.selectedCreateSequencedStepCount();
-        for (int i = 0; i < createSequencedStepCards.length; i++) {
-            var visible = i < stepCount;
-            if (createSequencedStepCards[i] != null) {
-                createSequencedStepCards[i].setDisplay(visible);
-            }
-            if (visible) {
-                refreshCreateSequencedStep(i);
-            }
+        ensureCreateSequencedStepCards(stepCount);
+        for (int i = 0; i < stepCount; i++) {
+            refreshCreateSequencedStep(i);
         }
         var outputCount = controller.selectedCreateSequencedOutputCount();
         if (createSequencedSecondaryOutputColumn != null) {
@@ -3344,40 +3336,68 @@ public class CraftingWorkbenchView extends View {
         }
     }
 
+    private void ensureCreateSequencedStepCards(int stepCount) {
+        while (createSequencedStepCards.size() < stepCount) {
+            var index = createSequencedStepCards.size();
+            var ingredientCell = createCreateSequencedStepIngredientCell(index);
+            var fluidCell = createCreateSequencedStepFluidCell(index);
+            var card = CreateSequencedAssemblyCanvasFactory.createStepCard(
+                    index,
+                    ingredientCell,
+                    fluidCell,
+                    controller::selectCreateSequencedStep
+            );
+            createSequencedStepCards.add(card.root());
+            createSequencedStepIcons.add(card.icon());
+            createSequencedStepLabels.add(card.label());
+            createSequencedStepRow.addChild(card.root());
+        }
+        while (createSequencedStepCards.size() > stepCount) {
+            var index = createSequencedStepCards.size() - 1;
+            createSequencedStepCards.remove(index).removeSelf();
+            createSequencedStepIcons.remove(index);
+            createSequencedStepLabels.remove(index);
+            ingredientDragSlotIndices.remove(createSequencedStepIngredientSlots.remove(index));
+            createSequencedStepIngredientCells.remove(index);
+            createSequencedStepFluidSlots.remove(index);
+            createSequencedStepFluidCells.remove(index);
+        }
+    }
+
     private void refreshCreateSequencedStep(int index) {
         var entry = controller.getSelectedEntry();
         var kind = entry == null
                 ? CreateSequencedAssemblyStepKind.DEPLOYING
                 : controller.getCreateSequencedStepKind(entry, index);
         var selected = controller.isSelectedCreateSequencedStep(index);
-        if (createSequencedStepLabels[index] != null) {
-            createSequencedStepLabels[index].setText(Component.translatable(
+        if (createSequencedStepLabels.get(index) != null) {
+            createSequencedStepLabels.get(index).setText(Component.translatable(
                     "viscript_recipe.editor.create.sequenced_assembly.step_short",
                     index + 1
             ));
-            createSequencedStepLabels[index].textStyle(style -> style
+            createSequencedStepLabels.get(index).textStyle(style -> style
                     .textAlignHorizontal(Horizontal.CENTER)
                     .textColor(selected ? ColorPattern.WHITE.color : ColorPattern.LIGHT_GRAY.color)
                     .textWrap(TextWrap.HOVER_ROLL));
         }
-        if (createSequencedStepIcons[index] != null) {
-            createSequencedStepIcons[index].style(style -> style
+        if (createSequencedStepIcons.get(index) != null) {
+            createSequencedStepIcons.get(index).style(style -> style
                     .backgroundTexture(new ItemStackTexture(new ItemStack(itemFromRegistry(kind.machineItemId(), Items.CRAFTING_TABLE))))
                     .tooltips(controller.createSequencedStepKindDisplayName(kind)));
         }
         var deploying = kind == CreateSequencedAssemblyStepKind.DEPLOYING;
         var filling = kind == CreateSequencedAssemblyStepKind.FILLING;
-        if (createSequencedStepIngredientCells[index] != null) {
-            createSequencedStepIngredientCells[index].setDisplay(deploying);
+        if (createSequencedStepIngredientCells.get(index) != null) {
+            createSequencedStepIngredientCells.get(index).setDisplay(deploying);
         }
         if (deploying) {
-            refreshIngredientSlot(createSequencedStepIngredientSlots[index], createSequencedIngredientSlotIndex(index));
+            refreshIngredientSlot(createSequencedStepIngredientSlots.get(index), createSequencedIngredientSlotIndex(index));
         }
-        if (createSequencedStepFluidCells[index] != null) {
-            createSequencedStepFluidCells[index].setDisplay(filling);
+        if (createSequencedStepFluidCells.get(index) != null) {
+            createSequencedStepFluidCells.get(index).setDisplay(filling);
         }
         if (filling) {
-            refreshCreateSequencedStepFluidSlot(createSequencedStepFluidSlots[index], index);
+            refreshCreateSequencedStepFluidSlot(createSequencedStepFluidSlots.get(index), index);
         }
     }
 

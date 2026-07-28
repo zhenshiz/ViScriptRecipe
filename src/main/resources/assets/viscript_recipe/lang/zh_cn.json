@@ -321,7 +321,6 @@
   "viscript_recipe.editor.operation.replace": "替换",
   "viscript_recipe.editor.operation.remove": "删除",
   "viscript_recipe.editor.summary": "包 ID：%s\n配方修改：%s\n已启用：%s\n\n在可视化编辑器中编辑 .recipe 文件。保存后的文件会写入 ldlib2/assets/viscript_recipe/recipes，使用 /viscript_recipe reload 读取并应用。",
-  "commands.viscript_recipe.editor.singleplayer_only": "配方编辑器目前只能在单人/集成服务器中打开；专用服务器需要把 .recipe 文件放到服务器的 ldlib2/assets/viscript_recipe/recipes 下再重载。",
   "commands.viscript_recipe.editor.invalid_path": "无效的配方文件路径：%s。",
   "commands.viscript_recipe.editor.opened": "已打开配方文件：%s。",
   "commands.viscript_recipe.editor.opened_new": "已为新配方文件打开编辑器：%s。",

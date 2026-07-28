@@ -38,7 +38,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 | `/viscript_recipe reload full` | 在普通重载基础上额外同步标签包，帮助 JEI 重建依赖标签的配方显示。 |
 | `/viscript_recipe status` | 查看上一次加载的文件数、条目数、成功/跳过/失败数量。 |
 
-编辑器目前只能在单人/集成服务器中打开。专用服务器可以把 `.recipe` 文件放到服务器的 `ldlib2/assets/viscript_recipe/recipes` 目录下，然后使用 `/viscript_recipe reload delta`、`/viscript_recipe reload` 或 `/viscript_recipe reload full` 应用。
+编辑器可以在单人世界、局域网世界和专用服务器中打开。多人服务器上的编辑器会读取服务端配方文件和注册表数据，并可将 `.recipe` 文件直接上传到服务器的 `ldlib2/assets/viscript_recipe/recipes` 目录；使用 `/viscript_recipe reload delta`、`/viscript_recipe reload` 或 `/viscript_recipe reload full` 应用修改。
 
 ## 配方文件与操作
 
@@ -303,8 +303,12 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 ## 注意事项
 
-- 配方编辑器主要面向整合包作者和单人测试环境；专用服务器建议通过文件同步和 `/viscript_recipe reload` 使用。
+- 配方编辑器主要面向整合包作者和服务器管理员；多人服务器中只有具备 `/viscript_recipe` 指令权限的玩家可以打开编辑器。
 - 联动模组没有安装时，对应工作站和配方类型不会出现在编辑器中。
 - `.recipe` 文件是本模组自己的配方覆盖文件，不是原版 JSON 数据包文件。
 - 展示模式 `recipes.showcase_only_viscript_recipes` 会清空基础配方后再应用 `.recipe`，更适合调试和展示，不建议在不了解效果时直接用于正式整合包。
 - 如果只改配方内容并主要通过 JEI 检查，优先使用 `/viscript_recipe reload delta`；需要同步原版配方书时使用 `/viscript_recipe reload`；新增、删除或修改标签后使用 `/viscript_recipe reload full`。
+
+## 开发者文档
+
+后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构。完整的项目进度、目录职责、接入流程与验收清单见 [项目结构与模组配方联动规范](docs/compatibility-development.md)。

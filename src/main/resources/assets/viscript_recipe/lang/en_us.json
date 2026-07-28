@@ -321,7 +321,6 @@
   "viscript_recipe.editor.operation.replace": "Replace",
   "viscript_recipe.editor.operation.remove": "Remove",
   "viscript_recipe.editor.summary": "Pack ID: %s\nRecipe overrides: %s\nEnabled: %s\n\nEdit the .recipe file in the visual editor. Saved files are written under ldlib2/assets/viscript_recipe/recipes and applied with /viscript_recipe reload.",
-  "commands.viscript_recipe.editor.singleplayer_only": "The recipe editor can currently be opened only in singleplayer/integrated servers. For dedicated servers, place .recipe files under the server's ldlib2/assets/viscript_recipe/recipes folder and reload.",
   "commands.viscript_recipe.editor.invalid_path": "Invalid recipe file path: %s.",
   "commands.viscript_recipe.editor.opened": "Opened recipe file: %s.",
   "commands.viscript_recipe.editor.opened_new": "Opened editor for new recipe file: %s.",
