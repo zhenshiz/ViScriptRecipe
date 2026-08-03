@@ -1,5 +1,6 @@
 package com.viscript_recipe.compat.mekanism;
 
+import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.mekanism.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -19,6 +20,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SingleFluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
@@ -193,7 +195,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
     private static void importItemInput(MekanismRecipeData data, ItemStackIngredient input, boolean extra) throws RecipeImportException {
         var imported = RecipeImporter.importIngredient(input.ingredient().ingredient());
         var amount = Math.max(1, input.ingredient().count());
-        imported = MekanismItemInputCounts.copyWithItemAmount(imported, amount);
+        imported = imported.copyWithCount(amount);
         if (extra) {
             data.setExtraItemInput(imported).setExtraItemInputAmount(amount);
         } else {
@@ -201,20 +203,14 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
         }
     }
 
-    private static MekanismFluidIngredientData importFluidInput(FluidStackIngredient input) throws RecipeImportException {
+    private static FluidIngredientData importFluidInput(FluidStackIngredient input) throws RecipeImportException {
         var sized = input.ingredient();
         var amount = Math.max(1, sized.amount());
         if (sized.ingredient() instanceof TagFluidIngredient tag) {
-            return new MekanismFluidIngredientData()
-                    .setKind(MekanismFluidIngredientKind.TAG)
-                    .setTag(tag.tag().location())
-                    .setAmount(amount);
+            return FluidIngredientData.tag(tag.tag().location()).setAmount(amount);
         }
         if (sized.ingredient() instanceof SingleFluidIngredient single) {
-            return new MekanismFluidIngredientData()
-                    .setKind(MekanismFluidIngredientKind.FLUID)
-                    .setFluid(new net.neoforged.neoforge.fluids.FluidStack(single.fluid(), amount))
-                    .setAmount(amount);
+            return FluidIngredientData.fluid(new FluidStack(single.fluid(), amount)).setAmount(amount);
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.mekanism_unsupported_fluid_ingredient");
     }

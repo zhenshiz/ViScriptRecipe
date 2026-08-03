@@ -1,9 +1,7 @@
 package com.viscript_recipe.data.mekanism;
 
-import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,17 +10,13 @@ import net.minecraft.resources.ResourceLocation;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class MekanismChemicalIngredientData implements IPersistedSerializable, IConfigurable {
-    @Configurable(name = "viscript_recipe.config.mekanism.chemical_ingredient.kind")
-    @ConfigSelector(candidate = {"chemical", "tag"})
+public class MekanismChemicalIngredientData implements IPersistedSerializable {
+    @Persisted
     private MekanismChemicalIngredientKind kind = MekanismChemicalIngredientKind.CHEMICAL;
-
-    @Configurable(name = "viscript_recipe.config.mekanism.chemical_ingredient.chemical")
+    @Persisted
     private ResourceLocation chemical = ResourceLocation.fromNamespaceAndPath("mekanism", "oxygen");
-
-    @Configurable(name = "viscript_recipe.config.mekanism.chemical_ingredient.tag")
+    @Persisted
     private ResourceLocation tag = ResourceLocation.fromNamespaceAndPath("mekanism", "clean");
-
-    @Configurable(name = "viscript_recipe.config.mekanism.chemical_ingredient.amount")
+    @Persisted
     private long amount = 1;
 }

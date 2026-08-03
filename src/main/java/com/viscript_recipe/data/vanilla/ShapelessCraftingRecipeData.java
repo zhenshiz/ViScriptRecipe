@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapelessRecipe;
@@ -23,21 +22,14 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class ShapelessCraftingRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.recipe.show_notification")
+    @Persisted
     private Boolean showNotification = true;
-
-    @Configurable(name = "viscript_recipe.config.shapeless.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.OAK_PLANKS)
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.STICK, 4);
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.OAK_PLANKS);
-    }
 
     @Override
     public String getDataName() {return "shapeless";}

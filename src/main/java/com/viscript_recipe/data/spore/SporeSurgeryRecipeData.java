@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.spore;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.spore.SporeRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -22,29 +21,23 @@ import java.util.List;
 public class SporeSurgeryRecipeData implements IVSRecipeData {
     public static final int INPUT_COUNT = 16;
 
-    @Configurable(name = "viscript_recipe.config.spore.surgery.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = emptyIngredients(INPUT_COUNT);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.IRON_SWORD);
-
-    public RecipeIngredient createDefaultIngredient() {
-        return new RecipeIngredient();
-    }
 
     public RecipeIngredient ingredient(int index) {
         if (ingredients == null || index < 0 || index >= ingredients.size()) {
-            return new RecipeIngredient();
+            return RecipeIngredient.empty();
         }
         var ingredient = ingredients.get(index);
-        return ingredient == null ? new RecipeIngredient() : ingredient;
+        return ingredient == null ? RecipeIngredient.empty() : ingredient;
     }
 
     public SporeSurgeryRecipeData setIngredient(int index, RecipeIngredient ingredient) {
         ingredients = normalizedIngredients(ingredients, INPUT_COUNT);
         if (index >= 0 && index < INPUT_COUNT) {
-            ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+            ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         }
         return this;
     }
@@ -63,7 +56,7 @@ public class SporeSurgeryRecipeData implements IVSRecipeData {
         if (source != null) {
             for (int i = 0; i < Math.min(size, source.size()); i++) {
                 var ingredient = source.get(i);
-                normalized.set(i, ingredient == null ? new RecipeIngredient() : ingredient);
+                normalized.set(i, ingredient == null ? RecipeIngredient.empty() : ingredient);
             }
         }
         return normalized;
@@ -72,7 +65,7 @@ public class SporeSurgeryRecipeData implements IVSRecipeData {
     private static List<RecipeIngredient> emptyIngredients(int size) {
         var ingredients = new ArrayList<RecipeIngredient>(size);
         for (int i = 0; i < size; i++) {
-            ingredients.add(new RecipeIngredient());
+            ingredients.add(RecipeIngredient.empty());
         }
         return ingredients;
     }

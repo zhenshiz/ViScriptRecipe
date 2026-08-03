@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,14 +16,13 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class IndustrialCrusherRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.crusher.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.COBBLESTONE);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.crusher.output", subConfigurable = true)
+    @Persisted
     private RecipeIngredient output = RecipeIngredient.item(Items.GRAVEL);
 
     @Override
-    public ItemStack getResult() {return IndustrialForegoingRecipeEditorTypes.firstStack(getOutput());}
+    public ItemStack getResult() {return getOutput().toStack();}
 
     @Override
     public <T extends IVSRecipeData> T setResult(ItemStack result) {

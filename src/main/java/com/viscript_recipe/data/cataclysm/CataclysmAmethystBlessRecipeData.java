@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.cataclysm;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.cataclysm.CataclysmRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,13 +16,11 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class CataclysmAmethystBlessRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.cataclysm.amethyst_bless.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.AMETHYST_SHARD);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.AMETHYST_BLOCK);
-
-    @Configurable(name = "viscript_recipe.config.cataclysm.amethyst_bless.time")
+    @Persisted
     private int time = 200;
 
     @Override

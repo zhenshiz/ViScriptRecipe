@@ -10,8 +10,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ScrollerView;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
 import com.viscript_recipe.data.*;
-import com.viscript_recipe.data.create.CreateFluidIngredientData;
-import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
 import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
 import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
@@ -190,7 +188,7 @@ public class RecipePropertiesView extends View {
         if (entry == null || selection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT) {
             return null;
         }
-        return editableValue(controller.getSelectedIngredient()).getKind();
+        return controller.getSelectedIngredient().getKind();
     }
 
     private CraftingRemainderMode selectedRemainderMode(RecipeEntry entry, WorkbenchSlotSelection selection) {
@@ -200,12 +198,12 @@ public class RecipePropertiesView extends View {
         return remainderMode(controller.getSelectedRemainder());
     }
 
-    private CreateFluidIngredientKind selectedCreateFluidIngredientKind() {
+    private FluidIngredientKind selectedCreateFluidIngredientKind() {
         if (!controller.isSelectedCreateFluidInput()) {
             return null;
         }
         var ingredient = controller.getSelectedCreateFluidIngredient();
-        return ingredient.getKind() == null ? CreateFluidIngredientKind.FLUID : ingredient.getKind();
+        return ingredient.getKind() == null ? FluidIngredientKind.FLUID : ingredient.getKind();
     }
 
     private String selectedCreateFluidIngredientSignature() {
@@ -213,8 +211,8 @@ public class RecipePropertiesView extends View {
             return "";
         }
         var ingredient = controller.getSelectedCreateFluidIngredient();
-        var kind = ingredient.getKind() == null ? CreateFluidIngredientKind.FLUID : ingredient.getKind();
-        if (kind == CreateFluidIngredientKind.TAG) {
+        var kind = ingredient.getKind() == null ? FluidIngredientKind.FLUID : ingredient.getKind();
+        if (kind == FluidIngredientKind.TAG) {
             return "tag:" + ingredient.getTag() + ":" + Math.max(1, ingredient.getAmount());
         }
         var stack = ingredient.getFluid();
@@ -248,7 +246,7 @@ public class RecipePropertiesView extends View {
             WorkbenchSlotSelection selection,
             IngredientValueKind ingredientKind,
             CraftingRemainderMode remainderMode,
-            CreateFluidIngredientKind createFluidIngredientKind,
+            FluidIngredientKind createFluidIngredientKind,
             String createFluidIngredientSignature,
             boolean supportsNotification,
             boolean cooking,
@@ -319,9 +317,8 @@ public class RecipePropertiesView extends View {
                         controller::notifyChanged),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.operation",
                         RecipeEditorUi.selector(
-                                List.of(RecipeOperation.ADD, RecipeOperation.REPLACE, RecipeOperation.REMOVE),
-                                entry.getOperation(),
-                                operation -> Component.translatable("viscript_recipe.editor.operation." + operation.getSerializedName()),
+                                List.of(RecipeOperation.values()),
+                                entry.getOperation(), RecipeOperation::displayName,
                                 operation -> {
                                     entry.setOperation(operation);
                                     controller.notifyChanged();
@@ -436,18 +433,18 @@ public class RecipePropertiesView extends View {
     }
 
     private void buildIngredientProperties(RecipeEntry entry) {
-        var ingredient = copyIngredient(controller.getSelectedIngredient());
-        var value = editableValue(ingredient);
+        var ingredient = controller.getSelectedIngredient().copy();
         var availableKinds = controller.availableIngredientKindsForSelectedSlot();
-        var selectedKind = availableKinds.contains(value.getKind()) ? value.getKind() : availableKinds.getFirst();
+        var selectedKind = availableKinds.contains(ingredient.getKind()) ? ingredient.getKind() : availableKinds.getFirst();
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.ingredient"),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.ingredient.value.kind",
                         RecipeEditorUi.selector(
-                                availableKinds,
-                                selectedKind,
-                                kind -> Component.translatable("viscript_recipe.editor.ingredient.kind." + kind.getSerializedName()),
-                                kind -> setIngredientKind(ingredient, value, kind)
+                                availableKinds, selectedKind, IngredientValueKind::displayName,
+                                kind -> {
+                                    ingredient.setKind(kind);
+                                    controller.setSelectedIngredient(ingredient);
+                                }
                         ))
         );
         if (controller.isCreateAutoPackingEntry(entry)) {
@@ -473,14 +470,14 @@ public class RecipePropertiesView extends View {
                     stack -> setIngredientItem(ingredient, stack)
             ));
         } else if (selectedKind == IngredientValueKind.TAG) {
-            content.addChild(createItemTagConfigurator(ingredient, value));
+            content.addChild(createItemTagConfigurator(ingredient));
             if (controller.isSelectedMekanismItemInput()) {
                 content.addChild(RecipeEditorUi.fieldGroup(controller.selectedMekanismItemInputAmountKey(),
                         RecipeEditorUi.intField(controller.getSelectedMekanismItemInputAmount(), 1, Integer.MAX_VALUE,
                                 controller::setSelectedMekanismItemInputAmount)));
             }
         } else if (selectedKind == IngredientValueKind.ITEM_ABILITY) {
-            content.addChild(createItemAbilityConfigurator(ingredient, value));
+            content.addChild(createItemAbilityConfigurator(ingredient));
         }
         if (controller.isSelectedExtendedCraftingCompressorInput()) {
             content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.extendedcrafting.counted_ingredient.count",
@@ -500,9 +497,8 @@ public class RecipePropertiesView extends View {
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.remainder"),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.remainder.mode",
                         RecipeEditorUi.selector(
-                                List.of(CraftingRemainderMode.DEFAULT, CraftingRemainderMode.CONSUME, CraftingRemainderMode.REPLACE),
-                                mode,
-                                value -> Component.translatable("viscript_recipe.editor.remainder.mode." + value.getSerializedName()),
+                                List.of(CraftingRemainderMode.values()),
+                                mode, CraftingRemainderMode::displayName,
                                 value -> {
                                     var updated = remainder.copy();
                                     updated.setMode(value);
@@ -717,19 +713,18 @@ public class RecipePropertiesView extends View {
 
     private void buildCreateFluidIngredientProperties() {
         var ingredient = controller.getSelectedCreateFluidIngredient();
-        var kind = ingredient.getKind() == null ? CreateFluidIngredientKind.FLUID : ingredient.getKind();
+        var kind = ingredient.getKind() == null ? FluidIngredientKind.FLUID : ingredient.getKind();
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.create.fluid_ingredient"),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.create.fluid_ingredient.kind",
                         RecipeEditorUi.selector(
-                                List.of(CreateFluidIngredientKind.FLUID, CreateFluidIngredientKind.TAG),
-                                kind,
-                                value -> Component.translatable("viscript_recipe.editor.create.fluid_ingredient.kind." + value.getSerializedName()),
+                                List.of(FluidIngredientKind.values()),
+                                kind, FluidIngredientKind::displayName,
                                 controller::setSelectedCreateFluidIngredientKind
                         ))
         );
 
-        if (kind == CreateFluidIngredientKind.TAG) {
+        if (kind == FluidIngredientKind.TAG) {
             content.addChildren(
                     createFluidTagConfigurator(ingredient),
                     RecipeEditorUi.fieldGroup("viscript_recipe.config.create.fluid_ingredient.amount",
@@ -811,16 +806,14 @@ public class RecipePropertiesView extends View {
         return configurator;
     }
 
-    private UIElement createItemTagConfigurator(RecipeIngredient ingredient, RecipeIngredientValue value) {
+    private UIElement createItemTagConfigurator(RecipeIngredient ingredient) {
         return RecipeSearchComponents.itemTag(
                 "viscript_recipe.config.ingredient.value.tag",
-                value::getTag,
+                ingredient::getTag,
                 tagId -> {
                     if (!rebuilding) {
-                        ingredient.getValues().clear();
-                        value.setKind(IngredientValueKind.TAG);
-                        value.setTag(tagId);
-                        ingredient.getValues().add(value);
+                        ingredient.setKind(IngredientValueKind.TAG);
+                        ingredient.setTag(tagId);
                         controller.setSelectedIngredient(ingredient);
                     }
                 },
@@ -828,7 +821,7 @@ public class RecipePropertiesView extends View {
         );
     }
 
-    private UIElement createFluidTagConfigurator(CreateFluidIngredientData ingredient) {
+    private UIElement createFluidTagConfigurator(FluidIngredientData ingredient) {
         return RecipeSearchComponents.fluidTag(
                 "viscript_recipe.config.create.fluid_ingredient.tag",
                 ingredient::getTag,
@@ -841,19 +834,17 @@ public class RecipePropertiesView extends View {
         );
     }
 
-    private UIElement createItemAbilityConfigurator(RecipeIngredient ingredient, RecipeIngredientValue value) {
+    private UIElement createItemAbilityConfigurator(RecipeIngredient ingredient) {
         return RecipeEditorUi.fieldGroup(
                 "viscript_recipe.config.ingredient.value.item_ability",
                 RecipeEditorUi.selector(
                         controller.itemAbilityChoices(),
-                        itemAbilityValue(value),
+                        ingredient.getItemAbility(),
                         controller::itemAbilityDisplayName,
                         itemAbility -> {
                             if (!rebuilding) {
-                                ingredient.getValues().clear();
-                                value.setKind(IngredientValueKind.ITEM_ABILITY);
-                                value.setItemAbility(itemAbility == null || itemAbility.isBlank() ? "knife_dig" : itemAbility);
-                                ingredient.getValues().add(value);
+                                ingredient.setKind(IngredientValueKind.ITEM_ABILITY);
+                                ingredient.setItemAbility(itemAbility == null || itemAbility.isBlank() ? "knife_dig" : itemAbility);
                                 controller.setSelectedIngredient(ingredient);
                             }
                         }
@@ -870,32 +861,9 @@ public class RecipePropertiesView extends View {
         return copy;
     }
 
-    private void setIngredientKind(RecipeIngredient ingredient, RecipeIngredientValue currentValue, IngredientValueKind kind) {
-        var updated = new RecipeIngredientValue().setKind(kind);
-        ingredient.getValues().clear();
-        if (kind == IngredientValueKind.ITEM) {
-            var stack = controller.normalizeSelectedIngredientItemStack(currentValue.getItem());
-            if (!stack.isEmpty()) {
-                updated.setItem(stack);
-                ingredient.getValues().add(updated);
-            }
-        } else if (kind == IngredientValueKind.TAG) {
-            updated.setTag(currentValue.getTag() == null
-                    ? ResourceLocation.fromNamespaceAndPath("minecraft", "planks")
-                    : currentValue.getTag());
-            ingredient.getValues().add(updated);
-        } else if (kind == IngredientValueKind.ITEM_ABILITY) {
-            updated.setItemAbility(itemAbilityValue(currentValue));
-            ingredient.getValues().add(updated);
-        }
-        controller.setSelectedIngredient(ingredient);
-    }
-
     private ItemStack ingredientItemStack(RecipeIngredient ingredient) {
-        for (var value : ingredient.getValues()) {
-            if (value.getKind() == IngredientValueKind.ITEM && value.getItem() != null) {
-                return value.getItem().copy();
-            }
+        if (ingredient.getKind() == IngredientValueKind.ITEM && ingredient.getItem() != null) {
+            return ingredient.getItem().copy();
         }
         return ItemStack.EMPTY;
     }
@@ -905,57 +873,22 @@ public class RecipePropertiesView extends View {
         return stack.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : Blocks.AIR;
     }
 
-    private RecipeIngredientValue editableValue(RecipeIngredient ingredient) {
-        if (ingredient.getValues().isEmpty()) {
-            return new RecipeIngredientValue()
-                    .setKind(IngredientValueKind.ITEM)
-                    .setItem(ItemStack.EMPTY);
-        }
-        return ingredient.getValues().getFirst();
-    }
-
     private void setIngredientItem(RecipeIngredient ingredient, ItemStack stack) {
-        ingredient.getValues().clear();
         var normalizedStack = controller.normalizeSelectedIngredientItemStack(stack);
         if (!normalizedStack.isEmpty()) {
-            ingredient.getValues().add(new RecipeIngredientValue()
-                    .setKind(IngredientValueKind.ITEM)
-                    .setItem(normalizedStack));
+            ingredient.setKind(IngredientValueKind.ITEM).setItem(normalizedStack);
         }
         controller.setSelectedIngredient(ingredient);
     }
 
     private void setIngredientBlock(RecipeIngredient ingredient, Block block) {
-        ingredient.getValues().clear();
         if (block != null && block != Blocks.AIR && block.asItem() != Items.AIR) {
-            ingredient.getValues().add(new RecipeIngredientValue()
-                    .setKind(IngredientValueKind.ITEM)
-                    .setItem(new ItemStack(block)));
+            ingredient.setKind(IngredientValueKind.ITEM).setItem(new ItemStack(block));
         }
         controller.setSelectedIngredient(ingredient);
     }
 
     private CraftingRemainderMode remainderMode(CraftingRemainderRule remainder) {
         return remainder.getMode() == null ? CraftingRemainderMode.DEFAULT : remainder.getMode();
-    }
-
-    private RecipeIngredient copyIngredient(RecipeIngredient original) {
-        var copy = new RecipeIngredient();
-        for (var value : original.getValues()) {
-            var valueCopy = new RecipeIngredientValue()
-                    .setKind(value.getKind())
-                    .setTag(value.getTag())
-                    .setItemAbility(value.getItemAbility());
-            if (value.getItem() != null) {
-                valueCopy.setItem(value.getItem().copy());
-            }
-            copy.getValues().add(valueCopy);
-        }
-        return copy;
-    }
-
-    private String itemAbilityValue(RecipeIngredientValue value) {
-        var itemAbility = value == null ? null : value.getItemAbility();
-        return itemAbility == null || itemAbility.isBlank() ? "knife_dig" : itemAbility;
     }
 }

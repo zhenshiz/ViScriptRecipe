@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.irons_spellbooks;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -22,34 +21,22 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class IronAlchemistCauldronRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.WATER_BUCKET);
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.BUCKET);
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.fluid")
+    @Persisted
     private FluidStack fluid = new FluidStack(Fluids.WATER, 1000);
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.base_fluid")
+    @Persisted
     private FluidStack baseFluid = new FluidStack(Fluids.WATER, 1000);
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.result_fluids")
-    @ConfigList(addDefaultMethod = "createDefaultResultFluid")
+    @Persisted
     private List<FluidStack> resultFluids = new ArrayList<>(List.of(new FluidStack(Fluids.WATER, 1000)));
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.byproduct")
+    @Persisted
     private ItemStack byproduct = ItemStack.EMPTY;
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.must_fit_all")
+    @Persisted
     private boolean mustFitAll = true;
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.sound")
+    @Persisted
     private ResourceLocation sound = ResourceLocation.withDefaultNamespace("item.bucket.empty");
-
-    public FluidStack createDefaultResultFluid() {
-        return new FluidStack(Fluids.WATER, 1000);
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation typeId) {

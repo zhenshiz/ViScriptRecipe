@@ -19,13 +19,9 @@ import com.lowdragmc.lowdraglib2.utils.data.BlockInfo;
 import com.lowdragmc.lowdraglib2.utils.virtuallevel.TrackedDummyWorld;
 import com.viscript_recipe.compat.goety.GoetyRecipeUiSupport;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeUiSupport;
-import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.create.CreateProcessingKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientKind;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
@@ -38,7 +34,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
@@ -47,11 +42,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+
+import static com.viscript_recipe.recipe.RecipeHelper.itemFromRegistry;
 
 public class CraftingWorkbenchView extends View {
     private static final int SLOT_SIZE = 24;
@@ -2332,7 +2325,7 @@ public class CraftingWorkbenchView extends View {
     private FluidDisplaySlot configureCreateFluidInputSlot(FluidDisplaySlot slot, int index) {
         slot.registerValueListener(stack -> {
             if (!controller.isRefreshing()) {
-                controller.setVisualCreateFluidInput(index, com.viscript_recipe.data.create.CreateFluidIngredientData.fluid(stack));
+                controller.setVisualCreateFluidInput(index, FluidIngredientData.fluid(stack));
             }
         });
         slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
@@ -2409,13 +2402,13 @@ public class CraftingWorkbenchView extends View {
     private FluidDisplaySlot configureCreateSequencedStepFluidSlot(FluidDisplaySlot slot, int index) {
         slot.registerValueListener(stack -> {
             if (!controller.isRefreshing()) {
-                controller.setCreateSequencedStepFluidIngredient(index, com.viscript_recipe.data.create.CreateFluidIngredientData.fluid(stack));
+                controller.setCreateSequencedStepFluidIngredient(index, FluidIngredientData.fluid(stack));
             }
         });
         slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
             controller.selectCreateFluidInputSlot(index);
             if (event.button == 1) {
-                controller.setCreateSequencedStepFluidIngredient(index, com.viscript_recipe.data.create.CreateFluidIngredientData.fluid(FluidStack.EMPTY));
+                controller.setCreateSequencedStepFluidIngredient(index, FluidIngredientData.fluid(FluidStack.EMPTY));
             }
             event.stopPropagation();
         });
@@ -2430,7 +2423,7 @@ public class CraftingWorkbenchView extends View {
         cell.addEventListener(UIEvents.MOUSE_DOWN, event -> {
             controller.selectCreateFluidInputSlot(index);
             if (event.button == 1) {
-                controller.setCreateSequencedStepFluidIngredient(index, com.viscript_recipe.data.create.CreateFluidIngredientData.fluid(FluidStack.EMPTY));
+                controller.setCreateSequencedStepFluidIngredient(index, FluidIngredientData.fluid(FluidStack.EMPTY));
             }
             event.stopPropagation();
         });
@@ -3052,12 +3045,12 @@ public class CraftingWorkbenchView extends View {
                 size(rarity.getDimensionWhitelist()), size(rarity.getDimensionBlacklist())));
     }
 
-    private FluidStack industrialFluidDisplay(IndustrialFluidIngredientData data) {
+    private FluidStack industrialFluidDisplay(FluidIngredientData data) {
         if (data == null) {
             return FluidStack.EMPTY;
         }
         var amount = Math.max(1, data.getAmount());
-        if (data.getKind() == IndustrialFluidIngredientKind.TAG && data.getTag() != null) {
+        if (data.getKind() == FluidIngredientKind.TAG && data.getTag() != null) {
             var holder = BuiltInRegistries.FLUID.getTag(TagKey.create(Registries.FLUID, data.getTag()))
                     .stream().flatMap(net.minecraft.core.HolderSet.ListBacked::stream).findFirst().orElse(null);
             return holder == null ? FluidStack.EMPTY : new FluidStack(holder.value(), amount);
@@ -3383,7 +3376,7 @@ public class CraftingWorkbenchView extends View {
         if (createSequencedStepIcons.get(index) != null) {
             createSequencedStepIcons.get(index).style(style -> style
                     .backgroundTexture(new ItemStackTexture(new ItemStack(itemFromRegistry(kind.machineItemId(), Items.CRAFTING_TABLE))))
-                    .tooltips(controller.createSequencedStepKindDisplayName(kind)));
+                    .tooltips(kind.displayName()));
         }
         var deploying = kind == CreateSequencedAssemblyStepKind.DEPLOYING;
         var filling = kind == CreateSequencedAssemblyStepKind.FILLING;
@@ -3847,7 +3840,7 @@ public class CraftingWorkbenchView extends View {
         }
         if (showHeat) {
             var heat = controller.getCreateHeatRequirement(entry);
-            createPressHeatLabel.setText(controller.createHeatDisplayName(heat));
+            createPressHeatLabel.setText(heat.displayName());
         } else {
             createPressHeatLabel.setText(Component.empty());
         }
@@ -3864,7 +3857,7 @@ public class CraftingWorkbenchView extends View {
         }
         if (showHeat) {
             var heat = controller.getCreateHeatRequirement(entry);
-            createAutomaticBrewingHeatLabel.setText(controller.createHeatDisplayName(heat));
+            createAutomaticBrewingHeatLabel.setText(heat.displayName());
         } else {
             createAutomaticBrewingHeatLabel.setText(Component.empty());
         }
@@ -4300,14 +4293,4 @@ public class CraftingWorkbenchView extends View {
     private static int createSequencedIngredientSlotIndex(int stepIndex) {
         return CREATE_SEQUENCED_STEP_INGREDIENT_OFFSET + stepIndex;
     }
-
-    private static Item itemFromRegistry(String id, Item fallback) {
-        var location = ResourceLocation.tryParse(id);
-        if (location == null) {
-            return fallback;
-        }
-        var item = BuiltInRegistries.ITEM.get(location);
-        return item == null || item == Items.AIR ? fallback : item;
-    }
-
 }

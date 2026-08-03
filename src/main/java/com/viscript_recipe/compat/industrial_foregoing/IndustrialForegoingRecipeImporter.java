@@ -2,6 +2,8 @@ package com.viscript_recipe.compat.industrial_foregoing;
 
 import com.buuz135.industrial.recipe.*;
 import com.buuz135.industrial.recipe.data.EntityData;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.industrial_foregoing.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -104,13 +106,13 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
         return null;
     }
 
-    private static IndustrialFluidIngredientData importFluidIngredient(SizedFluidIngredient ingredient) throws RecipeImportException {
-        var data = new IndustrialFluidIngredientData().setAmount(Math.max(1, ingredient.amount()));
+    private static FluidIngredientData importFluidIngredient(SizedFluidIngredient ingredient) throws RecipeImportException {
+        var data = FluidIngredientData.of().setAmount(Math.max(1, ingredient.amount()));
         if (ingredient.ingredient() instanceof TagFluidIngredient tagIngredient) {
-            return data.setKind(IndustrialFluidIngredientKind.TAG).setTag(tagIngredient.tag().location());
+            return data.setKind(FluidIngredientKind.TAG).setTag(tagIngredient.tag().location());
         }
         if (ingredient.ingredient() instanceof SingleFluidIngredient singleFluid) {
-            return data.setKind(IndustrialFluidIngredientKind.FLUID)
+            return data.setKind(FluidIngredientKind.FLUID)
                     .setFluid(new FluidStack(singleFluid.fluid().value(), data.getAmount()));
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_fluid_ingredient");

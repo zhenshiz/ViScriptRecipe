@@ -1,5 +1,7 @@
 package com.viscript_recipe.data.create;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -7,6 +9,8 @@ import net.minecraft.world.item.Items;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Getter
+@Accessors(fluent = true)
 public enum CreateProcessingKind {
     CRUSHING("crushing", "crushing_wheel", "crushing", 1, 0, 7, 0, true, false, false, "create:crushing_wheel", Items.COBBLESTONE, Items.GRAVEL),
     MILLING("milling", "millstone", "milling", 1, 0, 4, 0, true, false, false, "create:millstone", Items.WHEAT, Items.WHEAT),
@@ -64,60 +68,8 @@ public enum CreateProcessingKind {
         return Arrays.stream(values()).filter(kind -> kind.typeId.equals(type)).findFirst();
     }
 
-    public ResourceLocation typeId() {
-        return typeId;
-    }
-
-    public ResourceLocation categoryId() {
-        return categoryId;
-    }
-
-    public String translationPath() {
-        return translationPath;
-    }
-
-    public int maxItemInputs() {
-        return maxItemInputs;
-    }
-
-    public int maxFluidInputs() {
-        return maxFluidInputs;
-    }
-
-    public int maxItemOutputs() {
-        return maxItemOutputs;
-    }
-
-    public int maxFluidOutputs() {
-        return maxFluidOutputs;
-    }
-
-    public boolean durationAllowed() {
-        return durationAllowed;
-    }
-
-    public boolean heatAllowed() {
-        return heatAllowed;
-    }
-
-    public boolean keepHeldItemAllowed() {
-        return keepHeldItemAllowed;
-    }
-
-    public String machineItemId() {
-        return machineItemId;
-    }
-
     public ResourceLocation machineItemLocation() {
         return ResourceLocation.tryParse(machineItemId);
-    }
-
-    public Item defaultInput() {
-        return defaultInput;
-    }
-
-    public Item defaultOutput() {
-        return defaultOutput;
     }
 
     private static ResourceLocation create(String path) {

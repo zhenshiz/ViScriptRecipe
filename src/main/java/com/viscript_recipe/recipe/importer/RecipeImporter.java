@@ -7,6 +7,7 @@ import com.viscript_recipe.data.vanilla.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -107,7 +108,17 @@ public final class RecipeImporter {
     }
 
     public static RecipeImportResult success(RecipeEntry entry) {
-        return RecipeImportResult.success(entry, ComponentHelper.imported(entry));
+        return RecipeImportResult.success(entry, imported(entry));
+    }
+
+    private static Component imported(RecipeEntry entry) {
+        return Component.translatable(
+                "viscript_recipe.editor.import_recipe.success",
+                String.valueOf(entry.getRecipeId()),
+                RecipeEditorTypes.get(entry.getType())
+                        .map(type -> type.displayName().getString())
+                        .orElse(entry.getType().toString())
+        );
     }
 
     private static RecipeEntry importShaped(ResourceLocation id, ShapedRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
@@ -252,9 +263,9 @@ public final class RecipeImporter {
     }
 
     public static RecipeIngredient importIngredient(Ingredient ingredient) throws RecipeImportException {
-        var imported = new RecipeIngredient();
+        var imported = RecipeIngredient.empty();
         appendIngredientValues(imported, ingredient);
-        if (imported.getValues().isEmpty()) {
+        if (imported.isEmpty()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_ingredient");
         }
         return imported;
@@ -277,13 +288,13 @@ public final class RecipeImporter {
     }
 
     public static RecipeIngredient importItemStacks(List<ItemStack> stacks) throws RecipeImportException {
-        var imported = new RecipeIngredient();
+        var imported = RecipeIngredient.empty();
         if (stacks != null) {
             for (var stack : stacks) {
                 appendItemValue(imported, stack);
             }
         }
-        if (imported.getValues().isEmpty()) {
+        if (imported.isEmpty()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_ingredient");
         }
         return imported;
@@ -299,13 +310,12 @@ public final class RecipeImporter {
         }
         for (var value : ingredient.getValues()) {
             if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                imported.getValues().add(RecipeIngredientValue.item(item.copyWithCount(1)));
+                imported.setKind(IngredientValueKind.ITEM).setItem(item.copyWithCount(1));
             } else if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                imported.getValues().add(RecipeIngredientValue.tag(tag.location()));
-            } else {
-                throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_ingredient");
+                imported.setKind(IngredientValueKind.TAG).setTag(tag.location());
             }
         }
+        throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_ingredient");
     }
 
     private static void appendCustomIngredientValues(RecipeIngredient imported, Ingredient ingredient) throws RecipeImportException {
@@ -332,8 +342,8 @@ public final class RecipeImporter {
     }
 
     private static void appendItemValue(RecipeIngredient imported, ItemStack stack) {
-        if (stack != null && !stack.isEmpty() && !stack.is(Items.AIR)) {
-            imported.getValues().add(RecipeIngredientValue.item(stack.copyWithCount(1)));
+        if (stack != null && !stack.isEmpty()) {
+            imported.setKind(IngredientValueKind.ITEM).setItem(stack.copyWithCount(1));
         }
     }
 
@@ -361,22 +371,13 @@ public final class RecipeImporter {
         return remainders;
     }
 
-    private static String ingredientKey(RecipeIngredient ingredient) {
-        var parts = new ArrayList<String>();
-        for (var value : ingredient.getValues()) {
-            var kind = value.getKind() == null ? IngredientValueKind.ITEM : value.getKind();
-            parts.add(switch (kind) {
-                case ITEM -> {
-                    var item = value.getItem();
-                    yield item == null || item.isEmpty()
-                            ? "item:empty"
-                            : "item:" + ItemStack.hashItemAndComponents(item);
-                }
-                case TAG -> "tag:" + value.getTag();
-                case ITEM_ABILITY -> "item_ability:" + value.getItemAbility();
-            });
-        }
-        return String.join("|", parts);
+    public static String ingredientKey(RecipeIngredient ingredient) {
+        return switch (ingredient.getKind()) {
+            case ITEM -> ingredient.getItem().isEmpty() ? "empty" :
+                    "item:" + ItemStack.hashItemAndComponents(ingredient.getItem());
+            case TAG -> "tag:" + ingredient.getTag();
+            case ITEM_ABILITY -> "item_ability:" + ingredient.getItemAbility();
+        };
     }
 
     private static String recipeTypeName(Recipe<?> recipe) {
@@ -389,20 +390,5 @@ public final class RecipeImporter {
     }
 
     public record ImportedShapedPattern(List<String> pattern, List<ShapedKeyEntry> key) {
-    }
-
-    private static final class ComponentHelper {
-        private ComponentHelper() {
-        }
-
-        private static net.minecraft.network.chat.Component imported(RecipeEntry entry) {
-            return net.minecraft.network.chat.Component.translatable(
-                    "viscript_recipe.editor.import_recipe.success",
-                    String.valueOf(entry.getRecipeId()),
-                    RecipeEditorTypes.get(entry.getType())
-                            .map(type -> type.displayName().getString())
-                            .orElse(entry.getType().toString())
-            );
-        }
     }
 }

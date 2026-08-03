@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import lombok.Getter;
@@ -15,19 +15,15 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class IndustrialStoneWorkRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack output = new ItemStack(Items.COBBLESTONE);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.stonework.water_need")
+    @Persisted
     private int waterNeed = 1000;
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.stonework.lava_need")
+    @Persisted
     private int lavaNeed = 1000;
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.stonework.water_consume")
+    @Persisted
     private int waterConsume;
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.stonework.lava_consume")
+    @Persisted
     private int lavaConsume;
 
     @Override

@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.extendedcrafting;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -21,42 +20,22 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class ExtendedCraftingFluxCrafterRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.shaped.pattern")
-    @ConfigList(addDefaultMethod = "createDefaultPatternRow")
+    @Persisted
     private List<String> pattern = new ArrayList<>(List.of("A"));
-
-    @Configurable(name = "viscript_recipe.config.shaped.key")
-    @ConfigList(addDefaultMethod = "createDefaultKey")
+    @Persisted
     private List<ShapedKeyEntry> key = new ArrayList<>(List.of(
             ShapedKeyEntry.of("A", RecipeIngredient.item(Items.REDSTONE))
     ));
-
-    @Configurable(name = "viscript_recipe.config.shapeless.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> shapelessIngredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.REDSTONE)
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.REDSTONE);
-
-    @Configurable(name = "viscript_recipe.config.extendedcrafting.flux_crafter.power_required")
+    @Persisted
     private int powerRequired = 400000;
-
-    @Configurable(name = "viscript_recipe.config.extendedcrafting.power_rate")
+    @Persisted
     private int powerRate = 500;
-
-    public String createDefaultPatternRow() {
-        return "A";
-    }
-
-    public ShapedKeyEntry createDefaultKey() {
-        return new ShapedKeyEntry();
-    }
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.REDSTONE);
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

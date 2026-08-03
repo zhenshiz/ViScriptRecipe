@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.ars_nouveau;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,19 +19,12 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class ArsNouveauCrushRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.crush.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.COBBLESTONE);
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.crush.outputs")
-    @ConfigList(addDefaultMethod = "createDefaultOutput")
+    @Persisted
     private List<ArsNouveauCrushOutputData> outputs = new ArrayList<>(List.of(new ArsNouveauCrushOutputData()));
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.crush.skip_block_place")
+    @Persisted
     private boolean skipBlockPlace;
-
-    public ArsNouveauCrushOutputData createDefaultOutput() {
-        return new ArsNouveauCrushOutputData();
-    }
 
     @Override
     public ItemStack getResult() {return ArsNouveauRecipeEditorTypes.firstCrushOutput(this);}

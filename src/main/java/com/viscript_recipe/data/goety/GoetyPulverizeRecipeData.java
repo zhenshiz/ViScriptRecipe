@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -18,16 +18,13 @@ import net.minecraft.world.level.block.Blocks;
 @Setter
 @Accessors(chain = true)
 public class GoetyPulverizeRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.goety.pulverize.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.STONE);
-
-    @Configurable(name = "viscript_recipe.config.goety.pulverize.result_kind")
+    @Persisted
     private GoetyPulverizeResultKind resultKind = GoetyPulverizeResultKind.ITEM;
-
-    @Configurable(name = "viscript_recipe.config.goety.pulverize.item_result")
+    @Persisted
     private ItemStack itemResult = new ItemStack(Items.COBBLESTONE);
-
-    @Configurable(name = "viscript_recipe.config.goety.pulverize.block_result")
+    @Persisted
     private ResourceLocation blockResult = ResourceLocation.withDefaultNamespace("cobblestone");
 
     /**

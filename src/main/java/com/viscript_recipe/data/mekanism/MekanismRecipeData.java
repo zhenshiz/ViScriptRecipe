@@ -1,7 +1,8 @@
 package com.viscript_recipe.data.mekanism;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.mekanism.MekanismRecipeFactory;
+import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
@@ -18,46 +19,46 @@ import net.neoforged.neoforge.fluids.FluidStack;
 @Setter
 @Accessors(chain = true)
 public class MekanismRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.mekanism.item_input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient itemInput = RecipeIngredient.item(Items.COBBLESTONE);
-    @Configurable(name = "viscript_recipe.config.mekanism.extra_item_input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient extraItemInput = RecipeIngredient.item(Items.COBBLESTONE);
-    @Configurable(name = "viscript_recipe.config.mekanism.item_input_amount")
+    @Persisted
     private int itemInputAmount = 1;
-    @Configurable(name = "viscript_recipe.config.mekanism.extra_item_input_amount")
+    @Persisted
     private int extraItemInputAmount = 1;
 
-    @Configurable(name = "viscript_recipe.config.mekanism.fluid_input", subConfigurable = true)
-    private MekanismFluidIngredientData fluidInput = new MekanismFluidIngredientData();
-    @Configurable(name = "viscript_recipe.config.mekanism.chemical_input", subConfigurable = true)
+    @Persisted
+    private FluidIngredientData fluidInput = FluidIngredientData.of();
+    @Persisted
     private MekanismChemicalIngredientData chemicalInput = new MekanismChemicalIngredientData();
-    @Configurable(name = "viscript_recipe.config.mekanism.extra_chemical_input", subConfigurable = true)
+    @Persisted
     private MekanismChemicalIngredientData extraChemicalInput = new MekanismChemicalIngredientData()
             .setChemical(ResourceLocation.fromNamespaceAndPath("mekanism", "hydrogen"));
 
-    @Configurable(name = "viscript_recipe.config.mekanism.item_output")
+    @Persisted
     private ItemStack itemOutput = new ItemStack(Items.IRON_INGOT);
-    @Configurable(name = "viscript_recipe.config.mekanism.secondary_item_output")
+    @Persisted
     private ItemStack secondaryItemOutput = ItemStack.EMPTY;
-    @Configurable(name = "viscript_recipe.config.mekanism.secondary_chance")
+    @Persisted
     private double secondaryChance;
-    @Configurable(name = "viscript_recipe.config.mekanism.fluid_output")
+    @Persisted
     private FluidStack fluidOutput = new FluidStack(Fluids.WATER, 1000);
-    @Configurable(name = "viscript_recipe.config.mekanism.chemical_output", subConfigurable = true)
+    @Persisted
     private MekanismChemicalStackData chemicalOutput = new MekanismChemicalStackData();
-    @Configurable(name = "viscript_recipe.config.mekanism.secondary_chemical_output", subConfigurable = true)
+    @Persisted
     private MekanismChemicalStackData secondaryChemicalOutput = new MekanismChemicalStackData()
             .setChemical(ResourceLocation.fromNamespaceAndPath("mekanism", "oxygen"));
 
-    @Configurable(name = "viscript_recipe.config.mekanism.per_tick_usage")
+    @Persisted
     private boolean perTickUsage;
-    @Configurable(name = "viscript_recipe.config.mekanism.duration")
+    @Persisted
     private int duration = 100;
-    @Configurable(name = "viscript_recipe.config.mekanism.energy_required")
+    @Persisted
     private long energyRequired;
-    @Configurable(name = "viscript_recipe.config.mekanism.energy_multiplier")
+    @Persisted
     private long energyMultiplier = 1;
-    @Configurable(name = "viscript_recipe.config.mekanism.energy_output")
+    @Persisted
     private long energyOutput = 1000;
 
     @Override

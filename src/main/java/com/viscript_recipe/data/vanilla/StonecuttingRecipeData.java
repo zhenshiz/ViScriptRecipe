@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.vanilla.ViscriptStonecutterRecipe;
@@ -16,13 +16,11 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class StonecuttingRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.recipe.show_notification")
+    @Persisted
     private Boolean showNotification = true;
-
-    @Configurable(name = "viscript_recipe.config.stonecutting.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.STONE);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.STONE_SLAB, 2);
 
     @Override

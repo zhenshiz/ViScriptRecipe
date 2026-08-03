@@ -3,9 +3,9 @@ package com.viscript_recipe.compat.farmersdelight;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -63,12 +63,10 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
         if (ingredients.isEmpty()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_ingredient");
         }
-        var results = new ArrayList<FarmerCuttingResultData>();
+        var results = new ArrayList<RecipeOutputData>();
         for (var result : recipe.getRollableResults()) {
             if (result != null && result.stack() != null && !result.stack().isEmpty()) {
-                results.add(new FarmerCuttingResultData()
-                        .setItem(result.stack().copy())
-                        .setChance(result.chance()));
+                results.add(RecipeOutputData.of(result.stack().copy(), result.chance()));
             }
         }
         var sound = recipe.getSoundEvent()
@@ -81,7 +79,7 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
                 .setCustomSound(recipe.getSoundEvent().isPresent())
                 .setSound(sound);
         if (data.getResults().isEmpty()) {
-            data.getResults().add(new FarmerCuttingResultData().setItem(RecipeImporter.copyResult(recipe, provider)));
+            data.getResults().add(RecipeOutputData.of(RecipeImporter.copyResult(recipe, provider)));
         }
         return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_CUTTING).setData(data);
     }

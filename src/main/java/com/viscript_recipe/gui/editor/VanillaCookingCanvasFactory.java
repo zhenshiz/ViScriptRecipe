@@ -12,7 +12,6 @@ import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -131,11 +130,10 @@ final class VanillaCookingCanvasFactory {
         if (!ViScriptRecipe.isModLoaded("jei")) {
             return false;
         }
-        var resources = Minecraft.getInstance().getResourceManager();
-        return resources.getResource(jeiTexture("slot.png")).isPresent()
-                && resources.getResource(jeiTexture("output_slot.png")).isPresent()
-                && resources.getResource(jeiTexture("recipe_arrow.png")).isPresent()
-                && resources.getResource(jeiTexture("icons/flame.png")).isPresent();
+        return ViScriptRecipe.isPresentResource(jeiTexture("slot.png"))
+                && ViScriptRecipe.isPresentResource(jeiTexture("output_slot.png"))
+                && ViScriptRecipe.isPresentResource(jeiTexture("recipe_arrow.png"))
+                && ViScriptRecipe.isPresentResource(jeiTexture("icons/flame.png"));
     }
 
     private static CookingSkin createJeiSkin() {

@@ -1,11 +1,10 @@
 package com.viscript_recipe.data.farmersdelight;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.RecipeIngredientValue;
+import com.viscript_recipe.data.RecipeOutputData;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -21,27 +20,16 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class FarmerCuttingRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cutting.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.BEEF);
-
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cutting.tool", subConfigurable = true)
+    @Persisted
     private RecipeIngredient tool = defaultKnifeTool();
-
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cutting.results")
-    @ConfigList(addDefaultMethod = "createDefaultResult")
-    private List<FarmerCuttingResultData> results = new ArrayList<>(List.of(new FarmerCuttingResultData()
-            .setItem(new ItemStack(Items.BEEF))
-            .setChance(1.0F)));
-
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cutting.custom_sound")
+    @Persisted
+    private List<RecipeOutputData> results = new ArrayList<>(List.of(RecipeOutputData.of(new ItemStack(Items.BEEF))));
+    @Persisted
     private boolean customSound;
-
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cutting.sound")
+    @Persisted
     private ResourceLocation sound = ResourceLocation.withDefaultNamespace("item.axe.strip");
-
-    public FarmerCuttingResultData createDefaultResult() {
-        return new FarmerCuttingResultData();
-    }
 
     @Override
     public ItemStack getResult() {
@@ -50,7 +38,7 @@ public class FarmerCuttingRecipeData implements IVSRecipeData {
 
     @Override
     public <T extends IVSRecipeData> T setResult(ItemStack result) {
-        if (getResults().isEmpty()) getResults().add(new FarmerCuttingResultData());
+        if (getResults().isEmpty()) getResults().add(RecipeOutputData.of());
         getResults().getFirst().setItem(result.copy());
         //noinspection unchecked
         return (T) this;
@@ -62,8 +50,6 @@ public class FarmerCuttingRecipeData implements IVSRecipeData {
     }
 
     public static RecipeIngredient defaultKnifeTool() {
-        var ingredient = new RecipeIngredient();
-        ingredient.getValues().add(RecipeIngredientValue.itemAbility("knife_dig"));
-        return ingredient;
+        return RecipeIngredient.itemAbility("knife_dig");
     }
 }

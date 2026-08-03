@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,10 +16,9 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class MysticalAgricultureReprocessorRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.reprocessor.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.WHEAT_SEEDS);
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.WHEAT);
 
     @Override

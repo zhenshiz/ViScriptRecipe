@@ -1,8 +1,8 @@
 package com.viscript_recipe.data.ars_nouveau;
 
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,13 +13,11 @@ import net.minecraft.world.item.Items;
 @Setter
 @Accessors(chain = true)
 public class ArsNouveauCrushOutputData implements IPersistedSerializable, IConfigurable {
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.crush.output_item")
+    @Persisted
     private ItemStack item = new ItemStack(Items.GRAVEL);
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.crush.chance")
+    @Persisted
     private float chance = 1.0F;
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.crush.max_range")
+    @Persisted
     private int maxRange = 1;
 
     public ArsNouveauCrushOutputData copy() {

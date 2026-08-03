@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -23,36 +22,27 @@ public class MysticalAgricultureAwakeningRecipeData implements IVSRecipeData {
     public static final int PEDESTAL_INGREDIENT_COUNT = 4;
     public static final int ESSENCE_COUNT = 4;
 
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.awakening.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.NETHER_STAR);
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.awakening.ingredients", subConfigurable = true)
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>();
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.awakening.essences")
+    @Persisted
     private List<ItemStack> essences = new ArrayList<>();
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.NETHER_STAR);
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.transfer_components")
+    @Persisted
     private boolean transferComponents;
 
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.STONE);
-    }
-
     public RecipeIngredient ingredient(int index) {
-        return index >= 0 && index < ingredients.size() ? ingredients.get(index) : new RecipeIngredient();
+        return index >= 0 && index < ingredients.size() ? ingredients.get(index) : RecipeIngredient.empty();
     }
 
     public MysticalAgricultureAwakeningRecipeData setIngredient(int index, RecipeIngredient ingredient) {
         while (ingredients.size() <= index && ingredients.size() < PEDESTAL_INGREDIENT_COUNT) {
-            ingredients.add(new RecipeIngredient());
+            ingredients.add(RecipeIngredient.empty());
         }
         if (index >= 0 && index < ingredients.size()) {
-            ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+            ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         }
         return this;
     }

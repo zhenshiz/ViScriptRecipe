@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.farmersdelight;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,29 +19,20 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class FarmerCookingPotRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cooking.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.BEEF),
             RecipeIngredient.item(Items.CARROT),
             RecipeIngredient.item(Items.POTATO)
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.RABBIT_STEW);
-
-    @Configurable(name = "viscript_recipe.config.farmersdelight.cooking.container")
+    @Persisted
     private ItemStack container = new ItemStack(Items.BOWL);
-
-    @Configurable(name = "viscript_recipe.config.cooking.experience")
+    @Persisted
     private float experience = 1.0F;
-
-    @Configurable(name = "viscript_recipe.config.cooking.cooking_time")
+    @Persisted
     private int cookingTime = 200;
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.CARROT);
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation typeId) {

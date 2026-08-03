@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -22,32 +21,25 @@ import java.util.List;
 public class GoetyBrazierRecipeData implements IVSRecipeData {
     public static final int INPUT_COUNT = 3;
 
-    @Configurable(name = "viscript_recipe.config.goety.brazier.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = emptyIngredients();
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.IRON_INGOT);
-
-    @Configurable(name = "viscript_recipe.config.goety.soul_cost")
+    @Persisted
     private int soulCost = 500;
-
-    public RecipeIngredient createDefaultIngredient() {
-        return new RecipeIngredient();
-    }
 
     public RecipeIngredient ingredient(int index) {
         if (ingredients == null || index < 0 || index >= ingredients.size()) {
-            return new RecipeIngredient();
+            return RecipeIngredient.empty();
         }
         var ingredient = ingredients.get(index);
-        return ingredient == null ? new RecipeIngredient() : ingredient;
+        return ingredient == null ? RecipeIngredient.empty() : ingredient;
     }
 
     public GoetyBrazierRecipeData setIngredient(int index, RecipeIngredient ingredient) {
         ingredients = normalizedIngredients();
         if (index >= 0 && index < INPUT_COUNT) {
-            ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+            ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         }
         return this;
     }
@@ -57,7 +49,7 @@ public class GoetyBrazierRecipeData implements IVSRecipeData {
         if (ingredients != null) {
             for (int i = 0; i < Math.min(INPUT_COUNT, ingredients.size()); i++) {
                 var ingredient = ingredients.get(i);
-                normalized.set(i, ingredient == null ? new RecipeIngredient() : ingredient);
+                normalized.set(i, ingredient == null ? RecipeIngredient.empty() : ingredient);
             }
         }
         return normalized;
@@ -66,7 +58,7 @@ public class GoetyBrazierRecipeData implements IVSRecipeData {
     private static List<RecipeIngredient> emptyIngredients() {
         var result = new ArrayList<RecipeIngredient>(INPUT_COUNT);
         for (int i = 0; i < INPUT_COUNT; i++) {
-            result.add(new RecipeIngredient());
+            result.add(RecipeIngredient.empty());
         }
         return result;
     }

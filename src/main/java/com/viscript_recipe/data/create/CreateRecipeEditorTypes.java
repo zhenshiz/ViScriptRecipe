@@ -1,9 +1,6 @@
 package com.viscript_recipe.data.create;
 
-import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
-import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.data.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -111,7 +108,7 @@ public final class CreateRecipeEditorTypes {
             data.setOutputs(new java.util.ArrayList<>());
         }
         if (data.getOutputs().isEmpty()) {
-            data.getOutputs().add(new CreateProcessingOutputData());
+            data.getOutputs().add(RecipeOutputData.of());
         }
         data.getOutputs().getFirst().setItem(stack == null ? ItemStack.EMPTY : stack.copy());
     }
@@ -129,7 +126,7 @@ public final class CreateRecipeEditorTypes {
             data.setOutputs(new java.util.ArrayList<>());
         }
         if (data.getOutputs().isEmpty()) {
-            data.getOutputs().add(new CreateProcessingOutputData());
+            data.getOutputs().add(RecipeOutputData.of());
         }
         data.getOutputs().getFirst().setItem(stack == null ? ItemStack.EMPTY : stack.copy());
     }

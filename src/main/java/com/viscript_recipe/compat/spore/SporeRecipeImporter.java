@@ -55,7 +55,7 @@ public final class SporeRecipeImporter implements RecipeImportHandler {
             var sourceIndex = offset + i;
             var ingredient = sourceIndex < source.size() ? source.get(sourceIndex) : Ingredient.EMPTY;
             ingredients.add(ingredient == null || ingredient.isEmpty()
-                    ? new RecipeIngredient()
+                    ? RecipeIngredient.empty()
                     : RecipeImporter.importIngredient(ingredient));
         }
         return ingredients;

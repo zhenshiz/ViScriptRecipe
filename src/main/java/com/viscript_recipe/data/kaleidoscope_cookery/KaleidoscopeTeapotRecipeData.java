@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,19 +16,15 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class KaleidoscopeTeapotRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.tea_fluid")
+    @Persisted
     private ResourceLocation teaFluid = ResourceLocation.withDefaultNamespace("water");
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredient")
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.WHEAT_SEEDS);
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredient_count")
+    @Persisted
     private int ingredientCount = 12;
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.time")
+    @Persisted
     private int time = 240;
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.POTION);
 
     @Override

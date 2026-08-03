@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.vanilla.ViscriptSmithingTransformRecipe;
@@ -16,19 +16,15 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class SmithingTransformRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.recipe.show_notification")
+    @Persisted
     private Boolean showNotification = true;
-
-    @Configurable(name = "viscript_recipe.config.smithing_transform.template", subConfigurable = true)
+    @Persisted
     private RecipeIngredient template = RecipeIngredient.item(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
-
-    @Configurable(name = "viscript_recipe.config.smithing_transform.base", subConfigurable = true)
+    @Persisted
     private RecipeIngredient base = RecipeIngredient.item(Items.DIAMOND_SWORD);
-
-    @Configurable(name = "viscript_recipe.config.smithing_transform.addition", subConfigurable = true)
+    @Persisted
     private RecipeIngredient addition = RecipeIngredient.item(Items.NETHERITE_INGOT);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.NETHERITE_SWORD);
 
     @Override

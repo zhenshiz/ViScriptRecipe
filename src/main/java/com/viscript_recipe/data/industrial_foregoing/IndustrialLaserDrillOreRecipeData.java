@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,29 +19,19 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class IndustrialLaserDrillOreRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.output", subConfigurable = true)
+    @Persisted
     private RecipeIngredient output = RecipeIngredient.item(Items.DIAMOND_ORE);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.output_count")
+    @Persisted
     private int outputCount = 1;
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.catalyst", subConfigurable = true)
+    @Persisted
     private RecipeIngredient catalyst = RecipeIngredient.item(Items.WHITE_STAINED_GLASS_PANE);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.entity_condition", subConfigurable = true)
+    @Persisted
     private IndustrialEntityConditionData entityCondition = new IndustrialEntityConditionData();
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.rarity")
-    @ConfigList(addDefaultMethod = "createDefaultRarity")
+    @Persisted
     private List<IndustrialLaserDrillRarityData> rarity = new ArrayList<>(List.of(new IndustrialLaserDrillRarityData()));
 
-    /** Creates a default catch-all rarity rule. */
-    public IndustrialLaserDrillRarityData createDefaultRarity() {
-        return new IndustrialLaserDrillRarityData();
-    }
-
     @Override
-    public ItemStack getResult() {return IndustrialForegoingRecipeEditorTypes.firstStack(getOutput());}
+    public ItemStack getResult() {return getOutput().toStack();}
 
     @Override
     public <T extends IVSRecipeData> T setResult(ItemStack result) {

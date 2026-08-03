@@ -4,19 +4,18 @@ import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 
-public enum RecipeOperation implements StringRepresentable {
-    ADD("add"),
-    REPLACE("replace"),
-    REMOVE("remove");
+public enum FluidIngredientKind implements StringRepresentable {
+    FLUID("fluid"),
+    TAG("tag");
 
     @Getter
     private final String serializedName;
 
-    RecipeOperation(String serializedName) {
+    FluidIngredientKind(String serializedName) {
         this.serializedName = serializedName;
     }
 
     public Component displayName() {
-        return Component.translatable("viscript_recipe.editor.operation." + serializedName);
+        return Component.translatable("viscript_recipe.editor.fluid_ingredient.kind." + serializedName);
     }
 }

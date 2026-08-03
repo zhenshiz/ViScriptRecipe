@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.ars_nouveau;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,25 +19,17 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class ArsNouveauEnchantmentRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.pedestal_items")
-    @ConfigList(addDefaultMethod = "createDefaultPedestalItem")
+    @Persisted
     private List<RecipeIngredient> pedestalItems = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.LAPIS_BLOCK),
             RecipeIngredient.item(Items.AMETHYST_SHARD)
     ));
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.enchantment.enchantment")
+    @Persisted
     private ResourceLocation enchantment = ResourceLocation.withDefaultNamespace("sharpness");
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.enchantment.level")
+    @Persisted
     private int level = 1;
-
-    @Configurable(name = "viscript_recipe.config.ars_nouveau.source_cost")
+    @Persisted
     private int sourceCost = 1000;
-
-    public RecipeIngredient createDefaultPedestalItem() {
-        return RecipeIngredient.item(Items.AMETHYST_SHARD);
-    }
 
     @Override
     public ItemStack getResult() {return new ItemStack(Items.ENCHANTED_BOOK);}

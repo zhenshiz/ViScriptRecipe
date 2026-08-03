@@ -6,11 +6,13 @@ import com.viscript_recipe.data.ars_nouveau.*;
 import com.viscript_recipe.data.avaritia.*;
 import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
 import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
-import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
+import com.viscript_recipe.data.create.CreateProcessingRecipeData;
+import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
+import com.viscript_recipe.data.create.CreateSequencedAssemblyStepData;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.goety.*;
 import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.data.industrial_foregoing.*;
@@ -20,7 +22,6 @@ import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeDat
 import com.viscript_recipe.data.kaleidoscope_cookery.*;
 import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
 import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
-import com.viscript_recipe.data.mekanism.MekanismFluidIngredientData;
 import com.viscript_recipe.data.mekanism.MekanismRecipeData;
 import com.viscript_recipe.data.mysticalagriculture.*;
 import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
@@ -54,8 +55,9 @@ public final class RecipeDataAccessors {
     private static void registerBase(RegisterAccessorEvent event) {
         event.register(RecipeFile.class, RecipeFile::new);
         event.register(RecipeEntry.class, RecipeEntry::new);
-        event.register(RecipeIngredient.class, RecipeIngredient::new);
-        event.register(RecipeIngredientValue.class, RecipeIngredientValue::new);
+        event.register(RecipeIngredient.class, RecipeIngredient::of);
+        event.register(FluidIngredientData.class, FluidIngredientData::of);
+        event.register(RecipeOutputData.class, RecipeOutputData::of);
     }
 
     private static void registerVanilla(RegisterAccessorEvent event) {
@@ -86,13 +88,10 @@ public final class RecipeDataAccessors {
     private static void registerFarmersDelight(RegisterAccessorEvent event) {
         event.register(FarmerCookingPotRecipeData.class, FarmerCookingPotRecipeData::new);
         event.register(FarmerCuttingRecipeData.class, FarmerCuttingRecipeData::new);
-        event.register(FarmerCuttingResultData.class, FarmerCuttingResultData::new);
     }
 
     private static void registerCreate(RegisterAccessorEvent event) {
-        event.register(CreateFluidIngredientData.class, CreateFluidIngredientData::new);
         event.register(CreateMechanicalCraftingRecipeData.class, CreateMechanicalCraftingRecipeData::new);
-        event.register(CreateProcessingOutputData.class, CreateProcessingOutputData::new);
         event.register(CreateProcessingRecipeData.class, CreateProcessingRecipeData::new);
         event.register(CreateSequencedAssemblyRecipeData.class, CreateSequencedAssemblyRecipeData::new);
         event.register(CreateSequencedAssemblyStepData.class, CreateSequencedAssemblyStepData::new);
@@ -166,7 +165,6 @@ public final class RecipeDataAccessors {
     }
 
     private static void registerIndustrialForegoing(RegisterAccessorEvent event) {
-        event.register(IndustrialFluidIngredientData.class, IndustrialFluidIngredientData::new);
         event.register(IndustrialEntityConditionData.class, IndustrialEntityConditionData::new);
         event.register(IndustrialBlockStatePropertyData.class, IndustrialBlockStatePropertyData::new);
         event.register(IndustrialLaserDrillRarityData.class, IndustrialLaserDrillRarityData::new);
@@ -181,7 +179,6 @@ public final class RecipeDataAccessors {
     private static void registerMekanism(RegisterAccessorEvent event) {
         event.register(MekanismChemicalIngredientData.class, MekanismChemicalIngredientData::new);
         event.register(MekanismChemicalStackData.class, MekanismChemicalStackData::new);
-        event.register(MekanismFluidIngredientData.class, MekanismFluidIngredientData::new);
         event.register(MekanismRecipeData.class, MekanismRecipeData::new);
     }
 }

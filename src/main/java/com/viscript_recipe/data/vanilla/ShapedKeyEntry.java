@@ -1,8 +1,8 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,10 +14,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 @Setter
 @Accessors(chain = true)
 public class ShapedKeyEntry implements IPersistedSerializable, IConfigurable {
-    @Configurable(name = "viscript_recipe.config.shaped.key.symbol")
+    @Persisted
     private String symbol = "A";
-
-    @Configurable(name = "viscript_recipe.config.shaped.key.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.OAK_PLANKS);
 
     public static ShapedKeyEntry of(String symbol, RecipeIngredient ingredient) {
