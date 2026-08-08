@@ -12,12 +12,14 @@ import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.create.CreateProcessingRecipeData;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
+import com.viscript_recipe.data.confluence.ConfluenceRecipeData;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.goety.*;
 import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.data.industrial_foregoing.*;
+import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
@@ -164,7 +166,10 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
     public IndustrialLaserDrillFluidRecipeData getIndustrialLaserDrillFluid() {return getData();}
     public IndustrialStoneWorkRecipeData getIndustrialStoneWork() {return getData();}
 
+    public AlloySmelterRecipeData getAlloySmelter() {return getData();}
+
     public MekanismRecipeData getMekanism() {return getData();}
+    public ConfluenceRecipeData getConfluence() {return getData();}
 
     public Recipe<?> compile() {return getData().compile(getType());}
 

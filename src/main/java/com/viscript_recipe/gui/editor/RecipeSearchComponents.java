@@ -155,6 +155,18 @@ final class RecipeSearchComponents {
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
+    static UIElement blockTag(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged
+    ) {
+        var current = TagKey.create(Registries.BLOCK,
+                Objects.requireNonNullElse(supplier.get(), ResourceLocation.fromNamespaceAndPath("minecraft", "campfires")));
+        return configure(nameKey, new BlockTagSearchBox(current),
+                value -> updateTagId(value, supplier, consumer, onChanged));
+    }
+
     static UIElement structureTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
@@ -382,10 +394,13 @@ final class RecipeSearchComponents {
 
         @Override
         protected void onSearchWordChanged(String word) {
-            var typedId = ResourceLocation.tryParse(word);
-            if (typedId != null) {
-                setSelected(typedId, false);
-                if (onTyped != null) {
+            // Keep the raw text while the player is typing. ResourceLocation.tryParse
+            // treats an unqualified path as a minecraft ID (and an empty value as
+            // minecraft:), so feeding that parsed value back through setSelected would
+            // overwrite the field before the player can enter another namespace.
+            if (word != null && !word.isBlank()) {
+                var typedId = ResourceLocation.tryParse(word);
+                if (typedId != null && !typedId.getPath().isEmpty() && onTyped != null) {
                     onTyped.accept(typedId);
                 }
             }

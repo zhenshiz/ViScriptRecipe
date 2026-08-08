@@ -70,6 +70,7 @@ public class CraftingWorkbenchView extends View {
 
     private final RecipeEditorController controller;
     private final MysticalAgricultureWorkbenchSection mysticalAgriculture;
+    private final ConfluenceWorkbenchSection confluence;
     private final Map<IngredientDisplaySlot, Integer> ingredientDragSlotIndices = new IdentityHashMap<>();
     private final IngredientDisplaySlot[] craftingIngredientSlots = new IngredientDisplaySlot[9];
     private final ItemSlot craftingOutputSlot = createEditorSlot(OUTPUT_SLOT_SIZE);
@@ -324,6 +325,12 @@ public class CraftingWorkbenchView extends View {
     private final ItemSlot industrialStoneWorkOutputSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final Label industrialStoneWorkNeedsLabel = RecipeEditorUi.label(Component.empty());
     private final Label industrialStoneWorkConsumesLabel = RecipeEditorUi.label(Component.empty());
+    private final IngredientDisplaySlot[] alloySmelterIngredientSlots = new IngredientDisplaySlot[5];
+    private final ItemSlot alloySmelterOutputSlot = createEditorSlot(JEI_SLOT_SIZE);
+    private final UIElement alloySmelterFuelHint = createItemIcon(new ItemStack(Items.COAL), JEI_SLOT_SIZE);
+    private final Label alloySmelterTimeLabel = RecipeEditorUi.label(Component.empty());
+    private final Label alloySmelterFuelLabel = RecipeEditorUi.label(Component.empty());
+    private final Label alloySmelterTierLabel = RecipeEditorUi.label(Component.empty());
     private final IngredientDisplaySlot[] mekanismIngredientSlots = new IngredientDisplaySlot[2];
     private final ItemSlot mekanismPrimaryOutputSlot = createEditorSlot(JEI_SLOT_SIZE);
     private final TrackedDummyWorld createManualApplicationPreviewWorld = new TrackedDummyWorld();
@@ -363,6 +370,7 @@ public class CraftingWorkbenchView extends View {
     private UIElement industrialLaserOreCanvas;
     private UIElement industrialLaserFluidCanvas;
     private UIElement industrialStoneWorkCanvas;
+    private UIElement alloySmelterCanvas;
     private UIElement createProcessingCanvas;
     private UIElement genericCreateProcessingCanvas;
     private UIElement createSpoutCanvas;
@@ -409,6 +417,7 @@ public class CraftingWorkbenchView extends View {
         super("viscript_recipe.view.workbench", Icons.GRID);
         this.controller = controller;
         this.mysticalAgriculture = new MysticalAgricultureWorkbenchSection(controller);
+        this.confluence = new ConfluenceWorkbenchSection(controller);
         addChild(createRoot());
         controller.addListener(this::refresh);
         refresh();
@@ -483,6 +492,7 @@ public class CraftingWorkbenchView extends View {
         industrialLaserOreCanvas = createIndustrialLaserOreCanvas();
         industrialLaserFluidCanvas = createIndustrialLaserFluidCanvas();
         industrialStoneWorkCanvas = createIndustrialStoneWorkCanvas();
+        alloySmelterCanvas = createAlloySmelterCanvas();
         createProcessingCanvas = createCreateProcessingCanvas();
         createSequencedAssemblyCanvas = createCreateSequencedAssemblyCanvas();
         arsNouveauApparatusCanvas = createArsNouveauApparatusCanvas();
@@ -509,8 +519,9 @@ public class CraftingWorkbenchView extends View {
             layout.minHeight(0);
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
-        }).addChildren(craftingCanvas, mechanicalCraftingCanvas, cookingCanvas, campfireCookingCanvas, singleInputCanvas, farmersCookingPotCanvas, farmersCuttingBoardCanvas, smithingCanvas, arcaneAnvilCanvas, avaritiaCompressorCanvas, avaritiaExtremeSmithingCanvas, extendedCombinationCanvas, extendedCompressorCanvas, extendedFluxCanvas, alchemistCanvas, dragonForgeCanvas, cataclysmWeaponFusionCanvas, cataclysmAmethystBlessCanvas, touhouLittleMaidAltarCanvas, sporeSurgeryCanvas, sporeGraftingCanvas, goetyCursedInfuserCanvas, goetyRitualCanvas, goetyBrazierCanvas, goetyPulverizeCanvas, goetyBrewingCanvas, industrialDissolutionCanvas, industrialExtractorCanvas, industrialCrusherCanvas, industrialLaserOreCanvas, industrialLaserFluidCanvas, industrialStoneWorkCanvas, createProcessingCanvas, createSequencedAssemblyCanvas, arsNouveauApparatusCanvas, arsNouveauImbuementCanvas, arsNouveauGlyphCanvas, arsNouveauCrushCanvas, kaleidoscopePotCanvas, kaleidoscopeStockpotCanvas, kaleidoscopeMillstoneCanvas, kaleidoscopeChoppingBoardCanvas, kaleidoscopeSteamerCanvas, kaleidoscopeTeapotCanvas, mekanismCanvas);
+        }).addChildren(craftingCanvas, mechanicalCraftingCanvas, cookingCanvas, campfireCookingCanvas, singleInputCanvas, farmersCookingPotCanvas, farmersCuttingBoardCanvas, smithingCanvas, arcaneAnvilCanvas, avaritiaCompressorCanvas, avaritiaExtremeSmithingCanvas, extendedCombinationCanvas, extendedCompressorCanvas, extendedFluxCanvas, alchemistCanvas, dragonForgeCanvas, cataclysmWeaponFusionCanvas, cataclysmAmethystBlessCanvas, touhouLittleMaidAltarCanvas, sporeSurgeryCanvas, sporeGraftingCanvas, goetyCursedInfuserCanvas, goetyRitualCanvas, goetyBrazierCanvas, goetyPulverizeCanvas, goetyBrewingCanvas, industrialDissolutionCanvas, industrialExtractorCanvas, industrialCrusherCanvas, industrialLaserOreCanvas, industrialLaserFluidCanvas, industrialStoneWorkCanvas, alloySmelterCanvas, createProcessingCanvas, createSequencedAssemblyCanvas, arsNouveauApparatusCanvas, arsNouveauImbuementCanvas, arsNouveauGlyphCanvas, arsNouveauCrushCanvas, kaleidoscopePotCanvas, kaleidoscopeStockpotCanvas, kaleidoscopeMillstoneCanvas, kaleidoscopeChoppingBoardCanvas, kaleidoscopeSteamerCanvas, kaleidoscopeTeapotCanvas, mekanismCanvas);
         canvasStack.addChildren(mysticalAgriculture.canvases().toArray(UIElement[]::new));
+        canvasStack.addChildren(confluence.canvases().toArray(UIElement[]::new));
         canvasViewport = new RecipeCanvasViewport(canvasStack);
         return canvasViewport;
     }
@@ -1246,6 +1257,29 @@ public class CraftingWorkbenchView extends View {
                 IndustrialForegoingCanvasFactory.slotCell(industrialStoneWorkOutputSlot, 18, 18),
                 industrialStoneWorkNeedsLabel,
                 industrialStoneWorkConsumesLabel
+        );
+    }
+
+    private UIElement createAlloySmelterCanvas() {
+        for (int index = 0; index < alloySmelterIngredientSlots.length; index++) {
+            var slot = createIngredientSlot(JEI_SLOT_SIZE);
+            configureIngredientSlot(slot, index);
+            configureJeiOverlaySlotVisual(slot);
+            alloySmelterIngredientSlots[index] = slot;
+        }
+        configureResultSlot(alloySmelterOutputSlot);
+        configureJeiOverlaySlotVisual(alloySmelterOutputSlot);
+        alloySmelterFuelHint.style(style -> style.tooltips(Component.translatable(
+                "viscript_recipe.editor.alloy_smelter.fuel_hint"
+        )));
+        return AlloySmelterCanvasFactory.create(
+                alloySmelterIngredientSlots,
+                alloySmelterOutputSlot,
+                alloySmelterFuelHint,
+                alloySmelterTimeLabel,
+                alloySmelterFuelLabel,
+                alloySmelterTierLabel,
+                controller::selectRecipeProperties
         );
     }
 
@@ -2528,11 +2562,13 @@ public class CraftingWorkbenchView extends View {
         var industrialLaserOre = industrialEntry != null && controller.isIndustrialLaserOreEntry(industrialEntry);
         var industrialLaserFluid = industrialEntry != null && controller.isIndustrialLaserFluidEntry(industrialEntry);
         var industrialStoneWork = industrialEntry != null && controller.isIndustrialStoneWorkEntry(industrialEntry);
+        var alloySmelter = controller.isSelectedAlloySmelterLayout();
         var mekanism = controller.isSelectedMekanismLayout();
         var mysticalAgricultureLayout = mysticalAgriculture.isSelectedLayout();
+        var confluenceLayout = confluence.isSelectedLayout();
         var kaleidoscope = kaleidoscopePot || kaleidoscopeStockpot || kaleidoscopeMillstone || kaleidoscopeChoppingBoard || kaleidoscopeSteamer || kaleidoscopeTeapot;
         if (craftingCanvas != null) {
-            craftingCanvas.setDisplay(!singleInput && !smithing && !alchemist && !dragonForge && !cataclysm && !touhouLittleMaidAltar && !spore && !goety && !farmersCookingPot && !farmersCuttingBoard && !largeCraftingGrid && !avaritiaCompressor && !avaritiaExtremeSmithing && !extendedCombination && !extendedCompressor && !extendedFlux && !createProcessing && !createSequencedAssembly && !arsNouveauApparatus && !arsNouveauImbuement && !arsNouveauGlyph && !arsNouveauCrush && !kaleidoscope && !industrial && !mekanism && !mysticalAgricultureLayout);
+            craftingCanvas.setDisplay(!singleInput && !smithing && !alchemist && !dragonForge && !cataclysm && !touhouLittleMaidAltar && !spore && !goety && !farmersCookingPot && !farmersCuttingBoard && !largeCraftingGrid && !avaritiaCompressor && !avaritiaExtremeSmithing && !extendedCombination && !extendedCompressor && !extendedFlux && !createProcessing && !createSequencedAssembly && !arsNouveauApparatus && !arsNouveauImbuement && !arsNouveauGlyph && !arsNouveauCrush && !kaleidoscope && !industrial && !alloySmelter && !mekanism && !mysticalAgricultureLayout && !confluenceLayout);
         }
         if (mechanicalCraftingCanvas != null) {
             mechanicalCraftingCanvas.setDisplay(largeCraftingGrid);
@@ -2627,6 +2663,9 @@ public class CraftingWorkbenchView extends View {
         if (industrialStoneWorkCanvas != null) {
             industrialStoneWorkCanvas.setDisplay(industrialStoneWork);
         }
+        if (alloySmelterCanvas != null) {
+            alloySmelterCanvas.setDisplay(alloySmelter);
+        }
         if (createProcessingCanvas != null) {
             createProcessingCanvas.setDisplay(createProcessing);
         }
@@ -2667,6 +2706,7 @@ public class CraftingWorkbenchView extends View {
             mekanismCanvas.setDisplay(mekanism);
         }
         mysticalAgriculture.refresh();
+        confluence.refresh();
         if (alchemist) {
             var selectedEntry = controller.getSelectedEntry();
             var isFill = selectedEntry != null && controller.isIronAlchemistCauldronFillEntry(selectedEntry);
@@ -2801,6 +2841,8 @@ public class CraftingWorkbenchView extends View {
             setSlot(goetyPulverizeOutputSlot, controller.getVisualResult());
         } else if (goetyBrewing) {
             refreshGoetyBrewing();
+        } else if (alloySmelter) {
+            refreshAlloySmelter();
         } else if (industrial) {
             refreshIndustrialForegoing();
         } else if (largeCraftingGrid) {
@@ -3026,6 +3068,24 @@ public class CraftingWorkbenchView extends View {
                     "viscript_recipe.editor.industrial_foregoing.stonework.consumes",
                     Math.max(0, data.getWaterConsume()), Math.max(0, data.getLavaConsume())));
         }
+    }
+
+    private void refreshAlloySmelter() {
+        var entry = controller.getSelectedEntry();
+        if (entry == null || !controller.isAlloySmelterEntry(entry)) {
+            return;
+        }
+        for (int index = 0; index < alloySmelterIngredientSlots.length; index++) {
+            refreshIngredientSlot(alloySmelterIngredientSlots[index], index);
+        }
+        setSlot(alloySmelterOutputSlot, controller.getVisualResult());
+        var data = entry.getAlloySmelter();
+        alloySmelterTimeLabel.setText(Component.translatable(
+                "viscript_recipe.editor.alloy_smelter.smelting_time", Math.max(0, data.getSmeltingTime()) / 20));
+        alloySmelterFuelLabel.setText(Component.translatable(
+                "viscript_recipe.editor.alloy_smelter.fuel_per_tick", Math.max(0, data.getFuelPerTick())));
+        alloySmelterTierLabel.setText(Component.translatable(
+                "viscript_recipe.editor.alloy_smelter.tier", Math.clamp(data.getRequiredTier(), 1, 3)));
     }
 
     private void refreshLaserLabels(List<com.viscript_recipe.data.industrial_foregoing.IndustrialLaserDrillRarityData> rarities,

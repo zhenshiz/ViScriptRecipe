@@ -249,11 +249,17 @@ dependencies {
     implementation "curse.maven:goety-586095:${goety_file}"
     //东方女仆：Touhou Little Maid
     implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
+    //汇流来世：Confluence: Otherworld
+    implementation "maven.modrinth:confluence:${confluence_version}"
+    // Confluence's public recipe classes inherit these codecs; the modpack supplies it at runtime.
+    compileOnly files("libs/Confluence-Magic-Lib-0.0.8.jar")
     //工业先锋：Industrial Foregoing
     implementation "curse.maven:titanium-287342:${titanium_file}"
     implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
     //通用机械：Mekanism
     implementation "mekanism:Mekanism:${mekanism_version}"
+    //Alloy Smelter
+    implementation files("libs/alloy_smelter-neoforge-1.21.1-1.2.1.jar")
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

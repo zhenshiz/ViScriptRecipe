@@ -7,6 +7,7 @@ import com.viscript_recipe.data.avaritia.*;
 import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
 import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.confluence.*;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
@@ -14,6 +15,7 @@ import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.goety.*;
 import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.data.industrial_foregoing.*;
+import com.viscript_recipe.data.alloy_smelter.*;
 import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
@@ -48,7 +50,19 @@ public final class RecipeDataAccessors {
         registerGoety(event);
         registerMysticalAgriculture(event);
         registerIndustrialForegoing(event);
+        registerAlloySmelter(event);
         registerMekanism(event);
+        registerConfluence(event);
+    }
+
+    private static void registerConfluence(RegisterAccessorEvent event) {
+        event.register(ConfluenceIngredientData.class, ConfluenceIngredientData::new);
+        event.register(ConfluenceHolderSetData.class, ConfluenceHolderSetData::new);
+        event.register(ConfluenceStatePropertyData.class, ConfluenceStatePropertyData::new);
+        event.register(ConfluenceStatePredicateData.class, ConfluenceStatePredicateData::new);
+        event.register(ConfluenceEnvironmentData.class, ConfluenceEnvironmentData::new);
+        event.register(ConfluenceHeatSourceData.class, ConfluenceHeatSourceData::new);
+        event.register(ConfluenceRecipeData.class, ConfluenceRecipeData::new);
     }
 
     private static void registerBase(RegisterAccessorEvent event) {
@@ -183,5 +197,10 @@ public final class RecipeDataAccessors {
         event.register(MekanismChemicalStackData.class, MekanismChemicalStackData::new);
         event.register(MekanismFluidIngredientData.class, MekanismFluidIngredientData::new);
         event.register(MekanismRecipeData.class, MekanismRecipeData::new);
+    }
+
+    private static void registerAlloySmelter(RegisterAccessorEvent event) {
+        event.register(AlloySmelterMaterialData.class, AlloySmelterMaterialData::new);
+        event.register(AlloySmelterRecipeData.class, AlloySmelterRecipeData::new);
     }
 }

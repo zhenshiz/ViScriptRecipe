@@ -61,6 +61,10 @@ public record WorkbenchSlotSelection(Kind kind, int index) {
         return new WorkbenchSlotSelection(Kind.KALEIDOSCOPE_SOUP_BASE, -1);
     }
 
+    public static WorkbenchSlotSelection confluenceTarget(int index) {
+        return new WorkbenchSlotSelection(Kind.CONFLUENCE_TARGET, index);
+    }
+
     public enum Kind {
         RECIPE,
         INGREDIENT,
@@ -78,6 +82,7 @@ public record WorkbenchSlotSelection(Kind kind, int index) {
         MEKANISM_ITEM,
         MYSTICAL_ESSENCE,
         KALEIDOSCOPE_FLUID,
-        KALEIDOSCOPE_SOUP_BASE
+        KALEIDOSCOPE_SOUP_BASE,
+        CONFLUENCE_TARGET
     }
 }

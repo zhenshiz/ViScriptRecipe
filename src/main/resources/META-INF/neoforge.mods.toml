@@ -112,6 +112,12 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies."${mod_id}"]]
+modId = "confluence"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
 modId = "industrialforegoing"
 type = "optional"
 ordering = "AFTER"
@@ -119,6 +125,12 @@ side = "BOTH"
 
 [[dependencies."${mod_id}"]]
 modId = "mekanism"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "alloy_smelter"
 type = "optional"
 ordering = "AFTER"
 side = "BOTH"

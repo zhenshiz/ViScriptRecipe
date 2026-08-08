@@ -9,6 +9,7 @@ import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
 import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
 import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.confluence.*;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
@@ -20,6 +21,8 @@ import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialDissolutionRecipeData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
+import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeData;
+import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
@@ -600,6 +603,10 @@ public class RecipeEditorController {
         if (isSelectedArsNouveauCrushLayout() && index != 0) {
             return;
         }
+        if (isSelectedConfluenceLayout() && selectedEntry != null
+                && index >= ConfluenceRecipeEditorTypes.maxInputs(selectedEntry.getType())) {
+            return;
+        }
         slotSelection = WorkbenchSlotSelection.ingredient(index);
         notifyChanged();
     }
@@ -675,6 +682,12 @@ public class RecipeEditorController {
                 return index < 2;
             }
             return false;
+        }
+        if (isSelectedAlloySmelterLayout()) {
+            return selectedEntry != null && index < AlloySmelterRecipeData.MAX_INPUTS;
+        }
+        if (isSelectedConfluenceLayout()) {
+            return selectedEntry != null && index < ConfluenceRecipeEditorTypes.maxInputs(selectedEntry.getType());
         }
         return index < CRAFTING_GRID_SLOT_COUNT;
     }
@@ -770,6 +783,12 @@ public class RecipeEditorController {
     }
 
     public void selectContainerSlot() {
+        if (selectedEntry != null && isConfluenceEntry(selectedEntry)
+                && ConfluenceRecipeEditorTypes.COOKING_POT.equals(selectedEntry.getType())) {
+            slotSelection = WorkbenchSlotSelection.CONTAINER;
+            notifyChanged();
+            return;
+        }
         if (selectedEntry == null || !isFarmersCookingPotEntry(selectedEntry)) {
             return;
         }
@@ -943,6 +962,13 @@ public class RecipeEditorController {
 
     public void setVisualIngredient(int index, ItemStack stack) {
         if (selectedEntry == null) {
+            return;
+        }
+        if (isConfluenceEntry(selectedEntry)) {
+            var value = selectedEntry.getConfluence().ingredient(index);
+            value.setIngredient(stack == null || stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack.copyWithCount(1)))
+                    .setCount(stack == null || stack.isEmpty() ? 1 : Math.max(1, stack.getCount()));
+            notifyChanged();
             return;
         }
         if (isCreateSequencedStepIngredientSlot(index)) {
@@ -1200,6 +1226,11 @@ public class RecipeEditorController {
         if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT) {
             return;
         }
+        if (isConfluenceEntry(selectedEntry)) {
+            selectedEntry.getConfluence().ingredient(slotSelection.index()).setIngredient(ingredient == null ? new RecipeIngredient() : ingredient);
+            notifyChanged();
+            return;
+        }
         setIngredientForSlot(selectedEntry, slotSelection.index(), ingredient);
         if (preservesIngredientSlotPositionsOnEdit(selectedEntry)) {
             refreshUnsupportedIngredientStatus();
@@ -1229,6 +1260,11 @@ public class RecipeEditorController {
         if (selectedEntry == null) {
             return;
         }
+        if (isConfluenceEntry(selectedEntry)) {
+            selectedEntry.getConfluence().setResult(stack == null ? ItemStack.EMPTY : stack.copy());
+            notifyChanged();
+            return;
+        }
         setResult(selectedEntry, stack == null ? ItemStack.EMPTY : stack.copy());
         visualResult = getResult(selectedEntry).copy();
         notifyChanged();
@@ -1249,10 +1285,17 @@ public class RecipeEditorController {
     }
 
     public ItemStack getResult(RecipeEntry entry) {
+        if (isConfluenceEntry(entry)) {
+            return entry.getConfluence().getResult() == null ? ItemStack.EMPTY : entry.getConfluence().getResult();
+        }
         return entry.getData().getResult();
     }
 
     public void setResult(RecipeEntry entry, ItemStack result) {
+        if (isConfluenceEntry(entry)) {
+            entry.getConfluence().setResult(result == null ? ItemStack.EMPTY : result);
+            return;
+        }
         entry.getData().setResult(result);
     }
 
@@ -1640,8 +1683,71 @@ public class RecipeEditorController {
         return isSelectedLayout(RecipeEditorLayout.INDUSTRIAL_FOREGOING);
     }
 
+    public boolean isSelectedAlloySmelterLayout() {
+        return isSelectedLayout(RecipeEditorLayout.ALLOY_SMELTER);
+    }
+
     public boolean isSelectedMekanismLayout() {
         return isSelectedLayout(RecipeEditorLayout.MEKANISM);
+    }
+
+    public boolean isSelectedConfluenceLayout() {
+        return isSelectedLayout(RecipeEditorLayout.CONFLUENCE);
+    }
+
+    public boolean isConfluenceEntry(RecipeEntry entry) {
+        return entry != null && ConfluenceRecipeEditorTypes.isType(entry.getType());
+    }
+
+    public void selectConfluenceTargetSlot(int index) {
+        if (selectedEntry == null || !ConfluenceRecipeEditorTypes.ITEM_TRANSMUTATION.equals(selectedEntry.getType())
+                || index < 0 || index >= ConfluenceRecipeData.MAX_TRANSMUTATION_RESULTS) {
+            return;
+        }
+        slotSelection = WorkbenchSlotSelection.confluenceTarget(index);
+        notifyChanged();
+    }
+
+    public ItemStack getSelectedConfluenceTarget() {
+        if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.CONFLUENCE_TARGET) return ItemStack.EMPTY;
+        return selectedEntry.getConfluence().target(slotSelection.index()).copy();
+    }
+
+    public void setSelectedConfluenceTarget(ItemStack stack) {
+        if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.CONFLUENCE_TARGET) return;
+        selectedEntry.getConfluence().setTarget(slotSelection.index(), stack == null ? ItemStack.EMPTY : stack.copy());
+        notifyChanged();
+    }
+
+    public int getSelectedConfluenceIngredientCount() {
+        if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT || !isConfluenceEntry(selectedEntry)) return 1;
+        return Math.max(1, selectedEntry.getConfluence().ingredient(slotSelection.index()).getCount());
+    }
+
+    public void setSelectedConfluenceIngredientCount(int count) {
+        if (selectedEntry == null || slotSelection.kind() != WorkbenchSlotSelection.Kind.INGREDIENT || !isConfluenceEntry(selectedEntry)) return;
+        selectedEntry.getConfluence().ingredient(slotSelection.index()).setCount(Math.max(1, count));
+        notifyChanged();
+    }
+
+    public boolean isSelectedAlloySmelterMaterial() {
+        return selectedEntry != null && isAlloySmelterEntry(selectedEntry)
+                && slotSelection.kind() == WorkbenchSlotSelection.Kind.INGREDIENT
+                && slotSelection.index() >= 0 && slotSelection.index() < AlloySmelterRecipeData.MAX_INPUTS;
+    }
+
+    public int getSelectedAlloySmelterMaterialCount() {
+        return isSelectedAlloySmelterMaterial()
+                ? Math.max(1, selectedEntry.getAlloySmelter().material(slotSelection.index()).getCount()) : 1;
+    }
+
+    public void setSelectedAlloySmelterMaterialCount(int count) {
+        if (!isSelectedAlloySmelterMaterial()) {
+            return;
+        }
+        selectedEntry.getAlloySmelter().material(slotSelection.index()).setCount(Math.max(1, count));
+        loadSelectedEntryToVisualState();
+        notifyChanged();
     }
 
     public boolean isMekanismEntry(RecipeEntry entry) {
@@ -1792,6 +1898,10 @@ public class RecipeEditorController {
 
     public boolean isIndustrialStoneWorkEntry(RecipeEntry entry) {
         return entry.isType(IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE);
+    }
+
+    public boolean isAlloySmelterEntry(RecipeEntry entry) {
+        return entry != null && entry.isType(AlloySmelterRecipeEditorTypes.SMELTING);
     }
 
     public boolean isFarmersCookingPotEntry(RecipeEntry entry) {
@@ -3552,6 +3662,11 @@ public class RecipeEditorController {
     }
 
     public ItemStack getSelectedContainer() {
+        if (selectedEntry != null && isConfluenceEntry(selectedEntry)
+                && ConfluenceRecipeEditorTypes.COOKING_POT.equals(selectedEntry.getType())) {
+            var ingredient = selectedEntry.getConfluence().getContainer();
+            return ingredient == null ? ItemStack.EMPTY : itemFromIngredient(ingredient);
+        }
         if (selectedEntry == null || !isFarmersCookingPotEntry(selectedEntry)) {
             return ItemStack.EMPTY;
         }
@@ -3561,6 +3676,12 @@ public class RecipeEditorController {
     }
 
     public void setSelectedContainer(ItemStack stack) {
+        if (selectedEntry != null && isConfluenceEntry(selectedEntry)
+                && ConfluenceRecipeEditorTypes.COOKING_POT.equals(selectedEntry.getType())) {
+            selectedEntry.getConfluence().setContainer(stack == null || stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack.copyWithCount(1)));
+            notifyChanged();
+            return;
+        }
         if (selectedEntry == null || !isFarmersCookingPotEntry(selectedEntry)) {
             return;
         }
@@ -3865,7 +3986,9 @@ public class RecipeEditorController {
             writeResultOnly();
             return;
         }
-        if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
+        if (isConfluenceEntry(selectedEntry)) {
+            selectedEntry.getConfluence().setResult(visualResult.copy());
+        } else if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
             writeShapedRecipe(selectedEntry.getShaped());
         } else if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPELESS)) {
             writeShapelessRecipe(selectedEntry.getShapeless());
@@ -3931,6 +4054,8 @@ public class RecipeEditorController {
             selectedEntry.getIndustrialLaserDrillFluid().setCatalyst(ingredientForVisualSlot(0));
         } else if (isIndustrialStoneWorkEntry(selectedEntry)) {
             selectedEntry.getIndustrialStoneWork().setOutput(visualResult.copy());
+        } else if (isAlloySmelterEntry(selectedEntry)) {
+            writeAlloySmelter(selectedEntry);
         } else if (isMekanismEntry(selectedEntry)) {
             writeMekanismRecipe(selectedEntry);
         } else if (isFarmersCookingPotEntry(selectedEntry)) {
@@ -4307,6 +4432,15 @@ public class RecipeEditorController {
             }
         }
         entry.getIndustrialDissolution().setInput(inputs).setOutput(visualResult.copy());
+    }
+
+    private void writeAlloySmelter(RecipeEntry entry) {
+        var data = entry.getAlloySmelter();
+        for (int index = 0; index < AlloySmelterRecipeData.MAX_INPUTS; index++) {
+            data.material(index).setIngredient(ingredientForVisualSlot(index));
+            data.material(index).setCount(Math.max(1, data.material(index).getCount()));
+        }
+        data.setResult(visualResult.copy());
     }
 
     private void writeFarmerCookingPotRecipe(FarmerCookingPotRecipeData cookingPot) {
@@ -4785,6 +4919,9 @@ public class RecipeEditorController {
     }
 
     private RecipeIngredient getIngredientForSlot(RecipeEntry entry, int index) {
+        if (isConfluenceEntry(entry)) {
+            return entry.getConfluence().ingredient(index).getIngredient();
+        }
         if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
             return getShapedSlotIngredient(entry.getShaped(), index);
         }
@@ -4875,6 +5012,10 @@ public class RecipeEditorController {
         }
         if (isMysticalAgricultureSouliumSpawnerEntry(entry) && index == 0) {
             return entry.getMysticalAgricultureSouliumSpawner().getInput().getIngredient();
+        }
+        if (isAlloySmelterEntry(entry) && index >= 0 && index < AlloySmelterRecipeData.MAX_INPUTS) {
+            var material = entry.getAlloySmelter().material(index);
+            return material.getIngredient() == null ? new RecipeIngredient() : material.getIngredient();
         }
         if (isIndustrialDissolutionEntry(entry) && index >= 0 && index < IndustrialDissolutionRecipeData.MAX_INPUTS) {
             var inputs = entry.getIndustrialDissolution().getInput();
@@ -5223,7 +5364,9 @@ public class RecipeEditorController {
     }
 
     private void setIngredientForSlot(RecipeEntry entry, int index, RecipeIngredient ingredient) {
-        if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
+        if (isConfluenceEntry(entry)) {
+            entry.getConfluence().ingredient(index).setIngredient(ingredient == null ? new RecipeIngredient() : ingredient);
+        } else if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
             setShapedSlotIngredient(entry.getShaped(), index, ingredient);
         } else if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPELESS)) {
             setShapelessSlotIngredient(entry.getShapeless(), index, ingredient);
@@ -5297,6 +5440,8 @@ public class RecipeEditorController {
             while (!inputs.isEmpty() && isIngredientEmpty(inputs.getLast())) {
                 inputs.removeLast();
             }
+        } else if (isAlloySmelterEntry(entry) && index >= 0 && index < AlloySmelterRecipeData.MAX_INPUTS) {
+            entry.getAlloySmelter().material(index).setIngredient(ingredient == null ? new RecipeIngredient() : ingredient);
         } else if (isIndustrialFluidExtractorEntry(entry) && index == 0) {
             entry.getIndustrialFluidExtractor().setInput(ingredient);
         } else if (isIndustrialCrusherEntry(entry) && index == 0) {
@@ -5678,7 +5823,15 @@ public class RecipeEditorController {
             if (selectedEntry == null) {
                 return;
             }
-            if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
+            if (isConfluenceEntry(selectedEntry)) {
+                var data = selectedEntry.getConfluence();
+                for (int index = 0; index < Math.min(MAX_INGREDIENT_SLOTS, ConfluenceRecipeData.MAX_INPUTS); index++) {
+                    var ingredient = data.ingredient(index).getIngredient();
+                    visualIngredientData[index] = copyIngredient(ingredient);
+                    visualIngredients[index] = itemFromIngredient(ingredient).copyWithCount(Math.max(1, data.ingredient(index).getCount()));
+                }
+                visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
+            } else if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
                 loadShaped(selectedEntry.getShaped());
             } else if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPELESS)) {
                 loadShapeless(selectedEntry.getShapeless());
@@ -5728,6 +5881,8 @@ public class RecipeEditorController {
                 loadMysticalAgricultureSoulExtraction(selectedEntry);
             } else if (isMysticalAgricultureSouliumSpawnerEntry(selectedEntry)) {
                 loadMysticalAgricultureSouliumSpawner(selectedEntry);
+            } else if (isAlloySmelterEntry(selectedEntry)) {
+                loadAlloySmelter(selectedEntry);
             } else if (isIndustrialDissolutionEntry(selectedEntry)) {
                 loadIndustrialDissolution(selectedEntry);
             } else if (isIndustrialFluidExtractorEntry(selectedEntry)) {
@@ -6090,6 +6245,18 @@ public class RecipeEditorController {
             }
         }
         visualResult = data.getOutput() == null ? ItemStack.EMPTY : data.getOutput().copy();
+    }
+
+    private void loadAlloySmelter(RecipeEntry entry) {
+        var data = entry.getAlloySmelter();
+        for (int index = 0; index < AlloySmelterRecipeData.MAX_INPUTS; index++) {
+            var material = data.material(index);
+            loadIngredientSlot(index, material.getIngredient());
+            if (!visualIngredients[index].isEmpty()) {
+                visualIngredients[index] = visualIngredients[index].copyWithCount(Math.max(1, material.getCount()));
+            }
+        }
+        visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
     }
 
     private void loadFarmerCookingPot(FarmerCookingPotRecipeData cookingPot) {
@@ -6707,6 +6874,10 @@ public class RecipeEditorController {
         if (isCreateCountedItemInputSlot(index)) {
             return stack.copy();
         }
+        if (selectedEntry != null && isAlloySmelterEntry(selectedEntry)
+                && index >= 0 && index < AlloySmelterRecipeData.MAX_INPUTS) {
+            return stack.copyWithCount(Math.max(1, selectedEntry.getAlloySmelter().material(index).getCount()));
+        }
         if (isMekanismItemInputSlot(index)) {
             var copy = stack.copy();
             copy.setCount(Math.max(Math.max(1, copy.getCount()), mekanismItemInputAmountForSlot(index)));
@@ -6717,6 +6888,15 @@ public class RecipeEditorController {
 
     private ItemStack[] ingredientTagDisplayStacks(int index, ResourceLocation tag) {
         var stacks = itemsFromTag(tag);
+        if (selectedEntry != null && isAlloySmelterEntry(selectedEntry)
+                && index >= 0 && index < AlloySmelterRecipeData.MAX_INPUTS) {
+            var amount = Math.max(1, selectedEntry.getAlloySmelter().material(index).getCount());
+            var counted = new ItemStack[stacks.length];
+            for (int i = 0; i < stacks.length; i++) {
+                counted[i] = stacks[i].copyWithCount(amount);
+            }
+            return counted;
+        }
         if (!isMekanismItemInputSlot(index)) {
             return stacks;
         }
@@ -6897,6 +7077,9 @@ public class RecipeEditorController {
     private RecipeIngredient visualIngredientForSlot(int index) {
         if (selectedEntry == null || index < 0) {
             return new RecipeIngredient();
+        }
+        if (isConfluenceEntry(selectedEntry)) {
+            return selectedEntry.getConfluence().ingredient(index).getIngredient();
         }
         if (isCreateSequencedStepIngredientSlot(index)) {
             return getIngredientForSlot(selectedEntry, index);

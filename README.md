@@ -210,6 +210,26 @@ Create 处理配方支持物品输入、流体输入、物品输出、流体输�
 
 这六类均提供对应 JEI 布局的可视化工作区和已加载配方导入。流体参数支持具体流体或流体标签；方块、实体、实体标签、群系标签和维度条件均使用自动补全。导入器只接受原生 Codec 能无损表达的单一流体或流体标签原料，遇到其它自定义流体原料类型时会明确拒绝，而不会静默替换数据。
 
+### Alloy Smelter / 合金冶炼炉 (`alloy_smelter`)
+
+开发依赖使用 Alloy Smelter `1.2.1`（Minecraft `1.21.1` NeoForge）。该模组只有一个原生 `RecipeManager` 配方类型：
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 合金冶炼炉 | `alloy_smelter:smelting` |
+
+JEI 会按照配方的 `requiredTier` 将同一配方类型分成一级、二级和三级三个分类；这不是三个不同的配方 Codec。编辑器保留 JEI 中最多五个有序材料槽、输出 `ItemStack`、材料独立数量、熔炼时间 `smeltingTime`、每 tick 燃料消耗 `fuelPerTick` 和所需熔炉等级 `requiredTier`。输入数量使用 Alloy Smelter 的 `Material.count` 字段保存，不会错误地把数量写进 Ingredient 的物品栈。
+
+Alloy Smelter 的配方由原生 Serializer 构造，导入器只接受实际的 `SmeltingRecipe`，不会把 JEI 分类或多方块等级标签伪装成额外配方类型。
+
+### Confluence: Otherworld / 汇流来世 (`confluence`)
+
+编辑器覆盖汇流来世 JEI 中由 `RecipeManager` 管理的十五类配方：微光嬗变、天磨、祭坛、地狱熔炉、重型工作台、炼药桌、制箭台、烹饪锅、锯木机、固化机、困难模式砧、困难模式熔炉、织布机、染缸和水晶球。每类都使用汇流来世的官方中文工作站名称和对应 JEI 布局，并提供已加载配方导入。
+
+数量原料会在独立槽位属性中保存原料和数量；重型工作台、锯木机、困难模式砧与织布机分别保留有序/无序模式，固化机保留原生有序模式并支持 4×4 以内的图案尺寸。天磨、重型工作台和水晶球支持 Codec 实际提供的生物群系、附近方块/流体、搜索半径、状态谓词和墓地条件；烹饪锅的容器、热源方块、状态属性和方块实体 SNBT 也可点击单独编辑。微光嬗变支持多结果列表、输入数量和官方游戏阶段枚举补全。
+
+提炼机、叶绿提炼机、泰拉药剂展示和盔甲套装奖励来自 Data Map 或运行时 JEI synthetic 分类，不是普通 `RecipeManager` 配方，因此不会伪装成可上传的 `.recipe` 类型。
+
 ### Extended Crafting (`extendedcrafting`)
 
 | 工作站 | 支持的配方类型 |
@@ -297,7 +317,7 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Mekanism、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Avaritia、灾变、菌类感染：孢子、东方女仆和 Goety 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Mekanism、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Confluence: Otherworld、Avaritia、灾变、菌类感染：孢子、东方女仆和 Goety 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 

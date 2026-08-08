@@ -5,11 +5,13 @@ import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeImporter;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeImporter;
 import com.viscript_recipe.compat.cataclysm.CataclysmRecipeImporter;
 import com.viscript_recipe.compat.create.CreateRecipeImporter;
+import com.viscript_recipe.compat.confluence.ConfluenceRecipeImporter;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeImporter;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeImporter;
 import com.viscript_recipe.compat.goety.GoetyRecipeImporter;
 import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeImporter;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeImporter;
+import com.viscript_recipe.compat.alloy_smelter.AlloySmelterRecipeImporter;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeImporter;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeImporter;
 import com.viscript_recipe.compat.mekanism.MekanismRecipeImporter;
@@ -20,11 +22,13 @@ import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
 import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
 import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
+import com.viscript_recipe.data.confluence.ConfluenceRecipeEditorTypes;
 import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
+import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
 import com.viscript_recipe.data.mekanism.MekanismRecipeEditorTypes;
@@ -54,7 +58,9 @@ public final class RecipeCompatModules {
             new Module(MysticalAgricultureRecipeEditorTypes.MOD_ID, MysticalAgricultureRecipeEditorTypes::registerAll,
                     () -> MysticalAgricultureRecipeImporter.INSTANCE),
             new Module(IndustrialForegoingRecipeEditorTypes.MOD_ID, IndustrialForegoingRecipeEditorTypes::registerAll, () -> IndustrialForegoingRecipeImporter.INSTANCE),
-            new Module(MekanismRecipeEditorTypes.MOD_ID, MekanismRecipeEditorTypes::registerAll, () -> MekanismRecipeImporter.INSTANCE)
+            new Module(AlloySmelterRecipeEditorTypes.MOD_ID, AlloySmelterRecipeEditorTypes::registerAll, () -> AlloySmelterRecipeImporter.INSTANCE),
+            new Module(MekanismRecipeEditorTypes.MOD_ID, MekanismRecipeEditorTypes::registerAll, () -> MekanismRecipeImporter.INSTANCE),
+            new Module(ConfluenceRecipeEditorTypes.MOD_ID, ConfluenceRecipeEditorTypes::registerAll, () -> ConfluenceRecipeImporter.INSTANCE)
     );
 
     private RecipeCompatModules() {

@@ -11,6 +11,7 @@ import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
 import com.viscript_recipe.data.create.*;
+import com.viscript_recipe.data.confluence.*;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
@@ -20,6 +21,8 @@ import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
+import com.viscript_recipe.data.alloy_smelter.AlloySmelterMaterialData;
+import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
 import com.viscript_recipe.data.mekanism.*;
@@ -48,6 +51,8 @@ final class RecipeDefaultDataInitializer {
         var mekanismKind = MekanismRecipeKind.byType(type).orElse(null);
         if (mekanismKind != null) {
             applyMekanism(entry, mekanismKind);
+        } else if (ConfluenceRecipeEditorTypes.isType(type)) {
+            applyConfluence(entry, type);
         } else if (type.equals(IndustrialForegoingRecipeEditorTypes.CRUSHER)) {
             entry.getIndustrialCrusher()
                     .setInput(RecipeIngredient.item(Items.COBBLESTONE))
@@ -77,6 +82,14 @@ final class RecipeDefaultDataInitializer {
         } else if (type.equals(IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE)) {
             entry.getIndustrialStoneWork().setOutput(new ItemStack(Items.COBBLESTONE))
                     .setWaterNeed(1000).setLavaNeed(1000).setWaterConsume(0).setLavaConsume(0);
+        } else if (type.equals(AlloySmelterRecipeEditorTypes.SMELTING)) {
+            entry.getAlloySmelter()
+                    .setMaterials(new ArrayList<>(List.of(new AlloySmelterMaterialData()
+                            .setIngredient(RecipeIngredient.item(Items.RAW_IRON)).setCount(1))))
+                    .setResult(new ItemStack(Items.IRON_INGOT))
+                    .setSmeltingTime(200)
+                    .setFuelPerTick(1)
+                    .setRequiredTier(1);
         } else if (type.equals(RecipeEditorTypes.BLASTING)) {
             entry.getCooking().setCookingTime(100);
         } else if (type.equals(RecipeEditorTypes.SMOKING)) {
@@ -411,6 +424,52 @@ final class RecipeDefaultDataInitializer {
                     .setCount(1);
         } else {
             CreateProcessingKind.byType(type).ifPresent(kind -> applyCreateProcessing(entry.getCreateProcessing(), kind));
+        }
+    }
+
+    private static void applyConfluence(RecipeEntry entry, ResourceLocation type) {
+        var data = entry.getConfluence()
+                .setIngredients(new ArrayList<>())
+                .setTargets(new ArrayList<>())
+                .setResult(new ItemStack(Items.COBBLESTONE))
+                .setCraftingMode(ConfluenceCraftingMode.SHAPED)
+                .setWidth(1)
+                .setHeight(1)
+                .setExperience(0)
+                .setCookingTime(100)
+                .setRequiresFuel(false)
+                .setShrink(1)
+                .setGamePhase(ConfluenceGamePhase.BEFORE_SKELETRON)
+                .setContainer(RecipeIngredient.item(Items.BOWL))
+                .setEnvironment(new ConfluenceEnvironmentData())
+                .setHeatSource(new ConfluenceHeatSourceData());
+        data.getIngredients().add(new ConfluenceIngredientData()
+                .setIngredient(RecipeIngredient.item(Items.STONE))
+                .setCount(1));
+        if (ConfluenceRecipeEditorTypes.ITEM_TRANSMUTATION.equals(type)) {
+            data.setTargets(new ArrayList<>(List.of(new ItemStack(Items.COBBLESTONE))));
+        } else if (ConfluenceRecipeEditorTypes.FLETCHING_TABLE.equals(type)) {
+            data.setIngredients(new ArrayList<>(List.of(
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.FEATHER)),
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.STICK)),
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.FLINT))
+            ))).setResult(new ItemStack(Items.ARROW, 4));
+        } else if (ConfluenceRecipeEditorTypes.ALCHEMY_TABLE.equals(type)) {
+            data.setIngredients(new ArrayList<>(List.of(
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.POTION)),
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.NETHER_WART))
+            ))).setResult(new ItemStack(Items.POTION));
+        } else if (ConfluenceRecipeEditorTypes.COOKING_POT.equals(type)) {
+            data.setIngredients(new ArrayList<>(List.of(
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.BEEF)),
+                    new ConfluenceIngredientData().setIngredient(RecipeIngredient.item(Items.CARROT))
+            ))).setResult(new ItemStack(Items.RABBIT_STEW)).setCookingTime(200);
+            data.getHeatSource().setBlocks(new ConfluenceHolderSetData()
+                    .setKind(ConfluenceHolderSetKind.IDS)
+                    .setValues(new ArrayList<>(List.of(ResourceLocation.withDefaultNamespace("campfire")))));
+        } else if (ConfluenceRecipeEditorTypes.SOLIDIFIER.equals(type)
+                || ConfluenceRecipeEditorTypes.isEitherType(type)) {
+            data.setWidth(1).setHeight(1).setCraftingMode(ConfluenceCraftingMode.SHAPED);
         }
     }
 

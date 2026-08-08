@@ -13,6 +13,9 @@ import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.create.CreateFluidIngredientData;
 import com.viscript_recipe.data.create.CreateFluidIngredientKind;
 import com.viscript_recipe.data.create.CreateSequencedAssemblyStepKind;
+import com.viscript_recipe.data.confluence.ConfluenceHolderSetData;
+import com.viscript_recipe.data.confluence.ConfluenceHolderSetKind;
+import com.viscript_recipe.data.confluence.ConfluenceRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyBrewingEntityKind;
 import com.viscript_recipe.data.goety.GoetyPulverizeResultKind;
 import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
@@ -99,6 +102,7 @@ public class RecipePropertiesView extends View {
                 case MYSTICAL_ESSENCE -> buildMysticalEssenceProperties();
                 case KALEIDOSCOPE_FLUID -> buildKaleidoscopeFluidProperties();
                 case KALEIDOSCOPE_SOUP_BASE -> buildKaleidoscopeSoupBaseProperties();
+                case CONFLUENCE_TARGET -> buildConfluenceTargetProperties();
             }
         } finally {
             rebuilding = false;
@@ -163,8 +167,34 @@ public class RecipePropertiesView extends View {
                 MekanismPropertiesSections.structureSignature(entry),
                 selectedMekanismChemicalIngredientKind(),
                 selectedMekanismChemicalOutputSignature(),
-                mysticalAgricultureSpawnerEntityCount(entry)
+                mysticalAgricultureSpawnerEntityCount(entry),
+                confluenceStructureSignature(entry)
         );
+    }
+
+    private String confluenceStructureSignature(RecipeEntry entry) {
+        if (entry == null || !controller.isConfluenceEntry(entry)) {
+            return "";
+        }
+        var data = entry.getConfluence();
+        var builder = new StringBuilder(entry.getType().toString());
+        if (ConfluenceRecipeEditorTypes.isEitherType(entry.getType())) {
+            builder.append("|mode=").append(data.getCraftingMode());
+        }
+        if (ConfluenceRecipeEditorTypes.isEnvironmentType(entry.getType())) {
+            var environment = data.getEnvironment();
+            builder.append("|blocks=").append(holderKind(environment == null ? null : environment.getBlocks()));
+            builder.append("|fluids=").append(holderKind(environment == null ? null : environment.getFluids()));
+        }
+        if (ConfluenceRecipeEditorTypes.COOKING_POT.equals(entry.getType())) {
+            var heat = data.getHeatSource();
+            builder.append("|heat=").append(holderKind(heat == null ? null : heat.getBlocks()));
+        }
+        return builder.toString();
+    }
+
+    private static ConfluenceHolderSetKind holderKind(ConfluenceHolderSetData data) {
+        return data == null || data.getKind() == null ? ConfluenceHolderSetKind.NONE : data.getKind();
     }
 
     private String createSequencedStructureSignature(RecipeEntry entry) {
@@ -292,7 +322,8 @@ public class RecipePropertiesView extends View {
             String mekanismSignature,
             MekanismChemicalIngredientKind mekanismChemicalIngredientKind,
             String mekanismChemicalOutputSignature,
-            int mysticalAgricultureSpawnerEntityCount
+            int mysticalAgricultureSpawnerEntityCount,
+            String confluenceStructureSignature
     ) {
     }
 
@@ -336,6 +367,23 @@ public class RecipePropertiesView extends View {
         }
         if (controller.isCookingEntry(entry)) {
             RecipePropertiesSections.buildCooking(content, controller, entry);
+        }
+        if (controller.isConfluenceEntry(entry)) {
+            ConfluencePropertiesSections.build(content, controller, entry);
+        }
+        if (controller.isAlloySmelterEntry(entry)) {
+            var data = entry.getAlloySmelter();
+            content.addChildren(
+                    RecipeEditorUi.sectionTitle("viscript_recipe.editor.category.alloy_smelter.smelting"),
+                    RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.smelting_time",
+                            RecipeEditorUi.intField(Math.max(0, data.getSmeltingTime()), 0, Integer.MAX_VALUE,
+                                    value -> { data.setSmeltingTime(value); controller.notifyChanged(); })),
+                    RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.fuel_per_tick",
+                            RecipeEditorUi.intField(Math.max(0, data.getFuelPerTick()), 0, Integer.MAX_VALUE,
+                                    value -> { data.setFuelPerTick(value); controller.notifyChanged(); })),
+                    RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.required_tier",
+                            RecipeEditorUi.intField(Math.clamp(data.getRequiredTier(), 1, 3), 1, 3,
+                                    value -> { data.setRequiredTier(value); controller.notifyChanged(); })));
         }
         if (controller.isFarmersCookingPotEntry(entry)) {
             RecipePropertiesSections.buildFarmersCooking(content, controller, entry);
@@ -487,6 +535,16 @@ public class RecipePropertiesView extends View {
                     RecipeEditorUi.intField(controller.getSelectedExtendedCraftingCompressorInputCount(), 1, Integer.MAX_VALUE,
                             controller::setSelectedExtendedCraftingCompressorInputCount)));
         }
+        if (controller.isConfluenceEntry(entry)) {
+            content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.confluence.ingredient.count",
+                    RecipeEditorUi.intField(controller.getSelectedConfluenceIngredientCount(), 1, Integer.MAX_VALUE,
+                            controller::setSelectedConfluenceIngredientCount)));
+        }
+        if (controller.isSelectedAlloySmelterMaterial()) {
+            content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.material.count",
+                    RecipeEditorUi.intField(controller.getSelectedAlloySmelterMaterialCount(), 1, Integer.MAX_VALUE,
+                            controller::setSelectedAlloySmelterMaterialCount)));
+        }
         if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
             buildRemainderProperties();
         }
@@ -553,6 +611,10 @@ public class RecipePropertiesView extends View {
         ));
     }
 
+    private void buildConfluenceTargetProperties() {
+        ConfluencePropertiesSections.buildTarget(content, controller);
+    }
+
     private void buildCreateSequencedTransitionalProperties() {
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.create.sequenced_assembly.transitional_item"),
@@ -578,9 +640,13 @@ public class RecipePropertiesView extends View {
 
     private void buildContainerProperties() {
         content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.farmersdelight.container"),
+                RecipeEditorUi.sectionTitle(controller.isConfluenceEntry(controller.getSelectedEntry())
+                        ? "viscript_recipe.config.confluence.container"
+                        : "viscript_recipe.editor.properties.farmersdelight.container"),
                 createItemStackConfigurator(
-                        "viscript_recipe.config.farmersdelight.cooking.container",
+                        controller.isConfluenceEntry(controller.getSelectedEntry())
+                                ? "viscript_recipe.config.confluence.container"
+                                : "viscript_recipe.config.farmersdelight.cooking.container",
                         controller::getSelectedContainer,
                         stack -> controller.setSelectedContainer(stack == null ? ItemStack.EMPTY : stack.copy())
                 )
