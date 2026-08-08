@@ -1,9 +1,6 @@
 package com.viscript_recipe.gui.editor;
 
-import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.RecipeIngredientValue;
+import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauCrushOutputData;
 import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.data.avaritia.AvaritiaCompressorRecipeData;
@@ -14,25 +11,25 @@ import com.viscript_recipe.data.create.*;
 import com.viscript_recipe.data.confluence.*;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingResultData;
 import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.data.goety.GoetyRitualCraftType;
 import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialFluidIngredientData;
 import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.data.alloy_smelter.AlloySmelterMaterialData;
 import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeEditorTypes;
 import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
-import com.viscript_recipe.data.mekanism.*;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
+import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
+import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureCountedIngredientData;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
 import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureWeightedEntityData;
 import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
 import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -42,6 +39,9 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.viscript_recipe.recipe.RecipeHelper.fluidFromRegistry;
+import static com.viscript_recipe.recipe.RecipeHelper.itemFromRegistry;
 
 final class RecipeDefaultDataInitializer {
     private RecipeDefaultDataInitializer() {
@@ -60,7 +60,7 @@ final class RecipeDefaultDataInitializer {
         } else if (type.equals(IndustrialForegoingRecipeEditorTypes.DISSOLUTION_CHAMBER)) {
             entry.getIndustrialDissolution()
                     .setInput(new ArrayList<>(List.of(RecipeIngredient.item(Items.IRON_INGOT))))
-                    .setInputFluid(new IndustrialFluidIngredientData().setFluid(new FluidStack(Fluids.WATER, 1000)).setAmount(1000))
+                    .setInputFluid(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)))
                     .setProcessingTime(300)
                     .setHasItemOutput(true)
                     .setOutput(new ItemStack(Items.DIAMOND));
@@ -78,7 +78,7 @@ final class RecipeDefaultDataInitializer {
         } else if (type.equals(IndustrialForegoingRecipeEditorTypes.LASER_DRILL_FLUID)) {
             entry.getIndustrialLaserDrillFluid()
                     .setCatalyst(RecipeIngredient.item(itemFromRegistry("industrialforegoing:red_laser_lens", Items.RED_STAINED_GLASS_PANE)))
-                    .setOutput(new IndustrialFluidIngredientData().setFluid(new FluidStack(Fluids.LAVA, 100)).setAmount(100));
+                    .setOutput(FluidIngredientData.fluid(new FluidStack(Fluids.LAVA, 100)));
         } else if (type.equals(IndustrialForegoingRecipeEditorTypes.STONEWORK_GENERATE)) {
             entry.getIndustrialStoneWork().setOutput(new ItemStack(Items.COBBLESTONE))
                     .setWaterNeed(1000).setLavaNeed(1000).setWaterConsume(0).setLavaConsume(0);
@@ -268,9 +268,7 @@ final class RecipeDefaultDataInitializer {
             entry.getFarmerCuttingBoard()
                     .setInput(RecipeIngredient.item(Items.BEEF))
                     .setTool(FarmerCuttingRecipeData.defaultKnifeTool())
-                    .setResults(new ArrayList<>(List.of(new FarmerCuttingResultData()
-                            .setItem(new ItemStack(itemFromRegistry("farmersdelight:minced_beef", Items.BEEF)))
-                            .setChance(1.0F))))
+                    .setResults(new ArrayList<>(List.of(RecipeOutputData.of(new ItemStack(itemFromRegistry("farmersdelight:minced_beef", Items.BEEF))))))
                     .setCustomSound(false)
                     .setSound(ResourceLocation.withDefaultNamespace("item.axe.strip"));
         } else if (type.equals(KaleidoscopeCookeryRecipeEditorTypes.POT)) {
@@ -479,10 +477,7 @@ final class RecipeDefaultDataInitializer {
                 .setExtraItemInput(RecipeIngredient.item(Items.COBBLESTONE))
                 .setItemInputAmount(1)
                 .setExtraItemInputAmount(1)
-                .setFluidInput(new MekanismFluidIngredientData()
-                        .setKind(MekanismFluidIngredientKind.FLUID)
-                        .setFluid(new FluidStack(Fluids.WATER, 1000))
-                        .setAmount(1000))
+                .setFluidInput(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)))
                 .setChemicalInput(mekanismChemicalIngredient("oxygen"))
                 .setExtraChemicalInput(mekanismChemicalIngredient("hydrogen"))
                 .setItemOutput(new ItemStack(Items.IRON_INGOT))
@@ -538,9 +533,7 @@ final class RecipeDefaultDataInitializer {
                         createSequencedDeployingStep("create:large_cogwheel", Items.IRON_NUGGET),
                         createSequencedDeployingStep("minecraft:iron_nugget", Items.IRON_NUGGET)
                 )))
-                .setOutputs(new ArrayList<>(List.of(new CreateProcessingOutputData()
-                        .setItem(new ItemStack(itemFromRegistry("create:precision_mechanism", Items.CLOCK)))
-                        .setChance(1.0F))));
+                .setOutputs(new ArrayList<>(List.of(RecipeOutputData.of(new ItemStack(itemFromRegistry("create:precision_mechanism", Items.CLOCK))))));
     }
 
     private static CreateSequencedAssemblyStepData createSequencedDeployingStep(String itemId, Item fallback) {
@@ -562,16 +555,14 @@ final class RecipeDefaultDataInitializer {
         data.setIngredients(defaultIngredients);
         data.setFluidIngredients(new ArrayList<>());
         data.setOutputs(kind.maxItemOutputs() > 0
-                ? new ArrayList<>(List.of(new CreateProcessingOutputData()
-                .setItem(new ItemStack(kind.defaultOutput()))
-                .setChance(1.0F)))
+                ? new ArrayList<>(List.of(RecipeOutputData.of(new ItemStack(kind.defaultOutput()))))
                 : new ArrayList<>());
         data.setFluidOutputs(new ArrayList<>());
         data.setProcessingTime(kind.durationAllowed() ? 100 : 0);
         data.setHeatRequirement(kind == CreateProcessingKind.AUTOMATIC_BREWING ? CreateHeatCondition.HEATED : CreateHeatCondition.NONE);
         data.setKeepHeldItem(false);
         if (kind.maxFluidInputs() > 0) {
-            data.getFluidIngredients().add(CreateFluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
+            data.getFluidIngredients().add(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
         }
         if (kind.maxFluidOutputs() > 0 && kind.maxItemOutputs() == 1 && kind == CreateProcessingKind.EMPTYING) {
             data.getFluidOutputs().add(new FluidStack(Fluids.WATER, 250));
@@ -705,29 +696,8 @@ final class RecipeDefaultDataInitializer {
                 .setTimeCost(240);
     }
 
-    private static Item itemFromRegistry(String id, Item fallback) {
-        var location = ResourceLocation.tryParse(id);
-        if (location == null) {
-            return fallback;
-        }
-        var item = BuiltInRegistries.ITEM.get(location);
-        return item == Items.AIR ? fallback : item;
-    }
-
-    private static net.minecraft.world.level.material.Fluid fluidFromRegistry(
-            String id, net.minecraft.world.level.material.Fluid fallback) {
-        var location = ResourceLocation.tryParse(id);
-        if (location == null) {
-            return fallback;
-        }
-        var fluid = BuiltInRegistries.FLUID.get(location);
-        return fluid == Fluids.EMPTY ? fallback : fluid;
-    }
-
     private static RecipeIngredient tagIngredient(String id) {
         var location = ResourceLocation.tryParse(id);
-        return new RecipeIngredient().setValues(new ArrayList<>(List.of(
-                RecipeIngredientValue.tag(location == null ? ResourceLocation.withDefaultNamespace("planks") : location)
-        )));
+        return RecipeIngredient.tag(location == null ? ResourceLocation.withDefaultNamespace("planks") : location);
     }
 }

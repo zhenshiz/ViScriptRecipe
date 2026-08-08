@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,41 +19,28 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class KaleidoscopeStockpotRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.BEEF),
             RecipeIngredient.item(Items.CARROT),
             RecipeIngredient.item(Items.POTATO)
     ));
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.soup_base")
+    @Persisted
     private ResourceLocation soupBase = ResourceLocation.withDefaultNamespace("water");
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.RABBIT_STEW);
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.time")
+    @Persisted
     private int time = 300;
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.carrier")
+    @Persisted
     private RecipeIngredient carrier = RecipeIngredient.item(Items.BOWL);
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.cooking_texture")
+    @Persisted
     private ResourceLocation cookingTexture = KaleidoscopeCookeryRecipeEditorTypes.kaleidoscope("stockpot/default_cooking");
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.finished_texture")
+    @Persisted
     private ResourceLocation finishedTexture = KaleidoscopeCookeryRecipeEditorTypes.kaleidoscope("stockpot/default_finished");
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.cooking_bubble_color")
+    @Persisted
     private int cookingBubbleColor = 0xFFECC3;
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.finished_bubble_color")
+    @Persisted
     private int finishedBubbleColor = 0xF4AA8B;
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.CARROT);
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

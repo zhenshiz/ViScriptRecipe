@@ -4,7 +4,6 @@ import com.blakebr0.cucumber.crafting.ingredient.IngredientWithCount;
 import com.blakebr0.extendedcrafting.crafting.recipe.*;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.RecipeIngredientValue;
 import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import net.minecraft.core.NonNullList;
@@ -183,20 +182,16 @@ public final class ExtendedCraftingRecipeFactory {
     }
 
     private static Ingredient.Value[] compileIngredientValues(RecipeIngredient ingredient) {
-        if (ingredient == null || ingredient.getValues() == null || ingredient.getValues().isEmpty()) {
+        if (ingredient == null || ingredient.isEmpty()) {
             return new Ingredient.Value[0];
         }
         var values = new ArrayList<Ingredient.Value>();
-        for (var value : ingredient.getValues()) {
-            var compiled = compileIngredientValue(value);
-            if (compiled != null) {
-                values.add(compiled);
-            }
-        }
+        var compiled = compileIngredientValue(ingredient);
+        if (compiled != null) values.add(compiled);
         return values.toArray(Ingredient.Value[]::new);
     }
 
-    private static Ingredient.Value compileIngredientValue(RecipeIngredientValue value) {
+    private static Ingredient.Value compileIngredientValue(RecipeIngredient value) {
         if (value == null || value.getKind() == null) {
             return null;
         }

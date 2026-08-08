@@ -1,10 +1,10 @@
 package com.viscript_recipe.data.create;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.create.CreateRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.data.RecipeOutputData;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -20,35 +20,19 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class CreateSequencedAssemblyRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.create.sequenced_assembly.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.GOLD_INGOT);
-
-    @Configurable(name = "viscript_recipe.config.create.sequenced_assembly.transitional_item")
+    @Persisted
     private ItemStack transitionalItem = ItemStack.EMPTY;
-
-    @Configurable(name = "viscript_recipe.config.create.sequenced_assembly.sequence")
-    @ConfigList(addDefaultMethod = "createDefaultStep")
+    @Persisted
     private List<CreateSequencedAssemblyStepData> sequence = new ArrayList<>(List.of(
             new CreateSequencedAssemblyStepData(),
             new CreateSequencedAssemblyStepData().setKind(CreateSequencedAssemblyStepKind.PRESSING)
     ));
-
-    @Configurable(name = "viscript_recipe.config.create.sequenced_assembly.results")
-    @ConfigList(addDefaultMethod = "createDefaultOutput")
-    private List<CreateProcessingOutputData> outputs = new ArrayList<>(List.of(new CreateProcessingOutputData()
-            .setItem(new ItemStack(Items.CLOCK))
-            .setChance(1.0F)));
-
-    @Configurable(name = "viscript_recipe.config.create.sequenced_assembly.loops")
+    @Persisted
+    private List<RecipeOutputData> outputs = new ArrayList<>(List.of(RecipeOutputData.of(new ItemStack(Items.CLOCK))));
+    @Persisted
     private int loops = 1;
-
-    public CreateSequencedAssemblyStepData createDefaultStep() {
-        return new CreateSequencedAssemblyStepData();
-    }
-
-    public CreateProcessingOutputData createDefaultOutput() {
-        return new CreateProcessingOutputData();
-    }
 
     @Override
     public ItemStack getResult() {return CreateRecipeEditorTypes.firstOutput(this);}

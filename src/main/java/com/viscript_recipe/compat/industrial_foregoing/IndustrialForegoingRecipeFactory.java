@@ -3,6 +3,8 @@ package com.viscript_recipe.compat.industrial_foregoing;
 import com.buuz135.industrial.recipe.*;
 import com.buuz135.industrial.recipe.data.EntityData;
 import com.buuz135.industrial.recipe.data.EntityIngredient;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.industrial_foregoing.*;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -44,7 +46,7 @@ public final class IndustrialForegoingRecipeFactory {
     public static DissolutionChamberRecipe compileDissolution(IndustrialDissolutionRecipeData data) {
         var inputs = new ArrayList<Ingredient>();
         for (var input : safeList(data.getInput())) {
-            if (input != null && !input.getValues().isEmpty()) {
+            if (input != null && !input.isEmpty()) {
                 inputs.add(requireIngredient(input, "Dissolution chamber input"));
             }
         }
@@ -102,12 +104,12 @@ public final class IndustrialForegoingRecipeFactory {
         );
     }
 
-    private static SizedFluidIngredient compileFluidIngredient(IndustrialFluidIngredientData data) {
+    private static SizedFluidIngredient compileFluidIngredient(FluidIngredientData data) {
         if (data == null) {
             throw new IllegalArgumentException("Fluid ingredient cannot be empty");
         }
         var amount = Math.max(1, data.getAmount());
-        if (data.getKind() == IndustrialFluidIngredientKind.TAG) {
+        if (data.getKind() == FluidIngredientKind.TAG) {
             if (data.getTag() == null) {
                 throw new IllegalArgumentException("Fluid ingredient tag cannot be empty");
             }

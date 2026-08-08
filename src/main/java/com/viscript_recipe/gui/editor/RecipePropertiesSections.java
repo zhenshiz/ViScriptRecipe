@@ -610,7 +610,7 @@ final class RecipePropertiesSections {
                     RecipeEditorUi.selector(
                             List.of(CreateHeatCondition.NONE, CreateHeatCondition.HEATED, CreateHeatCondition.SUPERHEATED),
                             controller.getCreateHeatRequirement(entry),
-                            controller::createHeatDisplayName,
+                            CreateHeatCondition::displayName,
                             value -> controller.setCreateHeatRequirement(entry, value)
                     )));
         }
@@ -667,9 +667,9 @@ final class RecipePropertiesSections {
                 createStepTitle(index),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.create.sequenced_assembly.step.kind",
                         RecipeEditorUi.selector(
-                                controller.createSequencedStepKinds(),
+                                List.of(CreateSequencedAssemblyStepKind.values()),
                                 controller.getCreateSequencedStepKind(entry, index),
-                                controller::createSequencedStepKindDisplayName,
+                                CreateSequencedAssemblyStepKind::displayName,
                                 kind -> controller.setCreateSequencedStepKind(entry, index, kind)
                         ))
         );

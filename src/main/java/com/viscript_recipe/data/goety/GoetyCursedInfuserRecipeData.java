@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,16 +16,13 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class GoetyCursedInfuserRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.goety.cursed_infuser.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.EMERALD_BLOCK);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.DIAMOND_BLOCK);
-
-    @Configurable(name = "viscript_recipe.config.goety.cursed_infuser.cooking_time")
+    @Persisted
     private int cookingTime = 60;
-
-    @Configurable(name = "viscript_recipe.config.goety.cursed_infuser.grim")
+    @Persisted
     private boolean grim;
 
     @Override

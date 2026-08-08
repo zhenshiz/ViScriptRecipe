@@ -1,10 +1,14 @@
 package com.viscript_recipe.data.mekanism;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
 import java.util.Optional;
 
+@Getter
+@Accessors(fluent = true)
 public enum MekanismRecipeKind {
     CRUSHING("crushing", "crusher", 1, 0, 0, 1, 0, 0),
     ENRICHING("enriching", "enrichment_chamber", 1, 0, 0, 1, 0, 0),
@@ -58,15 +62,6 @@ public enum MekanismRecipeKind {
     public static Optional<MekanismRecipeKind> byType(ResourceLocation type) {
         return Arrays.stream(values()).filter(kind -> kind.typeId.equals(type)).findFirst();
     }
-
-    public ResourceLocation typeId() { return typeId; }
-    public ResourceLocation workstationId() { return workstationId; }
-    public int itemInputs() { return itemInputs; }
-    public int fluidInputs() { return fluidInputs; }
-    public int chemicalInputs() { return chemicalInputs; }
-    public int itemOutputs() { return itemOutputs; }
-    public int fluidOutputs() { return fluidOutputs; }
-    public int chemicalOutputs() { return chemicalOutputs; }
 
     public boolean hasPerTickUsage() {
         return switch (this) {

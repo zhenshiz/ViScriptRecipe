@@ -10,6 +10,8 @@ import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.lowdragmc.lowdraglib2.gui.ui.rendering.GUIContext;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.mekanism.*;
 import dev.vfyjxf.taffy.style.AlignContent;
@@ -800,7 +802,7 @@ final class MekanismCanvasFactory {
         }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK)).addChild(fill);
     }
 
-    private static void setFluid(FluidSlot slot, MekanismFluidIngredientData data) {
+    private static void setFluid(FluidSlot slot, FluidIngredientData data) {
         setFluid(slot, fluidDisplay(data));
     }
 
@@ -810,12 +812,12 @@ final class MekanismCanvasFactory {
         slot.setFluid(fluid, false);
     }
 
-    private static FluidStack fluidDisplay(MekanismFluidIngredientData data) {
+    private static FluidStack fluidDisplay(FluidIngredientData data) {
         if (data == null) {
             return FluidStack.EMPTY;
         }
         var amount = Math.max(1, data.getAmount());
-        if (data.getKind() == MekanismFluidIngredientKind.TAG && data.getTag() != null) {
+        if (data.getKind() == FluidIngredientKind.TAG && data.getTag() != null) {
             var holder = BuiltInRegistries.FLUID.getTag(TagKey.create(Registries.FLUID, data.getTag()))
                     .stream().flatMap(HolderSet.ListBacked::stream).findFirst().orElse(null);
             return holder == null ? FluidStack.EMPTY : new FluidStack(holder.value(), amount);

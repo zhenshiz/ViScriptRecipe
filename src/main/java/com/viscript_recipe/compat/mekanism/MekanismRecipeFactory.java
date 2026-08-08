@@ -1,5 +1,7 @@
 package com.viscript_recipe.compat.mekanism;
 
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.mekanism.*;
 import mekanism.api.MekanismAPI;
@@ -88,13 +90,13 @@ public final class MekanismRecipeFactory {
         return IngredientCreatorAccess.item().from(ingredient, positive(requiredAmount, field + " amount"));
     }
 
-    private static FluidStackIngredient fluidIngredient(MekanismFluidIngredientData data) {
+    private static FluidStackIngredient fluidIngredient(FluidIngredientData data) {
         if (data == null) {
             throw new IllegalArgumentException("Mekanism fluid input cannot be empty");
         }
-        var amount = positive(data.getKind() == MekanismFluidIngredientKind.FLUID && data.getFluid() != null
+        var amount = positive(data.getKind() == FluidIngredientKind.FLUID && data.getFluid() != null
                 ? data.getFluid().getAmount() : data.getAmount(), "fluid input amount");
-        if (data.getKind() == MekanismFluidIngredientKind.TAG) {
+        if (data.getKind() == FluidIngredientKind.TAG) {
             var id = requireId(data.getTag(), "fluid tag");
             return IngredientCreatorAccess.fluid().from(TagKey.create(Registries.FLUID, id), amount);
         }

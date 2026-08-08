@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeFactory;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport;
 import com.viscript_recipe.data.IVSRecipeData;
@@ -21,17 +20,11 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class MysticalAgricultureSouliumSpawnerRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.soulium_spawner.input", subConfigurable = true)
+    @Persisted
     private MysticalAgricultureCountedIngredientData input = new MysticalAgricultureCountedIngredientData()
             .setIngredient(RecipeIngredient.item(Items.ROTTEN_FLESH));
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.soulium_spawner.entities", subConfigurable = true)
-    @ConfigList(addDefaultMethod = "createDefaultEntity")
+    @Persisted
     private List<MysticalAgricultureWeightedEntityData> entities = new ArrayList<>();
-
-    public MysticalAgricultureWeightedEntityData createDefaultEntity() {
-        return new MysticalAgricultureWeightedEntityData();
-    }
 
     @Override
     public ItemStack getResult() {return MysticalAgricultureRecipeUiSupport.firstSpawnEgg(getEntities());}

@@ -128,7 +128,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
             imported.add(RecipeImporter.importIngredient(additions));
         }
         while (imported.size() < 3) {
-            imported.add(new RecipeIngredient());
+            imported.add(RecipeIngredient.empty());
         }
         return imported.stream().limit(3).toList();
     }

@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,21 +19,14 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class AvaritiaFullMatterClusterRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.avaritia.group")
+    @Persisted
     private String group = "default";
-
-    @Configurable(name = "viscript_recipe.config.shapeless.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.CHEST)
     ));
-
-    @Configurable(name = "viscript_recipe.config.avaritia.count")
+    @Persisted
     private int count = 1;
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.CHEST);
-    }
 
     public ItemStack result() {
         return AvaritiaRecipeFactory.defaultItemStack("avaritia:full_matter_cluster", Items.CHEST);

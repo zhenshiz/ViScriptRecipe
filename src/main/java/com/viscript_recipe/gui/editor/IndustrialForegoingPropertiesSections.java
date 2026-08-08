@@ -5,6 +5,8 @@ import com.lowdragmc.lowdraglib2.configurator.ui.Configurator;
 import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.industrial_foregoing.*;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -196,20 +198,18 @@ final class IndustrialForegoingPropertiesSections {
     }
 
     private static void buildFluidIngredient(UIElement content, RecipeEditorController controller,
-                                             IndustrialFluidIngredientData data, String titleKey) {
+                                             FluidIngredientData data, String titleKey) {
         var kind = fluidKind(data);
         content.addChildren(
                 RecipeEditorUi.sectionTitle(titleKey),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.industrial_foregoing.fluid_ingredient.kind",
-                        RecipeEditorUi.selector(List.of(IndustrialFluidIngredientKind.values()), kind,
-                                value -> Component.translatable("viscript_recipe.editor.industrial_foregoing.fluid_kind."
-                                        + value.name().toLowerCase(java.util.Locale.ROOT)),
-                                value -> {
+                        RecipeEditorUi.selector(List.of(FluidIngredientKind.values()), kind,
+                                FluidIngredientKind::displayName, value -> {
                                     data.setKind(value);
                                     controller.notifyChanged();
                                 }))
         );
-        if (kind == IndustrialFluidIngredientKind.TAG) {
+        if (kind == FluidIngredientKind.TAG) {
             content.addChild(RecipeSearchComponents.fluidTag(
                     "viscript_recipe.config.industrial_foregoing.fluid_ingredient.tag",
                     data::getTag, data::setTag, controller::notifyChanged));
@@ -456,8 +456,8 @@ final class IndustrialForegoingPropertiesSections {
         }));
     }
 
-    private static IndustrialFluidIngredientKind fluidKind(IndustrialFluidIngredientData data) {
-        return data == null || data.getKind() == null ? IndustrialFluidIngredientKind.FLUID : data.getKind();
+    private static FluidIngredientKind fluidKind(FluidIngredientData data) {
+        return data == null || data.getKind() == null ? FluidIngredientKind.FLUID : data.getKind();
     }
 
     private static ResourceLocation fluidId(FluidStack stack) {

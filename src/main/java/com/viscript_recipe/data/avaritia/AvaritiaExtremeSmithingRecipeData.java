@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,21 +19,17 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class AvaritiaExtremeSmithingRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.smithing_transform.template", subConfigurable = true)
+    @Persisted
     private RecipeIngredient template = RecipeIngredient.item(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
-
-    @Configurable(name = "viscript_recipe.config.smithing_transform.base", subConfigurable = true)
+    @Persisted
     private RecipeIngredient base = RecipeIngredient.item(Items.DIAMOND_SWORD);
-
-    @Configurable(name = "viscript_recipe.config.avaritia.extreme_smithing.additions")
-    @ConfigList(addDefaultMethod = "createDefaultAddition")
+    @Persisted
     private List<RecipeIngredient> additions = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.NETHERITE_INGOT),
             RecipeIngredient.item(Items.NETHERITE_INGOT),
             RecipeIngredient.item(Items.NETHERITE_INGOT)
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.NETHERITE_SWORD);
 
     public RecipeIngredient createDefaultAddition() {
@@ -43,15 +38,15 @@ public class AvaritiaExtremeSmithingRecipeData implements IVSRecipeData {
 
     public RecipeIngredient addition(int index) {
         if (additions == null || index < 0 || index >= additions.size()) {
-            return new RecipeIngredient();
+            return RecipeIngredient.empty();
         }
         var addition = additions.get(index);
-        return addition == null ? new RecipeIngredient() : addition;
+        return addition == null ? RecipeIngredient.empty() : addition;
     }
 
     public AvaritiaExtremeSmithingRecipeData setAddition(int index, RecipeIngredient ingredient) {
         ensureAdditionSize();
-        additions.set(Math.clamp(index, 0, 2), ingredient == null ? new RecipeIngredient() : ingredient);
+        additions.set(Math.clamp(index, 0, 2), ingredient == null ? RecipeIngredient.empty() : ingredient);
         return this;
     }
 

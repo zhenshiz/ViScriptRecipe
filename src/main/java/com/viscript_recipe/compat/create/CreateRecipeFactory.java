@@ -21,7 +21,10 @@ import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.data.create.*;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapelessRecipe;
 import com.viscript_recipe.recipe.vanilla.ViscriptStonecutterRecipe;
@@ -317,12 +320,12 @@ public final class CreateRecipeFactory {
         return ingredient == null ? Ingredient.EMPTY : ingredient.compile();
     }
 
-    private static SizedFluidIngredient compileFluidIngredient(CreateFluidIngredientData data) {
+    private static SizedFluidIngredient compileFluidIngredient(FluidIngredientData data) {
         if (data == null) {
             return null;
         }
-        var kind = data.getKind() == null ? CreateFluidIngredientKind.FLUID : data.getKind();
-        if (kind == CreateFluidIngredientKind.TAG) {
+        var kind = data.getKind() == null ? FluidIngredientKind.FLUID : data.getKind();
+        if (kind == FluidIngredientKind.TAG) {
             if (data.getTag() == null) {
                 throw new IllegalArgumentException("Create fluid ingredient tag cannot be empty");
             }
@@ -363,7 +366,7 @@ public final class CreateRecipeFactory {
         throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have at least one output");
     }
 
-    private static ItemStack normalizeOutputStack(CreateProcessingOutputData outputData) {
+    private static ItemStack normalizeOutputStack(RecipeOutputData outputData) {
         if (outputData == null || outputData.getItem() == null || outputData.getItem().isEmpty() || outputData.getItem().is(Items.AIR)) {
             return ItemStack.EMPTY;
         }

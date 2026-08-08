@@ -10,7 +10,9 @@ import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
+import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.data.create.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -38,7 +40,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
 
     @Override
     public boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null || holder.value() == null) {
+        if (holder == null) {
             return false;
         }
         var recipe = holder.value();
@@ -159,52 +161,47 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         return imported;
     }
 
-    private static List<CreateFluidIngredientData> importFluidIngredients(List<SizedFluidIngredient> ingredients, int max) throws RecipeImportException {
+    private static List<FluidIngredientData> importFluidIngredients(List<SizedFluidIngredient> ingredients, int max) throws RecipeImportException {
         if (ingredients.size() > max) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.too_many_fluid_ingredients", ingredients.size(), max);
         }
-        var imported = new ArrayList<CreateFluidIngredientData>();
+        var imported = new ArrayList<FluidIngredientData>();
         for (var ingredient : ingredients) {
             imported.add(importFluidIngredient(ingredient));
         }
         return imported;
     }
 
-    private static CreateFluidIngredientData importFluidIngredient(SizedFluidIngredient ingredient) throws RecipeImportException {
+    private static FluidIngredientData importFluidIngredient(SizedFluidIngredient ingredient) throws RecipeImportException {
         if (ingredient == null || ingredient.ingredient().isEmpty() || ingredient.ingredient().hasNoFluids()) {
-            return CreateFluidIngredientData.empty();
+            return FluidIngredientData.empty();
         }
         var fluidIngredient = ingredient.ingredient();
         if (fluidIngredient instanceof TagFluidIngredient tag) {
-            return new CreateFluidIngredientData()
-                    .setKind(CreateFluidIngredientKind.TAG)
-                    .setTag(tag.tag().location())
-                    .setAmount(Math.max(1, ingredient.amount()));
+            return FluidIngredientData.tag(tag.tag().location()).setAmount(Math.max(1, ingredient.amount()));
         }
         if (fluidIngredient instanceof SingleFluidIngredient single) {
-            return CreateFluidIngredientData.fluid(new FluidStack(single.fluid(), Math.max(1, ingredient.amount())));
+            return FluidIngredientData.fluid(new FluidStack(single.fluid(), Math.max(1, ingredient.amount())));
         }
         var stacks = ingredient.getFluids();
         if (fluidIngredient.isSimple() && stacks.length == 1) {
-            return CreateFluidIngredientData.fluid(stacks[0].copyWithAmount(Math.max(1, ingredient.amount())));
+            return FluidIngredientData.fluid(stacks[0].copyWithAmount(Math.max(1, ingredient.amount())));
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_fluid_ingredient");
     }
 
-    private static List<CreateProcessingOutputData> importOutputs(List<ProcessingOutput> outputs, int max) throws RecipeImportException {
+    private static List<RecipeOutputData> importOutputs(List<ProcessingOutput> outputs, int max) throws RecipeImportException {
         if (outputs.size() > max) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.too_many_outputs", outputs.size(), max);
         }
-        var imported = new ArrayList<CreateProcessingOutputData>();
+        var imported = new ArrayList<RecipeOutputData>();
         for (var output : outputs) {
             if (output == null) {
                 continue;
             }
             var stack = output.getStack();
             if (!stack.isEmpty()) {
-                imported.add(new CreateProcessingOutputData()
-                        .setItem(stack.copy())
-                        .setChance(output.getChance()));
+                imported.add(RecipeOutputData.of(stack.copy(), output.getChance()));
             }
         }
         return imported;

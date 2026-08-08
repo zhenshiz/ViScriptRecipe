@@ -5,9 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-/**
- * Identifies Goety's built-in ritual environment categories.
- */
 public enum GoetyRitualCraftType implements StringRepresentable {
     ANIMATION("animation"),
     NECROTURGY("necroturgy"),
@@ -36,12 +33,6 @@ public enum GoetyRitualCraftType implements StringRepresentable {
         return serializedName;
     }
 
-    /**
-     * Resolves a stored Goety craft type, defaulting to magic for unknown values.
-     *
-     * @param  name the serialized craft type name
-     * @return the matching built-in craft type
-     */
     public static GoetyRitualCraftType byName(String name) {
         return Arrays.stream(values())
                 .filter(value -> value.serializedName.equals(name))

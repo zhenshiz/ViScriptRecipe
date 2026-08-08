@@ -1,9 +1,9 @@
 package com.viscript_recipe.data;
 
+import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.ars_nouveau.*;
 import com.viscript_recipe.data.avaritia.*;
@@ -48,17 +48,13 @@ import java.util.HashMap;
 public class RecipeEntry implements IPersistedSerializable, IConfigurable {
     private final HashMap<Class<? extends IVSRecipeData>, IVSRecipeData> recipeData = new HashMap<>();
 
-    @Configurable(name = "viscript_recipe.config.entry.enabled")
+    @Persisted
     private boolean enabled = true;
-
-    @Configurable(name = "viscript_recipe.config.entry.operation")
-    @ConfigSelector(candidate = {"add", "replace", "remove"})
+    @Persisted
     private RecipeOperation operation = RecipeOperation.REPLACE;
-
-    @Configurable(name = "viscript_recipe.config.entry.recipe_id")
+    @Persisted
     private ResourceLocation recipeId = ViScriptRecipe.id("example");
-
-    @Configurable(name = "viscript_recipe.config.entry.type")
+    @Persisted
     private ResourceLocation type = RecipeEditorTypes.CRAFTING_SHAPED;
 
     @Override
@@ -184,5 +180,12 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
 
     public boolean isType(ResourceLocation type) {
         return getType().equals(type);
+    }
+
+    public RecipeEntry copy() {
+        var provider = Platform.getFrozenRegistry();
+        var copy = new RecipeEntry();
+        copy.deserializeNBT(provider, serializeNBT(provider).copy());
+        return copy;
     }
 }

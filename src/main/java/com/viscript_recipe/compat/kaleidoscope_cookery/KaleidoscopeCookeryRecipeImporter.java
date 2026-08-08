@@ -94,7 +94,7 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
     }
 
     private static RecipeIngredient importOptional(Ingredient ingredient) throws RecipeImportException {
-        return ingredient == null || ingredient.isEmpty() ? new RecipeIngredient() : RecipeImporter.importIngredient(ingredient);
+        return ingredient == null || ingredient.isEmpty() ? RecipeIngredient.empty() : RecipeImporter.importIngredient(ingredient);
     }
 
     private static ResourceLocation nonNullId(ResourceLocation id, ResourceLocation fallback) {

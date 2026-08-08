@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.extendedcrafting;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,27 +19,18 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class ExtendedCraftingCombinationRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.extendedcrafting.combination.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.DIAMOND);
-
-    @Configurable(name = "viscript_recipe.config.extendedcrafting.combination.pedestal_items")
-    @ConfigList(addDefaultMethod = "createDefaultPedestalItem")
+    @Persisted
     private List<RecipeIngredient> pedestalItems = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.GOLD_INGOT)
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.NETHER_STAR);
-
-    @Configurable(name = "viscript_recipe.config.extendedcrafting.power_cost")
+    @Persisted
     private int powerCost = 100000;
-
-    @Configurable(name = "viscript_recipe.config.extendedcrafting.power_rate")
+    @Persisted
     private int powerRate = 500;
-
-    public RecipeIngredient createDefaultPedestalItem() {
-        return RecipeIngredient.item(Items.GOLD_INGOT);
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

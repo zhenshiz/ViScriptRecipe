@@ -96,7 +96,7 @@ public final class MysticalAgricultureRecipeFactory {
             if (ingredients.size() >= MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS) {
                 break;
             }
-            if (ingredient != null && !isIngredientEmpty(ingredient.getIngredient())) {
+            if (ingredient != null && !ingredient.getIngredient().isEmpty()) {
                 ingredients.add(compileCountedIngredient(ingredient));
             }
         }
@@ -156,25 +156,20 @@ public final class MysticalAgricultureRecipeFactory {
     }
 
     private static IngredientWithCount compileCountedIngredient(MysticalAgricultureCountedIngredientData data) {
-        if (data == null || data.getIngredient() == null || data.getIngredient().getValues().isEmpty()) {
+        if (data == null || data.getIngredient() == null || data.getIngredient().isEmpty()) {
             throw new IllegalArgumentException("Mystical Agriculture counted ingredient cannot be empty");
         }
         var values = new ArrayList<Ingredient.Value>();
-        for (var value : data.getIngredient().getValues()) {
-            if (value == null) {
-                continue;
+        var kind = data.getIngredient().getKind() == null ? IngredientValueKind.ITEM : data.getIngredient().getKind();
+        if (kind == IngredientValueKind.ITEM) {
+            var item = normalizeItem(data.getIngredient().getItem());
+            if (!item.isEmpty()) {
+                values.add(new Ingredient.ItemValue(item.copyWithCount(1)));
             }
-            var kind = value.getKind() == null ? IngredientValueKind.ITEM : value.getKind();
-            if (kind == IngredientValueKind.ITEM) {
-                var item = normalizeItem(value.getItem());
-                if (!item.isEmpty()) {
-                    values.add(new Ingredient.ItemValue(item.copyWithCount(1)));
-                }
-            } else if (kind == IngredientValueKind.TAG && value.getTag() != null) {
-                values.add(new Ingredient.TagValue(TagKey.create(Registries.ITEM, value.getTag())));
-            } else if (kind == IngredientValueKind.ITEM_ABILITY) {
-                throw new IllegalArgumentException("Mystical Agriculture counted ingredients do not support item abilities");
-            }
+        } else if (kind == IngredientValueKind.TAG && data.getIngredient().getTag() != null) {
+            values.add(new Ingredient.TagValue(TagKey.create(Registries.ITEM, data.getIngredient().getTag())));
+        } else if (kind == IngredientValueKind.ITEM_ABILITY) {
+            throw new IllegalArgumentException("Mystical Agriculture counted ingredients do not support item abilities");
         }
         if (values.isEmpty()) {
             throw new IllegalArgumentException("Mystical Agriculture counted ingredient cannot be empty");
@@ -192,10 +187,6 @@ public final class MysticalAgricultureRecipeFactory {
 
     private static Ingredient compileIngredient(RecipeIngredient data) {
         return data == null ? Ingredient.EMPTY : data.compile();
-    }
-
-    private static boolean isIngredientEmpty(RecipeIngredient data) {
-        return data == null || data.getValues() == null || data.getValues().isEmpty();
     }
 
     private static ItemStack requireItem(ItemStack stack, String message) {

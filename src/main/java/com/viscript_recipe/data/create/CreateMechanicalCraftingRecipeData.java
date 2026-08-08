@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.create;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCraftingRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -27,35 +26,20 @@ public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
     public static final int MIN_SIZE = 1;
     public static final int MAX_SIZE = 9;
 
-    @Configurable(name = "viscript_recipe.config.create.mechanical_crafting.width")
+    @Persisted
     private int width = 3;
-
-    @Configurable(name = "viscript_recipe.config.create.mechanical_crafting.height")
+    @Persisted
     private int height = 3;
-
-    @Configurable(name = "viscript_recipe.config.create.mechanical_crafting.accept_mirrored")
+    @Persisted
     private boolean acceptMirrored = true;
-
-    @Configurable(name = "viscript_recipe.config.shaped.pattern")
-    @ConfigList(addDefaultMethod = "createDefaultPatternRow")
+    @Persisted
     private List<String> pattern = new ArrayList<>(List.of("A"));
-
-    @Configurable(name = "viscript_recipe.config.shaped.key")
-    @ConfigList(addDefaultMethod = "createDefaultKey")
+    @Persisted
     private List<ShapedKeyEntry> key = new ArrayList<>(List.of(
             ShapedKeyEntry.of("A", RecipeIngredient.item(Items.IRON_INGOT))
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.CRAFTING_TABLE);
-
-    public String createDefaultPatternRow() {
-        return "A";
-    }
-
-    public ShapedKeyEntry createDefaultKey() {
-        return new ShapedKeyEntry();
-    }
 
     public int normalizedWidth() {
         return clampSize(width);

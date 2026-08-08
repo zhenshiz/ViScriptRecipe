@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -21,29 +20,18 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class IndustrialFluidExtractorRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.fluid_extractor.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.OAK_LOG);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.fluid_extractor.result_block")
+    @Persisted
     private ResourceLocation resultBlock = ResourceLocation.withDefaultNamespace("stripped_oak_log");
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.block_state.properties")
-    @ConfigList(addDefaultMethod = "createDefaultProperty")
+    @Persisted
     private List<IndustrialBlockStatePropertyData> resultProperties = new ArrayList<>();
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.fluid_extractor.break_chance")
+    @Persisted
     private float breakChance = 0.01F;
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.fluid_extractor.output")
+    @Persisted
     private FluidStack output = new FluidStack(Fluids.WATER, 4);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.fluid_extractor.default_recipe")
+    @Persisted
     private boolean defaultRecipe;
-
-    /** Creates an empty block-state property row. */
-    public IndustrialBlockStatePropertyData createDefaultProperty() {
-        return new IndustrialBlockStatePropertyData();
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

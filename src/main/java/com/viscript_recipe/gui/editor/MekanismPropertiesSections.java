@@ -4,10 +4,14 @@ import com.lowdragmc.lowdraglib2.configurator.accessors.ItemStackAccessor;
 import com.lowdragmc.lowdraglib2.configurator.ui.ConfiguratorGroup;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.mekanism.*;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
+import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientKind;
+import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
+import com.viscript_recipe.data.mekanism.MekanismRecipeKind;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -149,19 +153,18 @@ final class MekanismPropertiesSections {
     }
 
     private static void buildFluidIngredient(UIElement content, RecipeEditorController controller,
-                                             MekanismFluidIngredientData data) {
+                                             FluidIngredientData data) {
         var kind = fluidKind(data);
         content.addChildren(
                 RecipeEditorUi.sectionTitle("viscript_recipe.config.mekanism.fluid_input"),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.mekanism.fluid_ingredient.kind",
-                        RecipeEditorUi.selector(List.of(MekanismFluidIngredientKind.values()), kind,
-                                value -> Component.translatable("viscript_recipe.editor.mekanism.fluid_kind."
-                                        + value.getSerializedName()), value -> {
+                        RecipeEditorUi.selector(List.of(FluidIngredientKind.values()), kind,
+                                FluidIngredientKind::displayName, value -> {
                                     data.setKind(value);
                                     controller.notifyChanged();
                                 }))
         );
-        if (kind == MekanismFluidIngredientKind.TAG) {
+        if (kind == FluidIngredientKind.TAG) {
             content.addChild(RecipeSearchComponents.fluidTag("viscript_recipe.config.mekanism.fluid_ingredient.tag",
                     data::getTag, data::setTag, controller::notifyChanged));
         } else {
@@ -174,7 +177,7 @@ final class MekanismPropertiesSections {
         content.addChild(intField("viscript_recipe.config.mekanism.fluid_ingredient.amount", amount(data), 1,
                 Integer.MAX_VALUE, value -> {
                     data.setAmount(value);
-                    if (kind == MekanismFluidIngredientKind.FLUID && data.getFluid() != null && !data.getFluid().isEmpty()) {
+                    if (kind == FluidIngredientKind.FLUID && data.getFluid() != null && !data.getFluid().isEmpty()) {
                         data.setFluid(data.getFluid().copyWithAmount(value));
                     }
                 }, controller));
@@ -216,8 +219,7 @@ final class MekanismPropertiesSections {
                 RecipeEditorUi.sectionTitle(titleKey),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.mekanism.chemical_ingredient.kind",
                         RecipeEditorUi.selector(List.of(MekanismChemicalIngredientKind.values()), kind,
-                                value -> Component.translatable("viscript_recipe.editor.mekanism.chemical_kind."
-                                        + value.getSerializedName()), value -> {
+                                MekanismChemicalIngredientKind::displayName, value -> {
                                     data.setKind(value);
                                     controller.notifyChanged();
                                 }))
@@ -315,19 +317,19 @@ final class MekanismPropertiesSections {
         }));
     }
 
-    private static MekanismFluidIngredientKind fluidKind(MekanismFluidIngredientData data) {
-        return data == null || data.getKind() == null ? MekanismFluidIngredientKind.FLUID : data.getKind();
+    private static FluidIngredientKind fluidKind(FluidIngredientData data) {
+        return data == null || data.getKind() == null ? FluidIngredientKind.FLUID : data.getKind();
     }
 
     private static MekanismChemicalIngredientKind chemicalKind(MekanismChemicalIngredientData data) {
         return data == null || data.getKind() == null ? MekanismChemicalIngredientKind.CHEMICAL : data.getKind();
     }
 
-    private static int amount(MekanismFluidIngredientData data) {
+    private static int amount(FluidIngredientData data) {
         if (data == null) {
             return 1;
         }
-        if (fluidKind(data) == MekanismFluidIngredientKind.FLUID && data.getFluid() != null && !data.getFluid().isEmpty()) {
+        if (fluidKind(data) == FluidIngredientKind.FLUID && data.getFluid() != null && !data.getFluid().isEmpty()) {
             return Math.max(1, data.getFluid().getAmount());
         }
         return Math.max(1, data.getAmount());

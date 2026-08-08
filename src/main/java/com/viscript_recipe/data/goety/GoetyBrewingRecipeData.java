@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,25 +20,19 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class GoetyBrewingRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.goety.brewing.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.SPIDER_EYE);
-
-    @Configurable(name = "viscript_recipe.config.goety.brewing.effect")
+    @Persisted
     private ResourceLocation effect = ResourceLocation.withDefaultNamespace("poison");
-
-    @Configurable(name = "viscript_recipe.config.goety.soul_cost")
+    @Persisted
     private int soulCost = 25;
-
-    @Configurable(name = "viscript_recipe.config.goety.brewing.capacity_extra")
+    @Persisted
     private int capacityExtra = 1;
-
-    @Configurable(name = "viscript_recipe.config.goety.duration")
+    @Persisted
     private int duration = 600;
-
-    @Configurable(name = "viscript_recipe.config.goety.brewing.entity_kind")
+    @Persisted
     private GoetyBrewingEntityKind entityKind = GoetyBrewingEntityKind.NONE;
-
-    @Configurable(name = "viscript_recipe.config.goety.brewing.entity")
+    @Persisted
     private ResourceLocation entity = ResourceLocation.withDefaultNamespace("zombie");
 
     /**

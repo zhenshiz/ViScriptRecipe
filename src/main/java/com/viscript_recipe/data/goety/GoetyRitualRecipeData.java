@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.goety;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.goety.GoetyRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -22,82 +21,54 @@ import java.util.List;
 public class GoetyRitualRecipeData implements IVSRecipeData {
     public static final int MAX_PEDESTAL_INGREDIENTS = 12;
 
-    @Configurable(name = "viscript_recipe.config.goety.ritual.activation_item", subConfigurable = true)
+    @Persisted
     private RecipeIngredient activationItem = RecipeIngredient.item(Items.BOOK);
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>();
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.ENCHANTED_BOOK);
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.craft_type")
+    @Persisted
     private GoetyRitualCraftType craftType = GoetyRitualCraftType.MAGIC;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.ritual_type")
+    @Persisted
     private ResourceLocation ritualType = ResourceLocation.fromNamespaceAndPath("goety", "craft");
-
-    @Configurable(name = "viscript_recipe.config.goety.soul_cost")
+    @Persisted
     private int soulCost;
-
-    @Configurable(name = "viscript_recipe.config.goety.duration")
+    @Persisted
     private int duration = 30;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.summon_life")
+    @Persisted
     private int summonLife = -1;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.has_sacrifice")
+    @Persisted
     private boolean hasSacrifice;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.entity_to_sacrifice")
+    @Persisted
     private ResourceLocation entityToSacrifice = ResourceLocation.fromNamespaceAndPath("minecraft", "zombies");
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.entity_to_sacrifice_name")
+    @Persisted
     private String entityToSacrificeDisplayName = "entity.minecraft.zombie";
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.has_summon")
+    @Persisted
     private boolean hasSummon;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.entity_to_summon")
+    @Persisted
     private ResourceLocation entityToSummon = ResourceLocation.withDefaultNamespace("zombie");
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.has_conversion")
+    @Persisted
     private boolean hasConversion;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.entity_to_convert")
+    @Persisted
     private ResourceLocation entityToConvert = ResourceLocation.fromNamespaceAndPath("minecraft", "zombies");
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.entity_to_convert_name")
+    @Persisted
     private String entityToConvertDisplayName = "entity.minecraft.zombie";
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.entity_to_convert_into")
+    @Persisted
     private ResourceLocation entityToConvertInto = ResourceLocation.withDefaultNamespace("zombie_villager");
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.has_structure")
+    @Persisted
     private boolean hasStructure;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.structure_to_locate")
+    @Persisted
     private ResourceLocation structureToLocate = ResourceLocation.fromNamespaceAndPath("minecraft", "village");
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.structure_name")
+    @Persisted
     private String structureDisplayName = "filled_map.village";
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.has_enchantment")
+    @Persisted
     private boolean hasEnchantment;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.enchantment")
+    @Persisted
     private ResourceLocation enchantment = ResourceLocation.withDefaultNamespace("sharpness");
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.xp_level_cost")
+    @Persisted
     private int xpLevelCost;
-
-    @Configurable(name = "viscript_recipe.config.goety.ritual.research")
+    @Persisted
     private String research = "";
-
-    public RecipeIngredient createDefaultIngredient() {
-        return new RecipeIngredient();
-    }
 
     /**
      * Returns a pedestal ingredient or an empty value when the index is outside the official twelve-slot layout.
@@ -107,10 +78,10 @@ public class GoetyRitualRecipeData implements IVSRecipeData {
      */
     public RecipeIngredient ingredient(int index) {
         if (ingredients == null || index < 0 || index >= Math.min(MAX_PEDESTAL_INGREDIENTS, ingredients.size())) {
-            return new RecipeIngredient();
+            return RecipeIngredient.empty();
         }
         var ingredient = ingredients.get(index);
-        return ingredient == null ? new RecipeIngredient() : ingredient;
+        return ingredient == null ? RecipeIngredient.empty() : ingredient;
     }
 
     /**
@@ -126,9 +97,9 @@ public class GoetyRitualRecipeData implements IVSRecipeData {
         }
         ingredients = normalizedIngredients();
         while (ingredients.size() <= index) {
-            ingredients.add(new RecipeIngredient());
+            ingredients.add(RecipeIngredient.empty());
         }
-        ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+        ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         trimTrailingEmptyIngredients();
         return this;
     }
@@ -143,20 +114,16 @@ public class GoetyRitualRecipeData implements IVSRecipeData {
         if (ingredients != null) {
             for (int i = 0; i < Math.min(MAX_PEDESTAL_INGREDIENTS, ingredients.size()); i++) {
                 var ingredient = ingredients.get(i);
-                normalized.add(ingredient == null ? new RecipeIngredient() : ingredient);
+                normalized.add(ingredient == null ? RecipeIngredient.empty() : ingredient);
             }
         }
         return normalized;
     }
 
     private void trimTrailingEmptyIngredients() {
-        while (!ingredients.isEmpty() && isEmpty(ingredients.getLast())) {
+        while (!ingredients.isEmpty() && ingredients.getLast().isEmpty()) {
             ingredients.removeLast();
         }
-    }
-
-    private static boolean isEmpty(RecipeIngredient ingredient) {
-        return ingredient == null || ingredient.getValues() == null || ingredient.getValues().isEmpty();
     }
 
     @Override

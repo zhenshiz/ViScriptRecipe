@@ -1,7 +1,8 @@
 package com.viscript_recipe.data.create;
 
+import lombok.Getter;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum CreateSequencedAssemblyStepKind implements StringRepresentable {
     DEPLOYING("deploying", "create:deployer"),
@@ -9,6 +10,7 @@ public enum CreateSequencedAssemblyStepKind implements StringRepresentable {
     CUTTING("cutting", "create:mechanical_saw"),
     FILLING("filling", "create:spout");
 
+    @Getter
     private final String serializedName;
     private final String machineItemId;
 
@@ -17,9 +19,8 @@ public enum CreateSequencedAssemblyStepKind implements StringRepresentable {
         this.machineItemId = machineItemId;
     }
 
-    @Override
-    public @NotNull String getSerializedName() {
-        return serializedName;
+    public Component displayName() {
+        return Component.translatable("viscript_recipe.editor.create.sequenced_assembly.step.kind." + serializedName);
     }
 
     public String machineItemId() {

@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.iceandfire;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigSelector;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -17,20 +16,15 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class DragonForgeRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.iceandfire.dragon_forge.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.IRON_INGOT);
-
-    @Configurable(name = "viscript_recipe.config.iceandfire.dragon_forge.blood", subConfigurable = true)
+    @Persisted
     private RecipeIngredient blood = RecipeIngredient.item(Items.GLASS_BOTTLE);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.IRON_INGOT);
-
-    @Configurable(name = "viscript_recipe.config.iceandfire.dragon_forge.dragon_type")
-    @ConfigSelector(candidate = {"fire", "ice", "lightning"})
+    @Persisted
     private String dragonType = "fire";
-
-    @Configurable(name = "viscript_recipe.config.iceandfire.dragon_forge.cook_time")
+    @Persisted
     private int cookTime = 1000;
 
     @Override

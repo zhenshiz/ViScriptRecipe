@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.mysticalagriculture;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -22,33 +21,25 @@ import java.util.List;
 public class MysticalAgricultureInfusionRecipeData implements IVSRecipeData {
     public static final int MAX_PEDESTAL_INGREDIENTS = 8;
 
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.infusion.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.DIAMOND);
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.infusion.ingredients", subConfigurable = true)
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>();
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.EMERALD);
-
-    @Configurable(name = "viscript_recipe.config.mysticalagriculture.transfer_components")
+    @Persisted
     private boolean transferComponents;
 
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.STONE);
-    }
-
     public RecipeIngredient ingredient(int index) {
-        return index >= 0 && index < ingredients.size() ? ingredients.get(index) : new RecipeIngredient();
+        return index >= 0 && index < ingredients.size() ? ingredients.get(index) : RecipeIngredient.empty();
     }
 
     public MysticalAgricultureInfusionRecipeData setIngredient(int index, RecipeIngredient ingredient) {
         while (ingredients.size() <= index && ingredients.size() < MAX_PEDESTAL_INGREDIENTS) {
-            ingredients.add(new RecipeIngredient());
+            ingredients.add(RecipeIngredient.empty());
         }
         if (index >= 0 && index < ingredients.size()) {
-            ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+            ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         }
         return this;
     }

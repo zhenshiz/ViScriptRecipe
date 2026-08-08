@@ -10,12 +10,11 @@ import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.FlexWrap;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import static com.viscript_recipe.recipe.RecipeHelper.itemFromRegistry;
 
 final class CreateProcessingCanvasFactory {
     private CreateProcessingCanvasFactory() {
@@ -560,15 +559,6 @@ final class CreateProcessingCanvasFactory {
         label.textStyle(style -> style.fontSize(22).textColor(ColorPattern.GRAY.color));
         label.layout(layout -> layout.width(18).height(24));
         return label;
-    }
-
-    private static Item itemFromRegistry(String id, Item fallback) {
-        var location = ResourceLocation.tryParse(id);
-        if (location == null) {
-            return fallback;
-        }
-        var item = BuiltInRegistries.ITEM.get(location);
-        return item == Items.AIR ? fallback : item;
     }
 
     record FanCanvas(UIElement root, UIElement singleOutputPanel, UIElement multiOutputPanel) {

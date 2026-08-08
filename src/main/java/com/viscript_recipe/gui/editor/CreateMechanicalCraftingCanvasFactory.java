@@ -9,11 +9,14 @@ import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Vertical;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.lowdragmc.lowdraglib2.gui.ui.rendering.GUIContext;
+import com.simibubi.create.compat.jei.category.animations.AnimatedCrafter;
 import com.viscript_recipe.ViScriptRecipe;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 final class CreateMechanicalCraftingCanvasFactory {
     private static final String CREATE_MOD_ID = "create";
@@ -148,5 +151,25 @@ final class CreateMechanicalCraftingCanvasFactory {
     }
 
     record Canvas(UIElement root, UIElement fallbackProcess, UIElement jeiProcess) {
+    }
+
+    static class CreateMechanicalCrafterElement extends UIElement {
+        private final AnimatedCrafter crafter = new AnimatedCrafter();
+
+        CreateMechanicalCrafterElement() {
+            setOverflowVisible(true);
+        }
+
+        @Override
+        public void drawBackgroundAdditional(@NotNull GUIContext guiContext) {
+            super.drawBackgroundAdditional(guiContext);
+            guiContext.graphics.flush();
+            crafter.draw(
+                    guiContext.graphics,
+                    Math.round(getPositionX() + 17),
+                    Math.round(getPositionY() + 25)
+            );
+            guiContext.graphics.flush();
+        }
     }
 }

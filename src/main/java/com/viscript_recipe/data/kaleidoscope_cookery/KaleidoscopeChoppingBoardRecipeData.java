@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,16 +16,13 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class KaleidoscopeChoppingBoardRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredient")
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.BEEF);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.BEEF);
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.cut_count")
+    @Persisted
     private int cutCount = 4;
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.model_id")
+    @Persisted
     private ResourceLocation modelId = KaleidoscopeCookeryRecipeEditorTypes.kaleidoscope("empty");
 
     @Override

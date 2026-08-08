@@ -1,8 +1,8 @@
 package com.viscript_recipe.data.industrial_foregoing;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeFactory;
+import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
@@ -19,23 +19,14 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class IndustrialLaserDrillFluidRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.fluid_output", subConfigurable = true)
-    private IndustrialFluidIngredientData output = new IndustrialFluidIngredientData();
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.catalyst", subConfigurable = true)
+    @Persisted
+    private FluidIngredientData output = FluidIngredientData.of();
+    @Persisted
     private RecipeIngredient catalyst = RecipeIngredient.item(Items.WHITE_STAINED_GLASS_PANE);
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.entity_condition", subConfigurable = true)
+    @Persisted
     private IndustrialEntityConditionData entityCondition = new IndustrialEntityConditionData();
-
-    @Configurable(name = "viscript_recipe.config.industrial_foregoing.laser.rarity")
-    @ConfigList(addDefaultMethod = "createDefaultRarity")
+    @Persisted
     private List<IndustrialLaserDrillRarityData> rarity = new ArrayList<>(List.of(new IndustrialLaserDrillRarityData()));
-
-    /** Creates a default catch-all rarity rule. */
-    public IndustrialLaserDrillRarityData createDefaultRarity() {
-        return new IndustrialLaserDrillRarityData();
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

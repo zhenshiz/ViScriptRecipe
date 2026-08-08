@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -24,48 +23,27 @@ public class AvaritiaTableRecipeData implements IVSRecipeData {
     public static final int MIN_SIZE = 1;
     public static final int MAX_SIZE = 9;
 
-    @Configurable(name = "viscript_recipe.config.avaritia.table.width")
+    @Persisted
     private int width = 3;
-
-    @Configurable(name = "viscript_recipe.config.avaritia.table.height")
+    @Persisted
     private int height = 3;
-
-    @Configurable(name = "viscript_recipe.config.avaritia.table.tier")
+    @Persisted
     private int tier = 1;
-
-    @Configurable(name = "viscript_recipe.config.avaritia.table.compatible")
+    @Persisted
     private boolean compatible;
-
-    @Configurable(name = "viscript_recipe.config.shaped.pattern")
-    @ConfigList(addDefaultMethod = "createDefaultPatternRow")
+    @Persisted
     private List<String> pattern = new ArrayList<>(List.of("A"));
-
-    @Configurable(name = "viscript_recipe.config.shaped.key")
-    @ConfigList(addDefaultMethod = "createDefaultKey")
+    @Persisted
     private List<ShapedKeyEntry> key = new ArrayList<>(List.of(
             ShapedKeyEntry.of("A", RecipeIngredient.item(Items.DIAMOND))
     ));
-
-    @Configurable(name = "viscript_recipe.config.shapeless.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> shapelessIngredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.DIAMOND)
     ));
 
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.NETHER_STAR);
-
-    public String createDefaultPatternRow() {
-        return "A";
-    }
-
-    public ShapedKeyEntry createDefaultKey() {
-        return new ShapedKeyEntry();
-    }
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.DIAMOND);
-    }
 
     public int normalizedWidth() {
         return clampSize(width);

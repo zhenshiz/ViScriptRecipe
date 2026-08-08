@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -18,16 +18,13 @@ import java.util.Map;
 @Setter
 @Accessors(chain = true)
 public class CookingRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.cooking.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.RAW_IRON);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.IRON_INGOT);
-
-    @Configurable(name = "viscript_recipe.config.cooking.experience")
+    @Persisted
     private float experience = 0.7F;
-
-    @Configurable(name = "viscript_recipe.config.cooking.cooking_time")
+    @Persisted
     private int cookingTime = 200;
 
     @Override

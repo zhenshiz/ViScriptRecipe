@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.avaritia;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -16,16 +16,13 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class AvaritiaCompressorRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.avaritia.compressor.ingredient", subConfigurable = true)
+    @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.COBBLESTONE);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.BEDROCK);
-
-    @Configurable(name = "viscript_recipe.config.avaritia.compressor.input_count")
+    @Persisted
     private int inputCount = 1000;
-
-    @Configurable(name = "viscript_recipe.config.avaritia.compressor.time_cost")
+    @Persisted
     private int timeCost = 240;
 
     @Override

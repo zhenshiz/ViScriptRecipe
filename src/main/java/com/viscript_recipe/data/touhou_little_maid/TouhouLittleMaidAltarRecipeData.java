@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.touhou_little_maid;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.touhou_little_maid.TouhouLittleMaidRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -22,38 +21,29 @@ import java.util.List;
 public class TouhouLittleMaidAltarRecipeData implements IVSRecipeData {
     public static final int INPUT_COUNT = 6;
 
-    @Configurable(name = "viscript_recipe.config.touhou_little_maid.altar.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = emptyIngredients();
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.STICK);
-
-    @Configurable(name = "viscript_recipe.config.touhou_little_maid.altar.power")
+    @Persisted
     private float power = 0.2F;
-
-    @Configurable(name = "viscript_recipe.config.touhou_little_maid.altar.entity")
+    @Persisted
     private ResourceLocation entityType = ResourceLocation.withDefaultNamespace("item");
-
-    @Configurable(name = "viscript_recipe.config.touhou_little_maid.altar.lang")
+    @Persisted
     private String langKey = "jei.touhou_little_maid.altar_craft.item_craft.result";
-
-    public RecipeIngredient createDefaultIngredient() {
-        return new RecipeIngredient();
-    }
 
     public RecipeIngredient ingredient(int index) {
         if (ingredients == null || index < 0 || index >= ingredients.size()) {
-            return new RecipeIngredient();
+            return RecipeIngredient.empty();
         }
         var ingredient = ingredients.get(index);
-        return ingredient == null ? new RecipeIngredient() : ingredient;
+        return ingredient == null ? RecipeIngredient.empty() : ingredient;
     }
 
     public TouhouLittleMaidAltarRecipeData setIngredient(int index, RecipeIngredient ingredient) {
         ingredients = normalizedIngredients();
         if (index >= 0 && index < INPUT_COUNT) {
-            ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+            ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         }
         return this;
     }
@@ -63,7 +53,7 @@ public class TouhouLittleMaidAltarRecipeData implements IVSRecipeData {
         if (ingredients != null) {
             for (int i = 0; i < Math.min(INPUT_COUNT, ingredients.size()); i++) {
                 var ingredient = ingredients.get(i);
-                normalized.set(i, ingredient == null ? new RecipeIngredient() : ingredient);
+                normalized.set(i, ingredient == null ? RecipeIngredient.empty() : ingredient);
             }
         }
         return normalized;
@@ -77,7 +67,7 @@ public class TouhouLittleMaidAltarRecipeData implements IVSRecipeData {
     private static List<RecipeIngredient> emptyIngredients() {
         var result = new ArrayList<RecipeIngredient>(INPUT_COUNT);
         for (int i = 0; i < INPUT_COUNT; i++) {
-            result.add(new RecipeIngredient());
+            result.add(RecipeIngredient.empty());
         }
         return result;
     }

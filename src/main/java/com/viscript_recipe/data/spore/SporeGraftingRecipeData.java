@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.spore;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.spore.SporeRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -21,29 +20,23 @@ import java.util.List;
 public class SporeGraftingRecipeData implements IVSRecipeData {
     public static final int INPUT_COUNT = 3;
 
-    @Configurable(name = "viscript_recipe.config.spore.grafting.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = SporeSurgeryRecipeData.normalizedIngredients(null, INPUT_COUNT);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.IRON_HELMET);
-
-    public RecipeIngredient createDefaultIngredient() {
-        return new RecipeIngredient();
-    }
 
     public RecipeIngredient ingredient(int index) {
         if (ingredients == null || index < 0 || index >= ingredients.size()) {
-            return new RecipeIngredient();
+            return RecipeIngredient.empty();
         }
         var ingredient = ingredients.get(index);
-        return ingredient == null ? new RecipeIngredient() : ingredient;
+        return ingredient == null ? RecipeIngredient.empty() : ingredient;
     }
 
     public SporeGraftingRecipeData setIngredient(int index, RecipeIngredient ingredient) {
         ingredients = normalizedIngredients();
         if (index >= 0 && index < INPUT_COUNT) {
-            ingredients.set(index, ingredient == null ? new RecipeIngredient() : ingredient);
+            ingredients.set(index, ingredient == null ? RecipeIngredient.empty() : ingredient);
         }
         return this;
     }

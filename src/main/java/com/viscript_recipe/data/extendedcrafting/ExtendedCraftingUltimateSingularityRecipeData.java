@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.extendedcrafting;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class ExtendedCraftingUltimateSingularityRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.NETHER_STAR);
 
     @Override

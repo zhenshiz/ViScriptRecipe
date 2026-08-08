@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.kaleidoscope_cookery;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.ConfigList;
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -20,29 +19,20 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class KaleidoscopePotRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.ingredients")
-    @ConfigList(addDefaultMethod = "createDefaultIngredient")
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.EGG),
             RecipeIngredient.item(Items.CARROT),
             RecipeIngredient.item(Items.POTATO)
     ));
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.BAKED_POTATO);
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.carrier")
+    @Persisted
     private RecipeIngredient carrier = RecipeIngredient.item(Items.BOWL);
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.time")
+    @Persisted
     private int time = 200;
-
-    @Configurable(name = "viscript_recipe.config.kaleidoscope_cookery.stir_fry_count")
+    @Persisted
     private int stirFryCount = 3;
-
-    public RecipeIngredient createDefaultIngredient() {
-        return RecipeIngredient.item(Items.CARROT);
-    }
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

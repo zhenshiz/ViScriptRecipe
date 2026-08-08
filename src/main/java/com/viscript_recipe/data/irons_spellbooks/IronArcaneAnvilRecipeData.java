@@ -1,6 +1,6 @@
 package com.viscript_recipe.data.irons_spellbooks;
 
-import com.lowdragmc.lowdraglib2.configurator.annotation.Configurable;
+import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
@@ -15,13 +15,11 @@ import net.minecraft.world.item.crafting.Recipe;
 @Setter
 @Accessors(chain = true)
 public class IronArcaneAnvilRecipeData implements IVSRecipeData {
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.arcane_anvil.input", subConfigurable = true)
+    @Persisted
     private RecipeIngredient input = RecipeIngredient.item(Items.IRON_SWORD);
-
-    @Configurable(name = "viscript_recipe.config.irons_spellbooks.arcane_anvil.material", subConfigurable = true)
+    @Persisted
     private RecipeIngredient material = RecipeIngredient.item(Items.AMETHYST_SHARD);
-
-    @Configurable(name = "viscript_recipe.config.recipe.result")
+    @Persisted
     private ItemStack result = new ItemStack(Items.DIAMOND_SWORD);
 
     @Override

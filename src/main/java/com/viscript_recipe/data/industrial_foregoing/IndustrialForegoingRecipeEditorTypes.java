@@ -2,7 +2,6 @@ package com.viscript_recipe.data.industrial_foregoing;
 
 import com.viscript_recipe.data.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -60,14 +59,6 @@ public final class IndustrialForegoingRecipeEditorTypes {
                 "viscript_recipe.editor.type.industrial_foregoing." + id.getPath(),
                 dataClass, dataSupplier, MOD_ID
         ));
-    }
-
-    static ItemStack firstStack(com.viscript_recipe.data.RecipeIngredient ingredient) {
-        if (ingredient == null || ingredient.getValues() == null || ingredient.getValues().isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-        var stacks = ingredient.compile().getItems();
-        return stacks.length == 0 ? ItemStack.EMPTY : stacks[0].copy();
     }
 
     public static ResourceLocation id(String path) {
