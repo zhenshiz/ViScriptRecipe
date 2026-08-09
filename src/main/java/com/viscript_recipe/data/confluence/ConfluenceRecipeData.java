@@ -86,11 +86,11 @@ public class ConfluenceRecipeData implements IVSRecipeData {
         }
         while (ingredients.size() <= Math.max(0, index)) {
             ingredients.add(new ConfluenceIngredientData()
-                    .setIngredient(new RecipeIngredient()));
+                    .setIngredient(RecipeIngredient.empty()));
         }
         var value = ingredients.get(Math.max(0, index));
         if (value == null) {
-            value = new ConfluenceIngredientData().setIngredient(new RecipeIngredient());
+            value = new ConfluenceIngredientData().setIngredient(RecipeIngredient.empty());
             ingredients.set(Math.max(0, index), value);
         }
         return value;

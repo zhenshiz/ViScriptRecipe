@@ -259,7 +259,7 @@ dependencies {
     //通用机械：Mekanism
     implementation "mekanism:Mekanism:${mekanism_version}"
     //Alloy Smelter
-    implementation files("libs/alloy_smelter-neoforge-1.21.1-1.2.1.jar")
+    implementation "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

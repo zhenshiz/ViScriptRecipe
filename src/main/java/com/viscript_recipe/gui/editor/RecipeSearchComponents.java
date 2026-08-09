@@ -176,9 +176,14 @@ final class RecipeSearchComponents {
         var current = TagKey.create(Registries.STRUCTURE,
                 Objects.requireNonNullElse(supplier.get(), DEFAULT_STRUCTURE_TAG));
         var structureTags = StructureTagClientData.tags();
-        RegistrySearchBox<TagKey<Structure>> searchBox = structureTags.isEmpty()
-                ? new StructureTagSearchBox(current)
-                : new RecipeStructureTagSearchBox(current, structureTags);
+        // Structure is a dynamic registry.  It is not guaranteed to exist in the
+        // client built-in registry while the editor is being constructed (for
+        // example, during the first tick after connecting to a server).  Always use
+        // the server snapshot-backed search box here; an empty snapshot simply means
+        // that there are no candidates yet and, importantly, does not throw the
+        // registry's "Missing registry" exception.
+        RegistrySearchBox<TagKey<Structure>> searchBox =
+                new RecipeStructureTagSearchBox(current, structureTags);
         return configure(nameKey, searchBox,
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }

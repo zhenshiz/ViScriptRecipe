@@ -915,7 +915,7 @@ public class RecipeEditorController {
         }
         if (isConfluenceEntry(selectedEntry)) {
             var value = selectedEntry.getConfluence().ingredient(index);
-            value.setIngredient(stack == null || stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack.copyWithCount(1)))
+            value.setIngredient(stack == null || stack.isEmpty() ? RecipeIngredient.empty() : RecipeIngredient.item(stack.copyWithCount(1)))
                     .setCount(stack == null || stack.isEmpty() ? 1 : Math.max(1, stack.getCount()));
             notifyChanged();
             return;
@@ -1176,7 +1176,7 @@ public class RecipeEditorController {
             return;
         }
         if (isConfluenceEntry(selectedEntry)) {
-            selectedEntry.getConfluence().ingredient(slotSelection.index()).setIngredient(ingredient == null ? new RecipeIngredient() : ingredient);
+            selectedEntry.getConfluence().ingredient(slotSelection.index()).setIngredient(ingredient == null ? RecipeIngredient.empty() : ingredient);
             notifyChanged();
             return;
         }
@@ -3599,7 +3599,7 @@ public class RecipeEditorController {
         if (selectedEntry != null && isConfluenceEntry(selectedEntry)
                 && ConfluenceRecipeEditorTypes.COOKING_POT.equals(selectedEntry.getType())) {
             var ingredient = selectedEntry.getConfluence().getContainer();
-            return ingredient == null ? ItemStack.EMPTY : itemFromIngredient(ingredient);
+            return ingredient == null ? ItemStack.EMPTY : ingredient.toStack();
         }
         if (selectedEntry == null || !isFarmersCookingPotEntry(selectedEntry)) {
             return ItemStack.EMPTY;
@@ -3612,7 +3612,7 @@ public class RecipeEditorController {
     public void setSelectedContainer(ItemStack stack) {
         if (selectedEntry != null && isConfluenceEntry(selectedEntry)
                 && ConfluenceRecipeEditorTypes.COOKING_POT.equals(selectedEntry.getType())) {
-            selectedEntry.getConfluence().setContainer(stack == null || stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack.copyWithCount(1)));
+            selectedEntry.getConfluence().setContainer(stack == null || stack.isEmpty() ? RecipeIngredient.empty() : RecipeIngredient.item(stack.copyWithCount(1)));
             notifyChanged();
             return;
         }
@@ -4941,7 +4941,7 @@ public class RecipeEditorController {
         }
         if (isAlloySmelterEntry(entry) && index >= 0 && index < AlloySmelterRecipeData.MAX_INPUTS) {
             var material = entry.getAlloySmelter().material(index);
-            return material.getIngredient() == null ? new RecipeIngredient() : material.getIngredient();
+            return material.getIngredient() == null ? RecipeIngredient.empty() : material.getIngredient();
         }
         if (isIndustrialDissolutionEntry(entry) && index >= 0 && index < IndustrialDissolutionRecipeData.MAX_INPUTS) {
             var inputs = entry.getIndustrialDissolution().getInput();
@@ -5291,7 +5291,7 @@ public class RecipeEditorController {
 
     private void setIngredientForSlot(RecipeEntry entry, int index, RecipeIngredient ingredient) {
         if (isConfluenceEntry(entry)) {
-            entry.getConfluence().ingredient(index).setIngredient(ingredient == null ? new RecipeIngredient() : ingredient);
+            entry.getConfluence().ingredient(index).setIngredient(ingredient == null ? RecipeIngredient.empty() : ingredient);
         } else if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {
             setShapedSlotIngredient(entry.getShaped(), index, ingredient);
         } else if (entry.isType(RecipeEditorTypes.CRAFTING_SHAPELESS)) {
@@ -5367,7 +5367,7 @@ public class RecipeEditorController {
                 inputs.removeLast();
             }
         } else if (isAlloySmelterEntry(entry) && index >= 0 && index < AlloySmelterRecipeData.MAX_INPUTS) {
-            entry.getAlloySmelter().material(index).setIngredient(ingredient == null ? new RecipeIngredient() : ingredient);
+            entry.getAlloySmelter().material(index).setIngredient(ingredient == null ? RecipeIngredient.empty() : ingredient);
         } else if (isIndustrialFluidExtractorEntry(entry) && index == 0) {
             entry.getIndustrialFluidExtractor().setInput(ingredient);
         } else if (isIndustrialCrusherEntry(entry) && index == 0) {
@@ -5727,8 +5727,9 @@ public class RecipeEditorController {
                 var data = selectedEntry.getConfluence();
                 for (int index = 0; index < Math.min(MAX_INGREDIENT_SLOTS, ConfluenceRecipeData.MAX_INPUTS); index++) {
                     var ingredient = data.ingredient(index).getIngredient();
-                    visualIngredientData[index] = copyIngredient(ingredient);
-                    visualIngredients[index] = itemFromIngredient(ingredient).copyWithCount(Math.max(1, data.ingredient(index).getCount()));
+                    var normalized = ingredient == null ? RecipeIngredient.empty() : ingredient;
+                    visualIngredientData[index] = normalized.copy();
+                    visualIngredients[index] = normalized.toStack().copyWithCount(Math.max(1, data.ingredient(index).getCount()));
                 }
                 visualResult = data.getResult() == null ? ItemStack.EMPTY : data.getResult().copy();
             } else if (selectedEntry.isType(RecipeEditorTypes.CRAFTING_SHAPED)) {

@@ -128,11 +128,11 @@ final class ConfluenceWorkbenchSection {
             var entry = controller.getSelectedEntry();
             if (!controller.isRefreshing() && entry != null && ConfluenceRecipeEditorTypes.isType(entry.getType()) && index == -1
                     && ConfluenceRecipeEditorTypes.COOKING_POT.equals(entry.getType())) {
-                entry.getConfluence().setContainer(stack == null || stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack.copyWithCount(1)));
+                entry.getConfluence().setContainer(stack == null || stack.isEmpty() ? RecipeIngredient.empty() : RecipeIngredient.item(stack.copyWithCount(1)));
                 controller.notifyChanged();
             } else if (!controller.isRefreshing() && entry != null && ConfluenceRecipeEditorTypes.isType(entry.getType()) && index >= 0) {
                 var data = entry.getConfluence();
-                data.ingredient(index).setIngredient(stack == null || stack.isEmpty() ? new RecipeIngredient() : RecipeIngredient.item(stack.copyWithCount(1))).setCount(stack == null || stack.isEmpty() ? 1 : Math.max(1, stack.getCount()));
+                data.ingredient(index).setIngredient(stack == null || stack.isEmpty() ? RecipeIngredient.empty() : RecipeIngredient.item(stack.copyWithCount(1))).setCount(stack == null || stack.isEmpty() ? 1 : Math.max(1, stack.getCount()));
                 controller.notifyChanged();
             }
         });
@@ -185,7 +185,7 @@ final class ConfluenceWorkbenchSection {
     private void refreshIngredient(IngredientDisplaySlot slot, ConfluenceRecipeData data, int index) {
         var value = data.ingredient(index);
         var ingredient = value.getIngredient();
-        if (ingredient == null || ingredient.getValues().isEmpty()) {
+        if (ingredient == null || ingredient.isEmpty()) {
             slot.clearTagDisplayStacks();
             slot.setItem(ItemStack.EMPTY, false);
             return;
@@ -200,7 +200,7 @@ final class ConfluenceWorkbenchSection {
     }
 
     private void setIngredient(IngredientDisplaySlot slot, RecipeIngredient ingredient) {
-        if (ingredient == null || ingredient.getValues().isEmpty()) slot.setItem(ItemStack.EMPTY, false);
+        if (ingredient == null || ingredient.isEmpty()) slot.setItem(ItemStack.EMPTY, false);
         else {
             var stacks = ingredient.compile().getItems();
             slot.setItem(stacks.length == 0 ? ItemStack.EMPTY : stacks[0].copy(), false);

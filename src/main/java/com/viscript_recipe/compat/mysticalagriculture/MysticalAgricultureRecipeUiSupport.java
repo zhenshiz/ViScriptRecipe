@@ -82,9 +82,13 @@ public final class MysticalAgricultureRecipeUiSupport {
         }
         var key = ResourceKey.create(Registries.ENCHANTMENT, id);
         var level = Minecraft.getInstance().level;
-        if (level != null) {
-            return level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(key).orElse(null);
-        }
-        return Platform.getFrozenRegistry().lookupOrThrow(Registries.ENCHANTMENT).get(key).orElse(null);
+        var registryAccess = level == null ? Platform.getFrozenRegistry() : level.registryAccess();
+        // Enchantments are a dynamic registry.  During resource reloads the UI can
+        // be rendered before that registry is attached to the client level, so a
+        // missing lookup should produce an empty preview instead of crashing the
+        // whole editor.
+        return registryAccess.lookup(Registries.ENCHANTMENT)
+                .flatMap(registry -> registry.get(key))
+                .orElse(null);
     }
 }

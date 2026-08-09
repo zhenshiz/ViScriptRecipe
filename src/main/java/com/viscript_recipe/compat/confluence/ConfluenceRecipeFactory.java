@@ -90,7 +90,7 @@ public final class ConfluenceRecipeFactory {
         for (int index = 0; index < max; index++) {
             var value = data.ingredient(offset + index);
             var ingredient = value == null ? null : value.getIngredient();
-            if (ingredient != null && !ingredient.getValues().isEmpty()) {
+            if (ingredient != null && !ingredient.isEmpty()) {
                 result.add(encodeIngredient(ingredient, value.getCount()));
             }
         }
@@ -118,7 +118,7 @@ public final class ConfluenceRecipeFactory {
             var line = new StringBuilder(width);
             for (int col = 0; col < width; col++) {
                 var value = data.ingredient(row * 4 + col);
-                if (value == null || value.getIngredient() == null || value.getIngredient().getValues().isEmpty()) {
+                if (value == null || value.getIngredient() == null || value.getIngredient().isEmpty()) {
                     line.append(' ');
                     continue;
                 }

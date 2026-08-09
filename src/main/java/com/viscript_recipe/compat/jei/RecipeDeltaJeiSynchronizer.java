@@ -28,30 +28,48 @@ public final class RecipeDeltaJeiSynchronizer {
     private static long runtimeGeneration;
     private static int hiddenRuntimeRecipes;
     private static boolean forcingFullReload;
+    /**
+     * A delta can arrive before JEI has created its runtime/config objects.  Keep
+     * the fallback request until the runtime is available instead of posting a
+     * RecipesUpdatedEvent into a half-initialized JEI instance.
+     */
+    private static String pendingFullReloadReason;
 
     private RecipeDeltaJeiSynchronizer() {
     }
 
     public static void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        if (jeiRuntime == null) {
+            return;
+        }
         runtime = jeiRuntime;
         runtimeGeneration++;
         hiddenRuntimeRecipes = 0;
-        var state = RecipeDeltaClientState.jeiSyncState();
-        if (!state.touchedRecipeIds().isEmpty()) {
-            var currentRecipes = currentRecipes(state.touchedRecipeIds());
-            if (!canIncrementallyUpdate(jeiRuntime.getRecipeManager(), state.recipeTypeHints())) {
-                forceFullJeiReload("unsupported JEI recipe object type after runtime restart");
-                return;
-            }
-            reconcile(
-                    jeiRuntime.getRecipeManager(),
-                    state.revision(),
-                    state.touchedRecipeIds(),
-                    currentRecipes,
-                    state.recipeTypeHints()
-            );
+        if (tryApplyPendingFullReload()) {
+            applyCompatFiltersSafely(jeiRuntime);
+            return;
         }
-        applyCompatFilters(jeiRuntime);
+        var state = RecipeDeltaClientState.jeiSyncState();
+        try {
+            if (!state.touchedRecipeIds().isEmpty()) {
+                var currentRecipes = currentRecipes(state.touchedRecipeIds());
+                if (!canIncrementallyUpdate(jeiRuntime.getRecipeManager(), state.recipeTypeHints())) {
+                    forceFullJeiReload("unsupported JEI recipe object type after runtime restart");
+                    return;
+                }
+                reconcile(
+                        jeiRuntime.getRecipeManager(),
+                        state.revision(),
+                        state.touchedRecipeIds(),
+                        currentRecipes,
+                        state.recipeTypeHints()
+                );
+            }
+        } catch (RuntimeException | LinkageError e) {
+            ViScriptRecipe.LOGGER.warn("Failed to reconcile recipes when JEI became available", e);
+            forceFullJeiReload("JEI rejected the recipe state during runtime initialization");
+        }
+        applyCompatFiltersSafely(jeiRuntime);
     }
 
     public static void onRuntimeUnavailable() {
@@ -61,7 +79,9 @@ public final class RecipeDeltaJeiSynchronizer {
     public static void applyBaseline() {
         var jeiRuntime = runtime;
         if (jeiRuntime != null) {
-            applyCompatFilters(jeiRuntime);
+            if (!tryApplyPendingFullReload()) {
+                applyCompatFiltersSafely(jeiRuntime);
+            }
         }
     }
 
@@ -77,6 +97,10 @@ public final class RecipeDeltaJeiSynchronizer {
         if (affectedRecipeIds.isEmpty() && !arcaneAnvilChanged) {
             return;
         }
+        if (runtime == null) {
+            forceFullJeiReload("JEI runtime is not available yet");
+            return;
+        }
         if (arcaneAnvilChanged || affectsAutomaticBrewing(affectedRecipeIds, oldEditorTypes, newEditorTypes)) {
             forceFullJeiReload(arcaneAnvilChanged
                     ? "Iron's Spells arcane anvil recipes changed"
@@ -85,22 +109,29 @@ public final class RecipeDeltaJeiSynchronizer {
         }
 
         var jeiRuntime = runtime;
-        if (jeiRuntime == null) {
-            forceFullJeiReload("JEI runtime is not available");
+        if (tryApplyPendingFullReload()) {
             return;
         }
 
-        var typeHints = collectTypeHints(affectedRecipeIds, oldRecipes, newRecipes);
-        var recipeManager = jeiRuntime.getRecipeManager();
-        if (!canIncrementallyUpdate(recipeManager, typeHints)) {
-            forceFullJeiReload("a changed JEI category does not use RecipeHolder recipes");
-            return;
-        }
+        try {
+            var typeHints = collectTypeHints(affectedRecipeIds, oldRecipes, newRecipes);
+            var recipeManager = jeiRuntime.getRecipeManager();
+            if (!canIncrementallyUpdate(recipeManager, typeHints)) {
+                forceFullJeiReload("a changed JEI category does not use RecipeHolder recipes");
+                return;
+            }
 
-        reconcile(recipeManager, revision, affectedRecipeIds, newRecipes, typeHints);
-        applyCompatFilters(jeiRuntime);
-        if (hiddenRuntimeRecipes >= MAX_HIDDEN_RUNTIME_RECIPES) {
-            forceFullJeiReload("the hidden JEI recipe history reached its cleanup threshold");
+            reconcile(recipeManager, revision, affectedRecipeIds, newRecipes, typeHints);
+            applyCompatFiltersSafely(jeiRuntime);
+            if (hiddenRuntimeRecipes >= MAX_HIDDEN_RUNTIME_RECIPES) {
+                forceFullJeiReload("the hidden JEI recipe history reached its cleanup threshold");
+            }
+        } catch (RuntimeException | LinkageError e) {
+            // JEI's public runtime API can reject a category while it is rebuilding.
+            // A failed incremental operation must not bring down the client; defer
+            // one complete JEI-only rebuild until the runtime is safe to use.
+            ViScriptRecipe.LOGGER.warn("Failed to apply an incremental JEI recipe update", e);
+            forceFullJeiReload("JEI rejected an incremental recipe update");
         }
     }
 
@@ -271,12 +302,36 @@ public final class RecipeDeltaJeiSynchronizer {
         }
     }
 
+    private static void applyCompatFiltersSafely(IJeiRuntime jeiRuntime) {
+        try {
+            applyCompatFilters(jeiRuntime);
+        } catch (RuntimeException | LinkageError e) {
+            ViScriptRecipe.LOGGER.warn("Failed to apply JEI compatibility filters", e);
+            forceFullJeiReload("a JEI compatibility filter failed during initialization");
+        }
+    }
+
+    private static boolean tryApplyPendingFullReload() {
+        if (pendingFullReloadReason == null
+                || runtime == null
+                || Minecraft.getInstance().level == null) {
+            return false;
+        }
+        var reason = pendingFullReloadReason;
+        pendingFullReloadReason = null;
+        forceFullJeiReload(reason);
+        return true;
+    }
+
     private static void forceFullJeiReload(String reason) {
         if (forcingFullReload) {
             return;
         }
         var level = Minecraft.getInstance().level;
-        if (level == null) {
+        if (runtime == null || level == null) {
+            if (pendingFullReloadReason == null) {
+                pendingFullReloadReason = reason;
+            }
             return;
         }
         forcingFullReload = true;

@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AlloySmelterMaterialData implements IPersistedSerializable, IConfigurable {
     @Configurable(name = "viscript_recipe.config.alloy_smelter.material.ingredient", subConfigurable = true)
-    private RecipeIngredient ingredient = new RecipeIngredient();
+    private RecipeIngredient ingredient = RecipeIngredient.empty();
 
     @Configurable(name = "viscript_recipe.config.alloy_smelter.material.count")
     private int count = 1;

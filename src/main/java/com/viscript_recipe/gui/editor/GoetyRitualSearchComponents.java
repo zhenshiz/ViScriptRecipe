@@ -26,10 +26,13 @@ final class GoetyRitualSearchComponents {
             Runnable onChanged
     ) {
         var registry = ModRituals.REGISTRY;
-        var fallback = registry.getOptional(DEFAULT_RITUAL_TYPE)
-                .orElseGet(() -> registry.getAny().orElseThrow().value());
-        var current = registry.getOptional(Objects.requireNonNullElse(supplier.get(), DEFAULT_RITUAL_TYPE))
-                .orElse(fallback);
+        var requestedId = supplier.get();
+        // Goety can expose an empty ritual registry briefly while its client data
+        // is loading.  Do not turn that normal lifecycle state into an editor crash.
+        // RegistrySearchBox accepts a null value and will populate candidates once
+        // the registry contains entries.
+        var current = registry.getOptional(Objects.requireNonNullElse(requestedId, DEFAULT_RITUAL_TYPE))
+                .orElseGet(() -> registry.getAny().map(holder -> holder.value()).orElse(null));
         var searchBox = new RitualTypeSearchBox(current);
         searchBox.setOnValueChanged(value -> {
             var id = registry.getKey(value);

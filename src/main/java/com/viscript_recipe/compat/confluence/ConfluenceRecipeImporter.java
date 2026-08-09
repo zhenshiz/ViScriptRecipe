@@ -103,7 +103,7 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
     }
 
     private static ConfluenceIngredientData importIngredient(Ingredient i) throws RecipeImportException {
-        if (i == null || i.isEmpty()) return new ConfluenceIngredientData().setIngredient(new RecipeIngredient());
+        if (i == null || i.isEmpty()) return new ConfluenceIngredientData().setIngredient(RecipeIngredient.empty());
         var c = i.getCustomIngredient();
         if (c != null && c.getClass().getName().equals("org.confluence.lib.common.recipe.AmountIngredient")) {
             return new ConfluenceIngredientData().setIngredient(RecipeImporter.importIngredient((Ingredient) invoke(c, "ingredient")))
@@ -171,7 +171,7 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
     private static ConfluenceRecipeData result(ConfluenceRecipeData d, Recipe<?> r, HolderLookup.Provider p) { return d.setResult(RecipeImporter.copyResult(r, p)); }
     private static RecipeImportResult success(RecipeHolder<?> h, ResourceLocation t, ConfluenceRecipeData d) { return RecipeImporter.success(RecipeImporter.baseEntry(h.id(), t).setData(d)); }
     private static ConfluenceRecipeData base() { return new ConfluenceRecipeData().setIngredients(new ArrayList<>()).setTargets(new ArrayList<>()); }
-    private static ArrayList<ConfluenceIngredientData> empty(int n) { var l = new ArrayList<ConfluenceIngredientData>(); for (int i = 0; i < n; i++) l.add(new ConfluenceIngredientData().setIngredient(new RecipeIngredient())); return l; }
+    private static ArrayList<ConfluenceIngredientData> empty(int n) { var l = new ArrayList<ConfluenceIngredientData>(); for (int i = 0; i < n; i++) l.add(new ConfluenceIngredientData().setIngredient(RecipeIngredient.empty())); return l; }
     private static Object field(Object o, String n) { try { Field f = o.getClass().getField(n); return f.get(o); } catch (ReflectiveOperationException e) { throw new IllegalStateException(e); } }
     private static Object invoke(Object o, String n) { try { return o == null ? null : o.getClass().getMethod(n).invoke(o); } catch (ReflectiveOperationException e) { throw new IllegalStateException(e); } }
     private static Optional<?> optional(Object o) { return o instanceof Optional<?> x ? x : Optional.empty(); }
