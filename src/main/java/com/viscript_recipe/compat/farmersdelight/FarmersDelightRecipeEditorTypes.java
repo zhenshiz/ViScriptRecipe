@@ -5,12 +5,9 @@ import com.viscript_recipe.compat.farmersdelight.canvas.FarmerCuttingCanvas;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class FarmersDelightRecipeEditorTypes {
     public static final String MOD_ID = "farmersdelight";
@@ -20,7 +17,6 @@ public final class FarmersDelightRecipeEditorTypes {
     public static final ResourceLocation COOKING = farmer("cooking");
     public static final ResourceLocation CUTTING = farmer("cutting");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private FarmersDelightRecipeEditorTypes() {
@@ -36,21 +32,15 @@ public final class FarmersDelightRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 COOKING_POT,
                 "viscript_recipe.editor.category.farmersdelight.cooking_pot",
-                MOD_ID,
-                REQUIRED_MODS,
-                COOKING,
-                RecipeEditorLayout.FARMERS_COOKING_POT
+                MOD_ID, COOKING
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 CUTTING_BOARD,
                 "viscript_recipe.editor.category.farmersdelight.cutting_board",
-                MOD_ID,
-                REQUIRED_MODS,
-                CUTTING,
-                RecipeEditorLayout.FARMERS_CUTTING_BOARD
+                MOD_ID, CUTTING
         ));
     }
 

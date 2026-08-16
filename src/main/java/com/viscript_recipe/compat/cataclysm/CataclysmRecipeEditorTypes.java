@@ -5,12 +5,9 @@ import com.viscript_recipe.compat.cataclysm.canvas.WeaponFusionCanvas;
 import com.viscript_recipe.compat.cataclysm.data.CataclysmAmethystBlessRecipeData;
 import com.viscript_recipe.compat.cataclysm.data.CataclysmWeaponFusionRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class CataclysmRecipeEditorTypes {
     public static final String MOD_ID = "cataclysm";
@@ -20,7 +17,6 @@ public final class CataclysmRecipeEditorTypes {
     public static final ResourceLocation WEAPON_FUSION = cataclysm("weapon_fusion");
     public static final ResourceLocation AMETHYST_BLESS = cataclysm("amethyst_bless");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private CataclysmRecipeEditorTypes() {
@@ -36,23 +32,15 @@ public final class CataclysmRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 MECHANICAL_FUSION_ANVIL,
                 "viscript_recipe.editor.category.cataclysm.mechanical_fusion_anvil",
-                MOD_ID,
-                REQUIRED_MODS,
-                WEAPON_FUSION,
-                RecipeEditorLayout.CATACLYSM_WEAPON_FUSION,
-                MECHANICAL_FUSION_ANVIL
+                MOD_ID, WEAPON_FUSION, MECHANICAL_FUSION_ANVIL
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 ALTAR_OF_AMETHYST,
                 "viscript_recipe.editor.category.cataclysm.altar_of_amethyst",
-                MOD_ID,
-                REQUIRED_MODS,
-                AMETHYST_BLESS,
-                RecipeEditorLayout.CATACLYSM_AMETHYST_BLESS,
-                ALTAR_OF_AMETHYST
+                MOD_ID, AMETHYST_BLESS, ALTAR_OF_AMETHYST
         ));
     }
 

@@ -5,12 +5,9 @@ import com.viscript_recipe.compat.spore.canvas.SurgeryCanvas;
 import com.viscript_recipe.compat.spore.data.SporeGraftingRecipeData;
 import com.viscript_recipe.compat.spore.data.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class SporeRecipeEditorTypes {
     public static final String MOD_ID = "spore";
@@ -19,7 +16,6 @@ public final class SporeRecipeEditorTypes {
     public static final ResourceLocation SURGERY = spore("surgery");
     public static final ResourceLocation GRAFTING = spore("grafting");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private SporeRecipeEditorTypes() {
@@ -30,14 +26,10 @@ public final class SporeRecipeEditorTypes {
             return;
         }
         registered = true;
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 SURGERY_TABLE,
                 "viscript_recipe.editor.category.spore.surgery_table",
-                MOD_ID,
-                REQUIRED_MODS,
-                SURGERY,
-                RecipeEditorLayout.SPORE,
-                SURGERY_TABLE
+                MOD_ID, SURGERY, SURGERY_TABLE
         ));
         registerTypes();
     }

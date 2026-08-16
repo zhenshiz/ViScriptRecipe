@@ -5,7 +5,6 @@ import com.viscript_recipe.compat.mysticalagriculture.data.*;
 import com.viscript_recipe.data.*;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public final class MysticalAgricultureRecipeEditorTypes {
@@ -25,7 +24,6 @@ public final class MysticalAgricultureRecipeEditorTypes {
     public static final ResourceLocation SOUL_EXTRACTION = mystical("soul_extraction");
     public static final ResourceLocation SOULIUM_SPAWNER = mystical("soulium_spawner");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private MysticalAgricultureRecipeEditorTypes() {
@@ -36,24 +34,19 @@ public final class MysticalAgricultureRecipeEditorTypes {
             return;
         }
         registered = true;
-        registerCategory(INFUSION_ALTAR, INFUSION, RecipeEditorLayout.MYSTICAL_AGRICULTURE_INFUSION);
-        registerCategory(AWAKENING_ALTAR, AWAKENING, RecipeEditorLayout.MYSTICAL_AGRICULTURE_AWAKENING);
-        registerCategory(ENCHANTER_BLOCK, ENCHANTER, RecipeEditorLayout.MYSTICAL_AGRICULTURE_ENCHANTER);
-        registerCategory(REPROCESSOR_BLOCK, REPROCESSOR, RecipeEditorLayout.MYSTICAL_AGRICULTURE_REPROCESSOR);
-        registerCategory(SOUL_EXTRACTOR_BLOCK, SOUL_EXTRACTION, RecipeEditorLayout.MYSTICAL_AGRICULTURE_SOUL_EXTRACTION);
-        registerCategory(SOULIUM_SPAWNER_BLOCK, SOULIUM_SPAWNER, RecipeEditorLayout.MYSTICAL_AGRICULTURE_SOULIUM_SPAWNER);
+        registerCategory(INFUSION_ALTAR, INFUSION);
+        registerCategory(AWAKENING_ALTAR, AWAKENING);
+        registerCategory(ENCHANTER_BLOCK, ENCHANTER);
+        registerCategory(REPROCESSOR_BLOCK, REPROCESSOR);
+        registerCategory(SOUL_EXTRACTOR_BLOCK, SOUL_EXTRACTION);
+        registerCategory(SOULIUM_SPAWNER_BLOCK, SOULIUM_SPAWNER);
         registerTypes();
     }
 
-    private static void registerCategory(ResourceLocation category, ResourceLocation type, RecipeEditorLayout layout) {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                category,
-                "viscript_recipe.editor.category.mysticalagriculture." + category.getPath(),
-                MOD_ID,
-                REQUIRED_MODS,
-                type,
-                layout,
-                category
+    private static void registerCategory(ResourceLocation category, ResourceLocation type) {
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+                category, "viscript_recipe.editor.category.mysticalagriculture." + category.getPath(),
+                MOD_ID, type, category
         ));
     }
 

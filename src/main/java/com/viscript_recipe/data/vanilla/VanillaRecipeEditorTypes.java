@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.gui.canvas.vanilla.*;
@@ -46,58 +45,37 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 CRAFTING_TABLE,
                 "viscript_recipe.editor.category.minecraft.crafting_table",
-                MOD_ID,
-                List.of(),
-                CRAFTING_SHAPED,
-                RecipeEditorLayout.CRAFTING_GRID
+                MOD_ID, List.of(), CRAFTING_SHAPED
         ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 FURNACE,
                 "viscript_recipe.editor.category.minecraft.furnace",
-                MOD_ID,
-                List.of(),
-                SMELTING,
-                RecipeEditorLayout.COOKING
+                MOD_ID, List.of(), SMELTING
         ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 BLAST_FURNACE,
                 "viscript_recipe.editor.category.minecraft.blast_furnace",
-                MOD_ID,
-                List.of(),
-                BLASTING,
-                RecipeEditorLayout.COOKING
+                MOD_ID, List.of(), BLASTING
         ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 SMOKER,
                 "viscript_recipe.editor.category.minecraft.smoker",
-                MOD_ID,
-                List.of(),
-                SMOKING,
-                RecipeEditorLayout.COOKING
+                MOD_ID, List.of(), SMOKING
         ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 CAMPFIRE,
                 "viscript_recipe.editor.category.minecraft.campfire",
-                MOD_ID,
-                List.of(),
-                CAMPFIRE_COOKING,
-                RecipeEditorLayout.COOKING
+                MOD_ID, List.of(), CAMPFIRE_COOKING
         ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 STONECUTTER,
                 "viscript_recipe.editor.category.minecraft.stonecutter",
-                MOD_ID,
-                List.of(),
-                STONECUTTING,
-                RecipeEditorLayout.SINGLE_INPUT
+                MOD_ID, List.of(), STONECUTTING
         ));
         RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
                 SMITHING_TABLE,
                 "viscript_recipe.editor.category.minecraft.smithing_table",
-                MOD_ID,
-                List.of(),
-                SMITHING_TRANSFORM,
-                RecipeEditorLayout.SMITHING
+                MOD_ID, List.of(), SMITHING_TRANSFORM
         ));
     }
 

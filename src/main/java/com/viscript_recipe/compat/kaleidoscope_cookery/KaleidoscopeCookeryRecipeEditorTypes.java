@@ -3,12 +3,9 @@ package com.viscript_recipe.compat.kaleidoscope_cookery;
 import com.viscript_recipe.compat.kaleidoscope_cookery.canvas.*;
 import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class KaleidoscopeCookeryRecipeEditorTypes {
     public static final String MOD_ID = "kaleidoscope_cookery";
@@ -20,7 +17,6 @@ public final class KaleidoscopeCookeryRecipeEditorTypes {
     public static final ResourceLocation STEAMER = kaleidoscope("steamer");
     public static final ResourceLocation TEAPOT = kaleidoscope("teapot");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private KaleidoscopeCookeryRecipeEditorTypes() {
@@ -36,24 +32,16 @@ public final class KaleidoscopeCookeryRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        registerCategory(POT, "viscript_recipe.editor.category.kaleidoscope_cookery.pot", POT, RecipeEditorLayout.KALEIDOSCOPE_POT);
-        registerCategory(STOCKPOT, "viscript_recipe.editor.category.kaleidoscope_cookery.stockpot", STOCKPOT, RecipeEditorLayout.KALEIDOSCOPE_STOCKPOT);
-        registerCategory(MILLSTONE, "viscript_recipe.editor.category.kaleidoscope_cookery.millstone", MILLSTONE, RecipeEditorLayout.KALEIDOSCOPE_MILLSTONE);
-        registerCategory(CHOPPING_BOARD, "viscript_recipe.editor.category.kaleidoscope_cookery.chopping_board", CHOPPING_BOARD, RecipeEditorLayout.KALEIDOSCOPE_CHOPPING_BOARD);
-        registerCategory(STEAMER, "viscript_recipe.editor.category.kaleidoscope_cookery.steamer", STEAMER, RecipeEditorLayout.KALEIDOSCOPE_STEAMER);
-        registerCategory(TEAPOT, "viscript_recipe.editor.category.kaleidoscope_cookery.teapot", TEAPOT, RecipeEditorLayout.KALEIDOSCOPE_TEAPOT);
+        registerCategory(POT, "viscript_recipe.editor.category.kaleidoscope_cookery.pot", POT);
+        registerCategory(STOCKPOT, "viscript_recipe.editor.category.kaleidoscope_cookery.stockpot", STOCKPOT);
+        registerCategory(MILLSTONE, "viscript_recipe.editor.category.kaleidoscope_cookery.millstone", MILLSTONE);
+        registerCategory(CHOPPING_BOARD, "viscript_recipe.editor.category.kaleidoscope_cookery.chopping_board", CHOPPING_BOARD);
+        registerCategory(STEAMER, "viscript_recipe.editor.category.kaleidoscope_cookery.steamer", STEAMER);
+        registerCategory(TEAPOT, "viscript_recipe.editor.category.kaleidoscope_cookery.teapot", TEAPOT);
     }
 
-    private static void registerCategory(ResourceLocation category, String translationKey, ResourceLocation defaultType, RecipeEditorLayout layout) {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                category,
-                translationKey,
-                MOD_ID,
-                REQUIRED_MODS,
-                defaultType,
-                layout,
-                category
-        ));
+    private static void registerCategory(ResourceLocation category, String translationKey, ResourceLocation defaultType) {
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(category, translationKey, MOD_ID, defaultType, category));
     }
 
     private static void registerTypes() {

@@ -3,12 +3,9 @@ package com.viscript_recipe.compat.touhou_little_maid;
 import com.viscript_recipe.compat.touhou_little_maid.canvas.AltarCanvas;
 import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class TouhouLittleMaidRecipeEditorTypes {
     public static final String MOD_ID = "touhou_little_maid";
@@ -16,7 +13,6 @@ public final class TouhouLittleMaidRecipeEditorTypes {
     public static final ResourceLocation ALTAR = touhouLittleMaid("altar");
     public static final ResourceLocation ALTAR_RECIPE = touhouLittleMaid("altar_recipe");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private TouhouLittleMaidRecipeEditorTypes() {
@@ -27,14 +23,10 @@ public final class TouhouLittleMaidRecipeEditorTypes {
             return;
         }
         registered = true;
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 ALTAR,
                 "viscript_recipe.editor.category.touhou_little_maid.altar",
-                MOD_ID,
-                REQUIRED_MODS,
-                ALTAR_RECIPE,
-                RecipeEditorLayout.TOUHOU_LITTLE_MAID_ALTAR,
-                touhouLittleMaid("hakurei_gohei")
+                MOD_ID, ALTAR_RECIPE, touhouLittleMaid("hakurei_gohei")
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 ALTAR_RECIPE, ALTAR,

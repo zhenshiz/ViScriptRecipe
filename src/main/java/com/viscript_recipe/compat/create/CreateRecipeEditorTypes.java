@@ -8,12 +8,9 @@ import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.create.data.CreateProcessingRecipeData;
 import com.viscript_recipe.compat.create.data.CreateSequencedAssemblyRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class CreateRecipeEditorTypes {
     public static final String MOD_ID = "create";
@@ -21,7 +18,6 @@ public final class CreateRecipeEditorTypes {
     public static final ResourceLocation MECHANICAL_CRAFTING = create("mechanical_crafting");
     public static final ResourceLocation SEQUENCED_ASSEMBLY = create("sequenced_assembly");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private CreateRecipeEditorTypes() {
@@ -37,36 +33,24 @@ public final class CreateRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 MECHANICAL_CRAFTER,
                 "viscript_recipe.editor.category.create.mechanical_crafter",
-                MOD_ID,
-                REQUIRED_MODS,
-                MECHANICAL_CRAFTING,
-                RecipeEditorLayout.CREATE_MECHANICAL_CRAFTING,
-                MECHANICAL_CRAFTER
+                MOD_ID, MECHANICAL_CRAFTING, MECHANICAL_CRAFTER
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 SEQUENCED_ASSEMBLY,
                 "create.recipe.sequenced_assembly",
-                MOD_ID,
-                REQUIRED_MODS,
-                SEQUENCED_ASSEMBLY,
-                RecipeEditorLayout.CREATE_SEQUENCED_ASSEMBLY,
-                null
+                MOD_ID, SEQUENCED_ASSEMBLY, null
         ));
         for (var kind : CreateProcessingKind.values()) {
             if (RecipeEditorTypes.getCategory(kind.categoryId()).isPresent()) {
                 continue;
             }
-            RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+            RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                     kind.categoryId(),
                     categoryFallbackTranslationKey(kind),
-                    MOD_ID,
-                    REQUIRED_MODS,
-                    kind.typeId(),
-                    RecipeEditorLayout.CREATE_PROCESSING,
-                    categoryWorkstationItem(kind)
+                    MOD_ID, kind.typeId(), categoryWorkstationItem(kind)
             ));
         }
     }

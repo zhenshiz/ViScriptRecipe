@@ -199,11 +199,4 @@ public final class RecipeEditorTypes {
                 .map(type -> type.category().equals(category))
                 .orElse(false);
     }
-
-    public static RecipeEditorLayout layoutForType(@Nullable ResourceLocation id) {
-        return get(id)
-                .flatMap(type -> getCategory(type.category()))
-                .map(RecipeEditorCategory::layout)
-                .orElse(RecipeEditorLayout.CRAFTING_GRID);
-    }
 }

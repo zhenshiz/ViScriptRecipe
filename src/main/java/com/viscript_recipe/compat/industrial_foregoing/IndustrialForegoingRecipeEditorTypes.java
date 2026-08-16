@@ -7,7 +7,6 @@ import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -20,7 +19,6 @@ public final class IndustrialForegoingRecipeEditorTypes {
     public static final ResourceLocation LASER_DRILL_FLUID = id("laser_drill_fluid");
     public static final ResourceLocation STONEWORK_GENERATE = id("stonework_generate");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private IndustrialForegoingRecipeEditorTypes() {
@@ -47,14 +45,9 @@ public final class IndustrialForegoingRecipeEditorTypes {
     }
 
     private static void registerCategory(ResourceLocation id, ResourceLocation defaultType, String workstationPath) {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                id,
-                "viscript_recipe.editor.category.industrial_foregoing." + id.getPath(),
-                MOD_ID,
-                REQUIRED_MODS,
-                defaultType,
-                RecipeEditorLayout.INDUSTRIAL_FOREGOING,
-                IndustrialForegoingRecipeEditorTypes.id(workstationPath)
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+                id, "viscript_recipe.editor.category.industrial_foregoing." + id.getPath(),
+                MOD_ID, defaultType, IndustrialForegoingRecipeEditorTypes.id(workstationPath)
         ));
     }
 

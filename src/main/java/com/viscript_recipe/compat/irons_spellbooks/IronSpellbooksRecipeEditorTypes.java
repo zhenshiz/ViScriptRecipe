@@ -5,12 +5,9 @@ import com.viscript_recipe.compat.irons_spellbooks.canvas.IronArcaneAnvilCanvas;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class IronSpellbooksRecipeEditorTypes {
     public static final String MOD_ID = "irons_spellbooks";
@@ -23,7 +20,6 @@ public final class IronSpellbooksRecipeEditorTypes {
     public static final ResourceLocation ARCANE_ANVIL_TRANSFORM = iron("arcane_anvil_transform");
     public static final ResourceLocation SMITHING_TRANSFORM_NO_ADDITION = iron("smithing_transform_no_addition");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private IronSpellbooksRecipeEditorTypes() {
@@ -39,21 +35,15 @@ public final class IronSpellbooksRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.category.irons_spellbooks.alchemist_cauldron",
-                MOD_ID,
-                REQUIRED_MODS,
-                ALCHEMIST_CAULDRON_FILL,
-                RecipeEditorLayout.ALCHEMIST_CAULDRON
+                MOD_ID, ALCHEMIST_CAULDRON_FILL
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 ARCANE_ANVIL,
                 "viscript_recipe.editor.category.irons_spellbooks.arcane_anvil",
-                MOD_ID,
-                REQUIRED_MODS,
-                ARCANE_ANVIL_TRANSFORM,
-                RecipeEditorLayout.SMITHING
+                MOD_ID, ARCANE_ANVIL_TRANSFORM
         ));
     }
 

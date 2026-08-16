@@ -3,12 +3,9 @@ package com.viscript_recipe.compat.ars_nouveau;
 import com.viscript_recipe.compat.ars_nouveau.canvas.*;
 import com.viscript_recipe.compat.ars_nouveau.data.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class ArsNouveauRecipeEditorTypes {
     public static final String MOD_ID = "ars_nouveau";
@@ -27,7 +24,6 @@ public final class ArsNouveauRecipeEditorTypes {
     public static final ResourceLocation SPELL_WRITE = ars("spell_write");
     public static final ResourceLocation PRESTIDIGITATION = ars("prestidigitation");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private ArsNouveauRecipeEditorTypes() {
@@ -43,41 +39,25 @@ public final class ArsNouveauRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.category.ars_nouveau.enchanting_apparatus",
-                MOD_ID,
-                REQUIRED_MODS,
-                APPARATUS,
-                RecipeEditorLayout.ARS_NOUVEAU_APPARATUS,
-                ENCHANTING_APPARATUS
+                MOD_ID, APPARATUS, ENCHANTING_APPARATUS
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 IMBUEMENT_CHAMBER,
                 "viscript_recipe.editor.category.ars_nouveau.imbuement_chamber",
-                MOD_ID,
-                REQUIRED_MODS,
-                IMBUEMENT,
-                RecipeEditorLayout.ARS_NOUVEAU_IMBUEMENT,
-                IMBUEMENT_CHAMBER
+                MOD_ID, IMBUEMENT, IMBUEMENT_CHAMBER
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 SCRIBES_TABLE,
                 "viscript_recipe.editor.category.ars_nouveau.scribes_table",
-                MOD_ID,
-                REQUIRED_MODS,
-                GLYPH,
-                RecipeEditorLayout.ARS_NOUVEAU_GLYPH,
-                SCRIBES_TABLE
+                MOD_ID, GLYPH, SCRIBES_TABLE
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 CRUSHING,
                 "viscript_recipe.editor.category.ars_nouveau.crush",
-                MOD_ID,
-                REQUIRED_MODS,
-                CRUSH,
-                RecipeEditorLayout.ARS_NOUVEAU_CRUSH,
-                ars("glyph_crush")
+                MOD_ID, CRUSH, ars("glyph_crush")
         ));
     }
 

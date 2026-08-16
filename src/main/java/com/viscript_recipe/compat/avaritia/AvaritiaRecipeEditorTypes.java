@@ -9,12 +9,9 @@ import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeDat
 import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class AvaritiaRecipeEditorTypes {
     public static final String MOD_ID = "avaritia";
@@ -44,7 +41,6 @@ public final class AvaritiaRecipeEditorTypes {
     public static final ResourceLocation ETERNAL_SINGULARITY = create("eternal_singularity");
     public static final ResourceLocation FULL_MATTER_CLUSTER = create("full_matter_cluster");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private AvaritiaRecipeEditorTypes() {
@@ -60,30 +56,22 @@ public final class AvaritiaRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 AvaritiaRecipeEditorTypes.CRAFTING_TABLE,
                 "viscript_recipe.editor.category.avaritia.crafting_table",
                 MOD_ID,
-                REQUIRED_MODS,
                 AvaritiaRecipeEditorTypes.SHAPED_TABLE,
-                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
                 AvaritiaRecipeEditorTypes.SCULK_CRAFTING_TABLE
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 NEUTRON_COMPRESSOR,
                 "viscript_recipe.editor.category.avaritia.neutron_compressor",
-                MOD_ID,
-                REQUIRED_MODS,
-                COMPRESSOR,
-                RecipeEditorLayout.AVARITIA_COMPRESSOR
+                MOD_ID, COMPRESSOR
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 EXTREME_SMITHING_TABLE,
                 "viscript_recipe.editor.category.avaritia.extreme_smithing_table",
-                MOD_ID,
-                REQUIRED_MODS,
-                EXTREME_SMITHING,
-                RecipeEditorLayout.AVARITIA_EXTREME_SMITHING
+                MOD_ID, EXTREME_SMITHING
         ));
     }
 

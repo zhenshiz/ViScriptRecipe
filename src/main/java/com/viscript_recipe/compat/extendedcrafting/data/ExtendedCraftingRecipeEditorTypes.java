@@ -2,12 +2,9 @@ package com.viscript_recipe.compat.extendedcrafting.data;
 
 import com.viscript_recipe.compat.extendedcrafting.canvas.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class ExtendedCraftingRecipeEditorTypes {
     public static final String MOD_ID = "extendedcrafting";
@@ -40,7 +37,6 @@ public final class ExtendedCraftingRecipeEditorTypes {
     public static final ResourceLocation SHAPED_FLUX_CRAFTER = create("shaped_flux_crafter");
     public static final ResourceLocation SHAPELESS_FLUX_CRAFTER = create("shapeless_flux_crafter");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private ExtendedCraftingRecipeEditorTypes() {
@@ -56,46 +52,30 @@ public final class ExtendedCraftingRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 CRAFTING_CORE,
                 "viscript_recipe.editor.category.extendedcrafting.crafting_core",
-                MOD_ID,
-                REQUIRED_MODS,
-                COMBINATION,
-                RecipeEditorLayout.CRAFTING_GRID
+                MOD_ID, COMBINATION
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 CRAFTING_TABLE,
                 "viscript_recipe.editor.category.extendedcrafting.crafting_table",
-                MOD_ID,
-                REQUIRED_MODS,
-                SHAPED_TABLE,
-                RecipeEditorLayout.EXTENDED_CRAFTING_TABLE,
-                BASIC_TABLE
+                MOD_ID, SHAPED_TABLE, BASIC_TABLE
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 COMPRESSOR,
                 "viscript_recipe.editor.category.extendedcrafting.compressor",
-                MOD_ID,
-                REQUIRED_MODS,
-                COMPRESSOR_RECIPE,
-                RecipeEditorLayout.CRAFTING_GRID
+                MOD_ID, COMPRESSOR_RECIPE
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 ENDER_CRAFTER,
                 "viscript_recipe.editor.category.extendedcrafting.ender_crafter",
-                MOD_ID,
-                REQUIRED_MODS,
-                SHAPED_ENDER_CRAFTER,
-                RecipeEditorLayout.CRAFTING_GRID
+                MOD_ID, SHAPED_ENDER_CRAFTER
         ));
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 FLUX_CRAFTER,
                 "viscript_recipe.editor.category.extendedcrafting.flux_crafter",
-                MOD_ID,
-                REQUIRED_MODS,
-                SHAPED_FLUX_CRAFTER,
-                RecipeEditorLayout.CRAFTING_GRID
+                MOD_ID, SHAPED_FLUX_CRAFTER
         ));
     }
 

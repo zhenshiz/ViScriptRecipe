@@ -3,12 +3,9 @@ package com.viscript_recipe.compat.alloy_smelter;
 import com.viscript_recipe.compat.alloy_smelter.canvas.AlloySmelterCanvas;
 import com.viscript_recipe.compat.alloy_smelter.data.AlloySmelterRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 /** Registers the native Alloy Smelter recipe editor category. */
 public final class AlloySmelterRecipeEditorTypes {
@@ -24,14 +21,9 @@ public final class AlloySmelterRecipeEditorTypes {
             return;
         }
         registered = true;
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                SMELTING,
-                "viscript_recipe.editor.category.alloy_smelter.smelting",
-                MOD_ID,
-                List.of(MOD_ID),
-                SMELTING,
-                RecipeEditorLayout.ALLOY_SMELTER,
-                id("forge_controller_tier1")
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+                SMELTING, "viscript_recipe.editor.category.alloy_smelter.smelting",
+                MOD_ID, SMELTING, id("forge_controller_tier1")
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 SMELTING, SMELTING,

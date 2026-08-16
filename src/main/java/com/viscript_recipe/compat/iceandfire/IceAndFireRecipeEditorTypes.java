@@ -3,12 +3,9 @@ package com.viscript_recipe.compat.iceandfire;
 import com.viscript_recipe.compat.iceandfire.canvas.DragonForgeCanvas;
 import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class IceAndFireRecipeEditorTypes {
     public static final String MOD_ID = "iceandfire";
@@ -16,7 +13,6 @@ public final class IceAndFireRecipeEditorTypes {
     public static final ResourceLocation DRAGON_FORGE = iceandfire("dragon_forge");
     public static final ResourceLocation DRAGONFORGE = iceandfire("dragonforge");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private IceAndFireRecipeEditorTypes() {
@@ -32,14 +28,10 @@ public final class IceAndFireRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
                 DRAGON_FORGE,
                 "viscript_recipe.editor.category.iceandfire.dragon_forge",
-                MOD_ID,
-                REQUIRED_MODS,
-                DRAGONFORGE,
-                RecipeEditorLayout.DRAGON_FORGE,
-                iceandfire("dragonforge_fire_core")
+                MOD_ID, DRAGONFORGE, iceandfire("dragonforge_fire_core")
         ));
     }
 

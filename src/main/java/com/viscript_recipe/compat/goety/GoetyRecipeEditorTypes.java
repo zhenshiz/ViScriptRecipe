@@ -3,12 +3,9 @@ package com.viscript_recipe.compat.goety;
 import com.viscript_recipe.compat.goety.canvas.*;
 import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
-import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public final class GoetyRecipeEditorTypes {
     public static final String MOD_ID = "goety";
@@ -25,7 +22,6 @@ public final class GoetyRecipeEditorTypes {
     public static final ResourceLocation PULVERIZE = goety("pulverize");
     public static final ResourceLocation BREWING = goety("brewing");
 
-    private static final List<String> REQUIRED_MODS = List.of(MOD_ID);
     private static boolean registered;
 
     private GoetyRecipeEditorTypes() {
@@ -41,23 +37,18 @@ public final class GoetyRecipeEditorTypes {
     }
 
     private static void registerCategories() {
-        registerCategory(CURSED_INFUSER, CURSED_INFUSER_RECIPE, RecipeEditorLayout.GOETY_CURSED_INFUSER, CURSED_INFUSER);
-        registerCategory(DARK_ALTAR, RITUAL, RecipeEditorLayout.GOETY_RITUAL, DARK_ALTAR);
-        registerCategory(NECRO_BRAZIER, BRAZIER, RecipeEditorLayout.GOETY_BRAZIER, NECRO_BRAZIER);
-        registerCategory(PULVERIZE_FOCUS, PULVERIZE, RecipeEditorLayout.GOETY_PULVERIZE, PULVERIZE_FOCUS);
-        registerCategory(WITCH_CAULDRON, BREWING, RecipeEditorLayout.GOETY_BREWING, WITCH_CAULDRON);
+        registerCategory(CURSED_INFUSER, CURSED_INFUSER_RECIPE, CURSED_INFUSER);
+        registerCategory(DARK_ALTAR, RITUAL, DARK_ALTAR);
+        registerCategory(NECRO_BRAZIER, BRAZIER, NECRO_BRAZIER);
+        registerCategory(PULVERIZE_FOCUS, PULVERIZE, PULVERIZE_FOCUS);
+        registerCategory(WITCH_CAULDRON, BREWING, WITCH_CAULDRON);
     }
 
-    private static void registerCategory(ResourceLocation id, ResourceLocation defaultType, RecipeEditorLayout layout,
+    private static void registerCategory(ResourceLocation id, ResourceLocation defaultType,
                                          ResourceLocation workstation) {
-        RecipeEditorTypes.registerCategory(new RecipeEditorCategory(
-                id,
-                "viscript_recipe.editor.category.goety." + id.getPath(),
-                MOD_ID,
-                REQUIRED_MODS,
-                defaultType,
-                layout,
-                workstation
+        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+                id, "viscript_recipe.editor.category.goety." + id.getPath(),
+                MOD_ID, defaultType, workstation
         ));
     }
 
