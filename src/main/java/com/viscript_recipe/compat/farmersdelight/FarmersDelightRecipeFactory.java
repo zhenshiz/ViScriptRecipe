@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.farmersdelight;
 
+import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
+import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;

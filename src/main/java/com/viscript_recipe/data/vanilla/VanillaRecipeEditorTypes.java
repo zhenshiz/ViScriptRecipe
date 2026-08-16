@@ -4,6 +4,7 @@ import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorLayout;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.gui.canvas.vanilla.*;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -104,42 +105,42 @@ public final class VanillaRecipeEditorTypes {
         RecipeEditorTypes.register(RecipeEditorType.of(
                 CRAFTING_SHAPED, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shaped",
-                ShapedCraftingRecipeData.class, ShapedCraftingRecipeData::new
+                ShapedCraftingRecipeData.class, ShapedCraftingRecipeData::new, ShapedCraftingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 CRAFTING_SHAPELESS, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shapeless",
-                ShapelessCraftingRecipeData.class, ShapelessCraftingRecipeData::new
+                ShapelessCraftingRecipeData.class, ShapelessCraftingRecipeData::new, ShapelessCraftingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 SMELTING, FURNACE,
                 "viscript_recipe.editor.type.minecraft.smelting",
-                CookingRecipeData.class, CookingRecipeData::new
+                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 BLASTING, BLAST_FURNACE,
                 "viscript_recipe.editor.type.minecraft.blasting",
-                CookingRecipeData.class, CookingRecipeData::new
+                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 SMOKING, SMOKER,
                 "viscript_recipe.editor.type.minecraft.smoking",
-                CookingRecipeData.class, CookingRecipeData::new
+                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 CAMPFIRE_COOKING, CAMPFIRE,
                 "viscript_recipe.editor.type.minecraft.campfire_cooking",
-                CookingRecipeData.class, CookingRecipeData::new
+                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 STONECUTTING, STONECUTTER,
                 "viscript_recipe.editor.type.minecraft.stonecutting",
-                StonecuttingRecipeData.class, StonecuttingRecipeData::new
+                StonecuttingRecipeData.class, StonecuttingRecipeData::new, StonecuttingCanvas::new
         ));
         RecipeEditorTypes.register(RecipeEditorType.of(
                 SMITHING_TRANSFORM, SMITHING_TABLE,
                 "viscript_recipe.editor.type.minecraft.smithing_transform",
-                SmithingTransformRecipeData.class, SmithingTransformRecipeData::new
+                SmithingTransformRecipeData.class, SmithingTransformRecipeData::new, SmithingTransformCanvas::new
         ));
     }
 

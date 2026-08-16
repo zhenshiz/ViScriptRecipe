@@ -2,9 +2,9 @@ package com.viscript_recipe.compat.spore;
 
 import com.Harbinger.Spore.Recipes.GraftingRecipe;
 import com.Harbinger.Spore.Recipes.SurgeryRecipe;
+import com.viscript_recipe.compat.spore.data.SporeGraftingRecipeData;
+import com.viscript_recipe.compat.spore.data.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
-import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -20,7 +20,7 @@ public final class SporeRecipeFactory {
     }
 
     public static Recipe<?> compileSurgery(SporeSurgeryRecipeData data) {
-        var ingredients = compileIngredients(data.normalizedIngredients(), SporeSurgeryRecipeData.INPUT_COUNT);
+        var ingredients = compileIngredients(data.getIngredients(), SporeSurgeryRecipeData.INPUT_COUNT);
         if (ingredients.stream().allMatch(Ingredient::isEmpty)) {
             throw new IllegalArgumentException("Spore surgery recipe must contain at least one ingredient");
         }
@@ -28,7 +28,7 @@ public final class SporeRecipeFactory {
     }
 
     public static Recipe<?> compileGrafting(SporeGraftingRecipeData data) {
-        var inputs = compileIngredients(data.normalizedIngredients(), SporeGraftingRecipeData.INPUT_COUNT);
+        var inputs = compileIngredients(data.getIngredients(), SporeGraftingRecipeData.INPUT_COUNT);
         for (int i = 0; i < inputs.size(); i++) {
             if (inputs.get(i).isEmpty()) {
                 throw new IllegalArgumentException("Spore grafting input " + (i + 1) + " cannot be empty");

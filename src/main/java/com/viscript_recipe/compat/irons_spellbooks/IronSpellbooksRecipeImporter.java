@@ -1,7 +1,6 @@
 package com.viscript_recipe.compat.irons_spellbooks;
 
-import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;

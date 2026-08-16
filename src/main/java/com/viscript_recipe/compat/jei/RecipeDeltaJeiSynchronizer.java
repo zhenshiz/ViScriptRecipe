@@ -2,11 +2,11 @@ package com.viscript_recipe.compat.jei;
 
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.client.RecipeDeltaClientState;
+import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
+import com.viscript_recipe.compat.create.data.CreateProcessingKind;
+import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
 import com.viscript_recipe.compat.jei.irons_spellbooks.IronSpellbooksJeiRecipeFilter;
-import com.viscript_recipe.data.create.CreateProcessingKind;
-import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;

@@ -21,7 +21,7 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import static com.viscript_recipe.recipe.RecipeHelper.itemFromAbility;
 import static com.viscript_recipe.recipe.RecipeHelper.itemsFromTag;
@@ -35,12 +35,24 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
     @Persisted
     private ItemStack item = new ItemStack(Items.STONE);
     @Persisted
-    private ResourceLocation tag = ResourceLocation.fromNamespaceAndPath("minecraft", "planks");
+    private ResourceLocation tag = ResourceLocation.withDefaultNamespace("planks");
     @Persisted
     private String itemAbility = "knife_dig";
+    @Persisted
+    private int count = 1;
+
+    public int getCount() {return kind == IngredientValueKind.ITEM && item.isEmpty() ? 0 : count;}
+
+    public RecipeIngredient setCount(int count) {
+        count = Math.max(1, count);
+        this.count = count;
+        item.setCount(count);
+        return this;
+    }
 
     /**请使用工厂方法*/
-    private RecipeIngredient() {}
+    @Deprecated
+    public RecipeIngredient() {}
 
     public static RecipeIngredient of() {return new RecipeIngredient();}
 
@@ -49,15 +61,16 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
     public static RecipeIngredient item(Item item) {return item(new ItemStack(item));}
 
     public static RecipeIngredient item(ItemStack stack) {
-        return of().setItem(stack == null ? ItemStack.EMPTY : stack.copyWithCount(1));
-    }
-
-    public static RecipeIngredient itemWithCount(ItemStack stack) {
         return of().setItem(stack == null ? ItemStack.EMPTY : stack.copy());
     }
 
     public static RecipeIngredient tag(ResourceLocation tagId) {
         return of().setKind(IngredientValueKind.TAG).setTag(tagId);
+    }
+
+    public static RecipeIngredient tag(String tagId) {
+        var location = ResourceLocation.tryParse(tagId);
+        return RecipeIngredient.tag(location == null ? ResourceLocation.withDefaultNamespace("planks") : location);
     }
 
     public static RecipeIngredient itemAbility(String itemAbility) {
@@ -90,23 +103,22 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
     }
 
     public boolean isEmpty() {
-        switch (kind) {
-            case ITEM ->         { if (!item.isEmpty()) return false; }
-            case TAG ->          { if (tag != null) return false; }
-            case ITEM_ABILITY -> { if (!itemAbility.isBlank()) return false; }
-        }
-        return true;
+        return switch (kind) {
+            case ITEM -> item.isEmpty() || count <= 0;
+            case TAG -> tag == null;
+            case ITEM_ABILITY -> itemAbility.isBlank();
+        };
     }
 
     public ItemStack toStack() {
         return switch (kind) {
-            case ITEM -> item.copy();
+            case ITEM -> item.copyWithCount(count);
             case TAG -> {
                 var tagItems = itemsFromTag(tag);
-                if (tagItems.length > 0) yield tagItems[0].copy();
+                if (tagItems.length > 0) yield tagItems[0].copyWithCount(count);
                 yield ItemStack.EMPTY;
             }
-            case ITEM_ABILITY -> itemFromAbility(itemAbility);
+            case ITEM_ABILITY -> itemFromAbility(itemAbility).copyWithCount(count);
         };
     }
 
@@ -114,22 +126,18 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
         var stacks = new ArrayList<ItemStack>();
         switch (kind) {
             case ITEM -> {
-                if (!item.isEmpty()) stacks.add(item.copyWithCount(1));
+                if (!item.isEmpty()) stacks.add(item.copyWithCount(count));
             }
-            case TAG -> stacks.addAll(List.of(itemsFromTag(tag)));
+            case TAG -> stacks.addAll(Arrays.stream(itemsFromTag(tag)).map(stack -> stack.copyWithCount(count)).toList());
             case ITEM_ABILITY -> {
-                if (!itemAbility.isBlank()) stacks.add(itemFromAbility(itemAbility));
+                if (!itemAbility.isBlank()) stacks.add(itemFromAbility(itemAbility).copyWithCount(count));
             }
         }
         return stacks.toArray(ItemStack[]::new);
     }
 
     public RecipeIngredient copy() {
-        return of().setKind(kind).setItem(item.copy()).setTag(tag).setItemAbility(itemAbility);
-    }
-
-    public RecipeIngredient copyWithCount(int count) {
-        return of().setKind(kind).setItem(item.copyWithCount(count)).setTag(tag).setItemAbility(itemAbility);
+        return of().setKind(kind).setItem(item.copy()).setCount(count).setTag(tag).setItemAbility(itemAbility);
     }
 
     @Override

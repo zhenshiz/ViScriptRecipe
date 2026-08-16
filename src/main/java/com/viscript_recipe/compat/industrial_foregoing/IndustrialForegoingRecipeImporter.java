@@ -2,9 +2,9 @@ package com.viscript_recipe.compat.industrial_foregoing;
 
 import com.buuz135.industrial.recipe.*;
 import com.buuz135.industrial.recipe.data.EntityData;
+import com.viscript_recipe.compat.industrial_foregoing.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
-import com.viscript_recipe.data.industrial_foregoing.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -76,8 +76,7 @@ public final class IndustrialForegoingRecipeImporter implements RecipeImportHand
         }
         if (holder.value() instanceof LaserDrillOreRecipe recipe) {
             var data = new IndustrialLaserDrillOreRecipeData()
-                    .setOutput(RecipeImporter.importIngredient(recipe.output.ingredient()))
-                    .setOutputCount(Math.max(1, recipe.output.count()))
+                    .setOutput(RecipeImporter.importIngredient(recipe.output.ingredient()).setCount(recipe.output.count()))
                     .setCatalyst(RecipeImporter.importIngredient(recipe.catalyst))
                     .setEntityCondition(importEntityCondition(recipe.entityData.orElse(null)))
                     .setRarity(recipe.rarity.stream().map(IndustrialForegoingRecipeImporter::importRarity).collect(java.util.stream.Collectors.toCollection(ArrayList::new)));

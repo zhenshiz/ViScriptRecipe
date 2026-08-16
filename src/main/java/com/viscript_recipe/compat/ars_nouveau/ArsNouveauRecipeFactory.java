@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.ars_nouveau;
 
 import com.hollingsworth.arsnouveau.common.crafting.recipes.*;
+import com.viscript_recipe.compat.ars_nouveau.data.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.ars_nouveau.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

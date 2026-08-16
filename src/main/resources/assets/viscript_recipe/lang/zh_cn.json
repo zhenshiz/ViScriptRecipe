@@ -739,7 +739,7 @@
   "viscript_recipe.editor.industrial_foregoing.crusher.action": "造石加工机的粉碎动作；配方本身只保存输入和输出原料。",
   "viscript_recipe.editor.industrial_foregoing.processing_ticks": "处理时间：%s 刻",
   "viscript_recipe.editor.industrial_foregoing.production_per_work": "每次工作：%s mB；方块破坏概率：%s",
-  "viscript_recipe.editor.industrial_foregoing.laser.summary": "Y：%s 至 %s；权重：%s；规则：%s；输出数：%s",
+  "viscript_recipe.editor.industrial_foregoing.laser.summary": "Y：%s 至 %s；权重：%s；规则：%s",
   "viscript_recipe.editor.industrial_foregoing.laser.fluid_summary": "Y：%s 至 %s；权重：%s；规则：%s",
   "viscript_recipe.editor.industrial_foregoing.laser.requirements": "上方实体：%s；群系白/黑：%s/%s；维度白/黑：%s/%s",
   "viscript_recipe.editor.industrial_foregoing.stonework.needs": "需要：水 %s mB，岩浆 %s mB",

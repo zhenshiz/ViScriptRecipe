@@ -4,8 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.lowdragmc.lowdraglib2.Platform;
 import com.mojang.serialization.JsonOps;
+import com.viscript_recipe.compat.confluence.data.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.confluence.*;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -32,7 +32,7 @@ public final class ConfluenceRecipeFactory {
         Objects.requireNonNull(data, "Confluence recipe data");
         var json = new JsonObject();
         if (ConfluenceRecipeEditorTypes.ITEM_TRANSMUTATION.equals(type)) {
-            json.add("source", encodeIngredient(data.ingredient(0).getIngredient(), 1));
+            json.add("source", encodeIngredient(data.ingredient(0)));
             var targets = new JsonArray();
             safeList(data.getTargets()).stream().filter(stack -> stack != null && !stack.isEmpty() && !stack.is(Items.AIR))
                     .limit(ConfluenceRecipeData.MAX_TRANSMUTATION_RESULTS)
@@ -45,15 +45,15 @@ public final class ConfluenceRecipeFactory {
         }
         json.add("result", encodeItem(requireResult(data)));
         if (ConfluenceRecipeEditorTypes.ALCHEMY_TABLE.equals(type)) {
-            json.add("base", encodeIngredient(data.ingredient(0).getIngredient(), 1));
+            json.add("base", encodeIngredient(data.ingredient(0)));
             json.add("ingredients", encodeIngredients(data, 1, 6));
         } else if (ConfluenceRecipeEditorTypes.FLETCHING_TABLE.equals(type)) {
-            json.add("tail", encodeIngredient(data.ingredient(0).getIngredient(), 1));
-            json.add("body", encodeIngredient(data.ingredient(1).getIngredient(), 1));
-            json.add("head", encodeIngredient(data.ingredient(2).getIngredient(), 1));
+            json.add("tail", encodeIngredient(data.ingredient(0)));
+            json.add("body", encodeIngredient(data.ingredient(1)));
+            json.add("head", encodeIngredient(data.ingredient(2)));
         } else if (ConfluenceRecipeEditorTypes.COOKING_POT.equals(type)) {
             json.add("ingredients", encodeIngredients(data, 0, 4));
-            json.add("container", encodeIngredient(data.getContainer(), 1));
+            json.add("container", encodeIngredient(data.getContainer()));
             json.add("heat_source", encodeHeatSource(data.getHeatSource()));
             json.addProperty("cookingtime", Math.max(0, data.getCookingTime()));
         } else if (ConfluenceRecipeEditorTypes.HELLFORGE.equals(type)
@@ -88,10 +88,9 @@ public final class ConfluenceRecipeFactory {
     private static JsonArray encodeIngredients(ConfluenceRecipeData data, int offset, int max) {
         var result = new JsonArray();
         for (int index = 0; index < max; index++) {
-            var value = data.ingredient(offset + index);
-            var ingredient = value == null ? null : value.getIngredient();
+            var ingredient = data.ingredient(offset + index);
             if (ingredient != null && !ingredient.isEmpty()) {
-                result.add(encodeIngredient(ingredient, value.getCount()));
+                result.add(encodeIngredient(ingredient));
             }
         }
         if (result.isEmpty()) {
@@ -117,18 +116,18 @@ public final class ConfluenceRecipeFactory {
         for (int row = 0; row < height; row++) {
             var line = new StringBuilder(width);
             for (int col = 0; col < width; col++) {
-                var value = data.ingredient(row * 4 + col);
-                if (value == null || value.getIngredient() == null || value.getIngredient().isEmpty()) {
+                var ingredient = data.ingredient(row * 4 + col);
+                if (ingredient == null || ingredient.isEmpty()) {
                     line.append(' ');
                     continue;
                 }
                 var symbol = PATTERN_SYMBOLS[symbolIndex++];
                 line.append(symbol);
-                key.add(Character.toString(symbol), encodeIngredient(value.getIngredient(), value.getCount()));
+                key.add(Character.toString(symbol), encodeIngredient(ingredient));
             }
             pattern.add(line.toString());
         }
-        if (key.size() == 0) {
+        if (key.isEmpty()) {
             throw new IllegalArgumentException("Confluence shaped recipe must contain at least one ingredient");
         }
         json.add("pattern", pattern);
@@ -216,8 +215,9 @@ public final class ConfluenceRecipeFactory {
         if (!values.isEmpty()) json.add(name, values);
     }
 
-    private static com.google.gson.JsonElement encodeIngredient(RecipeIngredient data, int count) {
-        var ingredient = data == null ? Ingredient.EMPTY : data.compile();
+    private static com.google.gson.JsonElement encodeIngredient(RecipeIngredient data) {
+        var ingredient = data.compile();
+        int count = data.getCount();
         if (ingredient.isEmpty()) throw new IllegalArgumentException("Confluence ingredient cannot be empty");
         var ops = RegistryOps.create(JsonOps.INSTANCE, Platform.getFrozenRegistry());
         var encoded = Ingredient.CODEC.encodeStart(ops, ingredient)
@@ -225,7 +225,7 @@ public final class ConfluenceRecipeFactory {
         if (Math.max(1, count) == 1) return encoded;
         var amount = new JsonObject();
         amount.addProperty("type", "confluence_magic_lib:amount_ingredient");
-        amount.addProperty("count", Math.max(1, count));
+        amount.addProperty("count", count);
         amount.add("ingredient", encoded);
         return amount;
     }

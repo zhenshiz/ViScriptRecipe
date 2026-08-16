@@ -1,11 +1,11 @@
 package com.viscript_recipe.compat.farmersdelight;
 
+import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
+import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeOutputData;
-import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;

@@ -1,8 +1,7 @@
 package com.viscript_recipe.compat.alloy_smelter;
 
-import com.viscript_recipe.data.alloy_smelter.AlloySmelterMaterialData;
-import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeData;
-import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeEditorTypes;
+import com.viscript_recipe.compat.alloy_smelter.data.AlloySmelterRecipeData;
+import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -30,11 +29,9 @@ public final class AlloySmelterRecipeImporter implements RecipeImportHandler {
         if (!(holder.value() instanceof SmeltingRecipe recipe)) {
             return null;
         }
-        var materials = new ArrayList<AlloySmelterMaterialData>();
+        var materials = new ArrayList<RecipeIngredient>();
         for (var material : recipe.getMaterials()) {
-            materials.add(new AlloySmelterMaterialData()
-                    .setIngredient(RecipeImporter.importIngredient(material.ingredient()))
-                    .setCount(Math.max(1, material.count())));
+            materials.add(RecipeImporter.importIngredient(material.ingredient()).setCount(material.count()));
         }
         var data = new AlloySmelterRecipeData()
                 .setMaterials(materials)

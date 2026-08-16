@@ -1,7 +1,7 @@
 package com.viscript_recipe.compat.touhou_little_maid;
 
 import com.github.tartaricacid.touhoulittlemaid.crafting.AltarRecipe;
-import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
+import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,7 @@ public final class TouhouLittleMaidRecipeFactory {
 
     public static Recipe<?> compileAltar(TouhouLittleMaidAltarRecipeData data) {
         var ingredients = NonNullList.<Ingredient>create();
-        for (var ingredientData : data.normalizedIngredients()) {
+        for (var ingredientData : data.getIngredients()) {
             var ingredient = ingredientData == null ? Ingredient.EMPTY : ingredientData.compile();
             if (!ingredient.isEmpty()) {
                 ingredients.add(ingredient);

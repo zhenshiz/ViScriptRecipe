@@ -1,23 +1,32 @@
 package com.viscript_recipe.compat.confluence;
 
-import com.mojang.datafixers.util.Either;
-import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.confluence.*;
-import com.viscript_recipe.recipe.importer.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.JsonOps;
+import com.viscript_recipe.compat.confluence.data.*;
+import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.recipe.importer.RecipeImportException;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
+import com.viscript_recipe.recipe.importer.RecipeImportResult;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import org.confluence.mod.common.recipe.*;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /** Imports Confluence RecipeManager recipes, including Magic Lib's counted ingredients. */
 public final class ConfluenceRecipeImporter implements RecipeImportHandler {
@@ -45,7 +54,9 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
             return success(holder, ConfluenceRecipeEditorTypes.ITEM_TRANSMUTATION, d);
         }
         if (r instanceof AlchemyTableRecipe x) {
-            var in = new ArrayList<ConfluenceIngredientData>(); in.add(importIngredient(x.getBase())); in.addAll(importList(x.getIngredients()));
+            var in = new ArrayList<RecipeIngredient>();
+            in.add(importIngredient(x.getBase()));
+            in.addAll(importList(x.getIngredients()));
             return success(holder, ConfluenceRecipeEditorTypes.ALCHEMY_TABLE, result(base().setIngredients(in), r, provider));
         }
         if (r instanceof FletchingTableRecipe x) {
@@ -81,8 +92,9 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
     private static boolean environment(Recipe<?> r) { return r instanceof SkyMillRecipe || r instanceof CrystalBallRecipe || r instanceof HeavyWorkBenchRecipe; }
 
     private static ConfluenceRecipeData importEither(Recipe<?> r) throws RecipeImportException {
-        var d = base(); var e = (Either<?, ?>) field(r, "either"); var left = e.left().orElse(null);
-        if (left instanceof ShapedRecipePattern p) {
+        var d = base();
+        var e = (Either<?, ?>) field(r, "either");
+        if (e.left().orElse(null) instanceof ShapedRecipePattern p) {
             d.setCraftingMode(ConfluenceCraftingMode.SHAPED).setWidth(p.width()).setHeight(p.height()).setIngredients(importShaped(p));
         } else {
             d.setCraftingMode(ConfluenceCraftingMode.SHAPELESS).setWidth(4).setHeight(4).setIngredients(importList((List<Ingredient>) e.right().orElseThrow()));
@@ -90,26 +102,32 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
         return d;
     }
 
-    private static ArrayList<ConfluenceIngredientData> importShaped(ShapedRecipePattern p) throws RecipeImportException {
-        var out = empty(16); var list = p.ingredients();
+    private static ArrayList<RecipeIngredient> importShaped(ShapedRecipePattern p) throws RecipeImportException {
+        var out = new ArrayList<RecipeIngredient>();
+        for (int i = 0; i < 16; i++) out.add(RecipeIngredient.empty());
+
+        var list = p.ingredients();
         for (int y = 0; y < p.height(); y++) for (int x = 0; x < p.width(); x++) {
-            int i = y * p.width() + x; if (i < list.size() && !list.get(i).isEmpty()) out.set(y * 4 + x, importIngredient(list.get(i)));
+            int i = y * p.width() + x;
+            if (i < list.size() && !list.get(i).isEmpty()) out.set(y * 4 + x, importIngredient(list.get(i)));
         }
         return out;
     }
 
-    private static ArrayList<ConfluenceIngredientData> importList(List<Ingredient> list) throws RecipeImportException {
-        var out = new ArrayList<ConfluenceIngredientData>(); if (list != null) for (var i : list) if (i != null && !i.isEmpty()) out.add(importIngredient(i)); return out;
+    private static ArrayList<RecipeIngredient> importList(List<Ingredient> list) throws RecipeImportException {
+        var out = new ArrayList<RecipeIngredient>();
+        if (list != null) for (var i : list) if (i != null && !i.isEmpty()) out.add(importIngredient(i));
+        return out;
     }
 
-    private static ConfluenceIngredientData importIngredient(Ingredient i) throws RecipeImportException {
-        if (i == null || i.isEmpty()) return new ConfluenceIngredientData().setIngredient(RecipeIngredient.empty());
+    private static RecipeIngredient importIngredient(Ingredient i) throws RecipeImportException {
+        if (i == null || i.isEmpty()) return RecipeIngredient.empty();
         var c = i.getCustomIngredient();
         if (c != null && c.getClass().getName().equals("org.confluence.lib.common.recipe.AmountIngredient")) {
-            return new ConfluenceIngredientData().setIngredient(RecipeImporter.importIngredient((Ingredient) invoke(c, "ingredient")))
+            return RecipeImporter.importIngredient((Ingredient) invoke(c, "ingredient"))
                     .setCount(Math.max(1, number(invoke(c, "amount"), 1).intValue()));
         }
-        return new ConfluenceIngredientData().setIngredient(RecipeImporter.importIngredient(i));
+        return RecipeImporter.importIngredient(i);
     }
 
     private static ConfluenceEnvironmentData importEnvironment(Object m) {
@@ -157,9 +175,8 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
         return new ConfluenceStatePredicateData().setProperties(out);
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> ConfluenceHolderSetData holderSet(HolderSet<T> set) {
-        return set.unwrap().map(t -> new ConfluenceHolderSetData().setKind(ConfluenceHolderSetKind.TAG).setTag(t.location()), hs -> new ConfluenceHolderSetData().setKind(ConfluenceHolderSetKind.IDS).setValues(new ArrayList<>(((List<Holder<T>>) hs).stream().map(Holder::unwrapKey).flatMap(Optional::stream).map(k -> k.location()).toList())));
+        return set.unwrap().map(t -> new ConfluenceHolderSetData().setKind(ConfluenceHolderSetKind.TAG).setTag(t.location()), hs -> new ConfluenceHolderSetData().setKind(ConfluenceHolderSetKind.IDS).setValues(new ArrayList<>(hs.stream().map(Holder::unwrapKey).flatMap(Optional::stream).map(ResourceKey::location).toList())));
     }
 
     private static ResourceLocation eitherType(Recipe<?> r) throws RecipeImportException {
@@ -168,12 +185,35 @@ public final class ConfluenceRecipeImporter implements RecipeImportHandler {
     private static ResourceLocation amountType(Recipe<?> r) throws RecipeImportException {
         if (r instanceof SkyMillRecipe) return ConfluenceRecipeEditorTypes.SKY_MILL; if (r instanceof AltarRecipe) return ConfluenceRecipeEditorTypes.ALTAR; if (r instanceof DyeVatRecipe) return ConfluenceRecipeEditorTypes.DYE_VAT; if (r instanceof CrystalBallRecipe) return ConfluenceRecipeEditorTypes.CRYSTAL_BALL; throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_type");
     }
-    private static ConfluenceRecipeData result(ConfluenceRecipeData d, Recipe<?> r, HolderLookup.Provider p) { return d.setResult(RecipeImporter.copyResult(r, p)); }
-    private static RecipeImportResult success(RecipeHolder<?> h, ResourceLocation t, ConfluenceRecipeData d) { return RecipeImporter.success(RecipeImporter.baseEntry(h.id(), t).setData(d)); }
-    private static ConfluenceRecipeData base() { return new ConfluenceRecipeData().setIngredients(new ArrayList<>()).setTargets(new ArrayList<>()); }
-    private static ArrayList<ConfluenceIngredientData> empty(int n) { var l = new ArrayList<ConfluenceIngredientData>(); for (int i = 0; i < n; i++) l.add(new ConfluenceIngredientData().setIngredient(RecipeIngredient.empty())); return l; }
-    private static Object field(Object o, String n) { try { Field f = o.getClass().getField(n); return f.get(o); } catch (ReflectiveOperationException e) { throw new IllegalStateException(e); } }
-    private static Object invoke(Object o, String n) { try { return o == null ? null : o.getClass().getMethod(n).invoke(o); } catch (ReflectiveOperationException e) { throw new IllegalStateException(e); } }
-    private static Optional<?> optional(Object o) { return o instanceof Optional<?> x ? x : Optional.empty(); }
-    private static Number number(Object o, Number d) { return o instanceof Number x ? x : d; }
+    private static ConfluenceRecipeData result(ConfluenceRecipeData d, Recipe<?> r, HolderLookup.Provider p) {
+        return d.setResult(RecipeImporter.copyResult(r, p));
+    }
+    private static RecipeImportResult success(RecipeHolder<?> h, ResourceLocation t, ConfluenceRecipeData d) {
+        return RecipeImporter.success(RecipeImporter.baseEntry(h.id(), t).setData(d));
+    }
+    private static ConfluenceRecipeData base() {
+        return new ConfluenceRecipeData().setIngredients(new ArrayList<>()).setTargets(new ArrayList<>());
+    }
+
+    private static Object field(Object o, String n) {
+        try {
+            Field f = o.getClass().getField(n);
+            return f.get(o);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    private static Object invoke(Object o, String n) {
+        try {
+            return o == null ? null : o.getClass().getMethod(n).invoke(o);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    private static Optional<?> optional(Object o) {
+        return o instanceof Optional<?> x ? x : Optional.empty();
+    }
+    private static Number number(Object o, Number d) {
+        return o instanceof Number x ? x : d;
+    }
 }

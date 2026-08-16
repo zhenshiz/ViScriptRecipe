@@ -5,7 +5,7 @@ import com.simibubi.create.Create;
 import com.simibubi.create.content.kinetics.mixer.MixingRecipe;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.viscript_recipe.client.RecipeDeltaClientState;
-import com.viscript_recipe.data.create.CreateProcessingKind;
+import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;

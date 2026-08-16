@@ -2,10 +2,9 @@ package com.viscript_recipe.compat.spore;
 
 import com.Harbinger.Spore.Recipes.GraftingRecipe;
 import com.Harbinger.Spore.Recipes.SurgeryRecipe;
+import com.viscript_recipe.compat.spore.data.SporeGraftingRecipeData;
+import com.viscript_recipe.compat.spore.data.SporeSurgeryRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
-import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
-import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;

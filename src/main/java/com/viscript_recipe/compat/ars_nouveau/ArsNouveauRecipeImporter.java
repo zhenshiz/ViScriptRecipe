@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.ars_nouveau;
 
 import com.hollingsworth.arsnouveau.common.crafting.recipes.*;
+import com.viscript_recipe.compat.ars_nouveau.data.*;
 import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.ars_nouveau.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;

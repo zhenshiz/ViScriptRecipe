@@ -4,9 +4,9 @@ import com.blakebr0.cucumber.crafting.ingredient.IngredientWithCount;
 import com.blakebr0.mysticalagriculture.crafting.recipe.*;
 import com.blakebr0.mysticalagriculture.registry.MobSoulTypeRegistry;
 import com.lowdragmc.lowdraglib2.Platform;
+import com.viscript_recipe.compat.mysticalagriculture.data.*;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.mysticalagriculture.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -96,7 +96,7 @@ public final class MysticalAgricultureRecipeFactory {
             if (ingredients.size() >= MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS) {
                 break;
             }
-            if (ingredient != null && !ingredient.getIngredient().isEmpty()) {
+            if (ingredient != null && !ingredient.isEmpty()) {
                 ingredients.add(compileCountedIngredient(ingredient));
             }
         }
@@ -155,19 +155,19 @@ public final class MysticalAgricultureRecipeFactory {
         );
     }
 
-    private static IngredientWithCount compileCountedIngredient(MysticalAgricultureCountedIngredientData data) {
-        if (data == null || data.getIngredient() == null || data.getIngredient().isEmpty()) {
+    private static IngredientWithCount compileCountedIngredient(RecipeIngredient data) {
+        if (data == null || data.isEmpty()) {
             throw new IllegalArgumentException("Mystical Agriculture counted ingredient cannot be empty");
         }
         var values = new ArrayList<Ingredient.Value>();
-        var kind = data.getIngredient().getKind() == null ? IngredientValueKind.ITEM : data.getIngredient().getKind();
+        var kind = data.getKind() == null ? IngredientValueKind.ITEM : data.getKind();
         if (kind == IngredientValueKind.ITEM) {
-            var item = normalizeItem(data.getIngredient().getItem());
+            var item = normalizeItem(data.getItem());
             if (!item.isEmpty()) {
                 values.add(new Ingredient.ItemValue(item.copyWithCount(1)));
             }
-        } else if (kind == IngredientValueKind.TAG && data.getIngredient().getTag() != null) {
-            values.add(new Ingredient.TagValue(TagKey.create(Registries.ITEM, data.getIngredient().getTag())));
+        } else if (kind == IngredientValueKind.TAG && data.getTag() != null) {
+            values.add(new Ingredient.TagValue(TagKey.create(Registries.ITEM, data.getTag())));
         } else if (kind == IngredientValueKind.ITEM_ABILITY) {
             throw new IllegalArgumentException("Mystical Agriculture counted ingredients do not support item abilities");
         }

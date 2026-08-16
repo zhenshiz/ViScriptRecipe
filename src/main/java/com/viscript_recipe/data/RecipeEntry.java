@@ -5,31 +5,6 @@ import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.data.ars_nouveau.*;
-import com.viscript_recipe.data.avaritia.*;
-import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
-import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
-import com.viscript_recipe.data.create.CreateProcessingRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.confluence.ConfluenceRecipeData;
-import com.viscript_recipe.data.extendedcrafting.*;
-import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.goety.*;
-import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.*;
-import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.*;
-import com.viscript_recipe.data.mekanism.MekanismRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.*;
-import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
-import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
-import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
-import com.viscript_recipe.data.vanilla.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -86,87 +61,6 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
         return this;
     }
 
-    public ShapedCraftingRecipeData getShaped() {return getData();}
-    public ShapelessCraftingRecipeData getShapeless() {return getData();}
-    public CookingRecipeData getCooking() {return getData();}
-    public StonecuttingRecipeData getStonecutting() {return getData();}
-    public SmithingTransformRecipeData getSmithingTransform() {return getData();}
-
-    public IronAlchemistCauldronRecipeData getIronAlchemistCauldron() {return getData();}
-    public IronArcaneAnvilRecipeData getIronArcaneAnvil() {return getData();}
-    public IronNoAdditionSmithingRecipeData getIronNoAdditionSmithing() {return getData();}
-
-    public DragonForgeRecipeData getIceAndFireDragonForge() {return getData();}
-
-    public SporeSurgeryRecipeData getSporeSurgery() {return getData();}
-    public SporeGraftingRecipeData getSporeGrafting() {return getData();}
-
-    public FarmerCookingPotRecipeData getFarmerCookingPot() {return getData();}
-    public FarmerCuttingRecipeData getFarmerCuttingBoard() {return getData();}
-
-    public CreateProcessingRecipeData getCreateProcessing() {return getData();}
-    public CreateMechanicalCraftingRecipeData getCreateMechanicalCrafting() {return getData();}
-    public CreateSequencedAssemblyRecipeData getCreateSequencedAssembly() {return getData();}
-
-    public ExtendedCraftingTableRecipeData getExtendedCraftingTable() {return getData();}
-    public ExtendedCraftingEnderCrafterRecipeData getExtendedCraftingEnderCrafter() {return getData();}
-    public ExtendedCraftingFluxCrafterRecipeData getExtendedCraftingFluxCrafter() {return getData();}
-    public ExtendedCraftingCombinationRecipeData getExtendedCraftingCombination() {return getData();}
-    public ExtendedCraftingCompressorRecipeData getExtendedCraftingCompressor() {return getData();}
-    public ExtendedCraftingUltimateSingularityRecipeData getExtendedCraftingUltimateSingularity() {return getData();}
-
-    public ArsNouveauApparatusRecipeData getArsNouveauApparatus() {return getData();}
-    public ArsNouveauArmorUpgradeRecipeData getArsNouveauArmorUpgrade() {return getData();}
-    public ArsNouveauEnchantmentRecipeData getArsNouveauEnchantment() {return getData();}
-    public ArsNouveauImbuementRecipeData getArsNouveauImbuement() {return getData();}
-    public ArsNouveauGlyphRecipeData getArsNouveauGlyph() {return getData();}
-    public ArsNouveauCrushRecipeData getArsNouveauCrush() {return getData();}
-    public ArsNouveauPedestalOnlyRecipeData getArsNouveauPedestalOnly() {return getData();}
-
-    public KaleidoscopePotRecipeData getKaleidoscopePot() {return getData();}
-    public KaleidoscopeStockpotRecipeData getKaleidoscopeStockpot() {return getData();}
-    public KaleidoscopeMillstoneRecipeData getKaleidoscopeMillstone() {return getData();}
-    public KaleidoscopeChoppingBoardRecipeData getKaleidoscopeChoppingBoard() {return getData();}
-    public KaleidoscopeSteamerRecipeData getKaleidoscopeSteamer() {return getData();}
-    public KaleidoscopeTeapotRecipeData getKaleidoscopeTeapot() {return getData();}
-
-    public AvaritiaTableRecipeData getAvaritiaTable() {return getData();}
-    public AvaritiaCompressorRecipeData getAvaritiaCompressor() {return getData();}
-    public AvaritiaExtremeSmithingRecipeData getAvaritiaExtremeSmithing() {return getData();}
-    public AvaritiaInfinityCatalystRecipeData getAvaritiaInfinityCatalyst() {return getData();}
-    public AvaritiaEternalSingularityRecipeData getAvaritiaEternalSingularity() {return getData();}
-    public AvaritiaFullMatterClusterRecipeData getAvaritiaFullMatterCluster() {return getData();}
-
-    public CataclysmWeaponFusionRecipeData getCataclysmWeaponFusion() {return getData();}
-    public CataclysmAmethystBlessRecipeData getCataclysmAmethystBless() {return getData();}
-
-    public TouhouLittleMaidAltarRecipeData getTouhouLittleMaidAltar() {return getData();}
-
-    public GoetyCursedInfuserRecipeData getGoetyCursedInfuser() {return getData();}
-    public GoetyRitualRecipeData getGoetyRitual() {return getData();}
-    public GoetyBrazierRecipeData getGoetyBrazier() {return getData();}
-    public GoetyPulverizeRecipeData getGoetyPulverize() {return getData();}
-    public GoetyBrewingRecipeData getGoetyBrewing() {return getData();}
-
-    public MysticalAgricultureInfusionRecipeData getMysticalAgricultureInfusion() {return getData();}
-    public MysticalAgricultureAwakeningRecipeData getMysticalAgricultureAwakening() {return getData();}
-    public MysticalAgricultureEnchanterRecipeData getMysticalAgricultureEnchanter() {return getData();}
-    public MysticalAgricultureReprocessorRecipeData getMysticalAgricultureReprocessor() {return getData();}
-    public MysticalAgricultureSoulExtractionRecipeData getMysticalAgricultureSoulExtraction() {return getData();}
-    public MysticalAgricultureSouliumSpawnerRecipeData getMysticalAgricultureSouliumSpawner() {return getData();}
-
-    public IndustrialDissolutionRecipeData getIndustrialDissolution() {return getData();}
-    public IndustrialCrusherRecipeData getIndustrialCrusher() {return getData();}
-    public IndustrialFluidExtractorRecipeData getIndustrialFluidExtractor() {return getData();}
-    public IndustrialLaserDrillOreRecipeData getIndustrialLaserDrillOre() {return getData();}
-    public IndustrialLaserDrillFluidRecipeData getIndustrialLaserDrillFluid() {return getData();}
-    public IndustrialStoneWorkRecipeData getIndustrialStoneWork() {return getData();}
-
-    public AlloySmelterRecipeData getAlloySmelter() {return getData();}
-
-    public MekanismRecipeData getMekanism() {return getData();}
-    public ConfluenceRecipeData getConfluence() {return getData();}
-
     public Recipe<?> compile() {return getData().compile(getType());}
 
     public ResourceLocation getType() {
@@ -181,6 +75,8 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
     public boolean isType(ResourceLocation type) {
         return getType().equals(type);
     }
+
+    public void applyDefaultData() {getData().applyDefaultData(getType());}
 
     public RecipeEntry copy() {
         var provider = Platform.getFrozenRegistry();

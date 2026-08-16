@@ -2,9 +2,9 @@ package com.viscript_recipe.compat.extendedcrafting;
 
 import com.blakebr0.cucumber.crafting.ingredient.IngredientWithCount;
 import com.blakebr0.extendedcrafting.crafting.recipe.*;
+import com.viscript_recipe.compat.extendedcrafting.data.*;
 import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.extendedcrafting.*;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
@@ -34,7 +34,7 @@ public final class ExtendedCraftingRecipeFactory {
         var tier = normalizedTableTier(type, data);
         if (ExtendedCraftingRecipeEditorTypes.isShapedTableType(type)) {
             return new ShapedTableRecipe(
-                    compilePattern(data.getPattern(), data.getKey(), data.normalizedWidth(), data.normalizedHeight()),
+                    compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight()),
                     requireResult(data.getResult(), "Extended Crafting table recipe result cannot be empty"),
                     tier
             );
@@ -50,7 +50,7 @@ public final class ExtendedCraftingRecipeFactory {
     }
 
     private static int normalizedTableTier(ResourceLocation type, ExtendedCraftingTableRecipeData data) {
-        var tier = data.normalizedTier();
+        var tier = data.getTier();
         return tier == 0 ? ExtendedCraftingRecipeEditorTypes.tableTierForType(type) : tier;
     }
 
@@ -170,11 +170,11 @@ public final class ExtendedCraftingRecipeFactory {
         return compiled;
     }
 
-    private static IngredientWithCount compileCountedIngredient(ExtendedCraftingCountedIngredientData input) {
+    private static IngredientWithCount compileCountedIngredient(RecipeIngredient input) {
         if (input == null) {
             return null;
         }
-        var values = compileIngredientValues(input.getIngredient());
+        var values = compileIngredientValues(input);
         if (values.length == 0) {
             return null;
         }

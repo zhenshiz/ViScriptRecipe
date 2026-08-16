@@ -2,15 +2,16 @@ package com.viscript_recipe.recipe;
 
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeFactory;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
+import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.irons_spellbooks.IronAlchemistCauldronFluidSupport;
 import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
+import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeOperation;
-import com.viscript_recipe.data.create.CreateProcessingKind;
-import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -147,8 +148,8 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             return lastAppliedRecipeTypes.entrySet()
                     .stream()
-                    .filter(entry -> java.util.Objects.equals(entry.getValue(), type))
-                    .map(java.util.Map.Entry::getKey)
+                    .filter(entry -> Objects.equals(entry.getValue(), type))
+                    .map(Map.Entry::getKey)
                     .toList();
         }
     }
@@ -163,7 +164,7 @@ public final class RecipeOverrideManager {
                 ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>()
                 : state.baseRecipes;
         var loadedFiles = RecipeFileLoader.loadAll(provider);
-        var showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();
+        boolean showcaseOnly = Config.SHOWCASE_ONLY_VISCRIPT_RECIPES.get();
         var recipes = showcaseOnly ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>() : new LinkedHashMap<>(base);
         var appliedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
         var managedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
@@ -399,7 +400,7 @@ public final class RecipeOverrideManager {
                 if (entry.getOperation() == RecipeOperation.ADD && exists) {
                     ViScriptRecipe.LOGGER.warn("Arcane Anvil override {} adds existing recipe {}; replacing it", source, id);
                 }
-                arcaneAnvilRecipes.put(id, IronArcaneAnvilOverrideManager.compile(id, entry.getIronArcaneAnvil()));
+                arcaneAnvilRecipes.put(id, IronArcaneAnvilOverrideManager.compile(id, entry.getData()));
                 yield ApplyEntryResult.APPLIED;
             }
         };
@@ -409,7 +410,7 @@ public final class RecipeOverrideManager {
         if (entry.getOperation() == RecipeOperation.REMOVE || !isAlchemistCauldronRecipe(entry)) {
             return;
         }
-        var data = entry.getIronAlchemistCauldron();
+        var data = (IronAlchemistCauldronRecipeData) entry.getData();
         if (entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW)) {
             addFluid(fluids, data.getBaseFluid());
             if (data.getResultFluids() != null) {
@@ -495,7 +496,7 @@ public final class RecipeOverrideManager {
     private static List<net.minecraft.world.item.crafting.Recipe<?>> compileEntryRecipes(RecipeEntry entry) {
         var createKind = CreateProcessingKind.byType(entry.getType()).orElse(null);
         if (createKind == CreateProcessingKind.BLOCK_CUTTING) {
-            return CreateRecipeFactory.compileProcessingRecipes(entry.getType(), entry.getCreateProcessing());
+            return CreateRecipeFactory.compileProcessingRecipes(entry.getType(), entry.getData());
         }
         return List.of(entry.compile());
     }

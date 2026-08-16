@@ -1,7 +1,7 @@
 package com.viscript_recipe.compat.mekanism;
 
+import com.viscript_recipe.compat.mekanism.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
-import com.viscript_recipe.data.mekanism.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -150,7 +150,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
                 importItemInput(data, typed.getInput(), false);
                 data.setItemOutput(copyFirstItemOrEmpty(typed.getMainOutputDefinition()))
                         .setSecondaryItemOutput(copyFirstItemOrEmpty(typed.getSecondaryOutputDefinition()))
-                        .setSecondaryChance(typed.getSecondaryChance());
+                        .setSecondaryChance((float) typed.getSecondaryChance());
             }
         }
         return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), kind.typeId()).setData(data));
@@ -193,13 +193,12 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
     }
 
     private static void importItemInput(MekanismRecipeData data, ItemStackIngredient input, boolean extra) throws RecipeImportException {
-        var imported = RecipeImporter.importIngredient(input.ingredient().ingredient());
         var amount = Math.max(1, input.ingredient().count());
-        imported = imported.copyWithCount(amount);
+        var imported = RecipeImporter.importIngredient(input.ingredient().ingredient()).setCount(amount);
         if (extra) {
-            data.setExtraItemInput(imported).setExtraItemInputAmount(amount);
+            data.setExtraItemInput(imported);
         } else {
-            data.setItemInput(imported).setItemInputAmount(amount);
+            data.setItemInput(imported);
         }
     }
 

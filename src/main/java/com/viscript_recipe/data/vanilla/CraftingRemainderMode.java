@@ -1,22 +1,12 @@
 package com.viscript_recipe.data.vanilla;
 
-import lombok.Getter;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.StringRepresentable;
+import com.viscript_recipe.data.ITranslated;
 
-public enum CraftingRemainderMode implements StringRepresentable {
-    DEFAULT("default"),
-    CONSUME("consume"),
-    REPLACE("replace");
+public enum CraftingRemainderMode implements ITranslated {
+    DEFAULT,
+    CONSUME,
+    REPLACE;
 
-    @Getter
-    private final String serializedName;
-
-    CraftingRemainderMode(String serializedName) {
-        this.serializedName = serializedName;
-    }
-
-    public Component displayName() {
-        return Component.translatable("viscript_recipe.editor.remainder.mode." + serializedName);
-    }
+    @Override
+    public String translatePrefix() {return "viscript_recipe.editor.remainder.mode.";}
 }

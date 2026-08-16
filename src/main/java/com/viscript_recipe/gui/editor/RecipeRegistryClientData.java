@@ -21,11 +21,11 @@ public final class RecipeRegistryClientData {
         dimensionTypes = RecipeRegistrySnapshot.readDimensionTypes(snapshot);
     }
 
-    static Map<ResourceLocation, List<ResourceLocation>> biomeTags() {
+    public static Map<ResourceLocation, List<ResourceLocation>> biomeTags() {
         return biomeTags;
     }
 
-    static List<ResourceLocation> dimensionTypes() {
+    public static List<ResourceLocation> dimensionTypes() {
         return dimensionTypes;
     }
 }

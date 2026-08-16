@@ -1,9 +1,8 @@
 package com.viscript_recipe.compat.irons_spellbooks;
 
+import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;

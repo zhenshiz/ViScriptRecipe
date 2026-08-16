@@ -1,8 +1,8 @@
 package com.viscript_recipe.recipe.importer;
 
 import com.viscript_recipe.compat.RecipeCompatModules;
+import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.*;
-import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.vanilla.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
@@ -245,7 +245,7 @@ public final class RecipeImporter {
                     }
                     symbol = SHAPED_SYMBOLS[symbolIndex++];
                     ingredientSymbols.put(keyString, symbol);
-                    key.add(ShapedKeyEntry.of(String.valueOf(symbol), imported));
+                    key.add(ShapedKeyEntry.of(symbol, imported));
                 }
                 builder.append(symbol);
             }
@@ -311,8 +311,10 @@ public final class RecipeImporter {
         for (var value : ingredient.getValues()) {
             if (value instanceof Ingredient.ItemValue(ItemStack item)) {
                 imported.setKind(IngredientValueKind.ITEM).setItem(item.copyWithCount(1));
+                return;
             } else if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
                 imported.setKind(IngredientValueKind.TAG).setTag(tag.location());
+                return;
             }
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_ingredient");

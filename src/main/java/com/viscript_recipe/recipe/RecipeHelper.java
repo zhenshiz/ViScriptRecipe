@@ -10,6 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import java.util.List;
 
 // 把重复使用的服务端侧的方法统一放到这里
 public class RecipeHelper {
@@ -21,6 +24,10 @@ public class RecipeHelper {
         }
         var item = BuiltInRegistries.ITEM.get(location);
         return item == Items.AIR ? fallback : item;
+    }
+
+    public static ItemStack registryItem(String id, Item fallback) {
+        return new ItemStack(itemFromRegistry(id, fallback));
     }
 
     public static ItemStack itemFromAbility(String itemAbility) {
@@ -55,5 +62,23 @@ public class RecipeHelper {
                         .filter(stack -> !stack.isEmpty())
                         .toArray(ItemStack[]::new))
                 .orElseGet(() -> new ItemStack[0]);
+    }
+
+    public static FluidStack[] fluidsFromTag(ResourceLocation tag, int amount) {
+        if (tag == null) return new FluidStack[0];
+        return BuiltInRegistries.FLUID.getTag(TagKey.create(Registries.FLUID, tag))
+                .map(holders -> displayFluidsFromHolders(holders.stream()
+                        .map(Holder::value)
+                        .toList(), Math.max(1, amount)))
+                .orElseGet(() -> new FluidStack[0]);
+    }
+
+    private static FluidStack[] displayFluidsFromHolders(List<Fluid> fluids, int amount) {
+        var sourceFluids = fluids.stream().filter(fluid -> fluid.defaultFluidState().isSource()).toList();
+        var displayFluids = sourceFluids.isEmpty() ? fluids : sourceFluids;
+        return displayFluids.stream()
+                .map(fluid -> new FluidStack(fluid, amount))
+                .filter(stack -> !stack.isEmpty())
+                .toArray(FluidStack[]::new);
     }
 }

@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.kaleidoscope_cookery;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.*;
+import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.kaleidoscope_cookery.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -87,7 +87,7 @@ public final class KaleidoscopeCookeryRecipeFactory {
         return new TeapotRecipe(
                 idOrDefault(data.getTeaFluid(), DEFAULT_SOUP_BASE),
                 ingredient,
-                Math.max(1, data.getIngredientCount()),
+                data.getIngredient().getCount(),
                 Math.max(1, data.getTime()),
                 requireItem(data.getResult(), "Kaleidoscope Cookery teapot result cannot be empty")
         );

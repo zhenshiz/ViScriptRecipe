@@ -29,7 +29,7 @@ public class ShapedCraftingRecipeData implements IVSRecipeData {
     private List<String> pattern = new ArrayList<>(List.of("A"));
     @Persisted
     private List<ShapedKeyEntry> key = new ArrayList<>(List.of(
-            ShapedKeyEntry.of("A", RecipeIngredient.item(Items.OAK_PLANKS))
+            ShapedKeyEntry.of('A', RecipeIngredient.item(Items.OAK_PLANKS))
     ));
     @Persisted
     private List<CraftingRemainderRule> remainders = new ArrayList<>(List.of(CraftingRemainderRule.defaultRule()));

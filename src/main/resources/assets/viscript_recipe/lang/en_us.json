@@ -739,7 +739,7 @@
   "viscript_recipe.editor.industrial_foregoing.crusher.action": "Material StoneWork crushing action; the recipe itself stores only input and output ingredients.",
   "viscript_recipe.editor.industrial_foregoing.processing_ticks": "Processing time: %s ticks",
   "viscript_recipe.editor.industrial_foregoing.production_per_work": "%s mB per operation; block break chance: %s",
-  "viscript_recipe.editor.industrial_foregoing.laser.summary": "Y: %s to %s; weight: %s; rules: %s; output count: %s",
+  "viscript_recipe.editor.industrial_foregoing.laser.summary": "Y: %s to %s; weight: %s; rules: %s",
   "viscript_recipe.editor.industrial_foregoing.laser.fluid_summary": "Y: %s to %s; weight: %s; rules: %s",
   "viscript_recipe.editor.industrial_foregoing.laser.requirements": "Entity above: %s; biome allow/deny: %s/%s; dimension allow/deny: %s/%s",
   "viscript_recipe.editor.industrial_foregoing.stonework.needs": "Needs: %s mB water, %s mB lava",

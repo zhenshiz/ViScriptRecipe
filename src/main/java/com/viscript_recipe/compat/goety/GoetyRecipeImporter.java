@@ -1,7 +1,7 @@
 package com.viscript_recipe.compat.goety;
 
 import com.Polarice3.Goety.common.crafting.*;
-import com.viscript_recipe.data.goety.*;
+import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
