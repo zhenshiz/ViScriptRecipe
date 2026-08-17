@@ -166,7 +166,7 @@ public final class RecipeEditorTypes {
     }
 
     public static RecipeEditorType require(ResourceLocation id) {
-        return get(id).orElseThrow(() -> new IllegalArgumentException("Unknown recipe editor type: " + id));
+        return get(id).orElse(MissingRecipeTypeHolder.TYPE);
     }
 
     public static List<RecipeEditorCategory> availableCategories() {

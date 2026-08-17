@@ -3,7 +3,6 @@ package com.viscript_recipe.recipe;
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.compat.create.CreateRecipeFactory;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.irons_spellbooks.IronAlchemistCauldronFluidSupport;
@@ -484,21 +483,13 @@ public final class RecipeOverrideManager {
     }
 
     private static List<RecipeHolder<?>> compileRecipeHolders(ResourceLocation id, RecipeEntry entry) {
-        var compiled = compileEntryRecipes(entry);
+        var compiled = List.of(entry.compile());
         var holders = new ArrayList<RecipeHolder<?>>();
         for (int i = 0; i < compiled.size(); i++) {
             var recipeId = derivedRecipeId(id, i);
             holders.add(new RecipeHolder<>(recipeId, compiled.get(i)));
         }
         return holders;
-    }
-
-    private static List<net.minecraft.world.item.crafting.Recipe<?>> compileEntryRecipes(RecipeEntry entry) {
-        var createKind = CreateProcessingKind.byType(entry.getType()).orElse(null);
-        if (createKind == CreateProcessingKind.BLOCK_CUTTING) {
-            return CreateRecipeFactory.compileProcessingRecipes(entry.getType(), entry.getData());
-        }
-        return List.of(entry.compile());
     }
 
     private static List<ResourceLocation> removableRecipeIds(ResourceLocation id, RecipeEntry entry) {

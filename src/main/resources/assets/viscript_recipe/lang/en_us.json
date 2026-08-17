@@ -9,6 +9,7 @@
   "viscript_recipe.editor.menu.recipe_namespace": "Set New Recipe ID Namespace",
   "viscript_recipe.editor.dialog.recipe_namespace": "New Recipe ID Namespace",
   "viscript_recipe.editor.entries": "Recipe Entries",
+  "viscript_recipe.editor.show_all_recipes": "Show All Recipes",
   "viscript_recipe.editor.crafting_table_recipes": "Crafting Table Recipes",
   "viscript_recipe.editor.shaped_recipes": "Shaped Crafting Recipes",
   "viscript_recipe.editor.workstation": "Workstation",

@@ -96,7 +96,13 @@ public class WorkBenchView extends View {
         updateStatus();
         var entry = getSelectedEntry();
         if (entry == null) { canvas = null; return; }
-        canvas = RecipeEditorTypes.require(entry.getType()).canvasSupplier().apply(navigationView, entry);
+        var canvasSupplier = RecipeEditorTypes.require(entry.getType()).canvasSupplier();
+        if (canvasSupplier == null) {
+            canvas = null;
+            titleLabel.setText(Component.literal("The mod for " + entry.getType() + " is not loaded."));
+            return;
+        }
+        canvas = canvasSupplier.apply(navigationView, entry);
         canvas.initVisualState();
         canvas.load();
         canvasStack.addChild(canvas);

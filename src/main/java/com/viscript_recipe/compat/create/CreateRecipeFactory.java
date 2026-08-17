@@ -76,15 +76,6 @@ public final class CreateRecipeFactory {
         };
     }
 
-    public static List<Recipe<?>> compileProcessingRecipes(ResourceLocation type, CreateProcessingRecipeData data) {
-        var kind = CreateProcessingKind.byType(type)
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported Create processing recipe type: " + type));
-        if (kind == CreateProcessingKind.BLOCK_CUTTING) {
-            return compileBlockCutting(kind, data);
-        }
-        return List.of(compileProcessing(type, data));
-    }
-
     public static Recipe<?> compileSequencedAssembly(CreateSequencedAssemblyRecipeData data) {
         var ingredient = compileIngredient(data.getIngredient());
         if (ingredient.isEmpty()) {

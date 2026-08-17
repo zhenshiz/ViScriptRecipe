@@ -605,7 +605,7 @@ public class NavigationView extends View {
     }
 
     private UIElement createShowAllEntriesButton() {
-        return RecipeCanvas.switchField("显示所有配方",
+        return RecipeCanvas.switchField("viscript_recipe.editor.show_all_recipes",
                 showAllEntries, bl -> { showAllEntries = bl; refresh(); });
     }
 

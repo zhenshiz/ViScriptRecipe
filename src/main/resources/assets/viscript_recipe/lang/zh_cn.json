@@ -9,6 +9,7 @@
   "viscript_recipe.editor.menu.recipe_namespace": "设置新配方 ID 命名空间",
   "viscript_recipe.editor.dialog.recipe_namespace": "新配方 ID 命名空间",
   "viscript_recipe.editor.entries": "配方条目",
+  "viscript_recipe.editor.show_all_recipes": "显示所有配方",
   "viscript_recipe.editor.crafting_table_recipes": "工作台配方",
   "viscript_recipe.editor.shaped_recipes": "有序工作台配方",
   "viscript_recipe.editor.workstation": "工作站",

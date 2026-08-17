@@ -2,8 +2,8 @@ package com.viscript_recipe.data;
 
 import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_lib.util.ISkipDefaultedSerialize;
 import com.viscript_recipe.ViScriptRecipe;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 @Setter
 @Accessors(chain = true)
 @SuppressWarnings("unchecked")
-public class RecipeEntry implements IPersistedSerializable, IConfigurable {
+public class RecipeEntry implements ISkipDefaultedSerialize, IConfigurable {
     private final HashMap<Class<? extends IVSRecipeData>, IVSRecipeData> recipeData = new HashMap<>();
 
     @Persisted
@@ -34,14 +34,16 @@ public class RecipeEntry implements IPersistedSerializable, IConfigurable {
 
     @Override
     public CompoundTag serializeNBT(HolderLookup.@NotNull Provider provider) {
-        var tag = IPersistedSerializable.super.serializeNBT(provider);
-        tag.put(getData().getDataName(), getData().serializeNBT(provider));
+        var tag = ISkipDefaultedSerialize.super.serializeNBT(provider);
+        var data = getData();
+        if (data instanceof MissingRecipeTypeHolder holder) tag.put(holder.missingDataName, holder.missingData);
+        else tag.put(data.getDataName(), data.serializeNBT(provider));
         return tag;
     }
 
     @Override
     public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag tag) {
-        IPersistedSerializable.super.deserializeNBT(provider, tag);
+        ISkipDefaultedSerialize.super.deserializeNBT(provider, tag);
         getData().deserializeNBT(provider, tag);
     }
 
