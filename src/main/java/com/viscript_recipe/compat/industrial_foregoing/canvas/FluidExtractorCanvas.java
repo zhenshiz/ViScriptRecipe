@@ -6,7 +6,6 @@ import com.viscript_recipe.compat.industrial_foregoing.data.IndustrialBlockState
 import com.viscript_recipe.compat.industrial_foregoing.data.IndustrialFluidExtractorRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.FluidRecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,7 +21,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import java.util.List;
 
 public class FluidExtractorCanvas extends FluidRecipeCanvas<IndustrialFluidExtractorRecipeData> {
-    static final Label productionLabel = RecipeEditorUi.label(Component.empty());
+    static final Label productionLabel = emptyLabel();
 
     public FluidExtractorCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -68,10 +67,7 @@ public class FluidExtractorCanvas extends FluidRecipeCanvas<IndustrialFluidExtra
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.industrial_foregoing.fluid_extractor"),
                 floatField("viscript_recipe.config.industrial_foregoing.fluid_extractor.break_chance",
-                        data.getBreakChance(), 0, 1, value -> {
-                            data.setBreakChance(value);
-                            updateProductionLabel();
-                        }),
+                        data.getBreakChance(), 0, 1, data::setBreakChance, this::updateProductionLabel),
                 switchField("viscript_recipe.config.industrial_foregoing.fluid_extractor.default_recipe",
                         data.isDefaultRecipe(), data::setDefaultRecipe));
     }
@@ -99,7 +95,7 @@ public class FluidExtractorCanvas extends FluidRecipeCanvas<IndustrialFluidExtra
         if (block == Blocks.AIR || block.getStateDefinition().getProperties().isEmpty()) {
             return;
         }
-        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.config.industrial_foregoing.block_state.properties"));
+        content.addChild(sectionTitle("viscript_recipe.config.industrial_foregoing.block_state.properties"));
         for (var property : block.getStateDefinition().getProperties()) {
             var current = stored.stream().filter(row -> property.getName().equals(row.getName()))
                     .findFirst().map(IndustrialBlockStatePropertyData::getValue)
@@ -107,9 +103,9 @@ public class FluidExtractorCanvas extends FluidRecipeCanvas<IndustrialFluidExtra
                     .orElseGet(() -> defaultPropertyValueName(block.defaultBlockState(), property));
             var candidates = property.getPossibleValues().stream()
                     .map(value -> propertyValueName(property, value)).toList();
-            content.addChild(field("viscript_recipe.config.industrial_foregoing.block_state.property",
-                    RecipeEditorUi.selector(candidates, current, Component::literal,
-                            value -> setBlockProperty(stored, property.getName(), value)),
+            content.addChild(selector("viscript_recipe.config.industrial_foregoing.block_state.property",
+                    candidates, current, Component::literal,
+                            value -> setBlockProperty(stored, property.getName(), value),
                     Component.literal(property.getName())));
         }
     }

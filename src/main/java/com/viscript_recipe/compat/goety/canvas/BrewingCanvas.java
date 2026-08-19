@@ -1,6 +1,5 @@
 package com.viscript_recipe.compat.goety.canvas;
 
-import com.google.common.util.concurrent.Runnables;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.goety.GoetyRecipeUiSupport;
@@ -8,7 +7,6 @@ import com.viscript_recipe.compat.goety.data.GoetyBrewingEntityKind;
 import com.viscript_recipe.compat.goety.data.GoetyBrewingRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
@@ -21,7 +19,7 @@ import java.util.List;
 import static com.viscript_recipe.compat.goety.canvas.BrazierCanvas.useJeiCanvas;
 
 public class BrewingCanvas extends RecipeCanvas<GoetyBrewingRecipeData> {
-    static final Label infoLabel = RecipeEditorUi.label(Component.empty());
+    static final Label infoLabel = emptyLabel();
     static final UIElement outputPreview = createItemIcon(ItemStack.EMPTY, useJeiCanvas ? JEI_SLOT_SIZE : SLOT_SIZE);
     static {
         BrazierCanvas.centerLabel(infoLabel);
@@ -54,21 +52,19 @@ public class BrewingCanvas extends RecipeCanvas<GoetyBrewingRecipeData> {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.goety.brewing"),
                 RecipeSearchComponents.mobEffect("viscript_recipe.config.goety.brewing.effect",
-                        data::getEffect, value -> { data.setEffect(value); updatePreview(); },
-                        Runnables.doNothing(), MobEffects.POISON.value()
+                        data::getEffect, data::setEffect, this::updatePreview, MobEffects.POISON.value()
                 ),
                 intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(),
-                        0, Integer.MAX_VALUE, value -> { data.setSoulCost(value); updatePreview(); }),
+                        0, Integer.MAX_VALUE, data::setSoulCost, this::updatePreview),
                 intField("viscript_recipe.config.goety.brewing.capacity_extra", data.getCapacityExtra(),
-                        0, Integer.MAX_VALUE, value -> { data.setCapacityExtra(value); updatePreview(); }),
+                        0, Integer.MAX_VALUE, data::setCapacityExtra, this::updatePreview),
                 intField("viscript_recipe.config.goety.duration", data.getDuration(),
-                        1, Integer.MAX_VALUE, value -> { data.setDuration(value); updatePreview(); }),
-                field("viscript_recipe.config.goety.brewing.entity_kind",
-                        RecipeEditorUi.selector(List.of(GoetyBrewingEntityKind.values()),
-                                data.getEntityKind(), GoetyBrewingEntityKind::displayName, value -> {
-                                    data.setEntityKind(value); reloadProperties();
-                                }
-                        ))
+                        1, Integer.MAX_VALUE, data::setDuration, this::updatePreview),
+                selector("viscript_recipe.config.goety.brewing.entity_kind",
+                        List.of(GoetyBrewingEntityKind.values()),
+                        data.getEntityKind(), GoetyBrewingEntityKind::displayName,
+                        data::setEntityKind, RecipeCanvas::reloadProperties
+                )
         );
         if (data.getEntityKind() == GoetyBrewingEntityKind.ENTITY) {
             content.addChild(RecipeSearchComponents.entityType("viscript_recipe.config.goety.brewing.entity",

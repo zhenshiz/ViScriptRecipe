@@ -9,12 +9,11 @@ import com.viscript_recipe.compat.kaleidoscope_cookery.data.KaleidoscopePotRecip
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 
 public class PotCanvas extends RecipeCanvas<KaleidoscopePotRecipeData> {
-    static final Label stirFryLabel = RecipeEditorUi.label(Component.empty());
+    static final Label stirFryLabel = emptyLabel();
     static {configureLabel(stirFryLabel);}
 
     public PotCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
@@ -25,7 +24,7 @@ public class PotCanvas extends RecipeCanvas<KaleidoscopePotRecipeData> {
         loadIngredients(data.getIngredients());
         loadIngredientSlot(9, data.getCarrier());
         setVisualOutput(0, data.getResult());
-        updateStirFryLabel(data.getStirFryCount());
+        updateStirFryLabel();
     }
 
     @Override
@@ -54,14 +53,12 @@ public class PotCanvas extends RecipeCanvas<KaleidoscopePotRecipeData> {
                 intField("viscript_recipe.config.kaleidoscope_cookery.time",
                         data.getTime(), 1, Integer.MAX_VALUE, data::setTime),
                 intField("viscript_recipe.config.kaleidoscope_cookery.stir_fry_count",
-                        data.getStirFryCount(), 0, Integer.MAX_VALUE, value -> {
-                            data.setStirFryCount(value); updateStirFryLabel(value);
-                        })
+                        data.getStirFryCount(), 0, Integer.MAX_VALUE, data::setStirFryCount, this::updateStirFryLabel)
         );
     }
 
-    private void updateStirFryLabel(int count) {
-        stirFryLabel.setText(Component.translatable("jei.kaleidoscope_cookery.pot.stir_fry_count", count));
+    private void updateStirFryLabel() {
+        stirFryLabel.setText(Component.translatable("jei.kaleidoscope_cookery.pot.stir_fry_count", getData().getStirFryCount()));
     }
 
     static void configureLabel(Label label) {

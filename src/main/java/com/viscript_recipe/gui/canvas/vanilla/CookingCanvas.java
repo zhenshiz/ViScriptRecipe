@@ -6,14 +6,13 @@ import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.vanilla.CookingRecipeData;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 
 public class CookingCanvas extends RecipeCanvas<CookingRecipeData> {
     static final boolean useJeiCanvas = VanillaCookingCanvasFactory.hasJeiSkin();
-    static final Label experienceLabel = RecipeEditorUi.label(Component.empty());
-    static final Label cookingTimeLabel = RecipeEditorUi.label(Component.empty());
+    static final Label experienceLabel = emptyLabel();
+    static final Label cookingTimeLabel = emptyLabel();
 
     public CookingCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -68,13 +67,10 @@ public class CookingCanvas extends RecipeCanvas<CookingRecipeData> {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.cooking"),
                 floatField("viscript_recipe.config.cooking.experience",
-                        data.getExperience(), 0, Integer.MAX_VALUE, value -> {
-                            data.setExperience(value); updateExpLabel();
-                        }).setDisplay(!entry.isType(RecipeEditorTypes.CAMPFIRE_COOKING)),
+                        data.getExperience(), 0, Integer.MAX_VALUE, data::setExperience, this::updateExpLabel)
+                        .setDisplay(!entry.isType(RecipeEditorTypes.CAMPFIRE_COOKING)),
                 intField("viscript_recipe.config.cooking.cooking_time",
-                        data.getCookingTime(), 1, 72000, value -> {
-                            data.setCookingTime(value); updateTimeLabel();
-                        })
+                        data.getCookingTime(), 1, 72000, data::setCookingTime, this::updateTimeLabel)
         );
     }
 

@@ -5,6 +5,7 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.texture.ItemStackTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Switch;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
@@ -14,7 +15,6 @@ import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.SlotSelection;
 import com.viscript_recipe.gui.views.NavigationView;
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,10 +24,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import static com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData.maxSize;
 import static com.viscript_recipe.gui.views.PropertiesView.*;
 import static com.viscript_recipe.recipe.RecipeHelper.itemsFromTag;
 
+/**
+ * 配方编辑器界面中间显示的画布 <p>
+ * 主要作用：将原料和输出槽位显示在画布上，玩家编辑配方时，可见的物品等内容不会立即写入{@link #getData()}，以避免频繁地保存和加载。
+ * 需要通过属性栏编辑的详细属性（如熔炉配方的烧制时间）会在编辑后立即写入配方数据。 <p>
+ * 代码流程：当画布的实现类初始化时，会调用{@link #initVisualState()}方法构建所有画布的UI元素，随后调用{@link #load()}方法加载原料和产物数据到可见槽位上。
+ * 当画布需要更新或者玩家切换到其他配方时，才会调用{@link #save()}方法将当前可见槽位的物品写入配方数据。 <p>
+ * 若配方包含流体，需要继承{@link FluidRecipeCanvas}。
+ */
 @SuppressWarnings("DeprecatedIsStillUsed")
 public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     public static final char[] SHAPED_SYMBOLS =
@@ -41,7 +51,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     public static RecipeOutputData[] visualOutputs;
     public static boolean containsUnsupportedIngredients;
 
-    public static final int MAX_INGREDIENT = 81;
+    public static final int MAX_INGREDIENT = maxSize() * maxSize();
     public static final int MAX_OUTPUT = 16;
     public static final IngredientDisplaySlot[] visualIngredientSlots = new IngredientDisplaySlot[MAX_INGREDIENT];
     public static final ItemSlot[] visualOutputSlots = new ItemSlot[MAX_OUTPUT];
@@ -86,13 +96,8 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         var availableKinds = availableIngredientKind();
         var selectedKind = availableKinds.contains(ingredient.getKind()) ? ingredient.getKind() : availableKinds.getFirst();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.ingredient"),
-                field("viscript_recipe.config.ingredient.value.kind",
-                        RecipeEditorUi.selector(availableKinds, selectedKind,
-                                IngredientValueKind::displayName, kind -> {
-                                    ingredient.setKind(kind);
-                                    setSelectedIngredient(ingredient);
-                                }
-                        ))
+                selector("viscript_recipe.config.ingredient.value.kind", availableKinds, selectedKind,
+                        IngredientValueKind::displayName, kind -> setSelectedIngredient(ingredient.setKind(kind)))
         );
         switch (selectedKind) {
             case ITEM -> {
@@ -209,6 +214,8 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     @Deprecated
     public IngredientDisplaySlot configureIngredientSlot(int index) {
         var slot = visualIngredientSlots[index];
+        slot.registerValueListener(stack -> // 加这个事件是为了能够把xei拖拽过来的物品变成原料
+                setVisualIngredient(index, RecipeIngredient.item(stack).setCount(stack.getCount())));
         slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
             if (event.button == 1) {
                 setVisualIngredient(index, RecipeIngredient.empty());
@@ -441,31 +448,68 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         }).style(style -> style.backgroundTexture(Icons.DOWN_ARROW_NO_BAR));
     }
 
+    public static Label emptyLabel() {return RecipeEditorUi.label(Component.empty());}
+
     public static UIElement sectionTitle(String title) {return RecipeEditorUi.sectionTitle(title);}
 
     public static UIElement field(String key, UIElement element, Component... tooltip) {
         return RecipeEditorUi.fieldGroup(key, element, tooltip);
     }
 
-    public static UIElement switchField(String key, boolean value, BooleanConsumer setter, Component... tooltip) {
-        return field(key, new Switch().setOn(value, false).setOnSwitchChanged(setter), tooltip);
+    public static UIElement switchField(String key, boolean value, Consumer<Boolean> setter, Component... tooltip) {
+        return switchField(key, value, setter, null, tooltip);
+    }
+    public static UIElement switchField(String key, boolean value,
+                                        Consumer<Boolean> setter, Runnable onChange, Component... tooltip) {
+        return field(key, new Switch().setOn(value, false).setOnSwitchChanged(bl -> {
+            setter.accept(bl); if (onChange != null) onChange.run(); }), tooltip);
     }
 
     public static UIElement intField(String key, int value, int min, int max, Consumer<Integer> setter, Component... tooltip) {
-        return field(key, RecipeEditorUi.intField(value, min, max, setter), tooltip);
+        return intField(key, value, min, max, setter, null, tooltip);
+    }
+    public static UIElement intField(String key, int value, int min, int max,
+                                     Consumer<Integer> setter, Runnable onChange, Component... tooltip) {
+        return field(key, RecipeEditorUi.intField(value, min, max, i -> {
+            setter.accept(i); if (onChange != null) onChange.run(); }), tooltip);
     }
 
     public static UIElement floatField(String key, float value, float min, float max,
                                        Consumer<Float> setter, Component... tooltip) {
-        return field(key, RecipeEditorUi.floatField(value, min, max, setter), tooltip);
+        return floatField(key, value, min, max, setter, null, tooltip);
+    }
+    public static UIElement floatField(String key, float value, float min, float max,
+                                       Consumer<Float> setter, Runnable onChange, Component... tooltip) {
+        return field(key, RecipeEditorUi.floatField(value, min, max, f -> {
+            setter.accept(f); if (onChange != null) onChange.run(); }), tooltip);
     }
 
     public static UIElement textField(String key, String value, Consumer<String> setter, Component... tooltip) {
-        return field(key, RecipeEditorUi.textField(value, setter), tooltip);
+        return textField(key, value, setter, null, tooltip);
+    }
+    public static UIElement textField(String key, String value,
+                                      Consumer<String> setter, Runnable onChange, Component... tooltip) {
+        return field(key, RecipeEditorUi.textField(value, s -> {
+            setter.accept(s); if (onChange != null) onChange.run(); }), tooltip);
     }
 
     public static UIElement resourceField(String key, ResourceLocation value,
                                           Consumer<ResourceLocation> setter, Component... tooltip) {
-        return field(key, RecipeEditorUi.resourceLocationField(value, setter), tooltip);
+        return resourceField(key, value, setter, null, tooltip);
+    }
+    public static UIElement resourceField(String key, ResourceLocation value,
+                                          Consumer<ResourceLocation> setter, Runnable onChange, Component... tooltip) {
+        return field(key, RecipeEditorUi.resourceLocationField(value, s -> {
+            setter.accept(s); if (onChange != null) onChange.run(); }), tooltip);
+    }
+
+    public static <T> UIElement selector(String key, List<T> candidates, T value, Function<T, Component> name,
+                                         Consumer<T> setter, Component... tooltip) {
+        return selector(key, candidates, value, name, setter, null, tooltip);
+    }
+    public static <T> UIElement selector(String key, List<T> candidates, T value, Function<T, Component> name,
+                                         Consumer<T> setter, Runnable onChange, Component... tooltip) {
+        return field(key, RecipeEditorUi.selector(candidates, value, name, t -> {
+            setter.accept(t); if (onChange != null) onChange.run(); }), tooltip);
     }
 }

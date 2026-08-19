@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.ars_nouveau.data.ArsNouveauArmorUpgradeRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 
@@ -16,14 +15,14 @@ public class ArmorUpgradeCanvas extends RecipeCanvas<ArsNouveauArmorUpgradeRecip
     @Override
     public void load() {
         var data = getData();
-        loadPedestalInputs(this, data.getPedestalItems(), 8);
+        loadIngredients(data.getPedestalItems(), 1);
         updateSourceLabel(data.getSourceCost());
-        updateTierLabel(data.getTier() + 1);
+        updateTierLabel();
     }
 
     @Override
     public void save() {
-        getData().setPedestalItems(savePedestalInputs(this, 8));
+        getData().setPedestalItems(getIngredients(8, 1, true));
     }
 
     @Override
@@ -34,13 +33,9 @@ public class ArmorUpgradeCanvas extends RecipeCanvas<ArsNouveauArmorUpgradeRecip
         slots[0].setDisplay(false);
         var result = createOutputSlot(0, OUTPUT_SLOT_SIZE);
         result.setDisplay(false);
-        var centerPreview = createItemIcon(getData().centerPreview(), SLOT_SIZE).style(style ->
-                style.tooltips(Component.translatable("viscript_recipe.editor.ars_nouveau.center_preview")));
-        var outputPreview = createItemIcon(getData().outputPreview(), OUTPUT_SLOT_SIZE).style(style ->
-                style.tooltips(Component.translatable("viscript_recipe.editor.ars_nouveau.output_preview")));
         tierLabel.setDisplay(true);
-        return ArsNouveauCanvasFactory.createApparatusCanvas(slots, cells, result, centerPreview, outputPreview,
-                sourceLabel, tierLabel, this::getSlotTooltip);
+        return ArsNouveauCanvasFactory.createApparatusCanvas(slots, cells, result,
+                centerPreview(getData()), outputPreview(getData()), sourceLabel, tierLabel, this::getSlotTooltip);
     }
 
     private Component getSlotTooltip(int index) {
@@ -51,14 +46,14 @@ public class ArmorUpgradeCanvas extends RecipeCanvas<ArsNouveauArmorUpgradeRecip
     @Override
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
-        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.ars_nouveau"));
+        content.addChild(sectionTitle("viscript_recipe.editor.properties.ars_nouveau"));
         addSourceField(content, data.getSourceCost(), data::setSourceCost);
-        content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.ars_nouveau.armor_upgrade.tier",
-                RecipeEditorUi.intField(data.getTier() + 1, 2, Integer.MAX_VALUE,
-                        value -> { data.setTier(value - 1); updateTierLabel(value); })));
+        content.addChild(intField("viscript_recipe.config.ars_nouveau.armor_upgrade.tier",
+                data.getTier() + 1, 2, Integer.MAX_VALUE,
+                value -> data.setTier(value - 1), this::updateTierLabel));
     }
 
-    static void updateTierLabel(int tier) {
-        tierLabel.setText(Component.translatable("ars_nouveau.tier", tier));
+    void updateTierLabel() {
+        tierLabel.setText(Component.translatable("ars_nouveau.tier", getData().getTier() + 1));
     }
 }

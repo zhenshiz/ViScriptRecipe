@@ -12,7 +12,6 @@ import com.viscript_recipe.compat.industrial_foregoing.data.IndustrialLaserDrill
 import com.viscript_recipe.compat.industrial_foregoing.data.IndustrialLaserDrillRarityData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.FluidRecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeRegistryClientData;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
@@ -26,8 +25,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class LaserDrillFluidCanvas extends FluidRecipeCanvas<IndustrialLaserDrillFluidRecipeData> {
-    static final Label rangeLabel = RecipeEditorUi.label(Component.empty());
-    static final Label requirementsLabel = RecipeEditorUi.label(Component.empty());
+    static final Label rangeLabel = emptyLabel();
+    static final Label requirementsLabel = emptyLabel();
 
     public LaserDrillFluidCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -139,7 +138,7 @@ public class LaserDrillFluidCanvas extends FluidRecipeCanvas<IndustrialLaserDril
         );
         filters.setAddDefault(() -> defaultResourceFilter(biomeTag));
         filters.setCanReorder(true);
-        filters.setOnUpdate(updated -> setter.accept(new ArrayList<>(updated)));
+        filters.setOnUpdate(setter);
         content.addChild(filters.layout(layout -> layout.widthPercent(100)));
     }
 
@@ -166,17 +165,13 @@ public class LaserDrillFluidCanvas extends FluidRecipeCanvas<IndustrialLaserDril
     static void buildEntityCondition(UIElement content, IndustrialEntityConditionData data, Runnable onUpdate) {
         content.addChildren(sectionTitle("viscript_recipe.config.industrial_foregoing.entity_condition"),
                 switchField("viscript_recipe.config.industrial_foregoing.entity_condition.enabled",
-                        data.isEnabled(), bl -> {
-                             data.setEnabled(bl); onUpdate.run();
-                        })
+                        data.isEnabled(), data::setEnabled, onUpdate)
         );
         if (!data.isEnabled()) return;
         var kind = data.getKind();
-        content.addChild(field("viscript_recipe.config.industrial_foregoing.entity_condition.kind",
-                RecipeEditorUi.selector(List.of(IndustrialEntityIngredientKind.values()), kind,
-                        IndustrialEntityIngredientKind::displayName, value -> {
-                            data.setKind(value); onUpdate.run();
-                        })));
+        content.addChild(selector("viscript_recipe.config.industrial_foregoing.entity_condition.kind",
+                List.of(IndustrialEntityIngredientKind.values()), kind,
+                IndustrialEntityIngredientKind::displayName, data::setKind, onUpdate));
         if (kind == IndustrialEntityIngredientKind.TAG) {
             content.addChild(RecipeSearchComponents.entityTag(
                     "viscript_recipe.config.industrial_foregoing.entity_condition.id",

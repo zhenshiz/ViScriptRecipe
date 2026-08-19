@@ -178,6 +178,7 @@ neoForge {
             jvmArguments.add '-XX:HotswapAgent=fatjar'
 
             logLevel = org.slf4j.event.Level.DEBUG
+            systemProperty("terminal.jline", "true")
         }
     }
 

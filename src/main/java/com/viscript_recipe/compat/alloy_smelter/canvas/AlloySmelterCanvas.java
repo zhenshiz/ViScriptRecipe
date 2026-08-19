@@ -6,15 +6,14 @@ import com.viscript_recipe.compat.alloy_smelter.data.AlloySmelterRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 public class AlloySmelterCanvas extends RecipeCanvas<AlloySmelterRecipeData> {
-    static final Label timeLabel = RecipeEditorUi.label(Component.empty());
-    static final Label fuelLabel = RecipeEditorUi.label(Component.empty());
-    static final Label tierLabel = RecipeEditorUi.label(Component.empty());
+    static final Label timeLabel = emptyLabel();
+    static final Label fuelLabel = emptyLabel();
+    static final Label tierLabel = emptyLabel();
     static final UIElement fuelHint = createItemIcon(Items.COAL.getDefaultInstance(), JEI_SLOT_SIZE)
             .style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.alloy_smelter.fuel_hint")));
 
@@ -53,19 +52,13 @@ public class AlloySmelterCanvas extends RecipeCanvas<AlloySmelterRecipeData> {
     @Override
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
-        content.addChildren(RecipeEditorUi.sectionTitle("viscript_recipe.editor.category.alloy_smelter.smelting"),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.smelting_time",
-                        RecipeEditorUi.intField(data.getSmeltingTime(), 1, Integer.MAX_VALUE, value -> {
-                            data.setSmeltingTime(value); updateLabels();
-                        })),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.fuel_per_tick",
-                        RecipeEditorUi.intField(data.getFuelPerTick(), 0, Integer.MAX_VALUE, value -> {
-                            data.setFuelPerTick(value); updateLabels();
-                        })),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.alloy_smelter.required_tier",
-                        RecipeEditorUi.intField(data.getRequiredTier(), 1, Integer.MAX_VALUE, value -> {
-                            data.setRequiredTier(value); updateLabels();
-                        })));
+        content.addChildren(sectionTitle("viscript_recipe.editor.category.alloy_smelter.smelting"),
+                intField("viscript_recipe.config.alloy_smelter.smelting_time",
+                        data.getSmeltingTime(), 1, Integer.MAX_VALUE, data::setSmeltingTime, this::updateLabels),
+                intField("viscript_recipe.config.alloy_smelter.fuel_per_tick",
+                        data.getFuelPerTick(), 0, Integer.MAX_VALUE, data::setFuelPerTick, this::updateLabels),
+                intField("viscript_recipe.config.alloy_smelter.required_tier",
+                        data.getRequiredTier(), 1, Integer.MAX_VALUE, data::setRequiredTier, this::updateLabels));
     }
 
     private void updateLabels() {

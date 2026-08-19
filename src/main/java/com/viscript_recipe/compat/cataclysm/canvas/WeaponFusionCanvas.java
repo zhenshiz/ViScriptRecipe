@@ -30,13 +30,9 @@ public class WeaponFusionCanvas extends RecipeCanvas<CataclysmWeaponFusionRecipe
         var base = createIngredientSlot(0, JEI_SLOT_SIZE);
         var addition = createIngredientSlot(1, JEI_SLOT_SIZE);
         var result = createOutputSlot(0, JEI_SLOT_SIZE);
-        configureJeiOverlaySlotVisual(base);
-        configureJeiOverlaySlotVisual(addition);
-        configureJeiOverlaySlotVisual(result);
-        base.style(style -> style.tooltips(net.minecraft.network.chat.Component.translatable(
-                "viscript_recipe.editor.cataclysm.weapon_fusion.base_slot")));
-        addition.style(style -> style.tooltips(net.minecraft.network.chat.Component.translatable(
-                "viscript_recipe.editor.cataclysm.weapon_fusion.addition_slot")));
+        configureJeiOverlaySlotVisual(base, addition, result);
+        tooltip(base, "viscript_recipe.editor.cataclysm.weapon_fusion.base_slot");
+        tooltip(addition, "viscript_recipe.editor.cataclysm.weapon_fusion.addition_slot");
         return CataclysmCanvasFactory.createWeaponFusionCanvas(base, addition, result);
     }
 }

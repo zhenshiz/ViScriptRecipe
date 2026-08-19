@@ -1,6 +1,5 @@
 package com.viscript_recipe.compat.mysticalagriculture.canvas;
 
-import com.google.common.util.concurrent.Runnables;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport;
 import com.viscript_recipe.compat.mysticalagriculture.data.MysticalAgricultureEnchanterRecipeData;
@@ -60,9 +59,7 @@ public class EnchanterCanvas extends RecipeCanvas<MysticalAgricultureEnchanterRe
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.enchanter"),
                 RecipeSearchComponents.enchantment(
                         "viscript_recipe.config.mysticalagriculture.enchanter.enchantment",
-                        data::getEnchantment, id -> {
-                            data.setEnchantment(id); setResultPreview();
-                        }, Runnables.doNothing())
+                        data::getEnchantment, data::setEnchantment, this::setResultPreview)
         );
     }
 

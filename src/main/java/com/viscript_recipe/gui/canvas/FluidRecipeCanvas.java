@@ -6,7 +6,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.FluidSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.viscript_recipe.data.*;
 import com.viscript_recipe.gui.editor.FluidDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.SlotSelection;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
@@ -17,6 +16,10 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 目前所有包含流体的配方中，除了机械动力模组的序列装配配方，都没有需要超过2个流体输入和两个流体输出的。因此流体槽位的选择索引没有区分输入和输出。 <p>
+ * 当前的流体属性配置（不包括序列装配）：索引0-1为输入，索引2-3为输出。万一以后遇到需要更多输入槽位的配方，根据实际需要调整即可。
+ */
 public abstract class FluidRecipeCanvas<D extends IVSRecipeData> extends RecipeCanvas<D> {
     protected static final int CREATE_MAX_FLUID_INPUTS = 2;
     protected static final int CREATE_MAX_FLUID_OUTPUTS = 2;
@@ -39,10 +42,9 @@ public abstract class FluidRecipeCanvas<D extends IVSRecipeData> extends RecipeC
         if (selectedSlotIndex() < 2 || entry.isType(RecipeEditorTypes.CREATE_SEQUENCED_ASSEMBLY)) {
             var ingredient = getSelectedFluidInput();
             var kind = ingredient.getKind();
-            content.addChild(field("viscript_recipe.config.create.fluid_ingredient.kind",
-                    RecipeEditorUi.selector(List.of(FluidIngredientKind.values()),
-                            kind, FluidIngredientKind::displayName, this::setSelectedFluidIngredientKind
-                    ))
+            content.addChild(selector("viscript_recipe.config.create.fluid_ingredient.kind",
+                    List.of(FluidIngredientKind.values()), kind,
+                    FluidIngredientKind::displayName, this::setSelectedFluidIngredientKind)
             );
             if (kind == FluidIngredientKind.TAG) content.addChild(PropertiesView.createFluidTagConfigurator(ingredient,
                     tag -> setSelectedFluidInput(ingredient.setTag(tag.location())))

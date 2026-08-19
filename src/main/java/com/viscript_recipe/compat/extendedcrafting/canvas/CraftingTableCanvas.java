@@ -6,7 +6,6 @@ import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.canvas.ShapedGridHelper;
 import com.viscript_recipe.gui.canvas.vanilla.BasicRecipeCanvasFactory;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeGridFactory;
 import com.viscript_recipe.gui.views.NavigationView;
 
@@ -58,17 +57,16 @@ public class CraftingTableCanvas extends RecipeCanvas<ExtendedCraftingTableRecip
     @Override
     public void buildRecipeProperties(UIElement content) {
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.extendedcrafting.table"),
-                field("viscript_recipe.config.extendedcrafting.table.size",
-                        RecipeEditorUi.selector(List.of(1, 2, 3, 4), effectiveTier(),
-                                tier -> {
-                                    int size = tableGridSizeForTier(tier);
-                                    return net.minecraft.network.chat.Component.translatable(
-                                            "viscript_recipe.config.extendedcrafting.table.size.value", size, size);
-                                }, tier -> {
-                                    int size = tableGridSizeForTier(tier);
-                                    getData().setTier(tier).setWidth(size).setHeight(size);
-                                    reloadCanvas();
-                                }))
+                selector("viscript_recipe.config.extendedcrafting.table.size",
+                        List.of(1, 2, 3, 4), effectiveTier(), tier -> {
+                            int size = tableGridSizeForTier(tier);
+                            return net.minecraft.network.chat.Component.translatable(
+                                                    "viscript_recipe.config.extendedcrafting.table.size.value", size, size);
+                        }, tier -> {
+                            int size = tableGridSizeForTier(tier);
+                            getData().setTier(tier).setWidth(size).setHeight(size);
+                            reloadCanvas();
+                        })
         );
     }
 }

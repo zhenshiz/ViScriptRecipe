@@ -145,6 +145,14 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
     }
 
     @Override
+    public void setVisualIngredient(int index, RecipeIngredient ingredient) {
+        if (getCreateProcessingKind() == CreateProcessingKind.AUTO_PACKING && index == 0) {
+            var gridSize = autoPackingGridSize(getData());
+            for (int i = 0; i < gridSize * gridSize; i++) super.setVisualIngredient(i, ingredient);
+        } else super.setVisualIngredient(index, ingredient);
+    }
+
+    @Override
     public UIElement createCanvas() {
         // var generic = createGenericCreateProcessingCanvas();
         var variant = switch (getCreateProcessingKind()) {
@@ -168,28 +176,24 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
     @Override
     public void buildRecipeProperties(UIElement content) {
         var kind = getCreateProcessingKind();
-        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.create.processing"));
+        content.addChild(sectionTitle("viscript_recipe.editor.properties.create.processing"));
         var data = getData();
         if (kind == CreateProcessingKind.AUTO_PACKING) {
-            content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.create.auto_packing.grid_size",
-                    RecipeEditorUi.selector(List.of(2, 3), autoPackingGridSize(data),
-                            value -> Component.translatable("viscript_recipe.editor.create.auto_packing.grid_" + (value <= 2 ? 2 : 3)), value -> {
-                                fillAutoPackingInput(value); reloadCanvas();
-                            }
-                    )));
+            content.addChild(selector("viscript_recipe.config.create.auto_packing.grid_size",
+                    List.of(2, 3), autoPackingGridSize(data), value ->
+                            Component.translatable("viscript_recipe.editor.create.auto_packing.grid_" + (value <= 2 ? 2 : 3)),
+                    this::fillAutoPackingInput, CreateProcessingCanvas::reloadCanvas
+            ));
         }
         if (kind.durationAllowed()) {
-            content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.create.processing_time",
-                    RecipeEditorUi.intField(data.getProcessingTime(), 0, Integer.MAX_VALUE, data::setProcessingTime)));
+            content.addChild(intField("viscript_recipe.config.create.processing_time",
+                    data.getProcessingTime(), 0, Integer.MAX_VALUE, data::setProcessingTime));
         }
         if (kind.heatAllowed()) {
-            content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.create.heat_requirement",
-                    RecipeEditorUi.selector(
-                            List.of(CreateHeatCondition.values()), data.getHeatRequirement(),
-                            CreateHeatCondition::displayName, value -> {
-                                data.setHeatRequirement(value); reloadCanvas();
-                            }
-                    )));
+            content.addChild(selector("viscript_recipe.config.create.heat_requirement",
+                    List.of(CreateHeatCondition.values()), data.getHeatRequirement(),
+                    CreateHeatCondition::displayName, data::setHeatRequirement, CreateProcessingCanvas::reloadCanvas
+            ));
         }
         if (kind.keepHeldItemAllowed()) {
             content.addChild(switchField("viscript_recipe.config.create.keep_held_item",
@@ -362,7 +366,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
                     }
                     return RecipeGridFactory.slotCell(slot, SLOT_SIZE);
                 }
-        ).style(style -> style.tooltips(Component.translatable("viscript_recipe.editor.create.auto_packing.input_grid")));
+        );
     }
 
     private UIElement createCreateSandpaperCanvas() {

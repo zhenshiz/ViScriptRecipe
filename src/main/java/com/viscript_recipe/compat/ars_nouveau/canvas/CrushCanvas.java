@@ -5,7 +5,6 @@ import com.viscript_recipe.compat.ars_nouveau.data.ArsNouveauCrushOutputData;
 import com.viscript_recipe.compat.ars_nouveau.data.ArsNouveauCrushRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
 import com.viscript_recipe.recipe.RecipeHelper;
@@ -60,7 +59,7 @@ public class CrushCanvas extends RecipeCanvas<ArsNouveauCrushRecipeData> {
 
     @Override
     public void buildRecipeProperties(UIElement content) {
-        content.addChildren(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.ars_nouveau.crush"),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.ars_nouveau.crush"),
                 switchField("viscript_recipe.config.ars_nouveau.crush.skip_block_place",
                         getData().isSkipBlockPlace(), getData()::setSkipBlockPlace));
     }
@@ -68,12 +67,12 @@ public class CrushCanvas extends RecipeCanvas<ArsNouveauCrushRecipeData> {
     @Override
     public void buildResultProperties(UIElement content) {
         int index = selectedSlotIndex();
-        content.addChildren(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.ars_nouveau.output"),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.ars_nouveau.output"),
                 PropertiesView.createItemStackConfigurator("viscript_recipe.config.ars_nouveau.crush.output_item",
                         () -> getSelectedOutput().getItem(), this::setSelectedOutput
                 ),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.ars_nouveau.crush.chance",
-                        RecipeEditorUi.floatField(getSelectedOutput().getChance(), 0, 1, this::setSelectedOutput)),
+                floatField("viscript_recipe.config.ars_nouveau.crush.chance",
+                        getSelectedOutput().getChance(), 0, 1, this::setSelectedOutput),
                 intField("viscript_recipe.config.ars_nouveau.crush.max_range",
                         maxRanges[index], 1, Integer.MAX_VALUE, value -> maxRanges[index] = value)
         );

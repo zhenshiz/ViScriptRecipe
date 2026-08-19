@@ -5,7 +5,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.industrial_foregoing.data.IndustrialDissolutionRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.FluidRecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class DissolutionCanvas extends FluidRecipeCanvas<IndustrialDissolutionRecipeData> {
-    static final Label processingLabel = RecipeEditorUi.label(Component.empty());
+    static final Label processingLabel = emptyLabel();
 
     public DissolutionCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -75,9 +74,7 @@ public class DissolutionCanvas extends FluidRecipeCanvas<IndustrialDissolutionRe
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.industrial_foregoing.dissolution"),
                 intField("viscript_recipe.config.industrial_foregoing.processing_time",
-                        data.getProcessingTime(), 0, Integer.MAX_VALUE, value -> {
-                    data.setProcessingTime(value); updateProcessingLabel();
-                }));
+                        data.getProcessingTime(), 0, Integer.MAX_VALUE, data::setProcessingTime, this::updateProcessingLabel));
     }
 
     @Override

@@ -209,7 +209,7 @@ public final class RecipeImporter {
     }
 
     public static RecipeEntry importMechanicalCrafting(ResourceLocation id, ShapedRecipe recipe, boolean acceptMirrored, HolderLookup.Provider provider) throws RecipeImportException {
-        if (recipe.getWidth() > CreateMechanicalCraftingRecipeData.MAX_SIZE || recipe.getHeight() > CreateMechanicalCraftingRecipeData.MAX_SIZE) {
+        if (recipe.getWidth() > CreateMechanicalCraftingRecipeData.maxSize() || recipe.getHeight() > CreateMechanicalCraftingRecipeData.maxSize()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.shaped_too_large", recipe.getWidth(), recipe.getHeight());
         }
         var shapedPattern = importShapedPattern(recipe.getIngredients(), recipe.getWidth(), recipe.getHeight());

@@ -5,7 +5,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.goety.data.GoetyCursedInfuserRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.recipe.RecipeHelper;
 import net.minecraft.network.chat.Component;
@@ -15,7 +14,7 @@ import static com.viscript_recipe.compat.goety.canvas.BrazierCanvas.useJeiCanvas
 
 public class CursedInfuserCanvas extends RecipeCanvas<GoetyCursedInfuserRecipeData> {
     static final UIElement machine = new UIElement();
-    static final Label timeLabel = RecipeEditorUi.label(Component.empty());
+    static final Label timeLabel = emptyLabel();
     static {
         tooltip(machine, "viscript_recipe.editor.goety.cursed_infuser.machine");
         BrazierCanvas.centerLabel(timeLabel);
@@ -48,12 +47,8 @@ public class CursedInfuserCanvas extends RecipeCanvas<GoetyCursedInfuserRecipeDa
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.goety.cursed_infuser"),
                 intField("viscript_recipe.config.goety.cursed_infuser.cooking_time",
-                        data.getCookingTime(), 1, Integer.MAX_VALUE, value -> {
-                            data.setCookingTime(value); updatePreview();
-                        }),
-                switchField("viscript_recipe.config.goety.cursed_infuser.grim", data.isGrim(), value -> {
-                            data.setGrim(value); updatePreview();
-                        })
+                        data.getCookingTime(), 1, Integer.MAX_VALUE, data::setCookingTime, this::updatePreview),
+                switchField("viscript_recipe.config.goety.cursed_infuser.grim", data.isGrim(), data::setGrim, this::updatePreview)
         );
     }
 

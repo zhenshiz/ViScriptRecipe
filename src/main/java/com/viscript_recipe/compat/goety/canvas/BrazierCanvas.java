@@ -8,13 +8,12 @@ import com.viscript_recipe.compat.goety.data.GoetyBrazierRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 
 public class BrazierCanvas extends RecipeCanvas<GoetyBrazierRecipeData> {
     static final boolean useJeiCanvas = GoetyCanvasFactory.hasJeiSkin();
-    static final Label soulLabel = RecipeEditorUi.label(Component.empty());
+    static final Label soulLabel = emptyLabel();
     static {centerLabel(soulLabel);}
 
     public BrazierCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
@@ -51,7 +50,7 @@ public class BrazierCanvas extends RecipeCanvas<GoetyBrazierRecipeData> {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.goety.brazier"),
                 intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(), 0, Integer.MAX_VALUE,
-                                value -> { data.setSoulCost(value); updateSoulLabel(); })
+                        data::setSoulCost, this::updateSoulLabel)
         );
     }
 

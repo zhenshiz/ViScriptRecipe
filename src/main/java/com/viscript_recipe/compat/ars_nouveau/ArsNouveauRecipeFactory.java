@@ -42,11 +42,7 @@ public final class ArsNouveauRecipeFactory {
         if (pedestalItems.isEmpty()) {
             throw new IllegalArgumentException("Ars Nouveau armor upgrade recipe must have at least one pedestal item");
         }
-        return new ArmorUpgradeRecipe(
-                pedestalItems,
-                Math.max(0, data.getSourceCost()),
-                Math.max(1, data.getTier())
-        );
+        return new ArmorUpgradeRecipe(pedestalItems, data.getSourceCost(), data.getTier());
     }
 
     public static Recipe<?> compileEnchantment(ArsNouveauEnchantmentRecipeData data) {

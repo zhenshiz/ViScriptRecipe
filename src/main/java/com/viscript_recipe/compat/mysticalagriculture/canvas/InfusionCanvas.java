@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.mysticalagriculture.data.MysticalAgricultureInfusionRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 
@@ -50,7 +49,7 @@ public class InfusionCanvas extends RecipeCanvas<MysticalAgricultureInfusionReci
     @Override
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
-        content.addChildren(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.infusion"),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.infusion"),
                 switchField("viscript_recipe.config.mysticalagriculture.transfer_components",
                         data.isTransferComponents(), data::setTransferComponents));
     }

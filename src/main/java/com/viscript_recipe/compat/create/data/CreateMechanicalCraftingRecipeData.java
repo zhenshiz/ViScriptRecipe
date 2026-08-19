@@ -25,8 +25,7 @@ import static com.viscript_recipe.recipe.RecipeHelper.itemFromRegistry;
 @Setter
 @Accessors(chain = true)
 public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
-    public static final int MIN_SIZE = 1;
-    public static final int MAX_SIZE = 9;
+    public static int maxSize() {return 32;}
 
     @Persisted
     private int width = 3;
@@ -90,7 +89,7 @@ public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
     }
 
     private static int clampSize(int value) {
-        return Math.clamp(value, MIN_SIZE, MAX_SIZE);
+        return Math.clamp(value, 1, maxSize());
     }
 
     @Override

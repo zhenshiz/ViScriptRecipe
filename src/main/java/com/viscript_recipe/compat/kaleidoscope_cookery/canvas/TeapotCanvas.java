@@ -6,7 +6,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.kaleidoscope_cookery.data.KaleidoscopeTeapotRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 
 public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
-    static final Label timeLabel = RecipeEditorUi.label(Component.empty());
+    static final Label timeLabel = emptyLabel();
     static {PotCanvas.configureLabel(timeLabel);}
 
     public TeapotCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
@@ -30,7 +29,7 @@ public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
         loadIngredientSlot(0, data.getIngredient());
         setVisualOutput(0, data.getResult());
         setExtraItem(fluidBucket(data.getTeaFluid()));
-        updateTimeLabel(data.getTime());
+        updateTimeLabel();
     }
 
     @Override
@@ -56,7 +55,7 @@ public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.kaleidoscope_cookery"),
                 intField("viscript_recipe.config.kaleidoscope_cookery.time", data.getTime(),
-                        1, Integer.MAX_VALUE, time -> { data.setTime(time); updateTimeLabel(time); })
+                        1, Integer.MAX_VALUE, data::setTime, this::updateTimeLabel)
         );
     }
 
@@ -70,8 +69,8 @@ public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
         );
     }
 
-    private void updateTimeLabel(int time) {
-        timeLabel.setText(Component.translatable("jei.kaleidoscope_cookery.teapot.time", time / 20));
+    private void updateTimeLabel() {
+        timeLabel.setText(Component.translatable("jei.kaleidoscope_cookery.teapot.time", getData().getTime() / 20));
     }
 
     static ItemStack fluidBucket(ResourceLocation id) {

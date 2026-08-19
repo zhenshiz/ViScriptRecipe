@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.ars_nouveau.data.ArsNouveauImbuementRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.recipe.RecipeHelper;
 import net.minecraft.network.chat.Component;
@@ -19,7 +18,7 @@ public class ImbuementCanvas extends RecipeCanvas<ArsNouveauImbuementRecipeData>
     public void load() {
         var data = getData();
         loadIngredientSlot(0, data.getInput());
-        loadPedestalInputs(this, data.getPedestalItems(), 3);
+        loadIngredients(data.getPedestalItems(), 1);
         setVisualOutput(0, data.getResult());
         updateSourceLabel(data.getSource());
     }
@@ -28,7 +27,7 @@ public class ImbuementCanvas extends RecipeCanvas<ArsNouveauImbuementRecipeData>
     public void save() {
         var data = getData();
         data.setInput(getVisualIngredient(0));
-        data.setPedestalItems(savePedestalInputs(this, 3));
+        data.setPedestalItems(getIngredients(3, 1, true));
         data.setResult(getVisualOutput(0).getItem());
     }
 
@@ -52,7 +51,7 @@ public class ImbuementCanvas extends RecipeCanvas<ArsNouveauImbuementRecipeData>
 
     @Override
     public void buildRecipeProperties(UIElement content) {
-        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.ars_nouveau"));
+        content.addChild(sectionTitle("viscript_recipe.editor.properties.ars_nouveau"));
         addSourceField(content, getData().getSource(), getData()::setSource);
     }
 }

@@ -10,7 +10,6 @@ import com.viscript_recipe.compat.goety.data.GoetyRitualRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
@@ -24,7 +23,7 @@ import static com.viscript_recipe.compat.goety.canvas.BrazierCanvas.useJeiCanvas
 public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
     static final UIElement typeIcon = new UIElement();
     static final UIElement researchIcon = new UIElement();
-    static final Label infoLabel = RecipeEditorUi.label(Component.empty());
+    static final Label infoLabel = emptyLabel();
     static {
         tooltip(typeIcon, "viscript_recipe.editor.goety.ritual.type_icon");
         tooltip(researchIcon, "viscript_recipe.editor.goety.ritual.research_scroll");
@@ -71,25 +70,23 @@ public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.goety.ritual"),
-                field("viscript_recipe.config.goety.ritual.craft_type",
-                        RecipeEditorUi.selector(List.of(GoetyRitualCraftType.values()), data.getCraftType(),
-                                GoetyRitualCraftType::displayName, value -> {
-                                    data.setCraftType(value); updatePreview();
-                                }
-                        )),
+                selector("viscript_recipe.config.goety.ritual.craft_type",
+                        List.of(GoetyRitualCraftType.values()), data.getCraftType(),
+                        GoetyRitualCraftType::displayName, data::setCraftType, this::updatePreview
+                ),
                 GoetyRitualSearchComponents.ritualType(data::getRitualType, data::setRitualType, Runnables.doNothing()),
                 intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(), 0, Integer.MAX_VALUE,
-                        value -> { data.setSoulCost(value); updatePreview(); }),
+                        data::setSoulCost, this::updatePreview),
                 intField("viscript_recipe.config.goety.duration", data.getDuration(), 1, Integer.MAX_VALUE,
-                        value -> { data.setDuration(value); updatePreview(); }),
-                field("viscript_recipe.config.goety.ritual.research",
-                        RecipeEditorUi.selector(goetyResearchIds(), data.getResearch(), RitualCanvas::goetyResearchName,
-                                value -> { data.setResearch(value); updatePreview(); }
-                        ))
+                        data::setDuration, this::updatePreview),
+                selector("viscript_recipe.config.goety.ritual.research",
+                        goetyResearchIds(), data.getResearch(), RitualCanvas::goetyResearchName,
+                        data::setResearch, this::updatePreview
+                )
         );
 
         content.addChild(switchField("viscript_recipe.config.goety.ritual.has_sacrifice",
-                data.isHasSacrifice(), bl -> { data.setHasSacrifice(bl); reloadProperties(); }));
+                data.isHasSacrifice(), data::setHasSacrifice, RecipeCanvas::reloadProperties));
         if (data.isHasSacrifice()) content.addChildren(
                 RecipeSearchComponents.entityTag("viscript_recipe.config.goety.ritual.entity_to_sacrifice",
                         data::getEntityToSacrifice, data::setEntityToSacrifice, Runnables.doNothing()),
@@ -98,7 +95,7 @@ public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
         );
 
         content.addChild(switchField("viscript_recipe.config.goety.ritual.has_summon",
-                data.isHasSummon(), bl -> { data.setHasSummon(bl); reloadProperties(); }));
+                data.isHasSummon(), data::setHasSummon, RecipeCanvas::reloadProperties));
         if (data.isHasSummon()) content.addChildren(
                 RecipeSearchComponents.entityType("viscript_recipe.config.goety.ritual.entity_to_summon",
                         data::getEntityToSummon, data::setEntityToSummon, Runnables.doNothing(), EntityType.ZOMBIE),
@@ -107,7 +104,7 @@ public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
         );
 
         content.addChild(switchField("viscript_recipe.config.goety.ritual.has_conversion",
-                data.isHasConversion(), bl -> { data.setHasConversion(bl); reloadProperties(); }));
+                data.isHasConversion(), data::setHasConversion, RecipeCanvas::reloadProperties));
         if (data.isHasConversion()) content.addChildren(
                 RecipeSearchComponents.entityTag("viscript_recipe.config.goety.ritual.entity_to_convert",
                         data::getEntityToConvert, data::setEntityToConvert, Runnables.doNothing()),
@@ -118,7 +115,7 @@ public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
         );
 
         content.addChild(switchField("viscript_recipe.config.goety.ritual.has_structure",
-                data.isHasStructure(), bl -> { data.setHasStructure(bl); reloadProperties(); }));
+                data.isHasStructure(), data::setHasStructure, RecipeCanvas::reloadProperties));
         if (data.isHasStructure()) content.addChildren(
                 RecipeSearchComponents.structureTag("viscript_recipe.config.goety.ritual.structure_to_locate",
                         data::getStructureToLocate, data::setStructureToLocate, Runnables.doNothing()),
@@ -127,7 +124,7 @@ public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
         );
 
         content.addChild(switchField("viscript_recipe.config.goety.ritual.has_enchantment",
-                data.isHasEnchantment(), bl -> { data.setHasEnchantment(bl); reloadProperties(); }));
+                data.isHasEnchantment(), data::setHasEnchantment, RecipeCanvas::reloadProperties));
         if (data.isHasEnchantment()) content.addChildren(
                 GoetyRitualSearchComponents.enchantment("viscript_recipe.config.goety.ritual.enchantment",
                         data::getEnchantment, data::setEnchantment, Runnables.doNothing()),

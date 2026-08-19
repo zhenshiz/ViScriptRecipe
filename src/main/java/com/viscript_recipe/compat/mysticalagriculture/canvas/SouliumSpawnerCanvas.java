@@ -48,8 +48,8 @@ public class SouliumSpawnerCanvas extends RecipeCanvas<MysticalAgricultureSouliu
     @Override
     public void buildRecipeProperties(UIElement content) {
         content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.soulium_spawner"),
-                RecipeEditorUi.sectionTitle("viscript_recipe.config.mysticalagriculture.soulium_spawner.entities")
+                sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.soulium_spawner"),
+                sectionTitle("viscript_recipe.config.mysticalagriculture.soulium_spawner.entities")
         );
         var data = getData();
         var entities = data.getEntities();
@@ -65,10 +65,8 @@ public class SouliumSpawnerCanvas extends RecipeCanvas<MysticalAgricultureSouliu
                             "viscript_recipe.config.mysticalagriculture.soulium_spawner.entity",
                             weightedEntity::getEntity, weightedEntity::setEntity,
                             this::setResultPreview, EntityType.ZOMBIE),
-                    RecipeEditorUi.fieldGroup("viscript_recipe.config.mysticalagriculture.soulium_spawner.weight",
-                            RecipeEditorUi.intField(weightedEntity.getWeight(), 1, Integer.MAX_VALUE, value -> {
-                                weightedEntity.setWeight(value); reloadProperties();
-                            })),
+                    intField("viscript_recipe.config.mysticalagriculture.soulium_spawner.weight",
+                            weightedEntity.getWeight(), 1, Integer.MAX_VALUE, weightedEntity::setWeight, RecipeCanvas::reloadProperties),
                     RecipeEditorUi.label(Component.translatable(
                             "viscript_recipe.editor.mysticalagriculture.soulium_spawner.chance", chance))
             );

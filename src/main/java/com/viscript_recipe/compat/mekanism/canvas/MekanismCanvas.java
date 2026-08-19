@@ -172,11 +172,11 @@ public class MekanismCanvas extends FluidRecipeCanvas<MekanismRecipeData> {
         var data = selectedChemicalI();
         var kind = data.getKind();
         content.addChildren(sectionTitle(titleKey),
-                field("viscript_recipe.config.mekanism.chemical_ingredient.kind",
-                        RecipeEditorUi.selector(List.of(MekanismChemicalIngredientKind.values()), kind,
-                                MekanismChemicalIngredientKind::displayName, value -> {
-                                    setSelectedChemicalI(data.setKind(value)); reloadProperties();
-                                }))
+                selector("viscript_recipe.config.mekanism.chemical_ingredient.kind",
+                        List.of(MekanismChemicalIngredientKind.values()), kind,
+                        MekanismChemicalIngredientKind::displayName, value -> {
+                    setSelectedChemicalI(data.setKind(value)); reloadProperties();
+                })
         );
         if (kind == MekanismChemicalIngredientKind.TAG) {
             content.addChild(MekanismSearchComponents.chemicalTag("viscript_recipe.config.mekanism.chemical_ingredient.tag",

@@ -6,7 +6,6 @@ import com.viscript_recipe.compat.goety.data.GoetyPulverizeRecipeData;
 import com.viscript_recipe.compat.goety.data.GoetyPulverizeResultKind;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
@@ -46,12 +45,10 @@ public class PulverizeCanvas extends RecipeCanvas<GoetyPulverizeRecipeData> {
     public void buildResultProperties(UIElement content) {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.goety.pulverize"),
-                field("viscript_recipe.config.goety.pulverize.result_kind",
-                        RecipeEditorUi.selector(List.of(GoetyPulverizeResultKind.values()), data.getResultKind(),
-                                GoetyPulverizeResultKind::displayName, value -> {
-                                    data.setResultKind(value); reloadProperties();
-                                }
-                        ))
+                selector("viscript_recipe.config.goety.pulverize.result_kind",
+                        List.of(GoetyPulverizeResultKind.values()), data.getResultKind(),
+                        GoetyPulverizeResultKind::displayName, data::setResultKind, RecipeCanvas::reloadProperties
+                )
         );
         if (data.getResultKind() == GoetyPulverizeResultKind.BLOCK) {
             content.addChild(RecipeSearchComponents.block("viscript_recipe.config.goety.pulverize.block_result",

@@ -9,7 +9,6 @@ import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
@@ -28,7 +27,7 @@ import static com.viscript_recipe.compat.confluence.ConfluenceRecipeEditorTypes.
 public class ConfluenceCanvas extends RecipeCanvas<ConfluenceRecipeData> {
     private static final int CONTAINER_SLOT = 16;
     private static final int HEAT_SLOT = 17;
-    static final Label phaseLabel = RecipeEditorUi.label(Component.empty());
+    static final Label phaseLabel = emptyLabel();
 
     public ConfluenceCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -68,7 +67,7 @@ public class ConfluenceCanvas extends RecipeCanvas<ConfluenceRecipeData> {
             data.setTargets(targets);
             return;
         }
-        data.setIngredients(getIngredients(maxInputs(type)));
+        data.setIngredients(getIngredients(maxInputs(type), true));
         if (COOKING_POT.equals(type)) data.setContainer(getVisualIngredient(CONTAINER_SLOT));
         data.setResult(getVisualOutput(0).getItem());
     }
@@ -194,27 +193,26 @@ public class ConfluenceCanvas extends RecipeCanvas<ConfluenceRecipeData> {
         content.addChild(sectionTitle("viscript_recipe.editor.properties.confluence"));
 
         if (isEitherType(type)) {
-            content.addChild(field("viscript_recipe.config.confluence.crafting_mode", RecipeEditorUi.selector(List.of(ConfluenceCraftingMode.values()), data.getCraftingMode(), ConfluenceCraftingMode::displayName,
-                    value -> { data.setCraftingMode(value); reloadCanvas(); })));
+            content.addChild(selector("viscript_recipe.config.confluence.crafting_mode",
+                    List.of(ConfluenceCraftingMode.values()), data.getCraftingMode(), ConfluenceCraftingMode::displayName,
+                    data::setCraftingMode, RecipeCanvas::reloadCanvas));
             if (data.getCraftingMode() != ConfluenceCraftingMode.SHAPELESS) content.addChildren(
-                    field("viscript_recipe.config.confluence.width",
-                            RecipeEditorUi.intField(data.getWidth(), 1, 4, value -> {
-                                data.setWidth(value); reloadCanvas(); }),
+                    intField("viscript_recipe.config.confluence.width",
+                            data.getWidth(), 1, 4, data::setWidth, RecipeCanvas::reloadCanvas,
                             Component.translatable("viscript_recipe.config.confluence.width.tooltip")),
-                    field("viscript_recipe.config.confluence.height",
-                            RecipeEditorUi.intField(data.getHeight(), 1, 4, value -> {
-                                data.setHeight(value); reloadCanvas(); }),
+                    intField("viscript_recipe.config.confluence.height",
+                            data.getHeight(), 1, 4, data::setHeight, RecipeCanvas::reloadCanvas,
                                 Component.translatable("viscript_recipe.config.confluence.height.tooltip"))
             );
         }
         if (SOLIDIFIER.equals(type)) content.addChildren(
-                field("viscript_recipe.config.confluence.width", RecipeEditorUi.intField(data.getWidth(), 1, 4, value -> { data.setWidth(value); reloadCanvas(); }),
-                            Component.translatable("viscript_recipe.config.confluence.width.tooltip")),
-                field("viscript_recipe.config.confluence.height", RecipeEditorUi.intField(data.getHeight(), 1, 4, value -> { data.setHeight(value); reloadCanvas(); }),
-                            Component.translatable("viscript_recipe.config.confluence.height.tooltip"))
+                intField("viscript_recipe.config.confluence.width", data.getWidth(), 1, 4, data::setWidth,
+                        RecipeCanvas::reloadCanvas, Component.translatable("viscript_recipe.config.confluence.width.tooltip")),
+                intField("viscript_recipe.config.confluence.height", data.getHeight(), 1, 4, data::setHeight,
+                        RecipeCanvas::reloadCanvas, Component.translatable("viscript_recipe.config.confluence.height.tooltip"))
         );
         if (HELLFORGE.equals(type) || HARDMODE_FORGE.equals(type)) content.addChildren(
-                field("viscript_recipe.config.cooking.experience", RecipeEditorUi.floatField(data.getExperience(), 0, Float.MAX_VALUE, data::setExperience)),
+                floatField("viscript_recipe.config.cooking.experience", data.getExperience(), 0, Float.MAX_VALUE, data::setExperience),
                 intField("viscript_recipe.config.cooking.cooking_time", data.getCookingTime(), 0, Integer.MAX_VALUE, data::setCookingTime),
                 switchField("viscript_recipe.config.confluence.requires_fuel", data.isRequiresFuel(), data::setRequiresFuel)
         );
@@ -223,11 +221,9 @@ public class ConfluenceCanvas extends RecipeCanvas<ConfluenceRecipeData> {
         );
         if (ITEM_TRANSMUTATION.equals(type)) content.addChildren(
                 intField("viscript_recipe.config.confluence.transmutation.shrink", data.getShrink(), 1, Integer.MAX_VALUE, data::setShrink),
-                field("viscript_recipe.config.confluence.transmutation.game_phase",
-                        RecipeEditorUi.selector(List.of(ConfluenceGamePhase.values()), data.getGamePhase(),
-                                ConfluenceGamePhase::displayName, phase -> {
-                                    data.setGamePhase(phase); updatePhase();
-                                })));
+                selector("viscript_recipe.config.confluence.transmutation.game_phase",
+                        List.of(ConfluenceGamePhase.values()), data.getGamePhase(),
+                        ConfluenceGamePhase::displayName, data::setGamePhase, this::updatePhase));
 
         if (isEnvironmentType(type)) {
             var env = data.getEnvironment();
@@ -235,7 +231,8 @@ public class ConfluenceCanvas extends RecipeCanvas<ConfluenceRecipeData> {
             content.addChild(RecipeSearchComponents.biomeTag("viscript_recipe.config.confluence.environment.biome_tag",
                     () -> env.getBiomes().getTag(), id -> env.setBiomes(ConfluenceHolderSetData.tag(id)), Runnables.doNothing()));
             content.addChildren(
-                    field("viscript_recipe.config.confluence.environment.inflate", RecipeEditorUi.intField(env.getInflate(), 1, Integer.MAX_VALUE, env::setInflate)),
+                    intField("viscript_recipe.config.confluence.environment.inflate",
+                            env.getInflate(), 1, Integer.MAX_VALUE, env::setInflate),
                     textField("viscript_recipe.config.confluence.environment.state_predicates",
                             env.statePredicatesText(), value -> env.setStatePredicates(ConfluenceStatePredicateData.parseStatePredicates(value)),
                             Component.translatable("viscript_recipe.config.confluence.environment.state_predicates.tooltip")),
@@ -252,9 +249,8 @@ public class ConfluenceCanvas extends RecipeCanvas<ConfluenceRecipeData> {
 
     static void buildHolderKind(UIElement content, String key, ConfluenceHolderSetData data, Consumer<ConfluenceHolderSetKind> setter, Supplier<UIElement> idsView, Supplier<UIElement> tagView) {
         var kind = data.getKind();
-        content.addChild(field(key, RecipeEditorUi.selector(
-                List.of(ConfluenceHolderSetKind.values()), kind, ConfluenceHolderSetKind::displayName,
-                v -> { setter.accept(v); reloadCanvas(); }))
+        content.addChild(selector(key, List.of(ConfluenceHolderSetKind.values()), kind, ConfluenceHolderSetKind::displayName,
+                setter, RecipeCanvas::reloadProperties)
         );
         if (kind == ConfluenceHolderSetKind.IDS) content.addChild(idsView.get());
         if (kind == ConfluenceHolderSetKind.TAG) content.addChild(tagView.get());

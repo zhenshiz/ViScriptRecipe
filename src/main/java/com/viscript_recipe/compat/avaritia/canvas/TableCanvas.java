@@ -6,7 +6,6 @@ import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.canvas.ShapedGridHelper;
 import com.viscript_recipe.gui.canvas.vanilla.BasicRecipeCanvasFactory;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeGridFactory;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
@@ -49,8 +48,8 @@ public class TableCanvas extends RecipeCanvas<AvaritiaTableRecipeData> {
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.avaritia.table"),
-                field("viscript_recipe.config.avaritia.table.size",
-                        RecipeEditorUi.selector(List.of(1, 2, 3, 4), effectiveTier(), tier -> {
+                selector("viscript_recipe.config.avaritia.table.size",
+                        List.of(1, 2, 3, 4), effectiveTier(), tier -> {
                             int size = tableGridSizeForTier(tier);
                             return Component.translatable(
                                     "viscript_recipe.config.avaritia.table.size.value", size, size);
@@ -58,7 +57,7 @@ public class TableCanvas extends RecipeCanvas<AvaritiaTableRecipeData> {
                             int size = tableGridSizeForTier(tier);
                             data.setTier(tier).setWidth(size).setHeight(size);
                             reloadCanvas();
-                        }))
+                        })
         );
         if (isShaped()) content.addChild(switchField("viscript_recipe.config.avaritia.table.compatible",
                     data.isCompatible(), data::setCompatible));

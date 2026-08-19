@@ -37,7 +37,7 @@ public class ArsNouveauEnchantmentRecipeData implements IVSRecipeData, IPreview 
     }
 
     @Override
-    public ItemStack centerPreview() {return new ItemStack(level <= 1 ? Items.BOOK : Items.ENCHANTED_BOOK);}
+    public ItemStack centerPreview() {return new ItemStack(Items.ENCHANTED_BOOK);}
 
     @Override
     public ItemStack outputPreview() {return new ItemStack(Items.ENCHANTED_BOOK);}

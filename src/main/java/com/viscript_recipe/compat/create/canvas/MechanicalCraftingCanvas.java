@@ -16,11 +16,12 @@ import dev.vfyjxf.taffy.style.AlignItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
+import static com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData.maxSize;
+
 public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraftingRecipeData> {
-    private static final int MECHANICAL_CRAFTING_GRID_SIZE = 9;
     private static final int MECHANICAL_CRAFTING_SLOT_SIZE = 18;
     static final boolean useJeiCanvas = CreateMechanicalCraftingCanvasFactory.hasJeiSkin();
-    static final Label ingredientCountLabel = RecipeEditorUi.label(Component.empty());
+    static final Label ingredientCountLabel = emptyLabel();
     static final UIElement workstationIcon =
             createItemIcon(RecipeHelper.registryItem("create:mechanical_crafter", Items.CRAFTING_TABLE), 96);
 
@@ -31,7 +32,7 @@ public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraft
         var data = getData();
         var width = data.getWidth();
         var height = data.getHeight();
-        ShapedGridHelper.loadGrid(this, data.getPattern(), data.getKey(), width, height, 9);
+        ShapedGridHelper.loadGrid(this, data.getPattern(), data.getKey(), width, height, maxSize());
         setVisualOutput(0, data.getResult());
         updateIngredientCountLabel();
     }
@@ -41,7 +42,7 @@ public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraft
         var data = getData();
         var width = data.getWidth();
         var height = data.getHeight();
-        var patterns = ShapedGridHelper.saveGrid(this, width, height, 9);
+        var patterns = ShapedGridHelper.saveGrid(this, width, height, maxSize());
         data.setPattern(patterns.pattern()).setKey(patterns.key());
         data.setResult(getVisualOutput(0).getItem());
     }
@@ -51,13 +52,9 @@ public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraft
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.create.mechanical_crafting"),
                 intField("viscript_recipe.config.create.mechanical_crafting.width",
-                        data.getWidth(), 1, 9, value -> {
-                            data.setWidth(value); reloadCanvas();
-                        }),
+                        data.getWidth(), 1, maxSize(), data::setWidth, RecipeCanvas::reloadCanvas),
                 intField("viscript_recipe.config.create.mechanical_crafting.height",
-                        data.getHeight(), 1, 9, value -> {
-                            data.setHeight(value); reloadCanvas();
-                        }),
+                        data.getHeight(), 1, maxSize(), data::setHeight, RecipeCanvas::reloadCanvas),
                 switchField("viscript_recipe.config.create.mechanical_crafting.accept_mirrored",
                         data.isAcceptMirrored(), data::setAcceptMirrored)
         );
@@ -112,7 +109,7 @@ public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraft
                 layout.justifyContent(AlignContent.CENTER);
             });
             for (int col = 0; col < width; col++) {
-                var index = row * MECHANICAL_CRAFTING_GRID_SIZE + col;
+                var index = row * maxSize() + col;
                 var slot = createIngredientSlot(index, MECHANICAL_CRAFTING_SLOT_SIZE);
                 var cell = new UIElement().layout(layout -> {
                     layout.width(MECHANICAL_CRAFTING_SLOT_SIZE);
@@ -130,7 +127,7 @@ public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraft
     }
 
     static int mechanicalCraftingGridInnerDimension(int slots) {
-        var normalized = Math.clamp(slots, 1, MECHANICAL_CRAFTING_GRID_SIZE);
+        var normalized = Math.clamp(slots, 1, maxSize());
         return MECHANICAL_CRAFTING_SLOT_SIZE * normalized + Math.max(0, normalized - 1) * mechanicalCraftingGridGap();
     }
 

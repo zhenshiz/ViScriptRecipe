@@ -33,7 +33,7 @@ import static com.viscript_recipe.recipe.RecipeHelper.itemFromRegistry;
 public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAssemblyRecipeData> {
     static final int SEQUENCED_STEP_INGREDIENT_OFFSET = 1;
     static final int CREATE_SEQUENCED_MAX_OUTPUTS = 9;
-    static final Label createSequencedLoopsLabel = createLoopsLabel();
+    static final Label loopsLabel = createLoopsLabel();
 
     public SequencedAssemblyCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -52,6 +52,7 @@ public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAs
         for (int i = 0; i < Math.min(CREATE_SEQUENCED_MAX_OUTPUTS, outputs.size()); i++) {
             setVisualOutput(i, outputs.get(i));
         }
+        updateLoopsLabel();
     }
 
     @Override
@@ -80,9 +81,7 @@ public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAs
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.create.sequenced_assembly"),
                 intField("viscript_recipe.config.create.sequenced_assembly.loops",
-                        data.getLoops(), 1, Integer.MAX_VALUE, i -> {
-                            data.setLoops(i); updateLoopsLabel(i);
-                        })
+                        data.getLoops(), 1, Integer.MAX_VALUE, data::setLoops, this::updateLoopsLabel)
         );
         content.addChild(RecipeEditorUi.textButton(
                 Component.translatable("viscript_recipe.editor.create.sequenced_assembly.add_step"),
@@ -167,8 +166,7 @@ public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAs
         }
         var canvas = CreateSequencedAssemblyCanvasFactory.createCanvas(
                 inputSlot, transitionalSlot,
-                outputSlots, new UIElement[9],
-                updateLoopsLabel(getData().getLoops())
+                outputSlots, new UIElement[9], loopsLabel
         );
         for (int index = 0; index < getData().getSequence().size(); index++) {
             var kind = getData().getSequence().get(index).getKind();
@@ -207,7 +205,7 @@ public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAs
     }
 
     private static Label createLoopsLabel() {
-        var label = RecipeEditorUi.label(Component.empty());
+        var label = emptyLabel();
         label.textStyle(style -> style
                 .textAlignHorizontal(Horizontal.CENTER)
                 .textColor(ColorPattern.LIGHT_GRAY.color)
@@ -216,10 +214,9 @@ public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAs
         return label;
     }
 
-    private static Label updateLoopsLabel(int loops) {
-        createSequencedLoopsLabel.setText(
-                Component.translatable("viscript_recipe.editor.create.sequenced_assembly.loops", loops));
-        return createSequencedLoopsLabel;
+    private void updateLoopsLabel() {
+        loopsLabel.setText(Component.translatable(
+                "viscript_recipe.editor.create.sequenced_assembly.loops", getData().getLoops()));
     }
 
     private UIElement configureStepFluidCell(UIElement cell, int index) {

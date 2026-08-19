@@ -3,19 +3,15 @@ package com.viscript_recipe.compat.farmersdelight.canvas;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeGridFactory;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import java.util.ArrayList;
 
 import static com.viscript_recipe.recipe.RecipeHelper.itemFromRegistry;
 
@@ -29,24 +25,16 @@ public class FarmerCookingPotCanvas extends RecipeCanvas<FarmerCookingPotRecipeD
     @Override
     public void load() {
         var cookingPot = getData();
-        var ingredients = cookingPot.getIngredients();
-        for (int i = 0; i < Math.min(6, ingredients.size()); i++) {
-            loadIngredientSlot(i, ingredients.get(i));
-        }
+        loadIngredients(cookingPot.getIngredients());
         setVisualOutput(0, cookingPot.getResult());
         setExtraItem(cookingPot.getContainer());
+        updateCookingTimeIcon();
+        updateExperienceIcon();
     }
 
     @Override
     public void save() {
-        var data = getData();
-        var ingredients = new ArrayList<RecipeIngredient>();
-        for (int i = 0; i < 6; i++) {
-            var ingredient = getVisualIngredient(i);
-            if (!ingredient.isEmpty()) ingredients.add(ingredient);
-        }
-        data.setIngredients(ingredients);
-        data.setResult(getVisualOutput(0).getItem());
+        getData().setIngredients(getIngredients(6)).setResult(getVisualOutput(0).getItem());
     }
 
     @Override
@@ -58,23 +46,17 @@ public class FarmerCookingPotCanvas extends RecipeCanvas<FarmerCookingPotRecipeD
     @Override
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
-        content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.farmersdelight.cooking_pot"),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.cooking.experience",
-                        RecipeEditorUi.floatField(data.getExperience(), 0, Integer.MAX_VALUE, i -> {
-                            data.setExperience(i); updateExperienceIcon();
-                        })),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.cooking.cooking_time",
-                        RecipeEditorUi.intField(data.getCookingTime(), 1, 72000, i -> {
-                            data.setCookingTime(i); updateCookingTimeIcon();
-                        }))
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.farmersdelight.cooking_pot"),
+                floatField("viscript_recipe.config.cooking.experience",
+                        data.getExperience(), 0, Integer.MAX_VALUE, data::setExperience, this::updateExperienceIcon),
+                intField("viscript_recipe.config.cooking.cooking_time",
+                        data.getCookingTime(), 1, 72000, data::setCookingTime, this::updateCookingTimeIcon)
         );
     }
 
     @Override
     public void buildExtraItemProperties(UIElement content) {
-        content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.farmersdelight.container"),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.farmersdelight.container"),
                 PropertiesView.createItemStackConfigurator(
                         "viscript_recipe.config.farmersdelight.cooking.container",
                         this::getExtraItem, this::setExtraItem
@@ -109,7 +91,7 @@ public class FarmerCookingPotCanvas extends RecipeCanvas<FarmerCookingPotRecipeD
             configureJeiOverlaySlotVisual(previewSlot, containerSlot, outputSlot);
             return FarmersDelightCanvasFactory.createJeiCookingPotCanvas(
                     ingredientSlots, previewSlot, containerSlot, outputSlot,
-                    updateCookingTimeIcon(), updateExperienceIcon()
+                    cookingTimeIcon, experienceIcon
             );
         }
         return FarmersDelightCanvasFactory.createCookingPotCanvas(
@@ -124,15 +106,13 @@ public class FarmerCookingPotCanvas extends RecipeCanvas<FarmerCookingPotRecipeD
         );
     }
 
-    private UIElement updateCookingTimeIcon() {
-        return cookingTimeIcon.style(style -> style.tooltips(Component.translatable(
-                "viscript_recipe.editor.cooking.time_seconds", getData().getCookingTime() / 20
-        )));
+    private void updateCookingTimeIcon() {
+        tooltip(cookingTimeIcon, Component.translatable(
+                "viscript_recipe.editor.cooking.time_seconds", getData().getCookingTime() / 20));
     }
 
-    private UIElement updateExperienceIcon() {
-        return experienceIcon.style(style -> style.tooltips(Component.translatable(
-                "viscript_recipe.editor.cooking.experience_value", getData().getExperience()
-        )));
+    private void updateExperienceIcon() {
+        tooltip(experienceIcon, Component.translatable(
+                "viscript_recipe.editor.cooking.experience_value", getData().getExperience()));
     }
 }

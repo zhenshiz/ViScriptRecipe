@@ -1,6 +1,5 @@
 package com.viscript_recipe.compat.mysticalagriculture.canvas;
 
-import com.google.common.util.concurrent.Runnables;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeUiSupport;
 import com.viscript_recipe.compat.mysticalagriculture.data.MysticalAgricultureSoulExtractionRecipeData;
@@ -43,13 +42,11 @@ public class SoulExtractionCanvas extends RecipeCanvas<MysticalAgricultureSoulEx
     @Override
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
-        content.addChildren(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.soul_extraction"),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.mysticalagriculture.soul_extraction"),
                 MysticalAgricultureSearchComponents.mobSoulType(
                         "viscript_recipe.config.mysticalagriculture.soul_extraction.soul_type",
-                        data::getSoulType, id -> {
-                            data.setSoulType(id); setResultPreview();
-                        }, Runnables.doNothing()),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.mysticalagriculture.soul_extraction.souls",
+                        data::getSoulType, data::setSoulType, this::setResultPreview),
+                field("viscript_recipe.config.mysticalagriculture.soul_extraction.souls",
                         RecipeEditorUi.doubleField(data.getSouls(), 0, Double.MAX_VALUE, value -> {
                              data.setSouls(value); setResultPreview();
                         }))

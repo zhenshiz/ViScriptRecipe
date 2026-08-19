@@ -6,7 +6,6 @@ import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarR
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
@@ -15,8 +14,8 @@ import net.minecraft.world.entity.EntityType;
 import java.util.Locale;
 
 public class AltarCanvas extends RecipeCanvas<TouhouLittleMaidAltarRecipeData> {
-    static final Label powerLabel = RecipeEditorUi.label(Component.empty());
-    static final Label resultDescriptionLabel = RecipeEditorUi.label(Component.empty());
+    static final Label powerLabel = emptyLabel();
+    static final Label resultDescriptionLabel = emptyLabel();
 
     public AltarCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -51,18 +50,15 @@ public class AltarCanvas extends RecipeCanvas<TouhouLittleMaidAltarRecipeData> {
     @Override
     public void buildRecipeProperties(UIElement content) {
         var data = getData();
-        content.addChildren(
-                RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.touhou_little_maid.altar"),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.touhou_little_maid.altar.power",
-                        RecipeEditorUi.floatField(data.getPower(), 0, Float.MAX_VALUE, value -> {
-                            data.setPower(value); updateLabels();
-                        })),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.touhou_little_maid.altar"),
+                floatField("viscript_recipe.config.touhou_little_maid.altar.power",
+                        data.getPower(), 0, Float.MAX_VALUE, data::setPower, this::updateLabels),
                 RecipeSearchComponents.entityType("viscript_recipe.config.touhou_little_maid.altar.entity",
                         data::getEntityType, data::setEntityType,
                         RecipeCanvas::reloadProperties, EntityType.ITEM).style(style -> style.tooltips(
                         Component.translatable("viscript_recipe.config.touhou_little_maid.altar.entity.tooltip"))),
-                RecipeEditorUi.fieldGroup("viscript_recipe.config.touhou_little_maid.altar.lang",
-                        RecipeEditorUi.textField(data.getLangKey(), value -> { data.setLangKey(value); updateLabels(); })));
+                textField("viscript_recipe.config.touhou_little_maid.altar.lang",
+                        data.getLangKey(), data::setLangKey, this::updateLabels));
     }
 
     private void updateLabels() {

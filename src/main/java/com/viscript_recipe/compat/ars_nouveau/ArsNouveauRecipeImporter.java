@@ -39,7 +39,7 @@ public final class ArsNouveauRecipeImporter implements RecipeImportHandler {
             var data = new ArsNouveauArmorUpgradeRecipeData()
                     .setPedestalItems(new ArrayList<>(RecipeImporter.importIngredientList(armorUpgrade.pedestalItems(), 8)))
                     .setSourceCost(Math.max(0, armorUpgrade.sourceCost()))
-                    .setTier(Math.max(1, armorUpgrade.tier()));
+                    .setTier(armorUpgrade.tier());
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_ARMOR_UPGRADE).setData(data));
         }
         if (recipe instanceof EnchantmentRecipe enchantment && !(recipe instanceof ReactiveEnchantmentRecipe)) {

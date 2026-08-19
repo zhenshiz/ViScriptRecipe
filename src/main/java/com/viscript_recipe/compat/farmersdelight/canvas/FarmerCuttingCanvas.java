@@ -7,7 +7,6 @@ import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
-import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeGridFactory;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
@@ -16,8 +15,6 @@ import java.util.ArrayList;
 
 public class FarmerCuttingCanvas extends RecipeCanvas<FarmerCuttingRecipeData> {
     static final boolean useJeiCanvas = FarmersDelightCanvasFactory.hasJeiCuttingBoardSkin();
-    static final IngredientDisplaySlot[] ingredientSlots = new IngredientDisplaySlot[2];
-    static final ItemSlot[] resultSlots = new ItemSlot[4];
 
     public FarmerCuttingCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -50,40 +47,32 @@ public class FarmerCuttingCanvas extends RecipeCanvas<FarmerCuttingRecipeData> {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.farmersdelight.cutting_board"),
                 switchField("viscript_recipe.config.farmersdelight.cutting.custom_sound",
-                        data.isCustomSound(), value -> {
-                    data.setCustomSound(value); reloadProperties();
-                })
+                        data.isCustomSound(), data::setCustomSound, RecipeCanvas::reloadProperties)
         );
-        if (data.isCustomSound()) {
-            content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.farmersdelight.cutting.sound",
-                    RecipeEditorUi.resourceLocationField(data.getSound(), data::setSound)));
-        }
+        if (data.isCustomSound()) content.addChild(resourceField(
+                "viscript_recipe.config.farmersdelight.cutting.sound", data.getSound(), data::setSound));
     }
 
     @Override
     public void buildResultProperties(UIElement content) {
-        content.addChildren(
-            RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.farmersdelight.cutting_result"),
+        content.addChildren(sectionTitle("viscript_recipe.editor.properties.farmersdelight.cutting_result"),
                 PropertiesView.createItemStackConfigurator(
                     "viscript_recipe.config.farmersdelight.cutting.result_item",
                         () -> getSelectedOutput().getItem(), this::setSelectedOutput),
-            RecipeEditorUi.fieldGroup("viscript_recipe.config.farmersdelight.cutting.chance",
-                    RecipeEditorUi.floatField(getSelectedOutput().getChance(), 0, 1, this::setSelectedOutput)));
+            floatField("viscript_recipe.config.farmersdelight.cutting.chance",
+                    getSelectedOutput().getChance(), 0, 1, this::setSelectedOutput));
     }
 
     @Override
     public UIElement createCanvas() {
         if (useJeiCanvas) {
-            for (int index = 0; index < 2; index++) {
-                var slot = createIngredientSlot(index, JEI_SLOT_SIZE);
-                configureJeiOverlaySlotVisual(slot);
-                ingredientSlots[index] = slot;
-            }
-            for (int index = 0; index < 4; index++) {
-                var slot = createOutputSlot(index, JEI_SLOT_SIZE);
-                configureJeiOverlaySlotVisual(slot);
-                resultSlots[index] = slot;
-            }
+            var ingredientSlots = new IngredientDisplaySlot[2];
+            for (int index = 0; index < 2; index++) ingredientSlots[index] = createIngredientSlot(index, JEI_SLOT_SIZE);
+            configureJeiOverlaySlotVisual(ingredientSlots);
+
+            var resultSlots = new ItemSlot[4];
+            for (int index = 0; index < 4; index++) resultSlots[index] = createOutputSlot(index, JEI_SLOT_SIZE);
+            configureJeiOverlaySlotVisual(resultSlots);
             return FarmersDelightCanvasFactory.createJeiCuttingBoardCanvas(
                     ingredientSlots[0], ingredientSlots[1], resultSlots, new UIElement[4]
             );
@@ -97,15 +86,11 @@ public class FarmerCuttingCanvas extends RecipeCanvas<FarmerCuttingRecipeData> {
 
     private UIElement createFarmerCuttingInput(String labelKey, int index) {
         var slot = createIngredientSlot(index, SLOT_SIZE);
-        ingredientSlots[index] = slot;
         return FarmersDelightCanvasFactory.createCuttingInput(labelKey, slot);
     }
 
     private UIElement createFarmerCuttingResultGrid() {
-        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE, (index, row, col) -> {
-            var slot = createOutputSlot(index, SLOT_SIZE);
-            resultSlots[index] = slot;
-            return slot;
-        });
+        return RecipeGridFactory.borderedGrid(2, 2, SLOT_SIZE,
+                (index, row, col) -> createOutputSlot(index, SLOT_SIZE));
     }
 }

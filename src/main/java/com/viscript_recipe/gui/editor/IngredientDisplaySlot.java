@@ -1,6 +1,7 @@
 package com.viscript_recipe.gui.editor;
 
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
+import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +14,9 @@ public class IngredientDisplaySlot extends ItemSlot {
     private int tagDisplayTicks;
 
     public void setIngredient(RecipeIngredient ingredient) {
+        // 因为内部调用setItem后会重复触发事件，通过判断新旧物品是否匹配来避免重复设置（为什么内部不把notify设置为false？因为有必要触发事件）
+        if (ingredient.getKind() == IngredientValueKind.ITEM && tagDisplayStacks.length > 0
+                && ItemStack.matches(tagDisplayStacks[tagDisplayIndex], ingredient.toStack())) return;
         this.ingredient = ingredient;
         setTagDisplayStacks(ingredient.getDisplayStacks());
     }

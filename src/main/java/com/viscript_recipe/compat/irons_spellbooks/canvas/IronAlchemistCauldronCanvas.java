@@ -60,12 +60,12 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
     @Override
     public void buildRecipeProperties(UIElement content) {
         if (isBrewEntry()) return;
-        content.addChild(RecipeEditorUi.sectionTitle("viscript_recipe.editor.properties.alchemist_cauldron"));
+        content.addChild(sectionTitle("viscript_recipe.editor.properties.alchemist_cauldron"));
         var data = getData();
         if (isFillEntry()) content.addChild(switchField(
                 "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.must_fit_all", data.isMustFitAll(), data::setMustFitAll));
-        content.addChild(RecipeEditorUi.fieldGroup("viscript_recipe.config.irons_spellbooks.alchemist_cauldron.sound",
-                RecipeEditorUi.resourceLocationField(data.getSound(), data::setSound)));
+        content.addChild(resourceField("viscript_recipe.config.irons_spellbooks.alchemist_cauldron.sound",
+                data.getSound(), data::setSound));
     }
 
     @Override
