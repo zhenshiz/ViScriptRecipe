@@ -4,6 +4,7 @@ import com.lowdragmc.lowdraglib2.editor.project.ProjectType;
 import com.lowdragmc.lowdraglib2.editor.resource.Resources;
 import com.lowdragmc.lowdraglib2.editor.ui.Editor;
 import com.viscript_lib.gui.editor.IRuntimeFileProject;
+import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeFile;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
@@ -47,6 +48,11 @@ public class RecipeProject implements IRuntimeFileProject {
     public void saveCurrentVisualState() {
         if (navigationView == null) return;
         navigationView.saveCanvas();
+    }
+
+    void selectEntry(RecipeEntry entry) {
+        if (navigationView == null || !recipeFile.getEntries().contains(entry)) return;
+        navigationView.selectEntry(entry);
     }
 
     @Override

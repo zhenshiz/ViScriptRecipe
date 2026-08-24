@@ -15,7 +15,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持多个配方模组的专用编辑 UI 与导入器，包括 Create、Mekanism、Extended Crafting、Avaritia、Iron's Spells、Farmer's Delight、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Ice and Fire、灾变、菌类感染：孢子、东方女仆和 Goety。
+- 支持 17 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld。
 
 ## 基本信息
 
@@ -26,6 +26,46 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - 内置依赖：ViScriptLib 会随本模组打包
 - 配方文件目录：`ldlib2/assets/viscript_recipe/recipes/*.recipe`
 - 配置文件：`config/viscript_recipe_config.toml`
+
+## 兼容模组清单
+
+ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注册下表中的联动类型。可选模组没有安装时，不会出现在编辑器分类、配方类型列表或导入器中；安装后无需额外开关即可启用对应支持。
+
+### 必需与基础组件
+
+| 组件 | Mod ID | 关系 | 说明 |
+| --- | --- | --- | --- |
+| Minecraft | `minecraft` | 必需 | 当前目标版本为 `1.21.1`。 |
+| NeoForge | `neoforge` | 必需 | 当前开发与运行目标为 NeoForge `21.1.x`。 |
+| LowDragLib2 | `ldlib2` | 必需 | 提供编辑器 UI、持久化和菜单基础设施。 |
+| ViScriptLib | `viscript_lib` | 随模组提供 | ViScriptRecipe 会将 ViScriptLib 作为内置依赖打包。 |
+| Just Enough Items | `jei` | 可选 | 提供 JEI 风格的工作区贴图、配方预览和增量同步目标；未安装时编辑器使用内置贴图。 |
+
+### 配方联动模组
+
+下表是代码中实际注册的全部可选 `RecipeCompatModules`。每个模组都包含对应的配方编辑类型；已实现导入器的模组还支持从当前世界已加载的原生配方创建编辑条目。
+
+| 模组 | Mod ID | 编辑器/导入器 |
+| --- | --- | --- |
+| Iron's Spells 'n Spellbooks | `irons_spellbooks` | 支持 |
+| Ice and Fire CE | `iceandfire` | 支持 |
+| Farmer's Delight | `farmersdelight` | 支持 |
+| Create | `create` | 支持 |
+| Extended Crafting | `extendedcrafting` | 支持 |
+| Ars Nouveau | `ars_nouveau` | 支持 |
+| Kaleidoscope Cookery | `kaleidoscope_cookery` | 支持 |
+| Re-Avaritia / Avaritia | `avaritia` | 支持 |
+| Fungal Infection: Spore | `spore` | 支持 |
+| L_Ender's Cataclysm | `cataclysm` | 支持 |
+| Touhou Little Maid | `touhou_little_maid` | 支持 |
+| Goety | `goety` | 支持 |
+| Mystical Agriculture | `mysticalagriculture` | 支持 |
+| Industrial Foregoing | `industrialforegoing` | 支持 |
+| Alloy Smelter | `alloy_smelter` | 支持 |
+| Mekanism | `mekanism` | 支持 |
+| Confluence: Otherworld | `confluence` | 支持 |
+
+这里的“支持”指本模组已经注册了对应的编辑器类别、配方数据模型和原生配方构造逻辑；“导入器”只对能够无损映射到当前编辑器数据模型的原生配方启用。某些模组的 JEI 动态展示页、Data Map 或运行时 synthetic 配方不是 `RecipeManager` 配方，因此不会被错误地列为可上传的 `.recipe` 类型。
 
 ## 指令
 
@@ -317,7 +357,7 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Mekanism、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Mystical Agriculture、Industrial Foregoing、Confluence: Otherworld、Avaritia、灾变、菌类感染：孢子、东方女仆和 Goety 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 
@@ -331,4 +371,4 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 ## 开发者文档
 
-后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构。完整的项目进度、目录职责、接入流程与验收清单见 [项目结构与模组配方联动规范](docs/compatibility-development.md)。
+后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构；兼容模组清单以 `src/main/java/com/viscript_recipe/compat/RecipeCompatModules.java` 和 `src/main/resources/META-INF/neoforge.mods.toml` 中的实际注册为准。

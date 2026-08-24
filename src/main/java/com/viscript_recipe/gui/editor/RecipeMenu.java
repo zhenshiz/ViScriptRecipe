@@ -15,7 +15,8 @@ public class RecipeMenu extends MenuTab {
     @Override
     protected TreeBuilder.Menu createDefaultMenu() {
         return TreeBuilder.Menu.start()
-                .leaf(Icons.EDIT_FILE, "viscript_recipe.editor.menu.recipe_namespace", this::editRecipeNamespace);
+                .leaf(Icons.EDIT_FILE, "viscript_recipe.editor.menu.recipe_namespace", this::editRecipeNamespace)
+                .leaf(Icons.INFORMATION, "viscript_recipe.editor.menu.workstation_summary", this::showWorkstationSummary);
     }
 
     @Override
@@ -35,5 +36,13 @@ public class RecipeMenu extends MenuTab {
                         RecipeFile::isValidRecipeNamespace,
                         recipeFile::setRecipeNamespace)
                 .show(editor.getModularUI());
+    }
+
+    private void showWorkstationSummary() {
+        if (!(editor.getCurrentProject() instanceof RecipeProject project)) {
+            Dialog.showNotification("viscript_lib.editor.no_project", 2).show(editor.getModularUI());
+            return;
+        }
+        RecipeWorkstationSummaryDialog.show(project, editor.getModularUI());
     }
 }
