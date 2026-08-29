@@ -40,10 +40,13 @@ public final class KaleidoscopeCanvasFactory {
         return centerPanel(panel);
     }
 
-    public static UIElement createMillstoneCanvas(UIElement inputSlot, UIElement resultSlot) {
-        var panel = createPanel("millstone", 176, 95);
+    public static UIElement createMillstoneCanvas(UIElement inputSlot, UIElement[] resultSlots) {
+        var panel = createPanel("millstone", 196, 95);
         panel.addChild(createCell(inputSlot, 69, 39));
-        panel.addChild(createCell(resultSlot, 146, 47));
+        panel.addChild(createCell(resultSlots[0], 150, 47));
+        panel.addChild(createCell(resultSlots[1], 150, 20));
+        panel.addChild(createCell(resultSlots[2], 128, 20));
+        panel.addChild(createCell(resultSlots[3], 172, 20));
         return centerPanel(panel);
     }
 

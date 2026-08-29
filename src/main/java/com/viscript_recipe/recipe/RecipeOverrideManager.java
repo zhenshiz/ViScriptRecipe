@@ -380,7 +380,7 @@ public final class RecipeOverrideManager {
                         showcaseOnly
                 );
             };
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             ViScriptRecipe.LOGGER.error("Failed to apply recipe override {} from {}", id, source, e);
             return ApplyEntryResult.FAILED;
         }

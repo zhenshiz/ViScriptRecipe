@@ -66,6 +66,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId = "kaleidoscope_cookery"
 type = "optional"
+versionRange = "[1.4.1,1.5)"
 ordering = "AFTER"
 side = "BOTH"
 
