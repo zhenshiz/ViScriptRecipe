@@ -1,12 +1,16 @@
 package com.viscript_recipe.compat.extendedcrafting.data;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
+import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeImporter;
 import com.viscript_recipe.compat.extendedcrafting.canvas.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-public final class ExtendedCraftingRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = ExtendedCraftingRecipeEditorTypes.MOD_ID, modID = ExtendedCraftingRecipeEditorTypes.MOD_ID)
+public final class ExtendedCraftingRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "extendedcrafting";
 
     public static final ResourceLocation CRAFTING_CORE = create("crafting_core");
@@ -39,48 +43,47 @@ public final class ExtendedCraftingRecipeEditorTypes {
 
     private static boolean registered;
 
-    private ExtendedCraftingRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return ExtendedCraftingRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
         registerCategories();
         registerTypes();
     }
 
-    private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+    private void registerCategories() {
+        registerCategory(RecipeEditorCategory.of(
                 CRAFTING_CORE,
                 "viscript_recipe.editor.category.extendedcrafting.crafting_core",
                 MOD_ID, COMBINATION
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 CRAFTING_TABLE,
                 "viscript_recipe.editor.category.extendedcrafting.crafting_table",
                 MOD_ID, SHAPED_TABLE, BASIC_TABLE
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 COMPRESSOR,
                 "viscript_recipe.editor.category.extendedcrafting.compressor",
                 MOD_ID, COMPRESSOR_RECIPE
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 ENDER_CRAFTER,
                 "viscript_recipe.editor.category.extendedcrafting.ender_crafter",
                 MOD_ID, SHAPED_ENDER_CRAFTER
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 FLUX_CRAFTER,
                 "viscript_recipe.editor.category.extendedcrafting.flux_crafter",
                 MOD_ID, SHAPED_FLUX_CRAFTER
         ));
     }
 
-    private static void registerTypes() {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerTypes() {
+        registerEditorType(RecipeEditorType.of(
                 COMBINATION, CRAFTING_CORE,
                 "viscript_recipe.editor.type.extendedcrafting.combination",
                 ExtendedCraftingCombinationRecipeData.class, ExtendedCraftingCombinationRecipeData::new,
@@ -88,13 +91,13 @@ public final class ExtendedCraftingRecipeEditorTypes {
         ));
         registerTableType(SHAPED_TABLE, "viscript_recipe.editor.type.extendedcrafting.shaped_table");
         registerTableType(SHAPELESS_TABLE, "viscript_recipe.editor.type.extendedcrafting.shapeless_table");
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 ULTIMATE_SINGULARITY, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.extendedcrafting.ultimate_singularity",
                 ExtendedCraftingUltimateSingularityRecipeData.class, ExtendedCraftingUltimateSingularityRecipeData::new,
                 UltimateSingularityCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 COMPRESSOR_RECIPE, COMPRESSOR,
                 "viscript_recipe.editor.type.extendedcrafting.compressor",
                 ExtendedCraftingCompressorRecipeData.class, ExtendedCraftingCompressorRecipeData::new,
@@ -106,24 +109,24 @@ public final class ExtendedCraftingRecipeEditorTypes {
         registerFluxType(SHAPELESS_FLUX_CRAFTER, "viscript_recipe.editor.type.extendedcrafting.shapeless_flux_crafter");
     }
 
-    private static void registerTableType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerTableType(ResourceLocation type, String translationKey) {
+        registerEditorType(RecipeEditorType.of(
                 type, CRAFTING_TABLE, translationKey,
                 ExtendedCraftingTableRecipeData.class, ExtendedCraftingTableRecipeData::new,
                 CraftingTableCanvas::new, MOD_ID
         ));
     }
 
-    private static void registerEnderType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerEnderType(ResourceLocation type, String translationKey) {
+        registerEditorType(RecipeEditorType.of(
                 type, ENDER_CRAFTER, translationKey,
                 ExtendedCraftingEnderCrafterRecipeData.class, ExtendedCraftingEnderCrafterRecipeData::new,
                 EnderCrafterCanvas::new, MOD_ID
         ));
     }
 
-    private static void registerFluxType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerFluxType(ResourceLocation type, String translationKey) {
+        registerEditorType(RecipeEditorType.of(
                 type, FLUX_CRAFTER, translationKey,
                 ExtendedCraftingFluxCrafterRecipeData.class, ExtendedCraftingFluxCrafterRecipeData::new,
                 FluxCrafterCanvas::new, MOD_ID

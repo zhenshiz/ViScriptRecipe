@@ -116,12 +116,12 @@ public class SequencedAssemblyCanvas extends FluidRecipeCanvas<CreateSequencedAs
         var step = data.getSequence().get(index);
         var kind = step.getKind();
         content.addChildren(createStepTitle(index),
-                field("viscript_recipe.config.create.sequenced_assembly.step.kind",
-                        RecipeEditorUi.selector(List.of(CreateSequencedAssemblyStepKind.values()), kind,
-                                CreateSequencedAssemblyStepKind::displayName, stepKind -> {
-                                    step.setKind(stepKind); reloadCanvas();
-                                }
-                        ))
+                selector("viscript_recipe.config.create.sequenced_assembly.step.kind",
+                        List.of(CreateSequencedAssemblyStepKind.values()), kind,
+                        CreateSequencedAssemblyStepKind::displayName, stepKind -> {
+                            step.setKind(stepKind); reloadCanvas(); reloadProperties();
+                        }
+                )
         );
         if (kind == CreateSequencedAssemblyStepKind.DEPLOYING) content.addChild(switchField("viscript_recipe.config.create.keep_held_item", step.isKeepHeldItem(), step::setKeepHeldItem));
         if (kind == CreateSequencedAssemblyStepKind.CUTTING) content.addChild(intField("viscript_recipe.config.create.processing_time", step.getProcessingTime(), 0, Integer.MAX_VALUE, step::setProcessingTime));

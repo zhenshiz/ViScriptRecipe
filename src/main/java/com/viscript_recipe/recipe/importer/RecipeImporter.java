@@ -1,6 +1,5 @@
 package com.viscript_recipe.recipe.importer;
 
-import com.viscript_recipe.compat.RecipeCompatModules;
 import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.vanilla.*;
@@ -24,7 +23,7 @@ import java.util.List;
 
 public final class RecipeImporter {
     private static final char[] SHAPED_SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>/?|~".toCharArray();
-    private static final RecipeImportHandler VANILLA_HANDLER = new RecipeImportHandler() {
+    public static final RecipeImportHandler VANILLA_HANDLER = new RecipeImportHandler() {
         @Override
         public boolean canImport(RecipeHolder<?> holder) {
             if (holder == null) {
@@ -51,7 +50,7 @@ public final class RecipeImporter {
             };
         }
     };
-    private static final List<RecipeImportHandler> HANDLERS = createHandlers();
+    public static final List<RecipeImportHandler> HANDLERS = new ArrayList<>();
 
     private RecipeImporter() {
     }
@@ -98,13 +97,6 @@ public final class RecipeImporter {
         } catch (RecipeImportException exception) {
             return RecipeImportResult.failure(exception.component());
         }
-    }
-
-    private static List<RecipeImportHandler> createHandlers() {
-        var handlers = new ArrayList<RecipeImportHandler>();
-        RecipeCompatModules.addImportHandlers(handlers);
-        handlers.add(VANILLA_HANDLER);
-        return List.copyOf(handlers);
     }
 
     public static RecipeImportResult success(RecipeEntry entry) {

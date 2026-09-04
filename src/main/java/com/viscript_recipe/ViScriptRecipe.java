@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import com.viscript_recipe.client.RecipeDeltaClientEvents;
 import com.viscript_recipe.gui.editor.RecipeEditor;
 import com.viscript_recipe.recipe.RecipeDeltaServerEvents;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -38,6 +39,11 @@ public class ViScriptRecipe {
         if (dist.isClient()) {
             RecipeDeltaClientEvents.register();
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        }
+        for (var holder : IModModule.MODULES) {
+            var module = holder.value().get();
+            module.registerEditorTypes();
+            RecipeImporter.HANDLERS.add(module.importHandler());
         }
     }
 

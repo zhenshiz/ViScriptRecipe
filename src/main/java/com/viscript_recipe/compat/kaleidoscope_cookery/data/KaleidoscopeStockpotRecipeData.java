@@ -52,6 +52,6 @@ public class KaleidoscopeStockpotRecipeData implements IVSRecipeData {
 
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
-        setResult(new ItemStack(itemFromRegistry("kaleidoscope_cookery:tomato_beef_brisket_soup", Items.RABBIT_STEW)));
+        setResult(new ItemStack(itemFromRegistry("kaleidoscope_cookery:borscht", Items.RABBIT_STEW)));
     }
 }

@@ -1,6 +1,5 @@
 package com.viscript_recipe.data;
 
-import com.viscript_recipe.compat.RecipeCompatModules;
 import com.viscript_recipe.compat.alloy_smelter.AlloySmelterRecipeEditorTypes;
 import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeEditorTypes;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeEditorTypes;
@@ -125,10 +124,6 @@ public final class RecipeEditorTypes {
 
     private static final LinkedHashMap<ResourceLocation, RecipeEditorCategory> CATEGORIES = new LinkedHashMap<>();
     private static final LinkedHashMap<ResourceLocation, RecipeEditorType> TYPES = new LinkedHashMap<>();
-
-    static {
-        RecipeCompatModules.registerEditorTypes();
-    }
 
     private RecipeEditorTypes() {
     }

@@ -1,13 +1,16 @@
 package com.viscript_recipe.compat.touhou_little_maid;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.touhou_little_maid.canvas.AltarCanvas;
 import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-public final class TouhouLittleMaidRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = TouhouLittleMaidRecipeEditorTypes.MOD_ID, modID = TouhouLittleMaidRecipeEditorTypes.MOD_ID)
+public final class TouhouLittleMaidRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "touhou_little_maid";
 
     public static final ResourceLocation ALTAR = touhouLittleMaid("altar");
@@ -15,20 +18,19 @@ public final class TouhouLittleMaidRecipeEditorTypes {
 
     private static boolean registered;
 
-    private TouhouLittleMaidRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return TouhouLittleMaidRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 ALTAR,
                 "viscript_recipe.editor.category.touhou_little_maid.altar",
                 MOD_ID, ALTAR_RECIPE, touhouLittleMaid("hakurei_gohei")
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 ALTAR_RECIPE, ALTAR,
                 "viscript_recipe.editor.type.touhou_little_maid.altar",
                 TouhouLittleMaidAltarRecipeData.class, TouhouLittleMaidAltarRecipeData::new,

@@ -1,31 +1,32 @@
 package com.viscript_recipe.compat.alloy_smelter;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.alloy_smelter.canvas.AlloySmelterCanvas;
 import com.viscript_recipe.compat.alloy_smelter.data.AlloySmelterRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-/** Registers the native Alloy Smelter recipe editor category. */
-public final class AlloySmelterRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = AlloySmelterRecipeEditorTypes.MOD_ID, modID = AlloySmelterRecipeEditorTypes.MOD_ID)
+public final class AlloySmelterRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "alloy_smelter";
     public static final ResourceLocation SMELTING = id("smelting");
     private static boolean registered;
 
-    private AlloySmelterRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return AlloySmelterRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 SMELTING, "viscript_recipe.editor.category.alloy_smelter.smelting",
                 MOD_ID, SMELTING, id("forge_controller_tier1")
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 SMELTING, SMELTING,
                 "viscript_recipe.editor.type.alloy_smelter.smelting",
                 AlloySmelterRecipeData.class, AlloySmelterRecipeData::new,

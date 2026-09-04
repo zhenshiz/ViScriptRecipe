@@ -1,16 +1,19 @@
 package com.viscript_recipe.compat.confluence;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.confluence.canvas.ConfluenceCanvas;
 import com.viscript_recipe.compat.confluence.data.ConfluenceRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class ConfluenceRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = ConfluenceRecipeEditorTypes.MOD_ID, modID = ConfluenceRecipeEditorTypes.MOD_ID)
+public final class ConfluenceRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "confluence";
     public static final ResourceLocation ITEM_TRANSMUTATION = id("item_transmutation");
     public static final ResourceLocation SKY_MILL = id("sky_mill");
@@ -31,20 +34,19 @@ public final class ConfluenceRecipeEditorTypes {
     private static final Map<ResourceLocation, ResourceLocation> WORKSTATIONS = workstationMap();
     private static boolean registered;
 
-    private ConfluenceRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return ConfluenceRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
         for (var type : WORKSTATIONS.keySet()) {
-            RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+            registerCategory(RecipeEditorCategory.of(
                     type, "viscript_recipe.editor.category.confluence." + type.getPath(),
                     MOD_ID, type, WORKSTATIONS.get(type)
             ));
-            RecipeEditorTypes.register(RecipeEditorType.of(
+            registerEditorType(RecipeEditorType.of(
                     type, type,
                     "viscript_recipe.editor.type.confluence." + type.getPath(),
                     ConfluenceRecipeData.class, ConfluenceRecipeData::new,

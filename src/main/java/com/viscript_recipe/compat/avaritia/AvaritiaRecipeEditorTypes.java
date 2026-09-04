@@ -1,5 +1,7 @@
 package com.viscript_recipe.compat.avaritia;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.avaritia.canvas.CompressorCanvas;
 import com.viscript_recipe.compat.avaritia.canvas.ExtremeSmithingCanvas;
 import com.viscript_recipe.compat.avaritia.canvas.SpecialShapelessCanvas;
@@ -10,10 +12,11 @@ import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeDa
 import com.viscript_recipe.compat.avaritia.data.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-public final class AvaritiaRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = AvaritiaRecipeEditorTypes.MOD_ID, modID = AvaritiaRecipeEditorTypes.MOD_ID)
+public final class AvaritiaRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "avaritia";
 
     public static final ResourceLocation CRAFTING_TABLE = create("crafting_table");
@@ -43,50 +46,48 @@ public final class AvaritiaRecipeEditorTypes {
 
     private static boolean registered;
 
-    private AvaritiaRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return AvaritiaRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
         registerCategories();
         registerTypes();
     }
 
-    private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+    private void registerCategories() {
+        registerCategory(RecipeEditorCategory.of(
                 AvaritiaRecipeEditorTypes.CRAFTING_TABLE,
                 "viscript_recipe.editor.category.avaritia.crafting_table",
                 MOD_ID,
                 AvaritiaRecipeEditorTypes.SHAPED_TABLE,
                 AvaritiaRecipeEditorTypes.SCULK_CRAFTING_TABLE
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 NEUTRON_COMPRESSOR,
                 "viscript_recipe.editor.category.avaritia.neutron_compressor",
                 MOD_ID, COMPRESSOR
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 EXTREME_SMITHING_TABLE,
                 "viscript_recipe.editor.category.avaritia.extreme_smithing_table",
                 MOD_ID, EXTREME_SMITHING
         ));
     }
 
-    private static void registerTypes() {
+    private void registerTypes() {
         registerTableType(SHAPED_TABLE, "viscript_recipe.editor.type.avaritia.shaped_table");
         registerTableType(SHAPELESS_TABLE, "viscript_recipe.editor.type.avaritia.shapeless_table");
         registerTableType(NO_CONSUME_CATALYST_SHAPED, "viscript_recipe.editor.type.avaritia.no_consume_catalyst_shaped");
-        RecipeEditorTypes.register(RecipeEditorType.of(
-                COMPRESSOR,
-                NEUTRON_COMPRESSOR,
+        registerEditorType(RecipeEditorType.of(
+                COMPRESSOR, NEUTRON_COMPRESSOR,
                 "viscript_recipe.editor.type.avaritia.compressor",
                 AvaritiaCompressorRecipeData.class, AvaritiaCompressorRecipeData::new,
                 CompressorCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 EXTREME_SMITHING, EXTREME_SMITHING_TABLE,
                 "viscript_recipe.editor.type.avaritia.extreme_smithing",
                 AvaritiaExtremeSmithingRecipeData.class, AvaritiaExtremeSmithingRecipeData::new,
@@ -97,16 +98,16 @@ public final class AvaritiaRecipeEditorTypes {
         registerSpecialType(FULL_MATTER_CLUSTER, "viscript_recipe.editor.type.avaritia.full_matter_cluster");
     }
 
-    private static void registerTableType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerTableType(ResourceLocation type, String translationKey) {
+        registerEditorType(RecipeEditorType.of(
                 type, CRAFTING_TABLE, translationKey,
                 AvaritiaTableRecipeData.class, AvaritiaTableRecipeData::new,
                 TableCanvas::new, MOD_ID
         ));
     }
 
-    private static void registerSpecialType(ResourceLocation type, String translationKey) {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerSpecialType(ResourceLocation type, String translationKey) {
+        registerEditorType(RecipeEditorType.of(
                 type, CRAFTING_TABLE, translationKey,
                 AvaritiaSpecialShapelessRecipeData.class, AvaritiaSpecialShapelessRecipeData::new,
                 SpecialShapelessCanvas::new, MOD_ID

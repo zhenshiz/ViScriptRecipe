@@ -1,13 +1,16 @@
 package com.viscript_recipe.compat.goety;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.goety.canvas.*;
 import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-public final class GoetyRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = GoetyRecipeEditorTypes.MOD_ID, modID = GoetyRecipeEditorTypes.MOD_ID)
+public final class GoetyRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "goety";
 
     public static final ResourceLocation CURSED_INFUSER = goety("cursed_infuser");
@@ -24,19 +27,18 @@ public final class GoetyRecipeEditorTypes {
 
     private static boolean registered;
 
-    private GoetyRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return GoetyRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
         registerCategories();
         registerTypes();
     }
 
-    private static void registerCategories() {
+    private void registerCategories() {
         registerCategory(CURSED_INFUSER, CURSED_INFUSER_RECIPE, CURSED_INFUSER);
         registerCategory(DARK_ALTAR, RITUAL, DARK_ALTAR);
         registerCategory(NECRO_BRAZIER, BRAZIER, NECRO_BRAZIER);
@@ -44,40 +46,40 @@ public final class GoetyRecipeEditorTypes {
         registerCategory(WITCH_CAULDRON, BREWING, WITCH_CAULDRON);
     }
 
-    private static void registerCategory(ResourceLocation id, ResourceLocation defaultType,
+    private void registerCategory(ResourceLocation id, ResourceLocation defaultType,
                                          ResourceLocation workstation) {
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 id, "viscript_recipe.editor.category.goety." + id.getPath(),
                 MOD_ID, defaultType, workstation
         ));
     }
 
-    private static void registerTypes() {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerTypes() {
+        registerEditorType(RecipeEditorType.of(
                 CURSED_INFUSER_RECIPE, CURSED_INFUSER,
                 "viscript_recipe.editor.type.goety.cursed_infuser",
                 GoetyCursedInfuserRecipeData.class, GoetyCursedInfuserRecipeData::new,
                 CursedInfuserCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 RITUAL, DARK_ALTAR,
                 "viscript_recipe.editor.type.goety.ritual",
                 GoetyRitualRecipeData.class, GoetyRitualRecipeData::new,
                 RitualCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 BRAZIER, NECRO_BRAZIER,
                 "viscript_recipe.editor.type.goety.brazier",
                 GoetyBrazierRecipeData.class, GoetyBrazierRecipeData::new,
                 BrazierCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 PULVERIZE, PULVERIZE_FOCUS,
                 "viscript_recipe.editor.type.goety.pulverize",
                 GoetyPulverizeRecipeData.class, GoetyPulverizeRecipeData::new,
                 PulverizeCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 BREWING, WITCH_CAULDRON,
                 "viscript_recipe.editor.type.goety.brewing",
                 GoetyBrewingRecipeData.class, GoetyBrewingRecipeData::new,

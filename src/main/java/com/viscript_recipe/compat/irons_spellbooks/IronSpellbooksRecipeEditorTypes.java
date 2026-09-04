@@ -1,15 +1,18 @@
 package com.viscript_recipe.compat.irons_spellbooks;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.irons_spellbooks.canvas.IronAlchemistCauldronCanvas;
 import com.viscript_recipe.compat.irons_spellbooks.canvas.IronArcaneAnvilCanvas;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-public final class IronSpellbooksRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = IronSpellbooksRecipeEditorTypes.MOD_ID, modID = IronSpellbooksRecipeEditorTypes.MOD_ID)
+public final class IronSpellbooksRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "irons_spellbooks";
 
     public static final ResourceLocation ALCHEMIST_CAULDRON = iron("alchemist_cauldron");
@@ -22,51 +25,50 @@ public final class IronSpellbooksRecipeEditorTypes {
 
     private static boolean registered;
 
-    private IronSpellbooksRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return IronSpellbooksRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
         registerCategories();
         registerTypes();
     }
 
-    private static void registerCategories() {
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+    private void registerCategories() {
+        registerCategory(RecipeEditorCategory.of(
                 ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.category.irons_spellbooks.alchemist_cauldron",
                 MOD_ID, ALCHEMIST_CAULDRON_FILL
         ));
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+        registerCategory(RecipeEditorCategory.of(
                 ARCANE_ANVIL,
                 "viscript_recipe.editor.category.irons_spellbooks.arcane_anvil",
                 MOD_ID, ARCANE_ANVIL_TRANSFORM
         ));
     }
 
-    private static void registerTypes() {
-        RecipeEditorTypes.register(RecipeEditorType.of(
+    private void registerTypes() {
+        registerEditorType(RecipeEditorType.of(
                 ALCHEMIST_CAULDRON_FILL, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_fill",
                 IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
                 IronAlchemistCauldronCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 ALCHEMIST_CAULDRON_EMPTY, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_empty",
                 IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
                 IronAlchemistCauldronCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 ALCHEMIST_CAULDRON_BREW, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_brew",
                 IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
                 IronAlchemistCauldronCanvas::new, MOD_ID
         ));
-        RecipeEditorTypes.register(RecipeEditorType.of(
+        registerEditorType(RecipeEditorType.of(
                 ARCANE_ANVIL_TRANSFORM, ARCANE_ANVIL,
                 "viscript_recipe.editor.type.irons_spellbooks.arcane_anvil_transform",
                 IronArcaneAnvilRecipeData.class, IronArcaneAnvilRecipeData::new,

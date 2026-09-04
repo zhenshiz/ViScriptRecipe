@@ -1,13 +1,23 @@
 package com.viscript_recipe.compat.mysticalagriculture;
 
+import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.mysticalagriculture.canvas.*;
 import com.viscript_recipe.compat.mysticalagriculture.data.*;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.data.IVSRecipeData;
+import com.viscript_recipe.data.RecipeEditorCategory;
+import com.viscript_recipe.data.RecipeEditorType;
+import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.gui.canvas.RecipeCanvas;
+import com.viscript_recipe.gui.views.NavigationView;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public final class MysticalAgricultureRecipeEditorTypes {
+@LDLRegister(registry = IModModule.ID, name = MysticalAgricultureRecipeEditorTypes.MOD_ID, modID = MysticalAgricultureRecipeEditorTypes.MOD_ID)
+public final class MysticalAgricultureRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "mysticalagriculture";
 
     public static final ResourceLocation INFUSION_ALTAR = mystical("infusion_altar");
@@ -26,13 +36,12 @@ public final class MysticalAgricultureRecipeEditorTypes {
 
     private static boolean registered;
 
-    private MysticalAgricultureRecipeEditorTypes() {
-    }
+    @Override
+    public RecipeImportHandler importHandler() {return MysticalAgricultureRecipeImporter.INSTANCE;}
 
-    public static synchronized void registerAll() {
-        if (registered) {
-            return;
-        }
+    @Override
+    public void registerEditorTypes() {
+        if (registered) return;
         registered = true;
         registerCategory(INFUSION_ALTAR, INFUSION);
         registerCategory(AWAKENING_ALTAR, AWAKENING);
@@ -43,14 +52,14 @@ public final class MysticalAgricultureRecipeEditorTypes {
         registerTypes();
     }
 
-    private static void registerCategory(ResourceLocation category, ResourceLocation type) {
-        RecipeEditorTypes.registerCategory(RecipeEditorCategory.of(
+    private void registerCategory(ResourceLocation category, ResourceLocation type) {
+        registerCategory(RecipeEditorCategory.of(
                 category, "viscript_recipe.editor.category.mysticalagriculture." + category.getPath(),
                 MOD_ID, type, category
         ));
     }
 
-    private static void registerTypes() {
+    private void registerTypes() {
         register(INFUSION, INFUSION_ALTAR,
                 MysticalAgricultureInfusionRecipeData.class, MysticalAgricultureInfusionRecipeData::new, InfusionCanvas::new);
         register(AWAKENING, AWAKENING_ALTAR,
@@ -65,12 +74,11 @@ public final class MysticalAgricultureRecipeEditorTypes {
                 MysticalAgricultureSouliumSpawnerRecipeData.class, MysticalAgricultureSouliumSpawnerRecipeData::new, SouliumSpawnerCanvas::new);
     }
 
-    private static void register(ResourceLocation id, ResourceLocation category,
+    private void register(ResourceLocation id, ResourceLocation category,
             Class<? extends IVSRecipeData> dataClass, Supplier<? extends IVSRecipeData> dataSupplier,
-            java.util.function.BiFunction<com.viscript_recipe.gui.views.NavigationView, RecipeEntry,
-                    com.viscript_recipe.gui.canvas.RecipeCanvas<?>> canvasSupplier
+            BiFunction<NavigationView, RecipeEntry, RecipeCanvas<?>> canvasSupplier
     ) {
-        RecipeEditorTypes.register(RecipeEditorType.of(id, category,
+        registerEditorType(RecipeEditorType.of(id, category,
                 "viscript_recipe.editor.type.mysticalagriculture." + id.getPath(),
                 dataClass, dataSupplier, canvasSupplier, MOD_ID
         ));
