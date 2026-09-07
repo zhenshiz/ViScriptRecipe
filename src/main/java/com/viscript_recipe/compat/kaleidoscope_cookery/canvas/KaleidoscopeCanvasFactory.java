@@ -5,6 +5,7 @@ import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
@@ -41,13 +42,32 @@ public final class KaleidoscopeCanvasFactory {
     }
 
     public static UIElement createMillstoneCanvas(UIElement inputSlot, UIElement[] resultSlots) {
-        var panel = createPanel("millstone", 196, 95);
-        panel.addChild(createCell(inputSlot, 69, 39));
-        panel.addChild(createCell(resultSlots[0], 150, 47));
-        panel.addChild(createCell(resultSlots[1], 150, 20));
-        panel.addChild(createCell(resultSlots[2], 128, 20));
-        panel.addChild(createCell(resultSlots[3], 172, 20));
+        var panel = createPanel("millstone", 196, 95).setId("millstone_panel");
+        panel.addChild(createMillstoneSlot(inputSlot, 69, 39, false));
+        panel.addChild(createMillstoneSlot(resultSlots[0], 150, 47, true));
+        panel.addChild(createMillstoneSlot(resultSlots[1], 150, 20, false));
+        panel.addChild(createMillstoneSlot(resultSlots[2], 128, 20, false));
+        panel.addChild(createMillstoneSlot(resultSlots[3], 172, 20, false));
         return centerPanel(panel);
+    }
+
+    private static UIElement createMillstoneSlot(UIElement slot, int itemLeft, int itemTop, boolean mainOutput) {
+        var size = mainOutput ? 26 : JEI_SLOT_SIZE;
+        var padding = (size - 16) / 2;
+        var texture = ResourceLocation.fromNamespaceAndPath("jei",
+                "textures/jei/atlas/gui/" + (mainOutput ? "output_slot.png" : "slot.png"));
+        var background = ViScriptRecipe.isModLoaded("jei") && ViScriptRecipe.isPresentResource(texture)
+                ? SpriteTexture.of(texture).setSprite(0, 0, size, size)
+                : ItemSlot.ITEM_SLOT_TEXTURE;
+        return new UIElement().layout(layout -> {
+            layout.positionType(TaffyPosition.ABSOLUTE);
+            layout.left(itemLeft - padding);
+            layout.top(itemTop - padding);
+            layout.width(size);
+            layout.height(size);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).style(style -> style.backgroundTexture(background)).addChild(slot);
     }
 
     public static UIElement createChoppingBoardCanvas(UIElement inputSlot, UIElement resultSlot) {

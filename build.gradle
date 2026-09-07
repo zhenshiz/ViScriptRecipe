@@ -189,6 +189,8 @@ neoForge {
     }
 }
 
+apply from: rootProject.file('gradle/ldlib2-uitest.gradle')
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 modAccessor {

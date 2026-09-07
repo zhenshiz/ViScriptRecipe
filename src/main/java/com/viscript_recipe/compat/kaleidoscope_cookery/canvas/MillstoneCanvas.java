@@ -49,9 +49,11 @@ public class MillstoneCanvas extends RecipeCanvas<KaleidoscopeMillstoneRecipeDat
     @Override
     public UIElement createCanvas() {
         var input = createIngredientSlot(0, JEI_SLOT_SIZE);
+        input.setId("millstone_input");
         var results = new ItemSlot[KaleidoscopeMillstoneRecipeData.MAX_RESULTS];
         for (int i = 0; i < results.length; i++) {
             results[i] = createOutputSlot(i, JEI_SLOT_SIZE);
+            results[i].setId("millstone_output_" + i).addClass("millstone_output");
         }
         configureJeiOverlaySlotVisual(input);
         configureJeiOverlaySlotVisual(results);
