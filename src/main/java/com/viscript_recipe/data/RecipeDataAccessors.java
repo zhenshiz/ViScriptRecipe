@@ -1,6 +1,8 @@
 package com.viscript_recipe.data;
 
 import com.viscript_lib.annotation.ViScriptRegisterAccessors;
+import com.viscript_recipe.compat.ae2.data.*;
+import com.viscript_recipe.compat.farm_and_charm.data.*;
 import com.viscript_lib.event.RegisterAccessorEvent;
 import com.viscript_recipe.compat.ars_nouveau.data.*;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
@@ -53,6 +55,9 @@ public final class RecipeDataAccessors {
         registerMysticalAgriculture(event);
         registerIndustrialForegoing(event);
         registerMekanism(event);
+        registerAe2(event);
+        event.register(FarmCharmIngredientData.class, FarmCharmIngredientData::new);
+        event.register(FarmCharmRecipeData.class, FarmCharmRecipeData::new);
     }
 
     private static void registerBase(RegisterAccessorEvent event) {
@@ -180,4 +185,13 @@ public final class RecipeDataAccessors {
         event.register(MekanismChemicalStackData.class, MekanismChemicalStackData::new);
         event.register(MekanismRecipeData.class, MekanismRecipeData::new);
     }
+    private static void registerAe2(RegisterAccessorEvent event) {
+        event.register(Ae2ChargerRecipeData.class, Ae2ChargerRecipeData::new);
+        event.register(Ae2InscriberRecipeData.class, Ae2InscriberRecipeData::new);
+        event.register(Ae2TransformRecipeData.class, Ae2TransformRecipeData::new);
+        event.register(Ae2EntropyRecipeData.class, Ae2EntropyRecipeData::new);
+        event.register(Ae2IngredientData.class, Ae2IngredientData::new);
+        event.register(Ae2StatePropertyData.class, Ae2StatePropertyData::new);
+    }
+
 }

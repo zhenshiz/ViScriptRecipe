@@ -116,10 +116,10 @@ public class PropertiesView extends View {
                     entry.setEnabled(value); navigationView.updateStatus(); // 更新状态栏
                 }),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.recipe_id",
-                        RecipeEditorUi.resourceLocationField(entry.getRecipeId(), entry::setRecipeId)),
+                        RecipeEditorUi.resourceLocationField(entry.getRecipeId(), entry::setRecipeId).setId("recipe_entry_id")),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.operation",
                         RecipeEditorUi.selector(List.of(RecipeOperation.values()),
-                                entry.getOperation(), RecipeOperation::displayName, entry::setOperation))
+                                entry.getOperation(), RecipeOperation::displayName, entry::setOperation).setId("recipe_entry_operation"))
         );
         if (workBenchView.supportsNotification()) {
             content.addChild(RecipeCanvas.switchField("viscript_recipe.config.recipe.show_notification",

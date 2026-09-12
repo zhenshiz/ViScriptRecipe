@@ -136,5 +136,19 @@ type = "optional"
 ordering = "AFTER"
 side = "BOTH"
 
+[[dependencies."${mod_id}"]]
+modId = "ae2"
+type = "optional"
+versionRange = "[19.2.17,20)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "farm_and_charm"
+type = "optional"
+versionRange = "[1.1.23,1.2)"
+ordering = "AFTER"
+side = "BOTH"
+
 [features."${mod_id}"]
 openGLVersion = "[3.2,)"

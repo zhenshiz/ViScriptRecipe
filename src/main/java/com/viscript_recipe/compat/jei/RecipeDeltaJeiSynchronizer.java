@@ -4,6 +4,7 @@ import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.client.RecipeDeltaClientState;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
+import com.viscript_recipe.compat.farm_and_charm.FarmCharmRecipeKind;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
 import com.viscript_recipe.compat.jei.irons_spellbooks.IronSpellbooksJeiRecipeFilter;
@@ -45,6 +46,7 @@ public final class RecipeDeltaJeiSynchronizer {
         runtime = jeiRuntime;
         runtimeGeneration++;
         hiddenRuntimeRecipes = 0;
+        FarmCharmJeiRecipeSynchronizer.reset();
         if (tryApplyPendingFullReload()) {
             applyCompatFiltersSafely(jeiRuntime);
             return;
@@ -181,7 +183,9 @@ public final class RecipeDeltaJeiSynchronizer {
         var uniqueTypes = new LinkedHashSet<ResourceLocation>();
         typeHints.values().forEach(uniqueTypes::addAll);
         for (var typeId : uniqueTypes) {
-            var jeiType = recipeManager.getRecipeType(typeId).orElse(null);
+            var farmCharm = FarmCharmRecipeKind.byType(typeId);
+            var jeiType = recipeManager.getRecipeType(farmCharm.map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId)).orElse(null);
+            if (farmCharm.isPresent()) continue;
             if (jeiType != null && !RecipeHolder.class.isAssignableFrom(jeiType.getRecipeClass())) {
                 return false;
             }
@@ -208,8 +212,14 @@ public final class RecipeDeltaJeiSynchronizer {
         typeHints.values().forEach(allTypes::addAll);
         allTypes.addAll(recipesByType.keySet());
         for (var typeId : allTypes) {
-            var jeiType = recipeManager.getRecipeType(typeId).orElse(null);
+            var farmCharm = FarmCharmRecipeKind.byType(typeId);
+            var jeiType = recipeManager.getRecipeType(farmCharm.map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId)).orElse(null);
             if (jeiType == null) {
+                continue;
+            }
+            if (farmCharm.isPresent()) {
+                hiddenRuntimeRecipes += FarmCharmJeiRecipeSynchronizer.reconcile(recipeManager, jeiType, typeId,
+                        affectedRecipeIds, recipesByType.getOrDefault(typeId, new ArrayList<>()));
                 continue;
             }
             reconcileType(

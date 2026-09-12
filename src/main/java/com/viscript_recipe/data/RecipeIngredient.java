@@ -83,7 +83,8 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
             case ITEM -> {
                 var stack = item.copyWithCount(1);
                 if (stack.isEmpty()) yield Ingredient.EMPTY;
-                if (ItemStack.isSameItemSameComponents(stack, stack.getItem().getDefaultInstance())) {
+                // PotionItem's default instance is a water bottle, while a plain ingredient accepts every potion.
+                if (ItemStack.isSameItemSameComponents(stack, new ItemStack(stack.getItem()))) {
                     yield Ingredient.of(stack.getItem());
                 }
                 yield DataComponentIngredient.of(true, stack);

@@ -263,6 +263,13 @@ dependencies {
     implementation "mekanism:Mekanism:${mekanism_version}"
     //Alloy Smelter
     implementation "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
+    // Applied Energistics 2
+    implementation "maven.modrinth:ae2:${ae2_version}"
+    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
+    runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
+    // [Let's Do] Farm & Charm 1.1.23 (Minecraft 1.21.1, NeoForge)
+    implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
+    runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"
