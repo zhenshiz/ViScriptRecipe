@@ -1,9 +1,10 @@
 package com.viscript_recipe.compat.kaleidoscope_cookery;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.*;
+import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.kaleidoscope_cookery.*;
+import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -62,8 +63,11 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
         }
         if (recipe instanceof MillstoneRecipe millstone) {
             var data = new KaleidoscopeMillstoneRecipeData()
-                    .setIngredient(RecipeImporter.importIngredient(millstone.getIngredient()))
-                    .setResult(RecipeImporter.copyResult(millstone, provider));
+                    .setIngredient(RecipeImporter.importIngredient(millstone.ingredient()))
+                    .setResults(millstone.results().stream()
+                            .limit(KaleidoscopeMillstoneRecipeData.MAX_RESULTS)
+                            .map(output -> RecipeOutputData.of(output.stack(), output.chance()))
+                            .toList());
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_MILLSTONE).setData(data));
         }
         if (recipe instanceof ChoppingBoardRecipe choppingBoard) {
@@ -84,8 +88,8 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
         if (recipe instanceof TeapotRecipe teapot) {
             var data = new KaleidoscopeTeapotRecipeData()
                     .setTeaFluid(nonNullId(teapot.teaFluid(), ResourceLocation.withDefaultNamespace("water")))
-                    .setIngredient(RecipeImporter.importIngredient(teapot.ingredient()))
-                    .setIngredientCount(Math.max(1, teapot.ingredientCount()))
+                    .setIngredient(RecipeImporter.importIngredient(teapot.ingredient())
+                            .setCount(Math.max(1, teapot.ingredientCount())))
                     .setTime(Math.max(1, teapot.time()))
                     .setResult(RecipeImporter.copyResult(teapot, provider));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_TEAPOT).setData(data));

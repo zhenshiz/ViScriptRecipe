@@ -2,8 +2,8 @@ package com.viscript_recipe.compat.goety;
 
 import com.Polarice3.Goety.common.crafting.*;
 import com.Polarice3.Goety.common.ritual.ModRituals;
+import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.goety.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -57,7 +57,7 @@ public final class GoetyRecipeFactory {
             throw new IllegalArgumentException("Unknown Goety ritual type: " + ritualType);
         }
         var ingredients = NonNullList.<Ingredient>create();
-        for (var ingredient : data.normalizedIngredients()) {
+        for (var ingredient : data.getIngredients()) {
             var compiled = compileIngredient(ingredient);
             if (!compiled.isEmpty()) {
                 ingredients.add(compiled);
@@ -113,7 +113,7 @@ public final class GoetyRecipeFactory {
      */
     public static Recipe<?> compileBrazier(GoetyBrazierRecipeData data) {
         var ingredients = NonNullList.<Ingredient>create();
-        for (var ingredient : data.normalizedIngredients()) {
+        for (var ingredient : data.getIngredients()) {
             ingredients.add(requireIngredient(ingredient, "Goety brazier ingredients cannot be empty"));
         }
         return new BrazierRecipe(

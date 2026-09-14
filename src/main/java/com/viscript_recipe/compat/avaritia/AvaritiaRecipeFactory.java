@@ -1,7 +1,10 @@
 package com.viscript_recipe.compat.avaritia;
 
+import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.avaritia.*;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
 import committee.nova.mods.avaritia.common.crafting.recipe.*;
 import net.minecraft.core.NonNullList;
@@ -26,10 +29,10 @@ public final class AvaritiaRecipeFactory {
     }
 
     public static Recipe<?> compileTable(ResourceLocation type, AvaritiaTableRecipeData data) {
-        var tier = data.normalizedTier();
+        var tier = data.getTier();
         if (AvaritiaRecipeEditorTypes.isShapedTableType(type)) {
             return new ShapedTableCraftingRecipe(
-                    compilePattern(data.getPattern(), data.getKey(), data.normalizedWidth(), data.normalizedHeight()),
+                    compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight()),
                     requireResult(data.getResult(), "Avaritia table recipe result cannot be empty"),
                     tier,
                     data.isCompatible()
@@ -37,7 +40,7 @@ public final class AvaritiaRecipeFactory {
         }
         if (AvaritiaRecipeEditorTypes.isNoConsumeCatalystType(type)) {
             return new NoConsumeCatalystShapedRecipe(
-                    compilePattern(data.getPattern(), data.getKey(), data.normalizedWidth(), data.normalizedHeight()),
+                    compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight()),
                     requireResult(data.getResult(), "Avaritia no-consume catalyst recipe result cannot be empty"),
                     tier == 0 ? 4 : tier
             );
@@ -61,8 +64,8 @@ public final class AvaritiaRecipeFactory {
         return new CompressorRecipe(
                 ingredient,
                 requireResult(data.getResult(), "Avaritia compressor recipe result cannot be empty"),
-                Math.max(1, data.getInputCount()),
-                Math.max(1, data.getTimeCost())
+                data.getIngredient().getCount(),
+                data.getTimeCost()
         );
     }
 
@@ -70,12 +73,12 @@ public final class AvaritiaRecipeFactory {
         return new ExtremeSmithingRecipe(
                 requireIngredient(data.getTemplate(), "Avaritia extreme smithing template cannot be empty"),
                 requireIngredient(data.getBase(), "Avaritia extreme smithing base cannot be empty"),
-                compileExtremeSmithingAdditions(data.normalizedAdditions()),
+                compileExtremeSmithingAdditions(data.getIngredients()),
                 requireResult(data.getResult(), "Avaritia extreme smithing result cannot be empty")
         );
     }
 
-    public static Recipe<?> compileInfinityCatalyst(AvaritiaInfinityCatalystRecipeData data) {
+    public static Recipe<?> compileInfinityCatalyst(AvaritiaSpecialShapelessRecipeData data) {
         return new InfinityCatalystCraftRecipe(
                 normalizedGroup(data.getGroup()),
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, false),
@@ -83,14 +86,14 @@ public final class AvaritiaRecipeFactory {
         );
     }
 
-    public static Recipe<?> compileEternalSingularity(AvaritiaEternalSingularityRecipeData data) {
+    public static Recipe<?> compileEternalSingularity(AvaritiaSpecialShapelessRecipeData data) {
         return new EternalSingularityCraftRecipe(
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, true),
                 Math.max(1, data.getCount())
         );
     }
 
-    public static Recipe<?> compileFullMatterCluster(AvaritiaFullMatterClusterRecipeData data) {
+    public static Recipe<?> compileFullMatterCluster(AvaritiaSpecialShapelessRecipeData data) {
         return new FullMatterClusterRecipe(
                 normalizedGroup(data.getGroup()),
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, false),

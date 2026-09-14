@@ -3,10 +3,10 @@ package com.viscript_recipe.compat.industrial_foregoing;
 import com.buuz135.industrial.recipe.*;
 import com.buuz135.industrial.recipe.data.EntityData;
 import com.buuz135.industrial.recipe.data.EntityIngredient;
+import com.viscript_recipe.compat.industrial_foregoing.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.industrial_foregoing.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -76,7 +76,7 @@ public final class IndustrialForegoingRecipeFactory {
     /** Compiles an ore laser drill recipe. */
     public static LaserDrillOreRecipe compileLaserOre(IndustrialLaserDrillOreRecipeData data) {
         return new LaserDrillOreRecipe(
-                new SizedIngredient(requireIngredient(data.getOutput(), "Laser drill ore output"), Math.max(1, data.getOutputCount())),
+                new SizedIngredient(requireIngredient(data.getOutput(), "Laser drill ore output"), data.getOutput().getCount()),
                 requireIngredient(data.getCatalyst(), "Laser drill catalyst"),
                 compileEntityCondition(data.getEntityCondition()),
                 compileRarities(data.getRarity())

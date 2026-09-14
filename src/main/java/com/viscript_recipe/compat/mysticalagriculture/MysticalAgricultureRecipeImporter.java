@@ -3,7 +3,7 @@ package com.viscript_recipe.compat.mysticalagriculture;
 import com.blakebr0.mysticalagriculture.api.crafting.*;
 import com.blakebr0.mysticalagriculture.crafting.recipe.AwakeningRecipe;
 import com.blakebr0.mysticalagriculture.crafting.recipe.InfusionRecipe;
-import com.viscript_recipe.data.mysticalagriculture.*;
+import com.viscript_recipe.compat.mysticalagriculture.data.*;
 import com.viscript_recipe.mixin.MysticalAgricultureAwakeningRecipeAccessor;
 import com.viscript_recipe.mixin.MysticalAgricultureInfusionRecipeAccessor;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
@@ -87,9 +87,8 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
             var data = new MysticalAgricultureEnchanterRecipeData().setEnchantment(enchantmentId);
             for (int index = 0; index < Math.min(MysticalAgricultureEnchanterRecipeData.MAX_INGREDIENTS,
                     enchanter.getIngredients().size()); index++) {
-                data.setIngredient(index, new MysticalAgricultureCountedIngredientData()
-                        .setIngredient(RecipeImporter.importIngredient(enchanter.getIngredients().get(index)))
-                        .setCount(Math.max(1, enchanter.getCount(index))));
+                data.setIngredient(index, RecipeImporter.importIngredient(enchanter.getIngredients().get(index))
+                        .setCount(enchanter.getCount(index)));
             }
             return success(holder, MysticalAgricultureRecipeEditorTypes.ENCHANTER,
                     entry -> entry.setData(data));
@@ -127,9 +126,7 @@ public final class MysticalAgricultureRecipeImporter implements RecipeImportHand
                         .setWeight(Math.max(1, entry.weight().asInt())));
             }
             var data = new MysticalAgricultureSouliumSpawnerRecipeData()
-                    .setInput(new MysticalAgricultureCountedIngredientData()
-                            .setIngredient(RecipeImporter.importIngredient(spawner.getIngredients().getFirst()))
-                            .setCount(Math.max(1, spawner.getCount(0))))
+                    .setInput(RecipeImporter.importIngredient(spawner.getIngredients().getFirst()).setCount(spawner.getCount(0)))
                     .setEntities(entities);
             return success(holder, MysticalAgricultureRecipeEditorTypes.SOULIUM_SPAWNER,
                     entry -> entry.setData(data));

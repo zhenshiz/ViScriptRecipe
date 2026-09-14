@@ -1,21 +1,21 @@
 package com.viscript_recipe.data;
 
-import com.viscript_recipe.compat.RecipeCompatModules;
-import com.viscript_recipe.data.ars_nouveau.ArsNouveauRecipeEditorTypes;
-import com.viscript_recipe.data.avaritia.AvaritiaRecipeEditorTypes;
-import com.viscript_recipe.data.cataclysm.CataclysmRecipeEditorTypes;
-import com.viscript_recipe.data.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.data.confluence.ConfluenceRecipeEditorTypes;
-import com.viscript_recipe.data.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
-import com.viscript_recipe.data.farmersdelight.FarmersDelightRecipeEditorTypes;
-import com.viscript_recipe.data.goety.GoetyRecipeEditorTypes;
-import com.viscript_recipe.data.iceandfire.IceAndFireRecipeEditorTypes;
-import com.viscript_recipe.data.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
-import com.viscript_recipe.data.alloy_smelter.AlloySmelterRecipeEditorTypes;
-import com.viscript_recipe.data.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
-import com.viscript_recipe.data.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
-import com.viscript_recipe.data.spore.SporeRecipeEditorTypes;
-import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
+import com.viscript_recipe.compat.alloy_smelter.AlloySmelterRecipeEditorTypes;
+import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeEditorTypes;
+import com.viscript_recipe.compat.avaritia.AvaritiaRecipeEditorTypes;
+import com.viscript_recipe.compat.cataclysm.CataclysmRecipeEditorTypes;
+import com.viscript_recipe.compat.confluence.ConfluenceRecipeEditorTypes;
+import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
+import com.viscript_recipe.compat.extendedcrafting.data.ExtendedCraftingRecipeEditorTypes;
+import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeEditorTypes;
+import com.viscript_recipe.compat.goety.GoetyRecipeEditorTypes;
+import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeEditorTypes;
+import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
+import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
+import com.viscript_recipe.compat.kaleidoscope_tavern.KaleidoscopeTavernRecipeEditorTypes;
+import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
+import com.viscript_recipe.compat.spore.SporeRecipeEditorTypes;
+import com.viscript_recipe.compat.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.VanillaRecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +62,9 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_CHOPPING_BOARD = KaleidoscopeCookeryRecipeEditorTypes.CHOPPING_BOARD;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_STEAMER = KaleidoscopeCookeryRecipeEditorTypes.STEAMER;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_TEAPOT = KaleidoscopeCookeryRecipeEditorTypes.TEAPOT;
+    public static final ResourceLocation KALEIDOSCOPE_TAVERN_BARREL = KaleidoscopeTavernRecipeEditorTypes.BARREL;
+    public static final ResourceLocation KALEIDOSCOPE_TAVERN_PRESSING_TUB = KaleidoscopeTavernRecipeEditorTypes.PRESSING_TUB;
+    public static final ResourceLocation KALEIDOSCOPE_TAVERN_SHAKER = KaleidoscopeTavernRecipeEditorTypes.SHAKER;
     public static final ResourceLocation CREATE_CRUSHING = CreateRecipeEditorTypes.create("crushing");
     public static final ResourceLocation CREATE_MIXING = CreateRecipeEditorTypes.create("mixing");
     public static final ResourceLocation CREATE_MECHANICAL_CRAFTING = CreateRecipeEditorTypes.MECHANICAL_CRAFTING;
@@ -126,10 +129,6 @@ public final class RecipeEditorTypes {
     private static final LinkedHashMap<ResourceLocation, RecipeEditorCategory> CATEGORIES = new LinkedHashMap<>();
     private static final LinkedHashMap<ResourceLocation, RecipeEditorType> TYPES = new LinkedHashMap<>();
 
-    static {
-        RecipeCompatModules.registerEditorTypes();
-    }
-
     private RecipeEditorTypes() {
     }
 
@@ -166,7 +165,7 @@ public final class RecipeEditorTypes {
     }
 
     public static RecipeEditorType require(ResourceLocation id) {
-        return get(id).orElseThrow(() -> new IllegalArgumentException("Unknown recipe editor type: " + id));
+        return get(id).orElse(MissingRecipeTypeHolder.TYPE);
     }
 
     public static List<RecipeEditorCategory> availableCategories() {
@@ -198,12 +197,5 @@ public final class RecipeEditorTypes {
         return get(id)
                 .map(type -> type.category().equals(category))
                 .orElse(false);
-    }
-
-    public static RecipeEditorLayout layoutForType(@Nullable ResourceLocation id) {
-        return get(id)
-                .flatMap(type -> getCategory(type.category()))
-                .map(RecipeEditorCategory::layout)
-                .orElse(RecipeEditorLayout.CRAFTING_GRID);
     }
 }

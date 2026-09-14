@@ -1,8 +1,9 @@
 package com.viscript_recipe.compat.kaleidoscope_cookery;
 
+import com.github.ysbbbbbb.kaleidoscopecookery.crafting.output.RandomOutput;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.*;
+import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.kaleidoscope_cookery.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -48,19 +49,34 @@ public final class KaleidoscopeCookeryRecipeFactory {
                 requireItem(data.getResult(), "Kaleidoscope Cookery stockpot result cannot be empty"),
                 Math.max(1, data.getTime()),
                 compileOptionalIngredient(data.getCarrier(), Ingredient.of(Items.BOWL)),
-                idOrDefault(data.getCookingTexture(), DEFAULT_STOCKPOT_COOKING_TEXTURE),
-                idOrDefault(data.getFinishedTexture(), DEFAULT_STOCKPOT_FINISHED_TEXTURE),
-                data.getCookingBubbleColor(),
-                data.getFinishedBubbleColor()
+                new StockpotVisuals(
+                        idOrDefault(data.getCookingTexture(), DEFAULT_STOCKPOT_COOKING_TEXTURE),
+                        idOrDefault(data.getFinishedTexture(), DEFAULT_STOCKPOT_FINISHED_TEXTURE),
+                        data.getCookingBubbleColor(),
+                        data.getFinishedBubbleColor()
+                )
         );
     }
 
     public static Recipe<?> compileMillstone(KaleidoscopeMillstoneRecipeData data) {
         var ingredient = requireIngredient(data.getIngredient(), "Kaleidoscope Cookery millstone input cannot be empty");
-        return new MillstoneRecipe(
-                ingredient,
-                requireItem(data.getResult(), "Kaleidoscope Cookery millstone result cannot be empty")
-        );
+        var results = new ArrayList<RandomOutput>();
+        for (var output : data.getResolvedResults()) {
+            if (results.size() >= KaleidoscopeMillstoneRecipeData.MAX_RESULTS) {
+                break;
+            }
+            if (output == null || output.isEmpty()) {
+                continue;
+            }
+            results.add(new RandomOutput(
+                    requireItem(output.getItem(), "Kaleidoscope Cookery millstone result cannot be empty"),
+                    Math.clamp(output.getChance(), 0.0F, 1.0F)
+            ));
+        }
+        if (results.isEmpty()) {
+            throw new IllegalArgumentException("Kaleidoscope Cookery millstone recipe must have at least one result");
+        }
+        return new MillstoneRecipe(ingredient, results);
     }
 
     public static Recipe<?> compileChoppingBoard(KaleidoscopeChoppingBoardRecipeData data) {
@@ -87,7 +103,7 @@ public final class KaleidoscopeCookeryRecipeFactory {
         return new TeapotRecipe(
                 idOrDefault(data.getTeaFluid(), DEFAULT_SOUP_BASE),
                 ingredient,
-                Math.max(1, data.getIngredientCount()),
+                data.getIngredient().getCount(),
                 Math.max(1, data.getTime()),
                 requireItem(data.getResult(), "Kaleidoscope Cookery teapot result cannot be empty")
         );

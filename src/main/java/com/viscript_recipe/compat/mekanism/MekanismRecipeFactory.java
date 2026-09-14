@@ -1,9 +1,9 @@
 package com.viscript_recipe.compat.mekanism;
 
+import com.viscript_recipe.compat.mekanism.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.mekanism.*;
 import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
@@ -35,11 +35,12 @@ public final class MekanismRecipeFactory {
      * @return the native Mekanism recipe
      * @throws IllegalArgumentException if required input, output, amount, or registry data is invalid
      */
+    @SuppressWarnings("all")
     public static Recipe<?> compile(ResourceLocation type, MekanismRecipeData data) {
         var kind = MekanismRecipeKind.byType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported Mekanism recipe type: " + type));
-        var itemInput = kind.itemInputs() > 0 ? itemIngredient(data.getItemInput(), data.getItemInputAmount(), "item input") : null;
-        var extraItemInput = kind.itemInputs() > 1 ? itemIngredient(data.getExtraItemInput(), data.getExtraItemInputAmount(), "extra item input") : null;
+        var itemInput = kind.itemInputs() > 0 ? itemIngredient(data.getItemInput(), data.getItemInput().getCount(), "item input") : null;
+        var extraItemInput = kind.itemInputs() > 1 ? itemIngredient(data.getExtraItemInput(), data.getExtraItemInput().getCount(), "extra item input") : null;
         var fluidInput = kind.fluidInputs() > 0 ? fluidIngredient(data.getFluidInput()) : null;
         var chemicalInput = kind.chemicalInputs() > 0 ? chemicalIngredient(data.getChemicalInput(), "chemical input") : null;
         var extraChemicalInput = kind.chemicalInputs() > 1 ? chemicalIngredient(data.getExtraChemicalInput(), "extra chemical input") : null;
@@ -86,8 +87,7 @@ public final class MekanismRecipeFactory {
         if (ingredient.isEmpty()) {
             throw new IllegalArgumentException("Mekanism " + field + " cannot be empty");
         }
-        var requiredAmount = MekanismItemInputCounts.amount(data, amount);
-        return IngredientCreatorAccess.item().from(ingredient, positive(requiredAmount, field + " amount"));
+        return IngredientCreatorAccess.item().from(ingredient, positive(amount, field + " amount"));
     }
 
     private static FluidStackIngredient fluidIngredient(FluidIngredientData data) {

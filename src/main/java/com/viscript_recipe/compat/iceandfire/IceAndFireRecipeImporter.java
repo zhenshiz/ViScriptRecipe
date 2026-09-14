@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.iceandfire;
 
 import com.iafenvoy.iceandfire.recipe.DragonForgeRecipe;
+import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
 import com.viscript_recipe.data.RecipeEditorTypes;
-import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;

@@ -4,6 +4,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
 import com.viscript_lib.gui.components.search.*;
+import com.viscript_recipe.compat.kaleidoscope_cookery.canvas.KaleidoscopeSoupBaseUiSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,7 +29,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-final class RecipeSearchComponents {
+public final class RecipeSearchComponents {
     private static final ResourceLocation DEFAULT_ENTITY_TAG = ResourceLocation.withDefaultNamespace("undead");
     private static final ResourceLocation DEFAULT_FLUID_TAG = ResourceLocation.fromNamespaceAndPath("c", "water");
     private static final ResourceLocation DEFAULT_STRUCTURE_TAG = ResourceLocation.withDefaultNamespace("village");
@@ -39,7 +40,7 @@ final class RecipeSearchComponents {
     private RecipeSearchComponents() {
     }
 
-    static UIElement entityType(
+    public static UIElement entityType(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -54,7 +55,7 @@ final class RecipeSearchComponents {
                 value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
     }
 
-    static UIElement mobEffect(
+    public static UIElement mobEffect(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -71,7 +72,7 @@ final class RecipeSearchComponents {
                 MobEffectSearchBox.getMobEffectId(value), supplier, consumer, onChanged));
     }
 
-    static UIElement enchantment(
+    public static UIElement enchantment(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -83,7 +84,7 @@ final class RecipeSearchComponents {
                 EnchantmentSearchBox.getEnchantmentId(value), supplier, consumer, onChanged));
     }
 
-    static UIElement block(
+    public static UIElement block(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -101,7 +102,7 @@ final class RecipeSearchComponents {
                 value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
     }
 
-    static UIElement fluid(
+    public static UIElement fluid(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -119,7 +120,7 @@ final class RecipeSearchComponents {
                 value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
     }
 
-    static UIElement entityTag(
+    public static UIElement entityTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -143,7 +144,7 @@ final class RecipeSearchComponents {
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
-    static UIElement fluidTag(
+    public static UIElement fluidTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -155,7 +156,7 @@ final class RecipeSearchComponents {
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
-    static UIElement blockTag(
+    public static UIElement blockTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -167,7 +168,7 @@ final class RecipeSearchComponents {
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
-    static UIElement structureTag(
+    public static UIElement structureTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -188,7 +189,7 @@ final class RecipeSearchComponents {
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }
 
-    static UIElement biomeTag(
+    public static UIElement biomeTag(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -211,7 +212,7 @@ final class RecipeSearchComponents {
                 }, DEFAULT_BIOME_TAG);
     }
 
-    static UIElement dimensionType(
+    public static UIElement dimensionType(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -236,7 +237,7 @@ final class RecipeSearchComponents {
                 value -> updateId(value, supplier, consumer, onChanged));
     }
 
-    static UIElement soupBase(
+    public static UIElement soupBase(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,

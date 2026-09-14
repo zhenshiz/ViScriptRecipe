@@ -2,8 +2,8 @@ package com.viscript_recipe.compat.cataclysm;
 
 import com.github.L_Ender.cataclysm.crafting.AltarOfAmethystRecipe;
 import com.github.L_Ender.cataclysm.crafting.WeaponfusionRecipe;
-import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
+import com.viscript_recipe.compat.cataclysm.data.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.compat.cataclysm.data.CataclysmWeaponFusionRecipeData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;

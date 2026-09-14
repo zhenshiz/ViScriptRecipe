@@ -1,32 +1,37 @@
 package com.viscript_recipe.data;
 
 import com.viscript_lib.annotation.ViScriptRegisterAccessors;
+import com.viscript_recipe.compat.ae2.data.*;
+import com.viscript_recipe.compat.farm_and_charm.data.*;
 import com.viscript_lib.event.RegisterAccessorEvent;
-import com.viscript_recipe.data.ars_nouveau.*;
-import com.viscript_recipe.data.avaritia.*;
-import com.viscript_recipe.data.cataclysm.CataclysmAmethystBlessRecipeData;
-import com.viscript_recipe.data.cataclysm.CataclysmWeaponFusionRecipeData;
-import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
-import com.viscript_recipe.data.create.CreateProcessingRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyRecipeData;
-import com.viscript_recipe.data.create.CreateSequencedAssemblyStepData;
-import com.viscript_recipe.data.extendedcrafting.*;
-import com.viscript_recipe.data.farmersdelight.FarmerCookingPotRecipeData;
-import com.viscript_recipe.data.farmersdelight.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.goety.*;
-import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
-import com.viscript_recipe.data.industrial_foregoing.*;
-import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronArcaneAnvilRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
-import com.viscript_recipe.data.kaleidoscope_cookery.*;
-import com.viscript_recipe.data.mekanism.MekanismChemicalIngredientData;
-import com.viscript_recipe.data.mekanism.MekanismChemicalStackData;
-import com.viscript_recipe.data.mekanism.MekanismRecipeData;
-import com.viscript_recipe.data.mysticalagriculture.*;
-import com.viscript_recipe.data.spore.SporeGraftingRecipeData;
-import com.viscript_recipe.data.spore.SporeSurgeryRecipeData;
-import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
+import com.viscript_recipe.compat.ars_nouveau.data.*;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaTableRecipeData;
+import com.viscript_recipe.compat.cataclysm.data.CataclysmAmethystBlessRecipeData;
+import com.viscript_recipe.compat.cataclysm.data.CataclysmWeaponFusionRecipeData;
+import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
+import com.viscript_recipe.compat.create.data.CreateProcessingRecipeData;
+import com.viscript_recipe.compat.create.data.CreateSequencedAssemblyRecipeData;
+import com.viscript_recipe.compat.create.data.CreateSequencedAssemblyStepData;
+import com.viscript_recipe.compat.extendedcrafting.data.*;
+import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
+import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
+import com.viscript_recipe.compat.goety.data.*;
+import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
+import com.viscript_recipe.compat.industrial_foregoing.data.*;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
+import com.viscript_recipe.compat.mekanism.data.MekanismChemicalIngredientData;
+import com.viscript_recipe.compat.mekanism.data.MekanismChemicalStackData;
+import com.viscript_recipe.compat.mekanism.data.MekanismRecipeData;
+import com.viscript_recipe.compat.mysticalagriculture.data.*;
+import com.viscript_recipe.compat.spore.data.SporeGraftingRecipeData;
+import com.viscript_recipe.compat.spore.data.SporeSurgeryRecipeData;
+import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.vanilla.*;
 
 public final class RecipeDataAccessors {
@@ -50,6 +55,9 @@ public final class RecipeDataAccessors {
         registerMysticalAgriculture(event);
         registerIndustrialForegoing(event);
         registerMekanism(event);
+        registerAe2(event);
+        event.register(FarmCharmIngredientData.class, FarmCharmIngredientData::new);
+        event.register(FarmCharmRecipeData.class, FarmCharmRecipeData::new);
     }
 
     private static void registerBase(RegisterAccessorEvent event) {
@@ -100,7 +108,6 @@ public final class RecipeDataAccessors {
     private static void registerExtendedCrafting(RegisterAccessorEvent event) {
         event.register(ExtendedCraftingCombinationRecipeData.class, ExtendedCraftingCombinationRecipeData::new);
         event.register(ExtendedCraftingCompressorRecipeData.class, ExtendedCraftingCompressorRecipeData::new);
-        event.register(ExtendedCraftingCountedIngredientData.class, ExtendedCraftingCountedIngredientData::new);
         event.register(ExtendedCraftingEnderCrafterRecipeData.class, ExtendedCraftingEnderCrafterRecipeData::new);
         event.register(ExtendedCraftingFluxCrafterRecipeData.class, ExtendedCraftingFluxCrafterRecipeData::new);
         event.register(ExtendedCraftingTableRecipeData.class, ExtendedCraftingTableRecipeData::new);
@@ -128,11 +135,9 @@ public final class RecipeDataAccessors {
     }
 
     private static void registerAvaritia(RegisterAccessorEvent event) {
+        event.register(AvaritiaSpecialShapelessRecipeData.class, AvaritiaSpecialShapelessRecipeData::new);
         event.register(AvaritiaCompressorRecipeData.class, AvaritiaCompressorRecipeData::new);
-        event.register(AvaritiaEternalSingularityRecipeData.class, AvaritiaEternalSingularityRecipeData::new);
         event.register(AvaritiaExtremeSmithingRecipeData.class, AvaritiaExtremeSmithingRecipeData::new);
-        event.register(AvaritiaFullMatterClusterRecipeData.class, AvaritiaFullMatterClusterRecipeData::new);
-        event.register(AvaritiaInfinityCatalystRecipeData.class, AvaritiaInfinityCatalystRecipeData::new);
         event.register(AvaritiaTableRecipeData.class, AvaritiaTableRecipeData::new);
     }
 
@@ -154,7 +159,6 @@ public final class RecipeDataAccessors {
     }
 
     private static void registerMysticalAgriculture(RegisterAccessorEvent event) {
-        event.register(MysticalAgricultureCountedIngredientData.class, MysticalAgricultureCountedIngredientData::new);
         event.register(MysticalAgricultureInfusionRecipeData.class, MysticalAgricultureInfusionRecipeData::new);
         event.register(MysticalAgricultureAwakeningRecipeData.class, MysticalAgricultureAwakeningRecipeData::new);
         event.register(MysticalAgricultureEnchanterRecipeData.class, MysticalAgricultureEnchanterRecipeData::new);
@@ -181,4 +185,13 @@ public final class RecipeDataAccessors {
         event.register(MekanismChemicalStackData.class, MekanismChemicalStackData::new);
         event.register(MekanismRecipeData.class, MekanismRecipeData::new);
     }
+    private static void registerAe2(RegisterAccessorEvent event) {
+        event.register(Ae2ChargerRecipeData.class, Ae2ChargerRecipeData::new);
+        event.register(Ae2InscriberRecipeData.class, Ae2InscriberRecipeData::new);
+        event.register(Ae2TransformRecipeData.class, Ae2TransformRecipeData::new);
+        event.register(Ae2EntropyRecipeData.class, Ae2EntropyRecipeData::new);
+        event.register(Ae2IngredientData.class, Ae2IngredientData::new);
+        event.register(Ae2StatePropertyData.class, Ae2StatePropertyData::new);
+    }
+
 }

@@ -19,12 +19,12 @@ public class ShapedKeyEntry implements IPersistedSerializable, IConfigurable {
     @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.OAK_PLANKS);
 
-    public static ShapedKeyEntry of(String symbol, RecipeIngredient ingredient) {
-        return new ShapedKeyEntry().setSymbol(symbol).setIngredient(ingredient);
+    public static ShapedKeyEntry of(char symbol, RecipeIngredient ingredient) {
+        return new ShapedKeyEntry().setSymbol(String.valueOf(symbol)).setIngredient(ingredient);
     }
 
     public char compileSymbol() {
-        if (symbol == null || symbol.length() != 1 || symbol.charAt(0) == ' ') {
+        if (symbol.isEmpty() || symbol.charAt(0) == ' ') {
             throw new IllegalArgumentException("Shaped key symbol must be one non-space character");
         }
         return symbol.charAt(0);

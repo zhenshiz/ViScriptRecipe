@@ -2,7 +2,8 @@ package com.viscript_recipe.compat.extendedcrafting;
 
 import com.blakebr0.cucumber.crafting.ingredient.IngredientWithCount;
 import com.blakebr0.extendedcrafting.crafting.recipe.*;
-import com.viscript_recipe.data.extendedcrafting.*;
+import com.viscript_recipe.compat.extendedcrafting.data.*;
+import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -49,16 +50,14 @@ public final class ExtendedCraftingRecipeImporter implements RecipeImportHandler
                     .setData(data));
         }
         if (recipe instanceof CompressorRecipe compressor) {
-            var inputs = new ArrayList<ExtendedCraftingCountedIngredientData>();
+            var inputs = new ArrayList<RecipeIngredient>();
             var ingredients = compressor.getIngredients();
             for (int i = 0; i < ingredients.size(); i++) {
                 var ingredient = ingredients.get(i);
                 if (ingredient.isEmpty()) {
                     continue;
                 }
-                inputs.add(new ExtendedCraftingCountedIngredientData()
-                        .setIngredient(importCountedIngredient(ingredient))
-                        .setCount(Math.max(1, compressor.getCount(i))));
+                inputs.add(importCountedIngredient(ingredient).setCount(compressor.getCount(i)));
             }
             var data = new ExtendedCraftingCompressorRecipeData()
                     .setInputs(inputs)
@@ -140,7 +139,7 @@ public final class ExtendedCraftingRecipeImporter implements RecipeImportHandler
         return null;
     }
 
-    private static com.viscript_recipe.data.RecipeIngredient importCountedIngredient(Ingredient ingredient) throws RecipeImportException {
+    private static RecipeIngredient importCountedIngredient(Ingredient ingredient) throws RecipeImportException {
         try {
             return RecipeImporter.importIngredient(ingredient);
         } catch (RecipeImportException exception) {

@@ -1,7 +1,7 @@
 package com.viscript_recipe.compat.iceandfire;
 
 import com.iafenvoy.iceandfire.recipe.DragonForgeRecipe;
-import com.viscript_recipe.data.iceandfire.DragonForgeRecipeData;
+import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;

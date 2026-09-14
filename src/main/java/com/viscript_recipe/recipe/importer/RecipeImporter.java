@@ -1,8 +1,7 @@
 package com.viscript_recipe.recipe.importer;
 
-import com.viscript_recipe.compat.RecipeCompatModules;
+import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.*;
-import com.viscript_recipe.data.create.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.vanilla.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
@@ -24,7 +23,7 @@ import java.util.List;
 
 public final class RecipeImporter {
     private static final char[] SHAPED_SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>/?|~".toCharArray();
-    private static final RecipeImportHandler VANILLA_HANDLER = new RecipeImportHandler() {
+    public static final RecipeImportHandler VANILLA_HANDLER = new RecipeImportHandler() {
         @Override
         public boolean canImport(RecipeHolder<?> holder) {
             if (holder == null) {
@@ -51,7 +50,7 @@ public final class RecipeImporter {
             };
         }
     };
-    private static final List<RecipeImportHandler> HANDLERS = createHandlers();
+    public static final List<RecipeImportHandler> HANDLERS = new ArrayList<>();
 
     private RecipeImporter() {
     }
@@ -98,13 +97,6 @@ public final class RecipeImporter {
         } catch (RecipeImportException exception) {
             return RecipeImportResult.failure(exception.component());
         }
-    }
-
-    private static List<RecipeImportHandler> createHandlers() {
-        var handlers = new ArrayList<RecipeImportHandler>();
-        RecipeCompatModules.addImportHandlers(handlers);
-        handlers.add(VANILLA_HANDLER);
-        return List.copyOf(handlers);
     }
 
     public static RecipeImportResult success(RecipeEntry entry) {
@@ -209,7 +201,7 @@ public final class RecipeImporter {
     }
 
     public static RecipeEntry importMechanicalCrafting(ResourceLocation id, ShapedRecipe recipe, boolean acceptMirrored, HolderLookup.Provider provider) throws RecipeImportException {
-        if (recipe.getWidth() > CreateMechanicalCraftingRecipeData.MAX_SIZE || recipe.getHeight() > CreateMechanicalCraftingRecipeData.MAX_SIZE) {
+        if (recipe.getWidth() > CreateMechanicalCraftingRecipeData.maxSize() || recipe.getHeight() > CreateMechanicalCraftingRecipeData.maxSize()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.shaped_too_large", recipe.getWidth(), recipe.getHeight());
         }
         var shapedPattern = importShapedPattern(recipe.getIngredients(), recipe.getWidth(), recipe.getHeight());
@@ -245,7 +237,7 @@ public final class RecipeImporter {
                     }
                     symbol = SHAPED_SYMBOLS[symbolIndex++];
                     ingredientSymbols.put(keyString, symbol);
-                    key.add(ShapedKeyEntry.of(String.valueOf(symbol), imported));
+                    key.add(ShapedKeyEntry.of(symbol, imported));
                 }
                 builder.append(symbol);
             }
@@ -311,8 +303,10 @@ public final class RecipeImporter {
         for (var value : ingredient.getValues()) {
             if (value instanceof Ingredient.ItemValue(ItemStack item)) {
                 imported.setKind(IngredientValueKind.ITEM).setItem(item.copyWithCount(1));
+                return;
             } else if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
                 imported.setKind(IngredientValueKind.TAG).setTag(tag.location());
+                return;
             }
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_ingredient");

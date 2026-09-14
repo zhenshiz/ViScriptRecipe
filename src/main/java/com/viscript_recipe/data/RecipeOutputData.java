@@ -19,7 +19,8 @@ public class RecipeOutputData implements ISkipDefaultedSerialize, IConfigurable 
     private float chance = 1.0F;
 
     /**请使用工厂方法*/
-    private RecipeOutputData() {}
+    @Deprecated
+    public RecipeOutputData() {}
 
     public static RecipeOutputData of() {return new RecipeOutputData();}
 

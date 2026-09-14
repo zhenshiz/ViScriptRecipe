@@ -1,9 +1,8 @@
 package com.viscript_recipe.compat.touhou_little_maid;
 
 import com.github.tartaricacid.touhoulittlemaid.crafting.AltarRecipe;
+import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidAltarRecipeData;
-import com.viscript_recipe.data.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;

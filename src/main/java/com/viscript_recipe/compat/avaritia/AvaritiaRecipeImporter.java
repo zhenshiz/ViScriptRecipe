@@ -1,8 +1,11 @@
 package com.viscript_recipe.compat.avaritia;
 
+import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeData;
+import com.viscript_recipe.compat.avaritia.data.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.data.avaritia.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -60,7 +63,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
         }
         if (recipe instanceof InfinityCatalystCraftRecipe catalyst) {
             var result = RecipeImporter.copyResult(catalyst, provider);
-            var data = new AvaritiaInfinityCatalystRecipeData()
+            var data = new AvaritiaSpecialShapelessRecipeData()
                     .setGroup(catalyst.getGroup())
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(catalyst.getIngredients(), 81)))
                     .setCount(Math.max(1, result.getCount()));
@@ -69,7 +72,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
         }
         if (recipe instanceof EternalSingularityCraftRecipe eternalSingularity) {
             var result = RecipeImporter.copyResult(eternalSingularity, provider);
-            var data = new AvaritiaEternalSingularityRecipeData()
+            var data = new AvaritiaSpecialShapelessRecipeData()
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(eternalSingularity.originalInputs, 81)))
                     .setCount(Math.max(1, result.getCount()));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)
@@ -77,7 +80,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
         }
         if (recipe instanceof FullMatterClusterRecipe fullMatterCluster) {
             var result = RecipeImporter.copyResult(fullMatterCluster, provider);
-            var data = new AvaritiaFullMatterClusterRecipeData()
+            var data = new AvaritiaSpecialShapelessRecipeData()
                     .setGroup(fullMatterCluster.getGroup())
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(fullMatterCluster.getIngredients(), 81)))
                     .setCount(Math.max(1, result.getCount()));
@@ -86,10 +89,9 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
         }
         if (recipe instanceof CompressorRecipe compressor) {
             var data = new AvaritiaCompressorRecipeData()
-                    .setIngredient(RecipeImporter.importIngredient(compressor.getInput()))
+                    .setIngredient(RecipeImporter.importIngredient(compressor.getInput()).setCount(compressor.getInputCount()))
                     .setResult(RecipeImporter.copyResult(compressor, provider))
-                    .setInputCount(Math.max(1, compressor.getInputCount()))
-                    .setTimeCost(Math.max(1, compressor.getTimeCost()));
+                    .setTimeCost(compressor.getTimeCost());
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.COMPRESSOR).setData(data));
         }
         if (recipe instanceof ExtremeSmithingRecipe smithing) {

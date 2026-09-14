@@ -1,7 +1,7 @@
 package com.viscript_recipe.compat.irons_spellbooks;
 
-import com.viscript_recipe.data.irons_spellbooks.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.data.irons_spellbooks.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronNoAdditionSmithingRecipeData;
 import io.redspace.ironsspellbooks.recipe_types.NoAdditionSmithingTransformRecipe;
 import io.redspace.ironsspellbooks.recipe_types.alchemist_cauldron.BrewAlchemistCauldronRecipe;
 import io.redspace.ironsspellbooks.recipe_types.alchemist_cauldron.EmptyAlchemistCauldronRecipe;

@@ -1,8 +1,8 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
-import com.lowdragmc.lowdraglib2.syncdata.IPersistedSerializable;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_lib.util.ISkipDefaultedSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class CraftingRemainderRule implements IPersistedSerializable, IConfigurable {
+public class CraftingRemainderRule implements ISkipDefaultedSerialize, IConfigurable {
     @Persisted
     private CraftingRemainderMode mode = CraftingRemainderMode.DEFAULT;
     @Persisted

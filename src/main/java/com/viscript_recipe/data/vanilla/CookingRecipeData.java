@@ -32,7 +32,7 @@ public class CookingRecipeData implements IVSRecipeData {
         var factory = factories.get(typeId);
         if (factory == null) return null;
 
-        var compiledIngredient = ingredient == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : ingredient.compile();
+        var compiledIngredient = ingredient == null ? Ingredient.EMPTY : ingredient.compile();
         if (compiledIngredient.isEmpty()) {
             throw new IllegalArgumentException("Cooking recipe ingredient cannot be empty");
         }
@@ -48,4 +48,11 @@ public class CookingRecipeData implements IVSRecipeData {
             RecipeEditorTypes.SMOKING, SmokingRecipe::new,
             RecipeEditorTypes.CAMPFIRE_COOKING, CampfireCookingRecipe::new
     );
+
+    @Override
+    public void applyDefaultData(ResourceLocation typeId) {
+        if (typeId.equals(RecipeEditorTypes.BLASTING)) setCookingTime(100);
+        else if (typeId.equals(RecipeEditorTypes.SMOKING)) setCookingTime(100);
+        else if (typeId.equals(RecipeEditorTypes.CAMPFIRE_COOKING)) setCookingTime(600);
+    }
 }

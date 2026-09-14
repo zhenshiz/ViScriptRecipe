@@ -178,6 +178,7 @@ neoForge {
             jvmArguments.add '-XX:HotswapAgent=fatjar'
 
             logLevel = org.slf4j.event.Level.DEBUG
+            systemProperty("terminal.jline", "true")
         }
     }
 
@@ -187,6 +188,8 @@ neoForge {
         }
     }
 }
+
+apply from: rootProject.file('gradle/ldlib2-uitest.gradle')
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
@@ -240,6 +243,8 @@ dependencies {
     implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
     //森罗物语：厨房
     implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
+    //森罗物语：酒馆
+    implementation "maven.modrinth:kaleidoscopetavern:${kaleidoscope_tavern_version}"
     //灾变：L_Ender's Cataclysm
     implementation "curse.maven:lendercataclysm-551586:${cataclysm_file}"
     runtimeOnly "curse.maven:lionfish-api-1001614:${lionfish_api_file}"
@@ -260,6 +265,13 @@ dependencies {
     implementation "mekanism:Mekanism:${mekanism_version}"
     //Alloy Smelter
     implementation "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
+    // Applied Energistics 2
+    implementation "maven.modrinth:ae2:${ae2_version}"
+    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
+    runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
+    // [Let's Do] Farm & Charm
+    implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
+    runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

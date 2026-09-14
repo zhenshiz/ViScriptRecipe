@@ -21,11 +21,11 @@ import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.compat.create.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeOutputData;
-import com.viscript_recipe.data.create.*;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapelessRecipe;
 import com.viscript_recipe.recipe.vanilla.ViscriptStonecutterRecipe;
 import net.minecraft.core.NonNullList;
@@ -74,15 +74,6 @@ public final class CreateRecipeFactory {
             case DEPLOYING -> compileItemApplication(kind, data, DeployerApplicationRecipe::new);
             case ITEM_APPLICATION -> compileItemApplication(kind, data, ManualApplicationRecipe::new);
         };
-    }
-
-    public static List<Recipe<?>> compileProcessingRecipes(ResourceLocation type, CreateProcessingRecipeData data) {
-        var kind = CreateProcessingKind.byType(type)
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported Create processing recipe type: " + type));
-        if (kind == CreateProcessingKind.BLOCK_CUTTING) {
-            return compileBlockCutting(kind, data);
-        }
-        return List.of(compileProcessing(type, data));
     }
 
     public static Recipe<?> compileSequencedAssembly(CreateSequencedAssemblyRecipeData data) {
