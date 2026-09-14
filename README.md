@@ -15,7 +15,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持 17 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld。
+- 支持 20 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld。
 
 ## 基本信息
 
@@ -50,10 +50,13 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Iron's Spells 'n Spellbooks | `irons_spellbooks` | 支持 |
 | Ice and Fire CE | `iceandfire` | 支持 |
 | Farmer's Delight | `farmersdelight` | 支持 |
+| Farm & Charm | `farm_and_charm` | 支持 |
 | Create | `create` | 支持 |
+| Applied Energistics 2 | `ae2` | 支持 |
 | Extended Crafting | `extendedcrafting` | 支持 |
 | Ars Nouveau | `ars_nouveau` | 支持 |
 | Kaleidoscope Cookery | `kaleidoscope_cookery` | 支持 |
+| Kaleidoscope Tavern | `kaleidoscope_tavern` | 支持 |
 | Re-Avaritia / Avaritia | `avaritia` | 支持 |
 | Fungal Infection: Spore | `spore` | 支持 |
 | L_Ender's Cataclysm | `cataclysm` | 支持 |
@@ -186,6 +189,19 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 
 厨锅支持多材料、容器、输出和烹饪参数。砧板支持输入材料、工具动作、多个输出、输出概率和声音设置。
 
+### Farm & Charm / 农场与魅力 (`farm_and_charm`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 烹饪锅 | `farm_and_charm:pot_cooking` |
+| 火炉 | `farm_and_charm:stove` |
+| 混合碗 | `farm_and_charm:crafting_bowl` |
+| 烘焙机 | `farm_and_charm:roaster` |
+| 筒仓 | `farm_and_charm:drying` |
+| 绞肉机 | `farm_and_charm:mincer` |
+
+六类配方按原生机器容量提供输入槽位：烹饪锅和烘焙机 6 槽、火炉 3 槽、混合碗 4 槽、筒仓和绞肉机各 1 槽。烹饪锅和烘焙机支持容器与经验参数；烹饪锅、烘焙机和火炉支持“需要学习配方”开关；绞肉机和筒仓支持原生加工分类（MEAT、WOOD、STONE、METAL，也可填写自定义分类）。所有输入槽都支持物品或物品标签候选项，导入器会拒绝超过机器槽位容量的配方。
+
 ### Create (`create`)
 
 | 工作站或处理方式 | 支持的配方类型 |
@@ -205,6 +221,17 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | 序列组装 | `create:sequenced_assembly` |
 
 Create 处理配方支持物品输入、流体输入、物品输出、流体输出、处理时间、热量需求和保留手持物品等参数。带流体输入的 Create 配方可以使用具体流体或流体标签，当前包括 `create:filling`、`create:mixing`、`create:compacting`、`create:automatic_brewing`，以及序列组装中的注液步骤；`create:emptying` 的流体是输出，仍使用具体流体。动力搅拌、动力压缩和自动无序配方支持在单个物品槽中设置数量，保存时会展开为多个 Create `Ingredient`。`create:block_cutting` 会根据多个输出派生多个配方 ID。序列组装支持部署、冲压、切削和注液步骤。
+
+### Applied Energistics 2 / 应用能源2 (`ae2`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 压印器 | `ae2:inscriber` |
+| 充能器 | `ae2:charger` |
+| 物品转化 | `ae2:transform` |
+| 熵变机械臂 | `ae2:entropy` |
+
+压印器支持上方/下方压印模板（可选）、中间原料，以及“消耗上下方原料”开关（关闭时压印后保留模板）。充能器支持以转动次数或 AE 能量描述的充能需求。物品转化覆盖爆炸转化和浸入流体两种方式，原料按每页 9 槽分页编辑，并支持可选原料候选。熵变机械臂支持升温/降温模式、匹配输入方块/流体、设置输出方块/流体、额外掉落，以及方块状态的单值、多值和范围匹配；输出方块设为 `minecraft:air` 可移除方块。
 
 ### Mekanism / 通用机械 (`mekanism`)
 
@@ -306,6 +333,16 @@ Extended Crafting 合成台在编辑器里统一为一个工作台，通过配�
 
 森罗物语配方支持各工作站专属参数，例如汤底、容器、翻炒次数、蒸制时间、茶汤流体、气泡颜色和模型 ID。
 
+### Kaleidoscope Tavern / 森罗物语：酒馆 (`kaleidoscope_tavern`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 酒桶 | `kaleidoscope_tavern:barrel` |
+| 果盆 | `kaleidoscope_tavern:pressing_tub` |
+| 雪克杯 | `kaleidoscope_tavern:shaker` |
+
+酒桶支持最多 4 个材料（可空）、流体输入、容器和酿造单位时间；果盆支持材料、流体输入和单次压榨产量（默认 125 mB），输出为对应的流体桶；雪克杯支持最多 3 个材料，饮品颜色由酒馆模组在运行时推导，不在配方中保存。三类配方均提供 JEI 风格工作区和已加载配方导入。
+
 ### Avaritia / Re-Avaritia (`avaritia`)
 
 | 工作站 | 支持的配方类型 |
@@ -357,7 +394,7 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Create、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 
