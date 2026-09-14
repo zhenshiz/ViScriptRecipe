@@ -22,57 +22,57 @@ public final class IndustrialForegoingCanvasFactory {
         grid.addChildren(dissolutionRow(inputs[0], inputs[1], inputs[2]),
                 dissolutionRow(inputs[3], inputFluid, inputs[4]),
                 dissolutionRow(inputs[5], inputs[6], inputs[7]));
-        return canvas(220, 126).addChildren(
+        return centered(canvas("if_dissolution", 220, 126).addChildren(
                 RecipeEditorUi.row().layout(layout -> {
                     layout.widthPercent(100);
                     layout.gapAll(12);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChildren(energyBar(), grid, arrow(), itemOutput, fluidOutput),
-                processingLabel);
+                processingLabel));
     }
 
     public static UIElement createFluidExtractor(UIElement input, UIElement blockOutput, UIElement fluidOutput,
                                                  Label productionLabel) {
-        return canvas(210, 108).addChildren(
+        return centered(canvas("if_fluid_extractor", 210, 108).addChildren(
                 RecipeEditorUi.row().layout(layout -> {
                     layout.widthPercent(100);
                     layout.gapAll(18);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(input, arrow(), blockOutput, fluidOutput), productionLabel);
+                }).addChildren(input, arrow(), blockOutput, fluidOutput), productionLabel));
     }
 
     public static UIElement createCrusher(UIElement input, UIElement action, UIElement output) {
-        return canvas(210, 86).addChildren(
+        return centered(canvas("if_crusher", 210, 86).addChildren(
                 RecipeEditorUi.row().layout(layout -> {
                     layout.widthPercent(100);
                     layout.gapAll(12);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(input, arrow(), action, arrow(), output));
+                }).addChildren(input, arrow(), action, arrow(), output)));
     }
 
     public static UIElement createLaser(UIElement catalyst, UIElement output, Label rangeLabel,
                                         Label requirementsLabel) {
-        return canvas(190, 132).addChildren(
+        return centered(canvas("if_laser", 190, 132).addChildren(
                 RecipeEditorUi.row().layout(layout -> {
                     layout.widthPercent(100);
                     layout.gapAll(42);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
-                }).addChildren(catalyst, arrow(), output), centeredSummary(rangeLabel), centeredSummary(requirementsLabel));
+                }).addChildren(catalyst, arrow(), output), centeredSummary(rangeLabel), centeredSummary(requirementsLabel)));
     }
 
     public static UIElement createStoneWork(UIElement output, Label needsLabel, Label consumesLabel) {
-        return canvas(210, 112).addChildren(
+        return centered(canvas("if_stonework", 210, 112).addChildren(
                 RecipeEditorUi.row().layout(layout -> {
                     layout.widthPercent(100);
                     layout.gapAll(18);
                     layout.alignItems(AlignItems.CENTER);
                     layout.justifyContent(AlignContent.CENTER);
                 }).addChildren(output, RecipeEditorUi.column().layout(layout -> layout.gapAll(5))
-                        .addChildren(needsLabel, consumesLabel)));
+                        .addChildren(needsLabel, consumesLabel))));
     }
 
     public static UIElement slotCell(UIElement slot, int width, int height) {
@@ -83,8 +83,18 @@ public final class IndustrialForegoingCanvasFactory {
         }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK)).addChild(slot);
     }
 
-    private static UIElement canvas(int width, int height) {
-        return RecipeEditorUi.column().layout(layout -> {
+    /**与其它模组画布一致的居中包裹层，避免固定尺寸面板贴左侧布局*/
+    private static UIElement centered(UIElement panel) {
+        return RecipeEditorUi.row().layout(layout -> {
+            layout.widthPercent(100);
+            layout.flex(1);
+            layout.alignItems(AlignItems.CENTER);
+            layout.justifyContent(AlignContent.CENTER);
+        }).addChild(panel);
+    }
+
+    private static UIElement canvas(String id, int width, int height) {
+        return RecipeEditorUi.column().setId(id).layout(layout -> {
             layout.width(width);
             layout.height(height);
             layout.paddingAll(10);

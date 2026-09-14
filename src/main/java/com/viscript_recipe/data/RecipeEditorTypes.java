@@ -12,6 +12,7 @@ import com.viscript_recipe.compat.goety.GoetyRecipeEditorTypes;
 import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeEditorTypes;
 import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
 import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
+import com.viscript_recipe.compat.kaleidoscope_tavern.KaleidoscopeTavernRecipeEditorTypes;
 import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
 import com.viscript_recipe.compat.spore.SporeRecipeEditorTypes;
 import com.viscript_recipe.compat.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
@@ -61,6 +62,9 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_CHOPPING_BOARD = KaleidoscopeCookeryRecipeEditorTypes.CHOPPING_BOARD;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_STEAMER = KaleidoscopeCookeryRecipeEditorTypes.STEAMER;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_TEAPOT = KaleidoscopeCookeryRecipeEditorTypes.TEAPOT;
+    public static final ResourceLocation KALEIDOSCOPE_TAVERN_BARREL = KaleidoscopeTavernRecipeEditorTypes.BARREL;
+    public static final ResourceLocation KALEIDOSCOPE_TAVERN_PRESSING_TUB = KaleidoscopeTavernRecipeEditorTypes.PRESSING_TUB;
+    public static final ResourceLocation KALEIDOSCOPE_TAVERN_SHAKER = KaleidoscopeTavernRecipeEditorTypes.SHAKER;
     public static final ResourceLocation CREATE_CRUSHING = CreateRecipeEditorTypes.create("crushing");
     public static final ResourceLocation CREATE_MIXING = CreateRecipeEditorTypes.create("mixing");
     public static final ResourceLocation CREATE_MECHANICAL_CRAFTING = CreateRecipeEditorTypes.MECHANICAL_CRAFTING;
