@@ -3,6 +3,7 @@ package com.viscript_recipe.data;
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_lib.util.ISkipDefaultedSerialize;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
 import lombok.Getter;
 import lombok.Setter;
@@ -94,9 +95,6 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
                     throw new IllegalArgumentException("Ingredient tag cannot be empty");
                 }
                 var tagKey = TagKey.create(Registries.ITEM, tag);
-                if (BuiltInRegistries.ITEM.getTag(tagKey).isEmpty()) {
-                    throw new IllegalArgumentException("Unknown item tag: " + tag);
-                }
                 yield Ingredient.of(tagKey);
             }
             case ITEM_ABILITY -> FarmersDelightRecipeFactory.compileItemAbilityIngredient(itemAbility);
