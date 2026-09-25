@@ -19,6 +19,7 @@ public final class KaleidoscopeCookeryRecipeEditorTypes implements IModModule{
     public static final ResourceLocation CHOPPING_BOARD = kaleidoscope("chopping_board");
     public static final ResourceLocation STEAMER = kaleidoscope("steamer");
     public static final ResourceLocation TEAPOT = kaleidoscope("teapot");
+    public static final ResourceLocation BAMBOO_TRAY = kaleidoscope("bamboo_tray");
 
     private static boolean registered;
 
@@ -40,6 +41,7 @@ public final class KaleidoscopeCookeryRecipeEditorTypes implements IModModule{
         registerCategory(CHOPPING_BOARD, "viscript_recipe.editor.category.kaleidoscope_cookery.chopping_board", CHOPPING_BOARD);
         registerCategory(STEAMER, "viscript_recipe.editor.category.kaleidoscope_cookery.steamer", STEAMER);
         registerCategory(TEAPOT, "viscript_recipe.editor.category.kaleidoscope_cookery.teapot", TEAPOT);
+        registerCategory(BAMBOO_TRAY, "viscript_recipe.editor.category.kaleidoscope_cookery.bamboo_tray", BAMBOO_TRAY);
     }
 
     private void registerCategory(ResourceLocation category, String translationKey, ResourceLocation defaultType) {
@@ -82,6 +84,12 @@ public final class KaleidoscopeCookeryRecipeEditorTypes implements IModModule{
                 "viscript_recipe.editor.type.kaleidoscope_cookery.teapot",
                 KaleidoscopeTeapotRecipeData.class, KaleidoscopeTeapotRecipeData::new,
                 TeapotCanvas::new, MOD_ID
+        ));
+        registerEditorType(RecipeEditorType.of(
+                BAMBOO_TRAY, BAMBOO_TRAY,
+                "viscript_recipe.editor.type.kaleidoscope_cookery.bamboo_tray",
+                KaleidoscopeBambooTrayRecipeData.class, KaleidoscopeBambooTrayRecipeData::new,
+                BambooTrayCanvas::new, MOD_ID
         ));
     }
 

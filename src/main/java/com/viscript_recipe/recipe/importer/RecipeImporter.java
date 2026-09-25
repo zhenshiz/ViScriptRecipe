@@ -3,6 +3,7 @@ package com.viscript_recipe.recipe.importer;
 import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.vanilla.*;
+import com.viscript_recipe.recipe.ComponentStackIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
 public final class RecipeImporter {
     private static final char[] SHAPED_SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>/?|~".toCharArray();
@@ -84,19 +86,35 @@ public final class RecipeImporter {
 
     private static RecipeImportResult importHolder(RecipeHolder<?> holder, HolderLookup.Provider provider) {
         try {
-            for (var handler : HANDLERS) {
-                if (!handler.canImport(holder)) {
-                    continue;
-                }
-                var result = handler.tryImport(holder, provider);
-                if (result != null) {
-                    return result;
-                }
+            // 模组专用 handler 优先，原版 handler 兜底：
+            // 部分模组配方继承自原版配方（如 Create 的 MechanicalCraftingRecipe extends ShapedRecipe），
+            // 若原版 handler 先命中会被 3x3 限制误拒或导入成错误的类型
+            var result = tryHandlers(holder, provider, handler -> handler != VANILLA_HANDLER);
+            if (result != null) {
+                return result;
+            }
+            result = tryHandlers(holder, provider, handler -> handler == VANILLA_HANDLER);
+            if (result != null) {
+                return result;
             }
             return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.unsupported_type", recipeTypeName(holder));
         } catch (RecipeImportException exception) {
             return RecipeImportResult.failure(exception.component());
         }
+    }
+
+    private static RecipeImportResult tryHandlers(RecipeHolder<?> holder, HolderLookup.Provider provider,
+                                                  Predicate<RecipeImportHandler> filter) throws RecipeImportException {
+        for (var handler : HANDLERS) {
+            if (!filter.test(handler) || !handler.canImport(holder)) {
+                continue;
+            }
+            var result = handler.tryImport(holder, provider);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     public static RecipeImportResult success(RecipeEntry entry) {
@@ -320,8 +338,9 @@ public final class RecipeImporter {
             }
             return;
         }
-        if (custom instanceof DataComponentIngredient dataComponentIngredient) {
-            for (var stack : dataComponentIngredient.getItems().toList()) {
+        if (custom instanceof DataComponentIngredient
+                || custom instanceof ComponentStackIngredient) {
+            for (var stack : custom.getItems().toList()) {
                 appendItemValue(imported, stack);
             }
             return;

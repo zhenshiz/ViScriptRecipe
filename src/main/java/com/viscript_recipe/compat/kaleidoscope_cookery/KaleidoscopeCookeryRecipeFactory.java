@@ -89,6 +89,16 @@ public final class KaleidoscopeCookeryRecipeFactory {
         );
     }
 
+    public static Recipe<?> compileBambooTray(KaleidoscopeBambooTrayRecipeData data) {
+        var ingredient = requireIngredient(data.getIngredient(), "Kaleidoscope Cookery bamboo tray input cannot be empty");
+        return new BambooTrayRecipe(
+                ingredient,
+                requireItem(data.getResult(), "Kaleidoscope Cookery bamboo tray result cannot be empty"),
+                BambooTrayRecipe.Subtype.fromSerializedName(data.getSubtype()),
+                Math.max(1, data.getDuration())
+        );
+    }
+
     public static Recipe<?> compileSteamer(KaleidoscopeSteamerRecipeData data) {
         var ingredient = requireIngredient(data.getIngredient(), "Kaleidoscope Cookery steamer input cannot be empty");
         return new SteamerRecipe(

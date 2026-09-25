@@ -21,6 +21,7 @@ import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
 import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
 import com.viscript_recipe.compat.industrial_foregoing.data.*;
+import com.viscript_recipe.compat.immersive_engineering.data.IERecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronNoAdditionSmithingRecipeData;
@@ -56,6 +57,7 @@ public final class RecipeDataAccessors {
         registerIndustrialForegoing(event);
         registerMekanism(event);
         registerAe2(event);
+        event.register(IERecipeData.class, IERecipeData::new);
         event.register(FarmCharmIngredientData.class, FarmCharmIngredientData::new);
         event.register(FarmCharmRecipeData.class, FarmCharmRecipeData::new);
     }

@@ -78,11 +78,25 @@ public final class KaleidoscopeCanvasFactory {
         return createSingleInputCanvas("steamer", inputSlot, resultSlot);
     }
 
-    public static UIElement createTeapotCanvas(UIElement fluidBucketSlot, UIElement inputSlot, UIElement resultSlot, Label timeLabel) {
-        var panel = createPanel("teapot", 176, 78);
-        panel.addChild(createSlotBackgroundCell(fluidBucketSlot, 65, 3));
-        panel.addChild(createSlotBackgroundCell(inputSlot, 83, 3));
-        panel.addChild(createCell(resultSlot, 128, 30));
+    public static UIElement createBambooTrayCanvas(UIElement inputSlot, UIElement resultSlot) {
+        var panel = createPanel("bamboo_tray", 176, 78);
+        panel.addChild(createCell(inputSlot, 41, 27));
+        panel.addChild(createCell(resultSlot, 131, 29));
+        return centerPanel(panel);
+    }
+
+    public static UIElement createTeapotCanvas(
+            UIElement fluidBucketSlot,
+            UIElement inputSlot,
+            UIElement emptyCup,
+            UIElement resultSlot,
+            Label timeLabel
+    ) {
+        var panel = createPanel("teapot", 176, 78).setId("kaleidoscope_teapot_panel");
+        panel.addChild(createSlotBackgroundCell(fluidBucketSlot, 65, 0));
+        panel.addChild(createSlotBackgroundCell(inputSlot, 83, 0));
+        panel.addChild(createCell(emptyCup, 122, 0));
+        panel.addChild(createCell(resultSlot, 128, 45));
         panel.addChild(createLabelCell(timeLabel, 0, 70, 176, 10));
         return centerPanel(panel);
     }

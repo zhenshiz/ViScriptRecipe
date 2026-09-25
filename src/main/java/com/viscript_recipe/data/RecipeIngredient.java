@@ -5,6 +5,7 @@ import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_lib.util.ISkipDefaultedSerialize;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
+import com.viscript_recipe.recipe.ComponentStackIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -87,6 +88,10 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
                 // PotionItem's default instance is a water bottle, while a plain ingredient accepts every potion.
                 if (ItemStack.isSameItemSameComponents(stack, new ItemStack(stack.getItem()))) {
                     yield Ingredient.of(stack.getItem());
+                }
+                // DataComponentIngredient restores item defaults because its predicate cannot encode removals.
+                if (stack.getComponentsPatch().entrySet().stream().anyMatch(component -> component.getValue().isEmpty())) {
+                    yield new ComponentStackIngredient(stack).toVanilla();
                 }
                 yield DataComponentIngredient.of(true, stack);
             }

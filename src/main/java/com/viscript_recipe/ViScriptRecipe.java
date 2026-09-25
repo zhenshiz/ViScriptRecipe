@@ -6,6 +6,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.mojang.logging.LogUtils;
 import com.viscript_recipe.client.RecipeDeltaClientEvents;
 import com.viscript_recipe.gui.editor.RecipeEditor;
+import com.viscript_recipe.recipe.ComponentStackIngredient;
 import com.viscript_recipe.recipe.RecipeDeltaServerEvents;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.client.Minecraft;
@@ -28,6 +29,7 @@ public class ViScriptRecipe {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public ViScriptRecipe(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
+        ComponentStackIngredient.register(modEventBus);
         RecipeDeltaServerEvents.register();
         PlayerUIMenuType.register(RecipeEditor.WINDOW_ID, ignored -> player -> {
             if (player.level().isClientSide) {

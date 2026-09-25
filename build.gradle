@@ -13,6 +13,11 @@ group = mod_group_id
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        name = "IE dependencies"
+        url = "https://maven.blamejared.com/"
+        content { includeGroup "malte0811" }
+    }
 
     //kubejs
     maven {
@@ -272,6 +277,9 @@ dependencies {
     // [Let's Do] Farm & Charm
     implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
     runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
+    // Immersive Engineering
+    implementation "curse.maven:immersive-engineering-231951:${immersive_engineering_file}"
+    compileOnly "malte0811:DualCodecs:0.1.2"
 
     //must
     implementation "maven.modrinth:sodium:${sodium_version}"

@@ -62,6 +62,7 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_CHOPPING_BOARD = KaleidoscopeCookeryRecipeEditorTypes.CHOPPING_BOARD;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_STEAMER = KaleidoscopeCookeryRecipeEditorTypes.STEAMER;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_TEAPOT = KaleidoscopeCookeryRecipeEditorTypes.TEAPOT;
+    public static final ResourceLocation KALEIDOSCOPE_COOKERY_BAMBOO_TRAY = KaleidoscopeCookeryRecipeEditorTypes.BAMBOO_TRAY;
     public static final ResourceLocation KALEIDOSCOPE_TAVERN_BARREL = KaleidoscopeTavernRecipeEditorTypes.BARREL;
     public static final ResourceLocation KALEIDOSCOPE_TAVERN_PRESSING_TUB = KaleidoscopeTavernRecipeEditorTypes.PRESSING_TUB;
     public static final ResourceLocation KALEIDOSCOPE_TAVERN_SHAKER = KaleidoscopeTavernRecipeEditorTypes.SHAKER;

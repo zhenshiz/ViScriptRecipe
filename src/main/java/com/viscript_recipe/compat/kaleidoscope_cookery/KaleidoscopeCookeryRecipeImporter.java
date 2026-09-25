@@ -33,7 +33,8 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                 || recipe instanceof MillstoneRecipe
                 || recipe instanceof ChoppingBoardRecipe
                 || recipe instanceof SteamerRecipe
-                || recipe instanceof TeapotRecipe;
+                || recipe instanceof TeapotRecipe
+                || recipe instanceof BambooTrayRecipe;
     }
 
     @Override
@@ -93,6 +94,14 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                     .setTime(Math.max(1, teapot.time()))
                     .setResult(RecipeImporter.copyResult(teapot, provider));
             return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_TEAPOT).setData(data));
+        }
+        if (recipe instanceof BambooTrayRecipe bambooTray) {
+            var data = new KaleidoscopeBambooTrayRecipeData()
+                    .setIngredient(RecipeImporter.importIngredient(bambooTray.getIngredient()))
+                    .setResult(RecipeImporter.copyResult(bambooTray, provider))
+                    .setSubtype(bambooTray.getSubtype().getSerializedName())
+                    .setDuration(Math.max(1, bambooTray.getDuration()));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_BAMBOO_TRAY).setData(data));
         }
         return null;
     }

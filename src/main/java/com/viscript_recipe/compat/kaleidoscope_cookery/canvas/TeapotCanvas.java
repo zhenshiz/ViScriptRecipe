@@ -1,10 +1,13 @@
 package com.viscript_recipe.compat.kaleidoscope_cookery.canvas;
 
 import com.google.common.util.concurrent.Runnables;
+import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.TeapotRecipe;
+import com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.kaleidoscope_cookery.data.KaleidoscopeTeapotRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
@@ -15,10 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 
 public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
-    static final Label timeLabel = emptyLabel();
-    static {PotCanvas.configureLabel(timeLabel);}
+    private final Label timeLabel = emptyLabel();
 
-    public TeapotCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
+    public TeapotCanvas(NavigationView navigationView, RecipeEntry entry) {
+        super(navigationView, entry);
+        PotCanvas.configureLabel(timeLabel);
+    }
 
     @Override
     public boolean ingredientHasCount(int slotIndex) {return true;}
@@ -36,7 +41,7 @@ public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
     public void save() {
         var data = getData();
         data.setIngredient(getVisualIngredient(0));
-        data.setResult(getVisualOutput(0).getItem());
+        data.setResult(getVisualOutput(0).getItem().copyWithCount(1));
         data.setTeaFluid(fluidId(getExtraItem()));
     }
 
@@ -44,10 +49,27 @@ public class TeapotCanvas extends RecipeCanvas<KaleidoscopeTeapotRecipeData> {
     public UIElement createCanvas() {
         var fluidBucket = createExtraItemSlot(JEI_SLOT_SIZE,
                 Component.translatable("viscript_recipe.config.kaleidoscope_cookery.tea_fluid"));
+        fluidBucket.setId("kaleidoscope_teapot_fluid");
         var input = createIngredientSlot(0, JEI_SLOT_SIZE);
+        input.setId("kaleidoscope_teapot_ingredient");
+        var emptyCup = createItemIcon(new ItemStack(ModItems.EMPTY_CUP.get()), JEI_SLOT_SIZE)
+                .setId("kaleidoscope_teapot_empty_cup");
         var result = createOutputSlot(0, JEI_SLOT_SIZE);
+        result.setId("kaleidoscope_teapot_result");
+        timeLabel.setId("kaleidoscope_teapot_time");
         configureJeiOverlaySlotVisual(fluidBucket, input, result);
-        return KaleidoscopeCanvasFactory.createTeapotCanvas(fluidBucket, input, result, timeLabel);
+        return KaleidoscopeCanvasFactory.createTeapotCanvas(fluidBucket, input, emptyCup, result, timeLabel);
+    }
+
+    @Override
+    public void setVisualOutput(int index, RecipeOutputData output) {
+        var normalized = output.copy();
+        var result = normalized.getItem();
+        if (!result.isEmpty()) {
+            normalized.setItem(result.copyWithCount(1));
+        }
+        visualOutputs[index] = normalized;
+        visualOutputSlots[index].setItem(result.copyWithCount(TeapotRecipe.OUTPUT_COUNT), false);
     }
 
     @Override
