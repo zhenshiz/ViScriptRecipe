@@ -406,6 +406,32 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 - 展示模式 `recipes.showcase_only_viscript_recipes` 会清空基础配方后再应用 `.recipe`，更适合调试和展示，不建议在不了解效果时直接用于正式整合包。
 - 如果只改配方内容并主要通过 JEI 检查，优先使用 `/viscript_recipe reload delta`；需要同步原版配方书时使用 `/viscript_recipe reload`；新增、删除或修改标签后使用 `/viscript_recipe reload full`。
 
+## 开发与构建
+
+ViScriptRecipe 现在作为 [ViScriptLib](https://github.com/zhenshiz/ViScriptLib) 多项目工程的一个子模块开发。**本仓库的代码无法单独构建和启动**：构建脚本依赖主工程统一提供的插件、依赖版本与运行配置，编译期也依赖同工程中的 ViScriptLib 子项目。
+
+请通过主工程获取完整代码：
+
+```bash
+# 克隆主工程并同时拉取全部子模块
+git clone --recursive https://github.com/zhenshiz/ViScriptLib.git
+cd ViScriptLib
+
+# 已克隆过主工程时，可手动拉取/更新子模块
+git submodule update --init --recursive
+```
+
+常用命令（均在主工程根目录执行）：
+
+| 命令 | 作用 |
+| --- | --- |
+| `./gradlew :ViScriptRecipe:build` | 单独构建本模组 |
+| `./gradlew :ViScriptRecipe:runClient` | 启动客户端调试本模组 |
+| `./gradlew buildAll` | 构建所有子项目，产物在主工程根目录 `build/libs` |
+| `./gradlew cleanLibs` | 清理所有子项目的构建产物 |
+
+对本仓库的修改需要以子模块的形式提交并推送到本仓库；随后在主工程中再提交一次指向新 commit 的子模块引用。
+
 ## 开发者文档
 
 后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构；兼容模组清单以 `src/main/java/com/viscript_recipe/compat/RecipeCompatModules.java` 和 `src/main/resources/META-INF/neoforge.mods.toml` 中的实际注册为准。
