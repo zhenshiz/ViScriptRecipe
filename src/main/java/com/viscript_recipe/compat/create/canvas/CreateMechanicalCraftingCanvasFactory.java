@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 public final class CreateMechanicalCraftingCanvasFactory {
     private static final String CREATE_MOD_ID = "create";
     private static final String JEI_MOD_ID = "jei";
-    private static final ResourceLocation CREATE_JEI_WIDGETS = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation CREATE_JEI_WIDGETS = new ResourceLocation(
             CREATE_MOD_ID,
             "textures/gui/jei/widgets.png"
     );

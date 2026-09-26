@@ -52,7 +52,7 @@ public class BrewingCanvas extends RecipeCanvas<GoetyBrewingRecipeData> {
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.goety.brewing"),
                 RecipeSearchComponents.mobEffect("viscript_recipe.config.goety.brewing.effect",
-                        data::getEffect, data::setEffect, this::updatePreview, MobEffects.POISON.value()
+                        data::getEffect, data::setEffect, this::updatePreview, MobEffects.POISON
                 ),
                 intField("viscript_recipe.config.goety.soul_cost", data.getSoulCost(),
                         0, Integer.MAX_VALUE, data::setSoulCost, this::updatePreview),

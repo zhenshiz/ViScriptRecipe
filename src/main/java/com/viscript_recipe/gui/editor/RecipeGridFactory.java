@@ -31,7 +31,6 @@ public final class RecipeGridFactory {
             }
         }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK));
         for (int row = 0; row < rows; row++) {
-            var rowIndex = row;
             var rowElement = RecipeEditorUi.row().layout(layout -> {
                 layout.widthPercent(100);
                 layout.height(slotSize);
@@ -41,8 +40,8 @@ public final class RecipeGridFactory {
                     layout.justifyContent(AlignContent.CENTER);
                 }
             });
-            if (rowStorage != null && rowIndex < rowStorage.length) {
-                rowStorage[rowIndex] = rowElement;
+            if (rowStorage != null && row < rowStorage.length) {
+                rowStorage[row] = rowElement;
             }
             for (int col = 0; col < columns; col++) {
                 rowElement.addChild(cellFactory.create(row * columns + col, row, col));

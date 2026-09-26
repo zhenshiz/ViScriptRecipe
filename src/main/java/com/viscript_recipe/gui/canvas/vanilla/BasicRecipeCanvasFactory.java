@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class BasicRecipeCanvasFactory {
     private static final String JEI_MOD_ID = "jei";
-    private static final ResourceLocation JEI_RECIPE_ARROW = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation JEI_RECIPE_ARROW = new ResourceLocation(
             JEI_MOD_ID,
             "textures/jei/atlas/gui/recipe_arrow.png"
     );

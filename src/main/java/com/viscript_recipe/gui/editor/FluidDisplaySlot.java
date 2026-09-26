@@ -3,7 +3,7 @@ package com.viscript_recipe.gui.editor;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.FluidSlot;
 import com.viscript_recipe.data.FluidIngredientData;
 import lombok.Getter;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Arrays;
 
@@ -72,7 +72,7 @@ public class FluidDisplaySlot extends FluidSlot {
             var stack = stacks[i];
             keys[i] = stack == null || stack.isEmpty()
                     ? ""
-                    : stack.getFluidHolder().unwrapKey().map(Object::toString).orElse(stack.getFluid().toString()) + "#" + stack.getAmount();
+                    : stack.getFluid().toString() + "#" + stack.getAmount();
         }
         return keys;
     }

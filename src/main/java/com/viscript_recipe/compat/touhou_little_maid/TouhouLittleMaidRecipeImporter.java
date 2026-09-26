@@ -8,7 +8,8 @@ import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.ArrayList;
 
@@ -19,13 +20,13 @@ public final class TouhouLittleMaidRecipeImporter implements RecipeImportHandler
     }
 
     @Override
-    public boolean canImport(RecipeHolder<?> holder) {
-        return holder != null && holder.value() instanceof AltarRecipe;
+    public boolean canImport(Recipe<?> holder) {
+        return holder instanceof AltarRecipe;
     }
 
     @Override
-    public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
-        if (!(holder.value() instanceof AltarRecipe recipe)) {
+    public RecipeImportResult tryImport(Recipe<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
+        if (!(holder instanceof AltarRecipe recipe)) {
             return null;
         }
         var ingredients = new ArrayList<RecipeIngredient>();
@@ -47,10 +48,10 @@ public final class TouhouLittleMaidRecipeImporter implements RecipeImportHandler
         var data = new TouhouLittleMaidAltarRecipeData()
                 .setIngredients(ingredients)
                 .setResult(RecipeImporter.copyResult(recipe, provider))
-                .setPower(recipe.getPower())
-                .setEntityType(recipe.getEntityType())
-                .setLangKey(recipe.getLangKey());
-        return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), TouhouLittleMaidRecipeEditorTypes.ALTAR_RECIPE)
+                .setPower(recipe.getPowerCost())
+                .setEntityType(BuiltInRegistries.ENTITY_TYPE.getKey(recipe.getEntityType()))
+                .setExtraData(recipe.getExtraData());
+        return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), TouhouLittleMaidRecipeEditorTypes.ALTAR_RECIPE)
                 .setData(data));
     }
 }

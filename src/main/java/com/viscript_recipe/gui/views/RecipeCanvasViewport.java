@@ -117,7 +117,7 @@ public final class RecipeCanvasViewport extends ScrollerView {
         var nextScale = scaleFor(availableWidth, availableHeight);
         var nextLogicalWidth = availableWidth / nextScale;
         var nextLogicalHeight = availableHeight / nextScale;
-        CanvasBounds bounds;
+        CanvasBounds bounds = null;
         var contentOverflowsViewport = false;
         if (!resetToViewport) {
             bounds = measureCanvasBounds();
@@ -126,11 +126,13 @@ public final class RecipeCanvasViewport extends ScrollerView {
             nextLogicalWidth = Math.max(nextLogicalWidth, bounds.width());
             nextLogicalHeight = Math.max(nextLogicalHeight, bounds.height());
         }
-        var mustReserveScrollbars = nextScale < 1 || contentOverflowsViewport;
+        var mustReserveScrollbars = nextScale < 1
+                || contentOverflowsViewport;
         updateScrollbarDisplay(mustReserveScrollbars);
 
         resetToViewport = false;
-        if (nearlyEqual(nextScale, contentScale) && nearlyEqual(nextLogicalWidth, logicalWidth)
+        if (nearlyEqual(nextScale, contentScale)
+                && nearlyEqual(nextLogicalWidth, logicalWidth)
                 && nearlyEqual(nextLogicalHeight, logicalHeight)) {
             return;
         }
@@ -161,7 +163,8 @@ public final class RecipeCanvasViewport extends ScrollerView {
     private void onViewportLayoutChanged() {
         var width = getSizeWidth();
         var height = getSizeHeight();
-        if (width <= 0 || height <= 0 || nearlyEqual(width, observedWidth) && nearlyEqual(height, observedHeight)) {
+        if (width <= 0 || height <= 0
+                || nearlyEqual(width, observedWidth) && nearlyEqual(height, observedHeight)) {
             return;
         }
         observedWidth = width;

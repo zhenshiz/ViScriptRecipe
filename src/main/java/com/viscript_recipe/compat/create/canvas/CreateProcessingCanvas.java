@@ -37,7 +37,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,12 +87,12 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
 
     private void loadCreateAutoPacking(CreateProcessingRecipeData data) {
         var gridSize = autoPackingGridSize(data);
-        var ingredient = data.getIngredients().isEmpty() ? RecipeIngredient.empty() : data.getIngredients().getFirst();
+        var ingredient = data.getIngredients().isEmpty() ? RecipeIngredient.empty() : data.getIngredients().get(0);
         if (containsUnsupportedIngredientValue(ingredient)) containsUnsupportedIngredients = true;
 
         for (int i = 0; i < gridSize * gridSize; i++) setVisualIngredient(i, ingredient);
         var outputs = data.getOutputs();
-        if (!outputs.isEmpty()) setVisualOutput(0, outputs.getFirst());
+        if (!outputs.isEmpty()) setVisualOutput(0, outputs.get(0));
     }
 
     public static int autoPackingGridSize(CreateProcessingRecipeData data) {

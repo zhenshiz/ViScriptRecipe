@@ -10,10 +10,9 @@ import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
+import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.viscript_recipe.compat.create.data.*;
-import com.viscript_recipe.data.FluidIngredientData;
-import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.data.RecipeOutputData;
+import com.viscript_recipe.data.*;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -21,12 +20,9 @@ import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.SingleFluidIngredient;
-import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -39,15 +35,14 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
     }
 
     @Override
-    public boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null) {
+    public boolean canImport(Recipe<?> recipe) {
+        if (recipe == null) {
             return false;
         }
-        var recipe = holder.value();
         if (recipe instanceof MechanicalCraftingRecipe || recipe instanceof SequencedAssemblyRecipe) {
             return true;
         }
-        if (recipe instanceof ProcessingRecipe<?, ?> processing) {
+        if (recipe instanceof ProcessingRecipe<?> processing) {
             if (processing.getType() == AllRecipeTypes.DEPLOYING.getType()
                     || processing.getType() == AllRecipeTypes.ITEM_APPLICATION.getType()) {
                 return true;
@@ -59,16 +54,15 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
 
     @Nullable
     @Override
-    public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
-        var recipe = holder.value();
+    public RecipeImportResult tryImport(Recipe<?> recipe, HolderLookup.Provider provider) throws RecipeImportException {
         if (recipe instanceof MechanicalCraftingRecipe mechanicalCrafting) {
-            return success(RecipeImporter.importMechanicalCrafting(holder.id(), mechanicalCrafting, mechanicalCrafting.acceptsMirrored(), provider));
+            return success(RecipeImporter.importMechanicalCrafting(recipe.getId(), mechanicalCrafting, mechanicalCrafting.acceptsMirrored(), provider));
         }
         if (recipe instanceof SequencedAssemblyRecipe sequencedAssembly) {
-            return success(importSequencedAssembly(holder.id(), sequencedAssembly));
+            return success(importSequencedAssembly(recipe.getId(), sequencedAssembly));
         }
-        if (recipe instanceof ProcessingRecipe<?, ?> processing) {
-            return success(importProcessing(holder.id(), processing));
+        if (recipe instanceof ProcessingRecipe<?> processing) {
+            return success(importProcessing(recipe.getId(), processing));
         }
         return null;
     }
@@ -77,7 +71,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         return RecipeImporter.success(entry);
     }
 
-    private static RecipeEntry importProcessing(ResourceLocation id, ProcessingRecipe<?, ?> recipe) throws RecipeImportException {
+    private static RecipeEntry importProcessing(ResourceLocation id, ProcessingRecipe<?> recipe) throws RecipeImportException {
         var kind = kindFor(recipe);
         var data = new CreateProcessingRecipeData()
                 .setIngredients(importIngredients(recipe.getIngredients(), kind.maxItemInputs()))
@@ -92,7 +86,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         return RecipeImporter.baseEntry(id, kind.typeId()).setData(data);
     }
 
-    private static CreateProcessingKind kindFor(ProcessingRecipe<?, ?> recipe) throws RecipeImportException {
+    private static CreateProcessingKind kindFor(ProcessingRecipe<?> recipe) throws RecipeImportException {
         if (recipe.getType() == AllRecipeTypes.DEPLOYING.getType()) {
             return CreateProcessingKind.DEPLOYING;
         }
@@ -119,11 +113,10 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_sequence");
         }
         data.setSequence(steps);
-        return RecipeImporter.baseEntry(id, com.viscript_recipe.data.RecipeEditorTypes.CREATE_SEQUENCED_ASSEMBLY)
-                .setData(data);
+        return RecipeImporter.baseEntry(id, RecipeEditorTypes.CREATE_SEQUENCED_ASSEMBLY).setData(data);
     }
 
-    private static CreateSequencedAssemblyStepData importSequencedStep(ProcessingRecipe<?, ?> recipe) throws RecipeImportException {
+    private static CreateSequencedAssemblyStepData importSequencedStep(ProcessingRecipe<?> recipe) throws RecipeImportException {
         var data = new CreateSequencedAssemblyStepData();
         if (recipe instanceof ItemApplicationRecipe itemApplication) {
             data.setKind(CreateSequencedAssemblyStepKind.DEPLOYING)
@@ -148,11 +141,11 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_type", recipe.getTypeInfo().getId().toString());
     }
 
-    private static List<com.viscript_recipe.data.RecipeIngredient> importIngredients(List<Ingredient> ingredients, int max) throws RecipeImportException {
+    private static List<RecipeIngredient> importIngredients(List<Ingredient> ingredients, int max) throws RecipeImportException {
         if (ingredients.size() > max) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.too_many_ingredients", ingredients.size(), max);
         }
-        var imported = new ArrayList<com.viscript_recipe.data.RecipeIngredient>();
+        var imported = new ArrayList<RecipeIngredient>();
         for (var ingredient : ingredients) {
             if (ingredient != null && !ingredient.isEmpty()) {
                 imported.add(RecipeImporter.importIngredient(ingredient));
@@ -161,7 +154,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         return imported;
     }
 
-    private static List<FluidIngredientData> importFluidIngredients(List<SizedFluidIngredient> ingredients, int max) throws RecipeImportException {
+    private static List<FluidIngredientData> importFluidIngredients(List<FluidIngredient> ingredients, int max) throws RecipeImportException {
         if (ingredients.size() > max) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.too_many_fluid_ingredients", ingredients.size(), max);
         }
@@ -172,20 +165,20 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
         return imported;
     }
 
-    private static FluidIngredientData importFluidIngredient(SizedFluidIngredient ingredient) throws RecipeImportException {
-        if (ingredient == null || ingredient.ingredient().isEmpty() || ingredient.ingredient().hasNoFluids()) {
+    private static FluidIngredientData importFluidIngredient(FluidIngredient ingredient) throws RecipeImportException {
+        if (ingredient == null || ingredient.matchingFluidStacks.isEmpty()) {
             return FluidIngredientData.empty();
         }
-        var fluidIngredient = ingredient.ingredient();
-        if (fluidIngredient instanceof TagFluidIngredient tag) {
-            return FluidIngredientData.tag(tag.tag().location()).setAmount(Math.max(1, ingredient.amount()));
+        if (ingredient instanceof FluidIngredientAccessor.Tag tag) {
+            return FluidIngredientData.tag(tag.tag().location())
+                    .setAmount(Math.max(1, tag.amountRequired()));
         }
-        if (fluidIngredient instanceof SingleFluidIngredient single) {
-            return FluidIngredientData.fluid(new FluidStack(single.fluid(), Math.max(1, ingredient.amount())));
+        if (ingredient instanceof FluidIngredientAccessor.Stack single) {
+            return FluidIngredientData.fluid(new FluidStack(single.fluid(), Math.max(1, single.amountRequired())));
         }
-        var stacks = ingredient.getFluids();
-        if (fluidIngredient.isSimple() && stacks.length == 1) {
-            return FluidIngredientData.fluid(stacks[0].copyWithAmount(Math.max(1, ingredient.amount())));
+        var stacks = ingredient.matchingFluidStacks;
+        if (stacks.size() == 1) {
+            return FluidIngredientData.fluid(new FluidStack(stacks.get(0).getFluid(), Math.max(1, ((FluidIngredientAccessor) ingredient).amountRequired())));
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_fluid_ingredient");
     }
@@ -201,7 +194,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
             }
             var stack = output.getStack();
             if (!stack.isEmpty()) {
-                imported.add(RecipeOutputData.of(stack.copy(), output.getChance()));
+                imported.add(RecipeOutputData.of(stack, output.getChance()));
             }
         }
         return imported;

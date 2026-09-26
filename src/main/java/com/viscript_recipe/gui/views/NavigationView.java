@@ -255,13 +255,13 @@ public class NavigationView extends View {
         var sourcePath = sourceId == null ? "recipe" : sourceId.getPath();
         var namespace = getRecipeFile().getRecipeNamespace();
         var copyPath = sourcePath + "_copy";
-        var candidate = ResourceLocation.fromNamespaceAndPath(namespace, copyPath);
+        var candidate = new ResourceLocation(namespace, copyPath);
         if (!recipeIdExists(candidate)) {
             return candidate;
         }
         var index = 2;
         while (true) {
-            candidate = ResourceLocation.fromNamespaceAndPath(namespace, copyPath + "_" + index);
+            candidate = new ResourceLocation(namespace, copyPath + "_" + index);
             if (!recipeIdExists(candidate)) {
                 return candidate;
             }
@@ -273,7 +273,7 @@ public class NavigationView extends View {
         var namespace = getRecipeFile().getRecipeNamespace();
         var index = getRecipeFile().getEntries().size() + 1;
         while (true) {
-            var candidate = ResourceLocation.fromNamespaceAndPath(namespace, "recipe_" + index);
+            var candidate = new ResourceLocation(namespace, "recipe_" + index);
             if (!recipeIdExists(candidate)) {
                 return candidate;
             }
@@ -531,8 +531,8 @@ public class NavigationView extends View {
         return minecraft.level.getRecipeManager()
                 .byKey(recipeId)
                 .map(holder -> {
-                    var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
-                    var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
+                    var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.getType());
+                    var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.getSerializer());
                     if (typeId == null) {
                         return serializerId == null ? "" : serializerId.toString();
                     }

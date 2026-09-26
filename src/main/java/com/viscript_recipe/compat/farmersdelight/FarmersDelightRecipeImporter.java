@@ -11,13 +11,12 @@ import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.Recipe;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
 import vectorwing.farmersdelight.common.crafting.CuttingBoardRecipe;
-import vectorwing.farmersdelight.common.crafting.ingredient.ItemAbilityIngredient;
+import vectorwing.farmersdelight.common.crafting.ingredient.ToolActionIngredient;
 
 import java.util.ArrayList;
 
@@ -28,22 +27,20 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
     }
 
     @Override
-    public boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null) {
+    public boolean canImport(Recipe<?> recipe) {
+        if (recipe == null) {
             return false;
         }
-        var recipe = holder.value();
         return recipe instanceof CookingPotRecipe || recipe instanceof CuttingBoardRecipe;
     }
 
     @Override
-    public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
-        var recipe = holder.value();
+    public RecipeImportResult tryImport(Recipe<?> recipe, HolderLookup.Provider provider) throws RecipeImportException {
         if (recipe instanceof CookingPotRecipe cooking) {
-            return RecipeImporter.success(importCooking(holder.id(), cooking, provider));
+            return RecipeImporter.success(importCooking(recipe.getId(), cooking, provider));
         }
         if (recipe instanceof CuttingBoardRecipe cutting) {
-            return RecipeImporter.success(importCutting(holder.id(), cutting, provider));
+            return RecipeImporter.success(importCutting(recipe.getId(), cutting, provider));
         }
         return null;
     }
@@ -65,18 +62,16 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
         }
         var results = new ArrayList<RecipeOutputData>();
         for (var result : recipe.getRollableResults()) {
-            if (result != null && result.stack() != null && !result.stack().isEmpty()) {
-                results.add(RecipeOutputData.of(result.stack().copy(), result.chance()));
+            if (result != null && result.getStack() != null && !result.getStack().isEmpty()) {
+                results.add(RecipeOutputData.of(result.getStack(), result.getChance()));
             }
         }
-        var sound = recipe.getSoundEvent()
-                .map(BuiltInRegistries.SOUND_EVENT::getKey)
-                .orElse(ResourceLocation.withDefaultNamespace("item.axe.strip"));
+        var sound = new ResourceLocation(recipe.getSoundEventID());
         var data = new FarmerCuttingRecipeData()
-                .setInput(RecipeImporter.importIngredient(ingredients.getFirst()))
+                .setInput(RecipeImporter.importIngredient(ingredients.get(0)))
                 .setTool(importTool(recipe.getTool()))
                 .setResults(results)
-                .setCustomSound(recipe.getSoundEvent().isPresent())
+                .setCustomSound(!recipe.getSoundEventID().isBlank())
                 .setSound(sound);
         if (data.getResults().isEmpty()) {
             data.getResults().add(RecipeOutputData.of(RecipeImporter.copyResult(recipe, provider)));
@@ -85,8 +80,8 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
     }
 
     private static RecipeIngredient importTool(Ingredient ingredient) throws RecipeImportException {
-        if (ingredient != null && ingredient.isCustom() && ingredient.getCustomIngredient() instanceof ItemAbilityIngredient itemAbility) {
-            return RecipeIngredient.itemAbility(itemAbility.getItemAbility().name());
+        if (ingredient instanceof ToolActionIngredient itemAbility) {
+            return RecipeIngredient.itemAbility(itemAbility.toolAction.name());
         }
         return RecipeImporter.importIngredient(ingredient);
     }

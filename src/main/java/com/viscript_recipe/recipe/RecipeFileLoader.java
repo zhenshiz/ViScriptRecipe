@@ -3,7 +3,6 @@ package com.viscript_recipe.recipe;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.RecipeFile;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +35,7 @@ public final class RecipeFileLoader {
 
     private static LoadedRecipeFile load(Path root, Path path, HolderLookup.Provider provider) {
         try {
-            var tag = NbtIo.read(path);
+            var tag = NbtIo.read(path.toFile());
             if (tag == null) {
                 ViScriptRecipe.LOGGER.warn("Skipping empty recipe file {}", path);
                 return new LoadedRecipeFile(normalize(root.relativize(path)), path, null);
@@ -46,7 +45,7 @@ public final class RecipeFileLoader {
             return new LoadedRecipeFile(normalize(root.relativize(path)), path, file);
         } catch (IOException rawReadError) {
             try {
-                var tag = NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap());
+                var tag = NbtIo.readCompressed(path.toFile());
                 var file = new RecipeFile();
                 file.deserializeNBT(provider, tag);
                 return new LoadedRecipeFile(normalize(root.relativize(path)), path, file);
@@ -65,7 +64,7 @@ public final class RecipeFileLoader {
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        NbtIo.write(file.serializeNBT(provider), path);
+        NbtIo.write(file.serializeNBT(provider), path.toFile());
     }
 
     private static void ensureDirectory(Path root) {

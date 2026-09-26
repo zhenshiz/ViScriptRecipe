@@ -2,19 +2,17 @@ package com.viscript_recipe.client;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
 import com.viscript_recipe.compat.jei.JeiShowcaseModeState;
-import com.viscript_recipe.compat.jei.RecipeDeltaJeiBridge;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import com.viscript_recipe.network.c2s.RecipeDeltaC2SPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.RecipesUpdatedEvent;
 
 import java.util.*;
 
@@ -96,7 +94,7 @@ public final class RecipeDeltaClientState {
 
         final RecipeDeltaSnapshot snapshot;
         try {
-            snapshot = RecipeDeltaSnapshot.deserialize(level.registryAccess(), payload);
+            snapshot = RecipeDeltaSnapshot.deserialize(payload);
         } catch (RuntimeException | LinkageError e) {
             ViScriptRecipe.LOGGER.warn("Failed to decode incremental recipe reload payload", e);
             if (!expectedBaseline) {
@@ -122,13 +120,13 @@ public final class RecipeDeltaClientState {
         var recipeManager = level.getRecipeManager();
         var recipes = snapshotRecipes(recipeManager);
         var affectedIds = new LinkedHashSet<>(snapshot.removedRecipeIds());
-        snapshot.upsertedRecipes().forEach(holder -> affectedIds.add(holder.id()));
+        snapshot.upsertedRecipes().forEach(holder -> affectedIds.add(holder.getId()));
         var oldRecipes = selectedRecipes(recipes, affectedIds);
         var oldEditorTypes = new LinkedHashMap<>(MANAGED_EDITOR_TYPES);
 
         if (!affectedIds.isEmpty()) {
             snapshot.removedRecipeIds().forEach(recipes::remove);
-            snapshot.upsertedRecipes().forEach(holder -> recipes.put(holder.id(), holder));
+            snapshot.upsertedRecipes().forEach(holder -> recipes.put(holder.getId(), holder));
             recipeManager.replaceRecipes(recipes.values());
         }
         var newRecipes = selectedRecipes(recipes, affectedIds);
@@ -144,9 +142,8 @@ public final class RecipeDeltaClientState {
         SERVER_RECIPE_TYPE_HINTS.forEach(RecipeDeltaClientState::addRecipeTypeHint);
         DELTA_TOUCHED_IDS.addAll(affectedIds);
 
-        IronArcaneAnvilOverrideManager.replaceAll(snapshot.arcaneAnvilRecipes());
         JeiShowcaseModeState.updateFromServer(snapshot.showcaseOnly());
-        RecipeDeltaJeiBridge.applyDelta(
+/*        RecipeDeltaJeiBridge.applyDelta(
                 snapshot.revision(),
                 affectedIds,
                 oldRecipes,
@@ -154,7 +151,7 @@ public final class RecipeDeltaClientState {
                 oldEditorTypes,
                 Map.copyOf(MANAGED_EDITOR_TYPES),
                 snapshot.arcaneAnvilChanged()
-        );
+        );*/
         ViScriptRecipe.LOGGER.info(
                 "Applied recipe delta revision {}: {} removed, {} upserted",
                 snapshot.revision(),
@@ -172,9 +169,8 @@ public final class RecipeDeltaClientState {
         SERVER_RECIPE_TYPE_HINTS.putAll(snapshot.recipeTypeHints());
         DELTA_TOUCHED_IDS.clear();
         rebuildHistoricalHints();
-        IronArcaneAnvilOverrideManager.replaceAll(snapshot.arcaneAnvilRecipes());
         JeiShowcaseModeState.updateFromServer(snapshot.showcaseOnly());
-        RecipeDeltaJeiBridge.applyBaseline();
+//        RecipeDeltaJeiBridge.applyBaseline();
     }
 
     private static void requestFullSync() {
@@ -185,19 +181,19 @@ public final class RecipeDeltaClientState {
         RPCPacketDistributor.rpcToServer(RecipeDeltaC2SPayload.REQUEST_FULL_RECIPE_SYNC);
     }
 
-    private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> snapshotRecipes(RecipeManager recipeManager) {
-        var recipes = new LinkedHashMap<ResourceLocation, RecipeHolder<?>>();
+    private static LinkedHashMap<ResourceLocation, Recipe<?>> snapshotRecipes(RecipeManager recipeManager) {
+        var recipes = new LinkedHashMap<ResourceLocation, Recipe<?>>();
         for (var holder : recipeManager.getRecipes()) {
-            recipes.put(holder.id(), holder);
+            recipes.put(holder.getId(), holder);
         }
         return recipes;
     }
 
-    private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> selectedRecipes(
-            Map<ResourceLocation, RecipeHolder<?>> recipes,
+    private static LinkedHashMap<ResourceLocation, Recipe<?>> selectedRecipes(
+            Map<ResourceLocation, Recipe<?>> recipes,
             Collection<ResourceLocation> ids
     ) {
-        var selected = new LinkedHashMap<ResourceLocation, RecipeHolder<?>>();
+        var selected = new LinkedHashMap<ResourceLocation, Recipe<?>>();
         for (var id : ids) {
             var holder = recipes.get(id);
             if (holder != null) {
@@ -207,11 +203,11 @@ public final class RecipeDeltaClientState {
         return selected;
     }
 
-    private static void addRecipeTypeHints(Collection<RecipeHolder<?>> recipes) {
+    private static void addRecipeTypeHints(Collection<Recipe<?>> recipes) {
         for (var holder : recipes) {
-            var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
+            var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.getType());
             if (typeId != null) {
-                addRecipeTypeHint(holder.id(), typeId);
+                addRecipeTypeHint(holder.getId(), typeId);
             }
         }
     }

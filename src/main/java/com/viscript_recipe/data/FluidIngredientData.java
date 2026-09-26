@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 @Getter
 @Setter
@@ -20,7 +20,7 @@ public class FluidIngredientData implements ISkipDefaultedSerialize, IConfigurab
     @Persisted
     private FluidStack fluid = new FluidStack(Fluids.WATER, 1000);
     @Persisted
-    private ResourceLocation tag = ResourceLocation.fromNamespaceAndPath("c", "water");
+    private ResourceLocation tag = new ResourceLocation("forge", "milk");
     @Persisted
     private int amount = 1000;
 
@@ -29,7 +29,7 @@ public class FluidIngredientData implements ISkipDefaultedSerialize, IConfigurab
     public FluidIngredientData setAmount(int amount) {
         amount = Math.max(1, amount);
         this.amount = amount;
-        fluid.setAmount(amount);
+        if (!fluid.isEmpty()) fluid.setAmount(amount); // 为空抛异常，逆天forge
         return this;
     }
 
@@ -60,7 +60,7 @@ public class FluidIngredientData implements ISkipDefaultedSerialize, IConfigurab
 
     public FluidStack[] getFluidStacks() {
         return switch (kind) {
-            case FLUID -> fluid.isEmpty() ? new FluidStack[0] : new FluidStack[]{fluid.copyWithAmount(getAmount())};
+            case FLUID -> fluid.isEmpty() ? new FluidStack[0] : new FluidStack[]{fluid.copy()};
             case TAG -> RecipeHelper.fluidsFromTag(tag, getAmount());
         };
     }

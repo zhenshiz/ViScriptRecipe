@@ -1,6 +1,7 @@
 package com.viscript_recipe.compat.avaritia;
 
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
+import com.viscript_lib.util.math.Clamp;
 import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.avaritia.canvas.CompressorCanvas;
 import com.viscript_recipe.compat.avaritia.canvas.ExtremeSmithingCanvas;
@@ -173,7 +174,7 @@ public final class AvaritiaRecipeEditorTypes implements IModModule{
     }
 
     public static int tableGridSizeForTier(int tier) {
-        return switch (Math.clamp(tier, 1, 4)) {
+        return switch (Clamp.clamp(tier, 1, 4)) {
             case 1 -> 3;
             case 2 -> 5;
             case 3 -> 7;
@@ -182,7 +183,7 @@ public final class AvaritiaRecipeEditorTypes implements IModModule{
     }
 
     public static ResourceLocation tableItemForTier(int tier) {
-        return switch (Math.clamp(tier, 1, 4)) {
+        return switch (Clamp.clamp(tier, 1, 4)) {
             case 1 -> SCULK_CRAFTING_TABLE;
             case 2 -> NETHER_CRAFTING_TABLE;
             case 3 -> END_CRAFTING_TABLE;
@@ -191,6 +192,6 @@ public final class AvaritiaRecipeEditorTypes implements IModModule{
     }
 
     public static ResourceLocation create(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 }

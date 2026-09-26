@@ -3,21 +3,26 @@ package com.viscript_recipe.compat.mekanism.canvas;
 import com.lowdragmc.lowdraglib2.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
+import com.viscript_recipe.compat.mekanism.MekanismRecipeFactory;
 import com.viscript_recipe.compat.mekanism.data.MekanismChemicalIngredientData;
 import com.viscript_recipe.compat.mekanism.data.MekanismChemicalIngredientKind;
 import com.viscript_recipe.compat.mekanism.data.MekanismChemicalStackData;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
-import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
+import mekanism.api.chemical.ChemicalTags;
+import mekanism.api.chemical.ChemicalType;
+import mekanism.api.chemical.gas.Gas;
+import mekanism.api.chemical.infuse.InfuseType;
+import mekanism.api.chemical.pigment.Pigment;
+import mekanism.api.chemical.slurry.Slurry;
 import mekanism.client.gui.GuiUtils;
-import mekanism.client.recipe_viewer.RecipeViewerUtils;
+import mekanism.client.jei.MekanismJEI;
 import mekanism.client.render.MekanismRenderer;
+import mekanism.common.util.ChemicalUtil;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -37,10 +42,10 @@ class ChemicalDisplay {
 
     ChemicalDisplay(String gaugeFrame, String gaugeOverlay, int overlayWidth, int overlayHeight) {
         this(overlayWidth, overlayHeight,
-                SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
+                SpriteTexture.of(new ResourceLocation(
                         "mekanism", "gui/gauge/" + gaugeFrame
                 )).setSprite(0, 0, 5, 5).setBorder(2),
-                SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
+                SpriteTexture.of(new ResourceLocation(
                         "mekanism", "gui/gauge/" + gaugeOverlay
                 )).setSprite(0, 0, overlayWidth, overlayHeight)
         );
@@ -48,7 +53,7 @@ class ChemicalDisplay {
 
     ChemicalDisplay(int barWidth, int barHeight) {
         this(barWidth, barHeight,
-                SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
+                SpriteTexture.of(new ResourceLocation(
                         "mekanism", "gui/bar/base.png"
                 )).setSprite(0, 0, 5, 5).setBorder(2),
                 IGuiTexture.EMPTY
@@ -79,34 +84,55 @@ class ChemicalDisplay {
 
     static ItemStack[] catalystStacks(MekanismChemicalIngredientData data) {
         if (data == null) return new ItemStack[0];
-        var amount = Math.max(1, data.getAmount());
-        var creator = IngredientCreatorAccess.chemicalStack();
-        var ingredient = data.getKind() == MekanismChemicalIngredientKind.TAG
-                ? creator.from(TagKey.create(MekanismAPI.CHEMICAL_REGISTRY_NAME, data.getTag()), amount)
-                : MekanismAPI.CHEMICAL_REGISTRY.getHolder(data.getChemical())
-                .map(holder -> creator.fromHolder(holder, amount))
-                .orElse(null);
-        return ingredient == null ? new ItemStack[0]
-                : RecipeViewerUtils.getStacksFor(ingredient, true).toArray(ItemStack[]::new);
+        try {
+            var ingredient = MekanismRecipeFactory.chemicalIngredient(data, "ingredient");
+            return switch (data.getChemicalType()) {
+                case GAS -> MekanismJEI.GAS_STACK_HELPER.getStacksFor((Gas) ingredient.getRepresentations().get(0).getRaw(), true).toArray(new ItemStack[0]);
+                case INFUSION -> MekanismJEI.INFUSION_STACK_HELPER.getStacksFor((InfuseType) ingredient.getRepresentations().get(0).getRaw(), true).toArray(new ItemStack[0]);
+                case PIGMENT -> MekanismJEI.PIGMENT_STACK_HELPER.getStacksFor((Pigment) ingredient.getRepresentations().get(0).getRaw(), true).toArray(new ItemStack[0]);
+                case SLURRY -> MekanismJEI.SLURRY_STACK_HELPER.getStacksFor((Slurry) ingredient.getRepresentations().get(0).getRaw(), true).toArray(new ItemStack[0]);
+            };
+        } catch (Exception e) {
+            return new ItemStack[0];
+        }
+    }
+
+    static Chemical<?> getFirstChemical(ChemicalType type, ResourceLocation tagId) {
+        if (type == null || tagId == null) return null;
+        return switch (type) {
+            case GAS -> {
+                var tag = ChemicalTags.GAS.tag(tagId);
+                yield MekanismAPI.gasRegistry().tags().getTag(tag).stream().findFirst().orElse(null);
+            }
+            case INFUSION -> {
+                var tag = ChemicalTags.INFUSE_TYPE.tag(tagId);
+                yield MekanismAPI.infuseTypeRegistry().tags().getTag(tag).stream().findFirst().orElse(null);
+            }
+            case PIGMENT -> {
+                var tag = ChemicalTags.PIGMENT.tag(tagId);
+                yield MekanismAPI.pigmentRegistry().tags().getTag(tag).stream().findFirst().orElse(null);
+            }
+            case SLURRY -> {
+                var tag = ChemicalTags.SLURRY.tag(tagId);
+                yield MekanismAPI.slurryRegistry().tags().getTag(tag).stream().findFirst().orElse(null);
+            }
+        };
     }
 
     static int colorRepresentation(MekanismChemicalIngredientData data) {
         if (data == null) return 0xFFFFFFFF;
-        Chemical chemical;
+        Chemical<?> chemical;
+        ChemicalType type = data.getChemicalType();
         if (data.getKind() == MekanismChemicalIngredientKind.TAG) {
-            var tag = data.getTag() == null ? null : TagKey.create(MekanismAPI.CHEMICAL_REGISTRY_NAME, data.getTag());
-            chemical = tag == null ? null : MekanismAPI.CHEMICAL_REGISTRY.getTag(tag)
-                    .flatMap(holders -> holders.stream().findFirst())
-                    .map(Holder::value)
-                    .orElse(null);
+            chemical = getFirstChemical(type, data.getTag());
         } else {
-            chemical = chemical(data.getChemical());
+            chemical = chemical(type, data.getChemical());
         }
         return colorRepresentation(chemical);
     }
 
     static int colorRepresentation(MekanismChemicalStackData data) {
-        return colorRepresentation(data == null ? null : chemical(data.getChemical()));
+        return colorRepresentation(data == null ? null : chemical(data.getChemicalType(), data.getChemical()));
     }
 
     public UIElement element() {return root;}
@@ -119,15 +145,11 @@ class ChemicalDisplay {
         input = data;
         var amount = Math.max(1, data.getAmount());
         if (data.getKind() == MekanismChemicalIngredientKind.TAG) {
-            var tag = data.getTag() == null ? null : TagKey.create(MekanismAPI.CHEMICAL_REGISTRY_NAME, data.getTag());
-            var chemical = tag == null ? null : MekanismAPI.CHEMICAL_REGISTRY.getTag(tag)
-                    .flatMap(holders -> holders.stream().findFirst())
-                    .map(Holder::value)
-                    .orElse(null);
+            var chemical = getFirstChemical(data.getChemicalType(), data.getTag());
             set(chemical, Component.literal("#" + data.getTag() + " × " + amount));
             return;
         }
-        set(chemical(data.getChemical()), Component.literal(data.getChemical() + " × " + amount));
+        set(chemical(data.getChemicalType(), data.getChemical()), Component.literal(data.getChemical() + " × " + amount));
     }
 
     public void setOutput(MekanismChemicalStackData data) {
@@ -136,11 +158,11 @@ class ChemicalDisplay {
             return;
         }
         output = data;
-        set(chemical(data.getChemical()), Component.literal(data.getChemical() + " × " + data.getAmount()));
+        set(chemical(data.getChemicalType(), data.getChemical()), Component.literal(data.getChemical() + " × " + data.getAmount()));
     }
 
-    private void set(Chemical chemical, Component fallback) {
-        if (chemical == null || chemical == MekanismAPI.CHEMICAL_REGISTRY.get(MekanismAPI.EMPTY_CHEMICAL_KEY.location())) {
+    private void set(Chemical<?> chemical, Component fallback) {
+        if (chemical == null || chemical == ChemicalUtil.getEmptyStack(ChemicalType.getTypeFor(chemical)).getRaw()) {
             fill.setDisplay(false);
             root.style(style -> style.tooltips(fallback));
             return;
@@ -151,13 +173,18 @@ class ChemicalDisplay {
                 .append(Component.literal(" × " + amountFromFallback(fallback)))));
     }
 
-    private static Chemical chemical(ResourceLocation id) {
-        return id == null ? null : MekanismAPI.CHEMICAL_REGISTRY.getOptional(id).orElse(null);
+    private static Chemical<?> chemical(ChemicalType type, ResourceLocation id) {
+        if (type == null || id == null) return null;
+        return switch (type) {
+            case GAS -> MekanismAPI.gasRegistry().getValue(id);
+            case INFUSION -> MekanismAPI.infuseTypeRegistry().getValue(id);
+            case PIGMENT -> MekanismAPI.pigmentRegistry().getValue(id);
+            case SLURRY -> MekanismAPI.slurryRegistry().getValue(id);
+        };
     }
 
-    private static int colorRepresentation(Chemical chemical) {
-        if (chemical == null || chemical == MekanismAPI.CHEMICAL_REGISTRY.get(
-                MekanismAPI.EMPTY_CHEMICAL_KEY.location())) {
+    private static int colorRepresentation(Chemical<?> chemical) {
+        if (chemical == null) {
             return 0xFFFFFFFF;
         }
         int color = chemical.getColorRepresentation();
@@ -171,9 +198,9 @@ class ChemicalDisplay {
     }
 
     static final class ChemicalTexture implements IGuiTexture {
-        private Chemical chemical;
+        private Chemical<?> chemical;
 
-        private void setChemical(Chemical chemical) {this.chemical = chemical;}
+        private void setChemical(Chemical<?> chemical) {this.chemical = chemical;}
 
         @Override
         public void draw(

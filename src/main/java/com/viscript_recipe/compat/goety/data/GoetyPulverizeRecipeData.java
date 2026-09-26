@@ -26,7 +26,7 @@ public class GoetyPulverizeRecipeData implements IVSRecipeData {
     @Persisted
     private ItemStack itemResult = new ItemStack(Items.COBBLESTONE);
     @Persisted
-    private ResourceLocation blockResult = ResourceLocation.withDefaultNamespace("cobblestone");
+    private ResourceLocation blockResult = new ResourceLocation("cobblestone");
 
     public ItemStack result() {
         if (resultKind == GoetyPulverizeResultKind.ITEM) return itemResult.copy();

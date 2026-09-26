@@ -94,7 +94,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     public void buildIngredientProperties(UIElement content) {
         var ingredient = getSelectedIngredient();
         var availableKinds = availableIngredientKind();
-        var selectedKind = availableKinds.contains(ingredient.getKind()) ? ingredient.getKind() : availableKinds.getFirst();
+        var selectedKind = availableKinds.contains(ingredient.getKind()) ? ingredient.getKind() : availableKinds.get(0);
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.ingredient"),
                 selector("viscript_recipe.config.ingredient.value.kind", availableKinds, selectedKind,
                         IngredientValueKind::displayName, kind -> setSelectedIngredient(ingredient.setKind(kind)))
@@ -232,7 +232,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     public static void removeUIFirstEvent(UIElement element, String type, boolean useCapture) {
         var listeners = useCapture ? element.getCaptureListeners(type) : element.getBubbleListeners(type);
         if (listeners.isEmpty()) return;
-        element.removeEventListener(type, listeners.getFirst(), useCapture);
+        element.removeEventListener(type, listeners.get(0), useCapture);
     }
 
     /**新建一个额外物品槽位，并且绑定到extraItemSlots[0]上*/
@@ -287,20 +287,20 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         });
         slot.addEventListener(UIEvents.DRAG_PERFORM, event -> {
             var draggingObject = event.dragHandler == null ? null : event.dragHandler.getDraggingObject();
-            if (!(draggingObject instanceof ItemSlotDragPayload(ItemSlot source, ItemStack stack, RecipeIngredient ingredient))) {
+            if (!(draggingObject instanceof ItemSlotDragPayload payload)) {
                 return;
             }
-            if (source == slot || stack.isEmpty()) {
+            if (payload.source() == slot || payload.stack().isEmpty()) {
                 event.stopPropagation();
                 return;
             }
 
-            if (slot instanceof IngredientDisplaySlot ingredientSlot && ingredient != null) {
-                ingredientSlot.setIngredient(ingredient);
+            if (slot instanceof IngredientDisplaySlot ingredientSlot && payload.ingredient() != null) {
+                ingredientSlot.setIngredient(payload.ingredient());
                 return;
             }
 
-            var copiedStack = stack.copy();
+            var copiedStack = payload.stack().copy();
             if (!slot.getSlot().mayPlace(copiedStack)) {
                 event.stopPropagation();
                 return;

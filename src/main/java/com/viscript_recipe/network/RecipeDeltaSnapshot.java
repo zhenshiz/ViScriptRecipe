@@ -1,19 +1,20 @@
 package com.viscript_recipe.network;
 
+import com.lowdragmc.lowdraglib2.utils.ByteBufUtil;
+import com.mojang.datafixers.DataFixUtils;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
-import net.minecraft.core.HolderLookup;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.*;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * Compact recipe state transfer used by the fast reload path.
@@ -28,10 +29,10 @@ public record RecipeDeltaSnapshot(
         boolean showcaseOnly,
         boolean arcaneAnvilChanged,
         List<ResourceLocation> removedRecipeIds,
-        List<RecipeHolder<?>> upsertedRecipes,
+        List<Recipe<?>> upsertedRecipes,
         Map<ResourceLocation, ResourceLocation> managedEditorTypes,
-        Map<ResourceLocation, ResourceLocation> recipeTypeHints,
-        List<IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes
+        Map<ResourceLocation, ResourceLocation> recipeTypeHints
+        //List<IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes
 ) {
     public static final int PROTOCOL_VERSION = 1;
 
@@ -40,7 +41,7 @@ public record RecipeDeltaSnapshot(
         upsertedRecipes = List.copyOf(upsertedRecipes);
         managedEditorTypes = Map.copyOf(managedEditorTypes);
         recipeTypeHints = Map.copyOf(recipeTypeHints);
-        arcaneAnvilRecipes = List.copyOf(arcaneAnvilRecipes);
+//        arcaneAnvilRecipes = List.copyOf(arcaneAnvilRecipes);
     }
 
     public int changedRecipeCount() {
@@ -51,7 +52,7 @@ public record RecipeDeltaSnapshot(
         return changedRecipeCount() > 0 || arcaneAnvilChanged;
     }
 
-    public CompoundTag serialize(HolderLookup.Provider provider) {
+    public CompoundTag serialize() {
         var root = new CompoundTag();
         root.putInt("protocol", PROTOCOL_VERSION);
         root.putLong("base_revision", baseRevision);
@@ -67,8 +68,8 @@ public record RecipeDeltaSnapshot(
         var upserted = new ListTag();
         for (var holder : upsertedRecipes) {
             var entry = new CompoundTag();
-            entry.putString("id", holder.id().toString());
-            entry.put("recipe", encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id()));
+            entry.putString("id", holder.getId().toString());
+            entry.put("recipe", encode(RECIPE_CODEC, holder, "recipe " + holder.getId()));
             upserted.add(entry);
         }
         root.put("upserted", upserted);
@@ -76,19 +77,19 @@ public record RecipeDeltaSnapshot(
         root.put("recipe_type_hints", encodeResourceLocationMap(recipeTypeHints, "recipe_type"));
 
         var arcaneAnvil = new ListTag();
-        for (var recipe : arcaneAnvilRecipes) {
+/*        for (var recipe : arcaneAnvilRecipes) {
             var entry = new CompoundTag();
-            entry.putString("id", recipe.id().toString());
-            entry.put("input", encode(provider, Ingredient.CODEC, recipe.input(), "arcane anvil input " + recipe.id()));
-            entry.put("material", encode(provider, Ingredient.CODEC, recipe.material(), "arcane anvil material " + recipe.id()));
-            entry.put("result", encode(provider, ItemStack.CODEC, recipe.result(), "arcane anvil result " + recipe.id()));
+            entry.putString("id", recipe.getId().toString());
+            entry.put("input", encode(Ingredient.CODEC, recipe, "arcane anvil input " + recipe.getId()));
+            entry.put("material", encode(Ingredient.CODEC, recipe.material(), "arcane anvil material " + recipe.id()));
+            entry.put("result", encode(ItemStack.CODEC, recipe.result(), "arcane anvil result " + recipe.id()));
             arcaneAnvil.add(entry);
-        }
+        }*/
         root.put("arcane_anvil", arcaneAnvil);
         return root;
     }
 
-    public static RecipeDeltaSnapshot deserialize(HolderLookup.Provider provider, CompoundTag root) {
+    public static RecipeDeltaSnapshot deserialize(CompoundTag root) {
         var protocol = root.getInt("protocol");
         if (protocol != PROTOCOL_VERSION) {
             throw new IllegalArgumentException("Unsupported recipe delta protocol " + protocol);
@@ -96,26 +97,26 @@ public record RecipeDeltaSnapshot(
 
         var removed = new ArrayList<ResourceLocation>();
         for (var tag : root.getList("removed", Tag.TAG_STRING)) {
-            removed.add(ResourceLocation.parse(tag.getAsString()));
+            removed.add(new ResourceLocation(tag.getAsString()));
         }
 
-        var upserted = new ArrayList<RecipeHolder<?>>();
+        var upserted = new ArrayList<Recipe<?>>();
         for (var tag : root.getList("upserted", Tag.TAG_COMPOUND)) {
             var entry = (CompoundTag) tag;
-            var id = ResourceLocation.parse(entry.getString("id"));
-            var recipe = decode(provider, Recipe.CODEC, entry.get("recipe"), "recipe " + id);
-            upserted.add(new RecipeHolder<>(id, recipe));
+            var id = new ResourceLocation(entry.getString("id"));
+            var recipe = decode(RECIPE_CODEC, entry.get("recipe"), "recipe " + id);
+            upserted.add(recipe);
         }
 
-        var arcaneAnvil = new ArrayList<IronArcaneAnvilOverrideManager.CompiledRecipe>();
+/*        var arcaneAnvil = new ArrayList<IronArcaneAnvilOverrideManager.CompiledRecipe>();
         for (var tag : root.getList("arcane_anvil", Tag.TAG_COMPOUND)) {
             var entry = (CompoundTag) tag;
             var id = ResourceLocation.parse(entry.getString("id"));
-            var input = decode(provider, Ingredient.CODEC, entry.get("input"), "arcane anvil input " + id);
-            var material = decode(provider, Ingredient.CODEC, entry.get("material"), "arcane anvil material " + id);
-            var result = decode(provider, ItemStack.CODEC, entry.get("result"), "arcane anvil result " + id);
+            var input = decode(Ingredient.CODEC, entry.get("input"), "arcane anvil input " + id);
+            var material = decode(Ingredient.CODEC, entry.get("material"), "arcane anvil material " + id);
+            var result = decode(ItemStack.CODEC, entry.get("result"), "arcane anvil result " + id);
             arcaneAnvil.add(new IronArcaneAnvilOverrideManager.CompiledRecipe(id, input, material, result));
-        }
+        }*/
 
         return new RecipeDeltaSnapshot(
                 root.getLong("base_revision"),
@@ -126,30 +127,28 @@ public record RecipeDeltaSnapshot(
                 removed,
                 upserted,
                 decodeResourceLocationMap(root.getList("managed_editor_types", Tag.TAG_COMPOUND), "editor_type"),
-                decodeResourceLocationMap(root.getList("recipe_type_hints", Tag.TAG_COMPOUND), "recipe_type"),
-                arcaneAnvil
+                decodeResourceLocationMap(root.getList("recipe_type_hints", Tag.TAG_COMPOUND), "recipe_type")
         );
     }
 
-    public static Tag encodeRecipe(HolderLookup.Provider provider, RecipeHolder<?> holder) {
-        return encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id());
+    public static Tag encodeRecipe(Recipe<?> holder) {
+        return encode(RECIPE_CODEC, holder, "recipe " + holder.getId());
     }
 
-    public static Tag encodeArcaneAnvilRecipes(
-            HolderLookup.Provider provider,
+/*    public static Tag encodeArcaneAnvilRecipes(
             List<IronArcaneAnvilOverrideManager.CompiledRecipe> recipes
     ) {
         var encoded = new ListTag();
         for (var recipe : recipes) {
             var entry = new CompoundTag();
             entry.putString("id", recipe.id().toString());
-            entry.put("input", encode(provider, Ingredient.CODEC, recipe.input(), "arcane anvil input " + recipe.id()));
-            entry.put("material", encode(provider, Ingredient.CODEC, recipe.material(), "arcane anvil material " + recipe.id()));
-            entry.put("result", encode(provider, ItemStack.CODEC, recipe.result(), "arcane anvil result " + recipe.id()));
+            entry.put("input", encode(Ingredient.CODEC, recipe.input(), "arcane anvil input " + recipe.id()));
+            entry.put("material", encode(Ingredient.CODEC, recipe.material(), "arcane anvil material " + recipe.id()));
+            entry.put("result", encode(ItemStack.CODEC, recipe.result(), "arcane anvil result " + recipe.id()));
             encoded.add(entry);
         }
         return encoded;
-    }
+    }*/
 
     private static ListTag encodeResourceLocationMap(
             Map<ResourceLocation, ResourceLocation> values,
@@ -173,26 +172,23 @@ public record RecipeDeltaSnapshot(
         for (var tag : encoded) {
             var entry = (CompoundTag) tag;
             values.put(
-                    ResourceLocation.parse(entry.getString("id")),
-                    ResourceLocation.parse(entry.getString(valueKey))
+                    new ResourceLocation(entry.getString("id")),
+                    new ResourceLocation(entry.getString(valueKey))
             );
         }
         return values;
     }
 
     private static <T> Tag encode(
-            HolderLookup.Provider provider,
             Codec<T> codec,
             T value,
             String description
     ) {
-        var ops = provider.createSerializationContext(NbtOps.INSTANCE);
-        return codec.encodeStart(ops, value)
-                .getOrThrow(message -> new IllegalArgumentException("Failed to encode " + description + ": " + message));
+        return codec.encodeStart(NbtOps.INSTANCE, value)
+                .getOrThrow(false, message -> new IllegalArgumentException("Failed to encode " + description + ": " + message));
     }
 
     private static <T> T decode(
-            HolderLookup.Provider provider,
             Codec<T> codec,
             Tag tag,
             String description
@@ -200,8 +196,31 @@ public record RecipeDeltaSnapshot(
         if (tag == null) {
             throw new IllegalArgumentException("Missing encoded " + description);
         }
-        var ops = provider.createSerializationContext(NbtOps.INSTANCE);
-        return codec.parse(ops, tag)
-                .getOrThrow(message -> new IllegalArgumentException("Failed to decode " + description + ": " + message));
+        return codec.parse(NbtOps.INSTANCE, tag)
+                .getOrThrow(false, message -> new IllegalArgumentException("Failed to decode " + description + ": " + message));
     }
+
+    public static final Codec<Recipe<?>> RECIPE_CODEC = new Codec<>() {
+        @Override
+        public <T> DataResult<T> encode(Recipe<?> input, DynamicOps<T> ops, T prefix) {
+            var data = ByteBufUtil.writeCustomData(buf -> ClientboundUpdateRecipesPacket.toNetwork(buf, input));
+            T encoded = ops.createByteList(ByteBuffer.wrap(data));
+            return DataResult.success(encoded);
+        }
+
+        @Override
+        public <T> DataResult<Pair<Recipe<?>, T>> decode(DynamicOps<T> ops, T input) {
+            DataResult<ByteBuffer> result = ops.getByteBuffer(input);
+            Optional<ByteBuffer> left = result.get().left();
+            if (left.isPresent()) {
+                var buffer = left.get();
+                byte[] data = DataFixUtils.toArray(buffer);
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
+                var recipe = ClientboundUpdateRecipesPacket.fromNetwork(buf);
+                buf.release();
+                return DataResult.success(Pair.of(recipe, input));
+            }
+            return DataResult.error(() -> "Missing recipe data");
+        }
+    };
 }

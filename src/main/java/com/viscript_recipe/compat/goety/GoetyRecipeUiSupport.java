@@ -5,12 +5,11 @@ import com.Polarice3.Goety.common.items.ModItems;
 import com.Polarice3.Goety.common.items.research.ResearchScroll;
 import com.Polarice3.Goety.common.research.ResearchList;
 import com.Polarice3.Goety.utils.BrewUtils;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 
 import java.util.List;
 
@@ -67,15 +66,11 @@ public final class GoetyRecipeUiSupport {
         if (effect == null) {
             return stack;
         }
-        var effects = List.of(new MobEffectInstance(
-                BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect),
-                Math.max(1, duration)
-        ));
+        var effects = List.of(new MobEffectInstance(effect, Math.max(1, duration)));
         BrewUtils.setCustomEffects(stack, effects, List.of());
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt(
-                "CustomPotionColor",
-                BrewUtils.getColor(effects, List.of())
-        ));
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putInt("CustomPotionColor", BrewUtils.getColor(effects, List.of()));
+        stack.setTag(tag);
         return stack;
     }
 }

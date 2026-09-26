@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public interface IModModule extends ILDLRegister<IModModule, Supplier<IModModule>> {
     String ID = ViScriptRecipe.MOD_ID + ":mod_module";
     AutoRegistry.LDLibRegister<IModModule, Supplier<IModModule>> MODULES =
-            AutoRegistry.LDLibRegister.create(ResourceLocation.parse(ID), IModModule.class, AutoRegistry::noArgsCreator);
+            AutoRegistry.LDLibRegister.create(new ResourceLocation(ID), IModModule.class, AutoRegistry::noArgsCreator);
 
     RecipeImportHandler importHandler();
 

@@ -74,6 +74,6 @@ public enum CreateProcessingKind {
     }
 
     private static ResourceLocation create(String path) {
-        return ResourceLocation.fromNamespaceAndPath(CreateRecipeEditorTypes.MOD_ID, path);
+        return new ResourceLocation(CreateRecipeEditorTypes.MOD_ID, path);
     }
 }

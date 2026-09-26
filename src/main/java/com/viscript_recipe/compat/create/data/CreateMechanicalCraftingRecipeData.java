@@ -2,18 +2,19 @@ package com.viscript_recipe.compat.create.data;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCraftingRecipe;
+import com.viscript_lib.util.math.Clamp;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
+import com.viscript_recipe.recipe.vanilla.ShapedRecipePattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -65,10 +66,10 @@ public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
         if (result == null || result.isEmpty()) {
             throw new IllegalArgumentException("Mechanical crafting recipe result cannot be empty");
         }
+        ShapedRecipePattern pattern1 = ShapedRecipePattern.of(compiledKey, normalizedPattern);
         return new MechanicalCraftingRecipe(
-                "",
-                CraftingBookCategory.MISC,
-                ShapedRecipePattern.of(compiledKey, normalizedPattern),
+                ViScriptRecipe.placeholder, "",
+                pattern1.width(), pattern1.height(), pattern1.ingredients(),
                 result.copy(),
                 acceptMirrored
         );
@@ -89,7 +90,7 @@ public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
     }
 
     private static int clampSize(int value) {
-        return Math.clamp(value, 1, maxSize());
+        return Clamp.clamp(value, 1, maxSize());
     }
 
     @Override

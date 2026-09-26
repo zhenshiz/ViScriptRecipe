@@ -33,7 +33,7 @@ public class GoetyRitualRecipeData implements IVSRecipeData {
     @Persisted
     private GoetyRitualCraftType craftType = GoetyRitualCraftType.MAGIC;
     @Persisted
-    private ResourceLocation ritualType = ResourceLocation.fromNamespaceAndPath("goety", "craft");
+    private ResourceLocation ritualType = new ResourceLocation("goety", "craft");
     @Persisted
     private int soulCost;
     @Persisted
@@ -43,31 +43,31 @@ public class GoetyRitualRecipeData implements IVSRecipeData {
     @Persisted
     private boolean hasSacrifice;
     @Persisted
-    private ResourceLocation entityToSacrifice = ResourceLocation.fromNamespaceAndPath("minecraft", "zombies");
+    private ResourceLocation entityToSacrifice = new ResourceLocation("zombies");
     @Persisted
     private String entityToSacrificeDisplayName = "entity.minecraft.zombie";
     @Persisted
     private boolean hasSummon;
     @Persisted
-    private ResourceLocation entityToSummon = ResourceLocation.withDefaultNamespace("zombie");
+    private ResourceLocation entityToSummon = new ResourceLocation("zombie");
     @Persisted
     private boolean hasConversion;
     @Persisted
-    private ResourceLocation entityToConvert = ResourceLocation.fromNamespaceAndPath("minecraft", "zombies");
+    private ResourceLocation entityToConvert = new ResourceLocation("zombies");
     @Persisted
     private String entityToConvertDisplayName = "entity.minecraft.zombie";
     @Persisted
-    private ResourceLocation entityToConvertInto = ResourceLocation.withDefaultNamespace("zombie_villager");
+    private ResourceLocation entityToConvertInto = new ResourceLocation("zombie_villager");
     @Persisted
     private boolean hasStructure;
     @Persisted
-    private ResourceLocation structureToLocate = ResourceLocation.fromNamespaceAndPath("minecraft", "village");
+    private ResourceLocation structureToLocate = new ResourceLocation("village");
     @Persisted
     private String structureDisplayName = "filled_map.village";
     @Persisted
     private boolean hasEnchantment;
     @Persisted
-    private ResourceLocation enchantment = ResourceLocation.withDefaultNamespace("sharpness");
+    private ResourceLocation enchantment = new ResourceLocation("sharpness");
     @Persisted
     private int xpLevelCost;
     @Persisted

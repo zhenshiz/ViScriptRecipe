@@ -28,8 +28,10 @@ public enum MekanismRecipeKind {
     INJECTING("injecting", "chemical_injection_chamber", 1, 0, 1, 1, 0, 0),
     NUCLEOSYNTHESIZING("nucleosynthesizing", "antiprotonic_nucleosynthesizer", 1, 0, 1, 1, 0, 0),
     ENERGY_CONVERSION("energy_conversion", "basic_energy_cube", 1, 0, 0, 0, 0, 0),
-    CHEMICAL_CONVERSION("chemical_conversion", "purification_chamber", 1, 0, 0, 0, 0, 1),
+    GAS_CONVERSION("gas_conversion", "purification_chamber", 1, 0, 0, 0, 0, 1), // 1.20.1
+    //CHEMICAL_CONVERSION("chemical_conversion", "purification_chamber", 1, 0, 0, 0, 0, 1),
     OXIDIZING("oxidizing", "chemical_oxidizer", 1, 0, 0, 0, 0, 1),
+    INFUSION_CONVERSION("infusion_conversion", "metallurgic_infuser", 1, 0, 0, 0, 0, 1), // 1.20.1
     PIGMENT_EXTRACTING("pigment_extracting", "pigment_extractor", 1, 0, 0, 0, 0, 1),
     PIGMENT_MIXING("pigment_mixing", "pigment_mixer", 0, 0, 2, 0, 0, 1),
     METALLURGIC_INFUSING("metallurgic_infusing", "metallurgic_infuser", 1, 0, 1, 1, 0, 0),
@@ -50,8 +52,8 @@ public enum MekanismRecipeKind {
 
     MekanismRecipeKind(String path, String workstationPath, int itemInputs, int fluidInputs, int chemicalInputs,
                        int itemOutputs, int fluidOutputs, int chemicalOutputs) {
-        typeId = ResourceLocation.fromNamespaceAndPath(MekanismRecipeEditorTypes.MOD_ID, path);
-        workstationId = ResourceLocation.fromNamespaceAndPath(MekanismRecipeEditorTypes.MOD_ID, workstationPath);
+        typeId = new ResourceLocation(MekanismRecipeEditorTypes.MOD_ID, path);
+        workstationId = new ResourceLocation(MekanismRecipeEditorTypes.MOD_ID, workstationPath);
         this.itemInputs = itemInputs;
         this.fluidInputs = fluidInputs;
         this.chemicalInputs = chemicalInputs;
@@ -64,12 +66,12 @@ public enum MekanismRecipeKind {
         return Arrays.stream(values()).filter(kind -> kind.typeId.equals(type)).findFirst();
     }
 
-    public boolean hasPerTickUsage() {
+/*    public boolean hasPerTickUsage() {
         return switch (this) {
             case DISSOLUTION, COMPRESSING, PURIFYING, INJECTING, NUCLEOSYNTHESIZING, METALLURGIC_INFUSING, PAINTING -> true;
             default -> false;
         };
-    }
+    }*/
 
     public boolean hasDuration() {
         return this == NUCLEOSYNTHESIZING || this == REACTION;
@@ -78,4 +80,43 @@ public enum MekanismRecipeKind {
     public boolean hasEnergyRequired() { return this == REACTION; }
     public boolean hasEnergyMultiplier() { return this == SEPARATING; }
     public boolean hasSecondaryChance() { return this == SAWING; }
+
+    public boolean gasInput() {
+        return switch (this) {
+            case ACTIVATING, CENTRIFUGING, DISSOLUTION, CHEMICAL_INFUSING, COMPRESSING, INJECTING, NUCLEOSYNTHESIZING, REACTION, PURIFYING, CONDENSENTRATING -> true;
+            default -> false;
+        };
+    }
+
+    public boolean gasOutput() {
+        return switch (this) {
+            case DISSOLUTION, // 这个比较特殊，可以输出任意类型
+                    ACTIVATING, CENTRIFUGING, CHEMICAL_INFUSING, OXIDIZING, SEPARATING, GAS_CONVERSION, REACTION, DECONDENSENTRATING -> true;
+            default -> false;
+        };
+    }
+
+    public boolean infuseTypeInput() {
+        return this == METALLURGIC_INFUSING;
+    }
+
+    public boolean infuseTypeOutput() {
+        return this == INFUSION_CONVERSION;
+    }
+
+    public boolean pigmentInput() {
+        return this == PAINTING || this == PIGMENT_MIXING;
+    }
+
+    public boolean pigmentOutput() {
+        return this == PIGMENT_EXTRACTING || this == PIGMENT_MIXING;
+    }
+
+    public boolean slurryInput() {
+        return this == WASHING;
+    }
+
+    public boolean slurryOutput() {
+        return this == WASHING;
+    }
 }

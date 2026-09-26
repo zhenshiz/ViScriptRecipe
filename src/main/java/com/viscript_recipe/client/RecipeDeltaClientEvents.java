@@ -1,9 +1,7 @@
 package com.viscript_recipe.client;
 
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 
 public final class RecipeDeltaClientEvents {
     private static boolean registered;
@@ -15,13 +13,11 @@ public final class RecipeDeltaClientEvents {
         if (registered) {
             return;
         }
-        NeoForge.EVENT_BUS.addListener(
+        MinecraftForge.EVENT_BUS.addListener(
                 EventPriority.HIGHEST,
-                RecipesUpdatedEvent.class,
                 RecipeDeltaClientState::onRecipesUpdated
         );
-        NeoForge.EVENT_BUS.addListener(
-                ClientPlayerNetworkEvent.LoggingOut.class,
+        MinecraftForge.EVENT_BUS.addListener(
                 RecipeDeltaClientState::onClientLogout
         );
         registered = true;

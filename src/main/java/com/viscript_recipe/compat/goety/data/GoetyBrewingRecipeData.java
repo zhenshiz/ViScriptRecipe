@@ -18,7 +18,7 @@ public class GoetyBrewingRecipeData implements IVSRecipeData {
     @Persisted
     private RecipeIngredient ingredient = RecipeIngredient.item(Items.SPIDER_EYE);
     @Persisted
-    private ResourceLocation effect = ResourceLocation.withDefaultNamespace("poison");
+    private ResourceLocation effect = new ResourceLocation("poison");
     @Persisted
     private int soulCost = 25;
     @Persisted
@@ -28,7 +28,7 @@ public class GoetyBrewingRecipeData implements IVSRecipeData {
     @Persisted
     private GoetyBrewingEntityKind entityKind = GoetyBrewingEntityKind.NONE;
     @Persisted
-    private ResourceLocation entity = ResourceLocation.withDefaultNamespace("zombie");
+    private ResourceLocation entity = new ResourceLocation("zombie");
 
     @Override
     public Recipe<?> compile(ResourceLocation type) {

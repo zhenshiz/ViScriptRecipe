@@ -84,6 +84,6 @@ public final class VanillaStonecuttingCanvasFactory {
     }
 
     private static ResourceLocation jeiTexture(String path) {
-        return ResourceLocation.fromNamespaceAndPath("jei", "textures/jei/atlas/gui/" + path);
+        return new ResourceLocation("jei", "textures/jei/atlas/gui/" + path);
     }
 }

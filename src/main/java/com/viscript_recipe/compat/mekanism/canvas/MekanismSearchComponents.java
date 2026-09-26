@@ -7,54 +7,70 @@ import com.viscript_lib.gui.components.search.RegistrySearchBox;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import mekanism.api.MekanismAPI;
 import mekanism.api.chemical.Chemical;
+import mekanism.api.chemical.ChemicalType;
+import mekanism.common.util.ChemicalUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-final class MekanismSearchComponents {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class MekanismSearchComponents {
     private MekanismSearchComponents() {
+    }
+
+    static <T extends Chemical> IForgeRegistry<T> getRegistry(ChemicalType chemicalType) {
+        return (IForgeRegistry<T>) switch (chemicalType) {
+            case GAS -> MekanismAPI.gasRegistry();
+            case INFUSION -> MekanismAPI.infuseTypeRegistry();
+            case PIGMENT -> MekanismAPI.pigmentRegistry();
+            case SLURRY -> MekanismAPI.slurryRegistry();
+        };
     }
 
     static UIElement chemical(
             String nameKey,
+            ChemicalType type,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var registry = MekanismAPI.CHEMICAL_REGISTRY;
-        var fallback = fallbackChemical();
-        var current = registry.getOptional(Objects.requireNonNullElse(supplier.get(), registry.getKey(fallback)))
-                .filter(MekanismSearchComponents::isUsableChemical)
-                .orElse(fallback);
-        var searchBox = new ChemicalSearchBox(current);
+        var registry = getRegistry(type);
+        var fallback = fallbackChemical(type);
+        var current = Objects.requireNonNullElse(registry.getValue(supplier.get()), fallback);
+        var searchBox = new ChemicalSearchBox<>(registry, current);
         searchBox.setCandidateFilter(MekanismSearchComponents::isUsableChemical);
         return configure(nameKey, searchBox, value -> {
             var id = registry.getKey(value);
-            if (!Objects.equals(id, supplier.get())) {
-                consumer.accept(id);
-                onChanged.run();
-            }
+            if (!Objects.equals(id, supplier.get())) { consumer.accept(id); onChanged.run(); }
         });
     }
 
     static UIElement chemicalTag(
             String nameKey,
+            ChemicalType type,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var current = TagKey.create(
-                MekanismAPI.CHEMICAL_REGISTRY_NAME,
-                Objects.requireNonNullElse(supplier.get(),
-                        ResourceLocation.fromNamespaceAndPath("mekanism", "clean"))
-        );
-        return configure(nameKey, new ChemicalTagSearchBox(current), tag -> {
+        var current = switch (type) {
+            case GAS -> TagKey.create(MekanismAPI.GAS_REGISTRY_NAME,
+                    Objects.requireNonNullElse(supplier.get(), new ResourceLocation("mekanism", "water_vapor")));
+            case INFUSION -> TagKey.create(MekanismAPI.INFUSE_TYPE_REGISTRY_NAME,
+                    Objects.requireNonNullElse(supplier.get(), new ResourceLocation("mekanism", "carbon")));
+            case PIGMENT -> TagKey.create(MekanismAPI.PIGMENT_REGISTRY_NAME, // mek没有注册这玩意的标签
+                    Objects.requireNonNullElse(supplier.get(), new ResourceLocation("mekanism", "clean")));
+            case SLURRY -> TagKey.create(MekanismAPI.SLURRY_REGISTRY_NAME,
+                    Objects.requireNonNullElse(supplier.get(), new ResourceLocation("mekanism", "clean")));
+        };
+        return configure(nameKey, new ChemicalTagSearchBox(getRegistry(type), current), tag -> {
             if (!Objects.equals(tag.location(), supplier.get())) {
                 consumer.accept(tag.location());
                 onChanged.run();
@@ -84,62 +100,57 @@ final class MekanismSearchComponents {
         return RecipeEditorUi.fieldGroup(nameKey, searchBox);
     }
 
-    private static Chemical fallbackChemical() {
-        var registry = MekanismAPI.CHEMICAL_REGISTRY;
-        var oxygen = registry.getOptional(ResourceLocation.fromNamespaceAndPath("mekanism", "oxygen"));
-        if (oxygen.isPresent() && isUsableChemical(oxygen.get())) {
-            return oxygen.get();
-        }
+    private static Chemical fallbackChemical(ChemicalType type) {
+        var registry = getRegistry(type);
         for (var chemical : registry) {
-            if (isUsableChemical(chemical)) {
-                return chemical;
-            }
+            if (isUsableChemical(chemical)) return chemical;
         }
-        return registry.get(registry.getDefaultKey());
+        return registry.getValue(registry.getDefaultKey());
     }
 
     private static boolean isUsableChemical(Chemical chemical) {
-        return chemical != null && !MekanismAPI.EMPTY_CHEMICAL_KEY.location().equals(
-                MekanismAPI.CHEMICAL_REGISTRY.getKey(chemical));
+        return chemical != null && ChemicalUtil.getEmptyStack(ChemicalType.getTypeFor(chemical)).getRaw() != chemical;
     }
 
-    private static final class ChemicalSearchBox extends RegistrySearchBox<Chemical> {
-        private ChemicalSearchBox(Chemical defaultValue) {
-            super(
-                    defaultValue,
-                    () -> MekanismAPI.CHEMICAL_REGISTRY,
-                    MekanismAPI.CHEMICAL_REGISTRY::getKey,
-                    value -> Objects.toString(MekanismAPI.CHEMICAL_REGISTRY.getKey(value), ""),
-                    ChemicalSearchBox::search,
-                    UIElementProvider.text(Chemical::getTextComponent)
-            );
+    private static class ChemicalSearchBox<T extends Chemical> extends RegistrySearchBox<T> {
+        private ChemicalSearchBox(IForgeRegistry<T> registry, T defaultValue) {
+            super(defaultValue, () -> registry, registry::getKey,
+                    value -> Objects.toString(registry.getKey(value), ""),
+                    (word, searchHandler) -> searchForgeRegistry(registry, word, searchHandler,
+                            value -> value.getTranslationKey() + " " + value.getTextComponent().getString()),
+                    UIElementProvider.text(T::getTextComponent));
         }
 
-        private static void search(String word, IResultHandler<Chemical> result) {
-            searchRegistry(
-                    MekanismAPI.CHEMICAL_REGISTRY,
-                    word,
-                    result,
-                    value -> value.getTranslationKey() + " " + value.getTextComponent().getString()
-            );
+        protected static <V extends Chemical> void searchForgeRegistry(IForgeRegistry<V> registry, String word, IResultHandler<V> searchHandler, Function<V, String> extraSearchText) {
+            var lowerWord = word.toLowerCase(Locale.ROOT);
+            for (var key : registry.getKeys()) {
+                if (Thread.currentThread().isInterrupted()) return;
+                V value = registry.getValue(key);
+                if (matches(lowerWord, key.toString()) || matches(lowerWord, extraSearchText.apply(value))) {
+                    searchHandler.acceptResult(value);
+                }
+            }
         }
     }
 
-    private static final class ChemicalTagSearchBox extends RegistrySearchBox<TagKey<Chemical>> {
-        private ChemicalTagSearchBox(TagKey<Chemical> defaultValue) {
+    private static final class ChemicalTagSearchBox extends RegistrySearchBox<TagKey<?>> {
+        static IForgeRegistry<?> registry;
+
+        private ChemicalTagSearchBox(IForgeRegistry<?> registry, TagKey<?> defaultValue) {
             super(
                     defaultValue,
-                    () -> MekanismAPI.CHEMICAL_REGISTRY,
+                    () -> registry,
                     TagKey::location,
                     tag -> tag.location().toString(),
                     ChemicalTagSearchBox::search,
                     UIElementProvider.text(tag -> Component.literal("#" + tag.location()))
             );
+            ChemicalTagSearchBox.registry = registry;
         }
 
-        private static void search(String word, IResultHandler<TagKey<Chemical>> result) {
+        private static void search(String word, IResultHandler<TagKey<?>> result) {
             var query = word.toLowerCase(Locale.ROOT);
-            MekanismAPI.CHEMICAL_REGISTRY.getTagNames()
+            Objects.requireNonNull(registry.tags()).getTagNames()
                     .sorted(Comparator.comparing(tag -> tag.location().toString()))
                     .takeWhile(tag -> !Thread.currentThread().isInterrupted())
                     .filter(tag -> tag.location().toString().toLowerCase(Locale.ROOT).contains(query))

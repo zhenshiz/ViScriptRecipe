@@ -1,8 +1,10 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.recipe.vanilla.ShapedRecipePattern;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapedRecipe;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +15,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,14 +49,14 @@ public class ShapedCraftingRecipeData implements IVSRecipeData {
         for (var entry : key) {
             compiledKey.put(entry.compileSymbol(), entry.compileIngredient());
         }
-        var compiledPattern = ShapedRecipePattern.of(compiledKey, pattern);
+        var pattern1 = ShapedRecipePattern.of(compiledKey, pattern);
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
         var compiledRemainders = remainders == null ? List.<CraftingRemainderRule>of() : remainders;
         if (compiledRemainders.stream().anyMatch(rule -> !rule.isDefault())) {
-            return new ViscriptShapedRecipe("", CraftingBookCategory.MISC, compiledPattern, result.copy(), showNotification, compiledRemainders);
+            return new ViscriptShapedRecipe("", CraftingBookCategory.MISC, pattern1, result.copy(), showNotification, compiledRemainders);
         }
-        return new ShapedRecipe("", CraftingBookCategory.MISC, compiledPattern, result.copy(), showNotification);
+        return new ShapedRecipe(ViScriptRecipe.placeholder, "", CraftingBookCategory.MISC, pattern1.width(), pattern1.height(), pattern1.ingredients(), result.copy(), showNotification);
     }
 }

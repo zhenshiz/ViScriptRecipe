@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
 import com.viscript_lib.gui.components.search.*;
-import com.viscript_recipe.compat.kaleidoscope_cookery.canvas.KaleidoscopeSoupBaseUiSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,11 +29,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class RecipeSearchComponents {
-    private static final ResourceLocation DEFAULT_ENTITY_TAG = ResourceLocation.withDefaultNamespace("undead");
-    private static final ResourceLocation DEFAULT_FLUID_TAG = ResourceLocation.fromNamespaceAndPath("c", "water");
-    private static final ResourceLocation DEFAULT_STRUCTURE_TAG = ResourceLocation.withDefaultNamespace("village");
-    private static final ResourceLocation DEFAULT_BIOME_TAG = ResourceLocation.withDefaultNamespace("is_overworld");
-    private static final ResourceLocation DEFAULT_DIMENSION_TYPE = ResourceLocation.withDefaultNamespace("overworld");
+    private static final ResourceLocation DEFAULT_ENTITY_TAG = new ResourceLocation("undead");
+    private static final ResourceLocation DEFAULT_FLUID_TAG = new ResourceLocation("forge", "water");
+    private static final ResourceLocation DEFAULT_STRUCTURE_TAG = new ResourceLocation("village");
+    private static final ResourceLocation DEFAULT_BIOME_TAG = new ResourceLocation("is_overworld");
+    private static final ResourceLocation DEFAULT_DIMENSION_TYPE = new ResourceLocation("overworld");
     private static final int MAX_RECIPE_ID_CANDIDATES = 200;
 
     private RecipeSearchComponents() {
@@ -63,10 +62,7 @@ public final class RecipeSearchComponents {
             MobEffect defaultValue
     ) {
         var registry = BuiltInRegistries.MOB_EFFECT;
-        var fallback = registry.wrapAsHolder(defaultValue);
-        var current = registry.getHolder(Objects.requireNonNullElse(supplier.get(), registry.getKey(defaultValue)))
-                .map(holder -> (net.minecraft.core.Holder<MobEffect>) holder)
-                .orElse(fallback);
+        var current = registry.getOptional(supplier.get()).orElse(defaultValue);
         var searchBox = new MobEffectSearchBox(current);
         return configure(nameKey, searchBox, value -> updateId(
                 MobEffectSearchBox.getMobEffectId(value), supplier, consumer, onChanged));
@@ -78,7 +74,7 @@ public final class RecipeSearchComponents {
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var id = Objects.requireNonNullElse(supplier.get(), ResourceLocation.withDefaultNamespace("sharpness"));
+        var id = Objects.requireNonNullElse(supplier.get(), new ResourceLocation("sharpness"));
         var searchBox = new EnchantmentSearchBox(ResourceKey.create(Registries.ENCHANTMENT, id));
         return configure(nameKey, searchBox, value -> updateId(
                 EnchantmentSearchBox.getEnchantmentId(value), supplier, consumer, onChanged));
@@ -163,7 +159,7 @@ public final class RecipeSearchComponents {
             Runnable onChanged
     ) {
         var current = TagKey.create(Registries.BLOCK,
-                Objects.requireNonNullElse(supplier.get(), ResourceLocation.fromNamespaceAndPath("minecraft", "campfires")));
+                Objects.requireNonNullElse(supplier.get(), new ResourceLocation("minecraft", "campfires")));
         return configure(nameKey, new BlockTagSearchBox(current),
                 value -> updateTagId(value, supplier, consumer, onChanged));
     }
@@ -237,7 +233,7 @@ public final class RecipeSearchComponents {
                 value -> updateId(value, supplier, consumer, onChanged));
     }
 
-    public static UIElement soupBase(
+/*    public static UIElement soupBase(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -247,7 +243,7 @@ public final class RecipeSearchComponents {
                 KaleidoscopeSoupBaseUiSupport.ids(),
                 KaleidoscopeSoupBaseUiSupport::displayName,
                 KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE);
-    }
+    }*/
 
     private static UIElement catalog(
             String nameKey,
@@ -259,7 +255,7 @@ public final class RecipeSearchComponents {
             ResourceLocation defaultValue
     ) {
         var current = Objects.requireNonNullElse(supplier.get(),
-                candidates.isEmpty() ? defaultValue : candidates.getFirst());
+                candidates.isEmpty() ? defaultValue : candidates.get(0));
         var searchBox = new ResourceLocationCatalogSearchBox(current, candidates, display);
         return configure(nameKey, searchBox,
                 value -> updateId(value, supplier, consumer, onChanged));
@@ -327,7 +323,7 @@ public final class RecipeSearchComponents {
             TagKey<Structure> tag
     ) {
         var members = structureTags.getOrDefault(tag.location(), List.of());
-        return members.size() == 1 ? members.getFirst().toString() : tag.location().toString();
+        return members.size() == 1 ? members.get(0).toString() : tag.location().toString();
     }
 
     private static void searchStructureTags(

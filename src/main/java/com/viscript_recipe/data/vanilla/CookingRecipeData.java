@@ -1,6 +1,7 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -29,9 +30,6 @@ public class CookingRecipeData implements IVSRecipeData {
 
     @Override
     public Recipe<?> compile(ResourceLocation typeId) {
-        var factory = factories.get(typeId);
-        if (factory == null) return null;
-
         var compiledIngredient = ingredient == null ? Ingredient.EMPTY : ingredient.compile();
         if (compiledIngredient.isEmpty()) {
             throw new IllegalArgumentException("Cooking recipe ingredient cannot be empty");
@@ -39,15 +37,21 @@ public class CookingRecipeData implements IVSRecipeData {
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
-        return factory.create("", CookingBookCategory.MISC, compiledIngredient, result.copy(), Math.clamp(experience, 0, Integer.MAX_VALUE), Math.max(1, cookingTime));
+        Factory factory = factories.get(typeId);
+        if (factory == null) return null;
+        return factory.create(ViScriptRecipe.placeholder, "", CookingBookCategory.MISC, compiledIngredient, result.copy(), Math.max(0, Math.min(Integer.MAX_VALUE, experience)), Math.max(1, cookingTime));
     }
-
-    static final Map<ResourceLocation, AbstractCookingRecipe.Factory<? extends AbstractCookingRecipe>> factories = Map.of(
+    
+    static final Map<ResourceLocation, Factory> factories = Map.of(
             RecipeEditorTypes.SMELTING, SmeltingRecipe::new,
             RecipeEditorTypes.BLASTING, BlastingRecipe::new,
             RecipeEditorTypes.SMOKING, SmokingRecipe::new,
             RecipeEditorTypes.CAMPFIRE_COOKING, CampfireCookingRecipe::new
     );
+
+    public interface Factory {
+        AbstractCookingRecipe create(ResourceLocation id, String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime);
+    }
 
     @Override
     public void applyDefaultData(ResourceLocation typeId) {

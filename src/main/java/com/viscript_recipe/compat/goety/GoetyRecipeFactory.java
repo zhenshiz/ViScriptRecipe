@@ -22,7 +22,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
  * Creates Goety's native recipe objects from editor-owned persisted data.
  */
 public final class GoetyRecipeFactory {
-    private static final ResourceLocation FALLBACK_ID = ResourceLocation.fromNamespaceAndPath("viscript_recipe", "goety_editor");
+    private static final ResourceLocation FALLBACK_ID = new ResourceLocation("viscript_recipe", "goety_editor");
 
     private GoetyRecipeFactory() {
     }
@@ -53,7 +53,7 @@ public final class GoetyRecipeFactory {
      */
     public static Recipe<?> compileRitual(GoetyRitualRecipeData data) {
         var ritualType = data.getRitualType();
-        if (ritualType == null || ModRituals.REGISTRY.get(ritualType) == null) {
+        if (ritualType == null || ModRituals.REGISTRY.get().getValue(ritualType) == null) {
             throw new IllegalArgumentException("Unknown Goety ritual type: " + ritualType);
         }
         var ingredients = NonNullList.<Ingredient>create();
@@ -98,8 +98,7 @@ public final class GoetyRecipeFactory {
                 data.isHasConversion() ? safeString(data.getEntityToConvertDisplayName()) : "",
                 structure,
                 data.isHasStructure() ? safeString(data.getStructureDisplayName()) : "",
-                null,
-                enchantmentId,
+                BuiltInRegistries.ENCHANTMENT.get(enchantmentId),
                 data.isHasEnchantment() ? Math.max(0, data.getXpLevelCost()) : 0,
                 safeString(data.getResearch())
         );

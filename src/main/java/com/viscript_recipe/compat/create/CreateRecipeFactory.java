@@ -16,16 +16,20 @@ import com.simibubi.create.content.kinetics.press.PressingRecipe;
 import com.simibubi.create.content.kinetics.saw.CuttingRecipe;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
-import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
+import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.item.ItemHelper;
+import com.viscript_lib.util.math.Clamp;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeOutputData;
+import com.viscript_recipe.data.vanilla.CookingRecipeData;
 import com.viscript_recipe.recipe.vanilla.ViscriptShapelessRecipe;
 import com.viscript_recipe.recipe.vanilla.ViscriptStonecutterRecipe;
 import net.minecraft.core.NonNullList;
@@ -36,9 +40,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
-import net.neoforged.neoforge.common.crafting.CompoundIngredient;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import net.minecraftforge.common.crafting.CompoundIngredient;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +60,7 @@ public final class CreateRecipeFactory {
             case CRUSHING -> compileStandard(kind, data, CrushingRecipe::new);
             case MILLING -> compileStandard(kind, data, MillingRecipe::new);
             case CUTTING -> compileStandard(kind, data, CuttingRecipe::new);
-            case BLOCK_CUTTING -> compileBlockCutting(kind, data).getFirst();
+            case BLOCK_CUTTING -> compileBlockCutting(kind, data).get(0);
             case AUTO_PACKING -> compileAutoPacking(kind, data);
             case PRESSING -> compileStandard(kind, data, PressingRecipe::new);
             case SANDPAPER_POLISHING -> compileStandard(kind, data, SandPaperPolishingRecipe::new);
@@ -101,7 +104,7 @@ public final class CreateRecipeFactory {
         for (var step : steps) {
             addSequencedStep(builder, step);
         }
-        var recipe = builder.build().value();
+        var recipe = builder.build();
         initializeSequencedAssembly(recipe);
         return recipe;
     }
@@ -119,8 +122,7 @@ public final class CreateRecipeFactory {
     }
 
     private static void addSequencedStep(SequencedAssemblyRecipeBuilder builder, CreateSequencedAssemblyStepData step) {
-        var kind = step == null || step.getKind() == null ? CreateSequencedAssemblyStepKind.DEPLOYING : step.getKind();
-        switch (kind) {
+        switch (step.getKind()) {
             case DEPLOYING -> builder.addStep(DeployerApplicationRecipe::new, stepBuilder -> {
                 var ingredient = compileIngredient(step.getIngredient());
                 if (ingredient.isEmpty()) {
@@ -139,7 +141,7 @@ public final class CreateRecipeFactory {
             });
             case FILLING -> builder.addStep(FillingRecipe::new, stepBuilder -> {
                 var fluidIngredient = compileFluidIngredient(step.getFluidIngredient());
-                if (fluidIngredient == null || fluidIngredient.ingredient().isEmpty() || fluidIngredient.ingredient().hasNoFluids()) {
+                if (fluidIngredient == null || fluidIngredient.getMatchingFluidStacks().isEmpty()) {
                     throw new IllegalArgumentException("Create sequenced assembly filling step must have a fluid ingredient");
                 }
                 stepBuilder.require(fluidIngredient);
@@ -149,8 +151,8 @@ public final class CreateRecipeFactory {
     }
 
     private static Recipe<?> compileStandard(CreateProcessingKind kind, CreateProcessingRecipeData data,
-                                             StandardProcessingRecipe.Factory<? extends StandardProcessingRecipe<?>> factory) {
-        var builder = new StandardProcessingRecipe.Builder<>(factory, DUMMY_RECIPE_ID);
+                                             ProcessingRecipeBuilder.ProcessingRecipeFactory<? extends ProcessingRecipe<?>> factory) {
+        var builder = new ProcessingRecipeBuilder<>(factory, DUMMY_RECIPE_ID);
         builder.withItemIngredients(compileItemIngredients(data, kind.maxItemInputs()));
         builder.withFluidIngredients(compileFluidIngredients(data, kind.maxFluidInputs()));
         builder.withItemOutputs(compileItemOutputs(data, kind.maxItemOutputs()));
@@ -167,7 +169,7 @@ public final class CreateRecipeFactory {
     }
 
     private static Recipe<?> compileCooking(CreateProcessingKind kind, CreateProcessingRecipeData data,
-                                            AbstractCookingRecipe.Factory<? extends AbstractCookingRecipe> factory) {
+                                            CookingRecipeData.Factory factory) {
         var ingredients = compileItemIngredients(data, kind.maxItemInputs());
         if (ingredients.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item input");
@@ -176,8 +178,7 @@ public final class CreateRecipeFactory {
         if (outputs.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
         }
-        return factory.create("", CookingBookCategory.MISC, ingredients.getFirst(), outputs.getFirst().getStack().copy(),
-                0, Math.max(1, data.getProcessingTime()));
+        return factory.create(ViScriptRecipe.placeholder, "", CookingBookCategory.MISC, ingredients.get(0), outputs.get(0).getStack().copy(), 0, Math.max(1, data.getProcessingTime()));
     }
 
     private static List<Recipe<?>> compileBlockCutting(CreateProcessingKind kind, CreateProcessingRecipeData data) {
@@ -191,7 +192,7 @@ public final class CreateRecipeFactory {
         }
         var recipes = new ArrayList<Recipe<?>>();
         for (var output : outputs) {
-            recipes.add(new ViscriptStonecutterRecipe("", ingredients.getFirst(), output.getStack().copy(), true));
+            recipes.add(new ViscriptStonecutterRecipe("", ingredients.get(0), output.getStack().copy(), true));
         }
         return recipes;
     }
@@ -208,7 +209,7 @@ public final class CreateRecipeFactory {
         if (outputs.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
         }
-        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.getFirst().getStack().copy(), ingredients, false);
+        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.get(0).getStack().copy(), ingredients, false);
     }
 
     private static Recipe<?> compileAutomaticShapeless(CreateProcessingKind kind, CreateProcessingRecipeData data) {
@@ -220,12 +221,12 @@ public final class CreateRecipeFactory {
         if (outputs.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
         }
-        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.getFirst().getStack().copy(), ingredients, false);
+        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.get(0).getStack().copy(), ingredients, false);
     }
 
     private static Recipe<?> compileItemApplication(CreateProcessingKind kind, CreateProcessingRecipeData data,
-                                                    ItemApplicationRecipe.Factory<? extends ItemApplicationRecipe> factory) {
-        var builder = new ItemApplicationRecipe.Builder<>(factory, DUMMY_RECIPE_ID);
+                                                    ProcessingRecipeBuilder.ProcessingRecipeFactory<? extends ItemApplicationRecipe> factory) {
+        var builder = new ProcessingRecipeBuilder<>(factory, DUMMY_RECIPE_ID);
         builder.withItemIngredients(compileItemIngredients(data, kind.maxItemInputs()));
         builder.withItemOutputs(compileItemOutputs(data, kind.maxItemOutputs()));
         if (data.isKeepHeldItem()) {
@@ -254,14 +255,14 @@ public final class CreateRecipeFactory {
         return ingredients;
     }
 
-    private static NonNullList<SizedFluidIngredient> compileFluidIngredients(CreateProcessingRecipeData data, int maxCount) {
-        var ingredients = NonNullList.<SizedFluidIngredient>create();
+    private static NonNullList<FluidIngredient> compileFluidIngredients(CreateProcessingRecipeData data, int maxCount) {
+        var ingredients = NonNullList.<FluidIngredient>create();
         for (var ingredientData : safeList(data.getFluidIngredients())) {
             if (ingredients.size() >= maxCount) {
                 break;
             }
             var ingredient = compileFluidIngredient(ingredientData);
-            if (ingredient != null && !ingredient.ingredient().isEmpty() && !ingredient.ingredient().hasNoFluids()) {
+            if (ingredient != null && !ingredient.getMatchingFluidStacks().isEmpty()) {
                 ingredients.add(ingredient);
             }
         }
@@ -311,7 +312,7 @@ public final class CreateRecipeFactory {
         return ingredient == null ? Ingredient.EMPTY : ingredient.compile();
     }
 
-    private static SizedFluidIngredient compileFluidIngredient(FluidIngredientData data) {
+    private static FluidIngredient compileFluidIngredient(FluidIngredientData data) {
         if (data == null) {
             return null;
         }
@@ -320,13 +321,13 @@ public final class CreateRecipeFactory {
             if (data.getTag() == null) {
                 throw new IllegalArgumentException("Create fluid ingredient tag cannot be empty");
             }
-            return SizedFluidIngredient.of(TagKey.create(Registries.FLUID, data.getTag()), Math.max(1, data.getAmount()));
+            return FluidIngredient.fromTag(TagKey.create(Registries.FLUID, data.getTag()), Math.max(1, data.getAmount()));
         }
         var stack = copyFluid(data.getFluid());
-        if (stack.isEmpty() || stack.getFluid() == BuiltInRegistries.FLUID.get(ResourceLocation.withDefaultNamespace("empty"))) {
+        if (stack.isEmpty() || stack.getFluid() == BuiltInRegistries.FLUID.get(new ResourceLocation("empty"))) {
             return null;
         }
-        return SizedFluidIngredient.of(stack.copyWithAmount(Math.max(1, stack.getAmount())));
+        return FluidIngredient.fromFluidStack(stack.copy());
     }
 
     private static HeatCondition compileHeat(CreateHeatCondition condition) {
@@ -362,7 +363,7 @@ public final class CreateRecipeFactory {
             return ItemStack.EMPTY;
         }
         var stack = outputData.getItem().copy();
-        stack.setCount(Math.clamp(stack.getCount(), 1, 99));
+        stack.setCount(Clamp.clamp(stack.getCount(), 1, 99));
         return stack;
     }
 
@@ -376,7 +377,7 @@ public final class CreateRecipeFactory {
     }
 
     private static float clampChance(float chance) {
-        return Math.clamp(chance, 0, 1);
+        return Clamp.clamp(chance, 0, 1);
     }
 
     private static FluidStack copyFluid(FluidStack stack) {

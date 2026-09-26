@@ -14,8 +14,8 @@ import committee.nova.mods.avaritia.common.crafting.recipe.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.common.crafting.CompoundIngredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraftforge.common.crafting.CompoundIngredient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +27,10 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
     }
 
     @Override
-    public boolean canImport(RecipeHolder<?> holder) {
-        if (holder == null) {
+    public boolean canImport(Recipe<?> recipe) {
+        if (recipe == null) {
             return false;
         }
-        var recipe = holder.value();
         return recipe instanceof ShapedTableCraftingRecipe
                 || recipe instanceof InfinityCatalystCraftRecipe
                 || recipe instanceof EternalSingularityCraftRecipe
@@ -42,13 +41,12 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
     }
 
     @Override
-    public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
-        var recipe = holder.value();
+    public RecipeImportResult tryImport(Recipe<?> recipe, HolderLookup.Provider provider) throws RecipeImportException {
         if (recipe instanceof NoConsumeCatalystShapedRecipe noConsume) {
-            return RecipeImporter.success(importShapedTable(holder, provider, noConsume, AvaritiaRecipeEditorTypes.NO_CONSUME_CATALYST_SHAPED, false));
+            return RecipeImporter.success(importShapedTable(recipe, provider, noConsume, AvaritiaRecipeEditorTypes.NO_CONSUME_CATALYST_SHAPED, false));
         }
         if (recipe instanceof ShapedTableCraftingRecipe shaped) {
-            return RecipeImporter.success(importShapedTable(holder, provider, shaped, AvaritiaRecipeEditorTypes.SHAPED_TABLE, shaped.isCompatible()));
+            return RecipeImporter.success(importShapedTable(recipe, provider, shaped, AvaritiaRecipeEditorTypes.SHAPED_TABLE, shaped.isCompatible()));
         }
         if (recipe instanceof ShapelessTableCraftingRecipe shapeless && !isSpecialShapeless(shapeless)) {
             var tier = Math.max(1, shapeless.getTier());
@@ -59,7 +57,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                     .setHeight(gridSize)
                     .setShapelessIngredients(new ArrayList<>(RecipeImporter.importIngredientList(shapeless.getIngredients(), 81)))
                     .setResult(RecipeImporter.copyResult(shapeless, provider));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.SHAPELESS_TABLE).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), AvaritiaRecipeEditorTypes.SHAPELESS_TABLE).setData(data));
         }
         if (recipe instanceof InfinityCatalystCraftRecipe catalyst) {
             var result = RecipeImporter.copyResult(catalyst, provider);
@@ -67,7 +65,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                     .setGroup(catalyst.getGroup())
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(catalyst.getIngredients(), 81)))
                     .setCount(Math.max(1, result.getCount()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.INFINITY_CATALYST)
+            return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), AvaritiaRecipeEditorTypes.INFINITY_CATALYST)
                     .setData(data));
         }
         if (recipe instanceof EternalSingularityCraftRecipe eternalSingularity) {
@@ -75,7 +73,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
             var data = new AvaritiaSpecialShapelessRecipeData()
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(eternalSingularity.originalInputs, 81)))
                     .setCount(Math.max(1, result.getCount()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)
+            return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), AvaritiaRecipeEditorTypes.ETERNAL_SINGULARITY)
                     .setData(data));
         }
         if (recipe instanceof FullMatterClusterRecipe fullMatterCluster) {
@@ -84,7 +82,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                     .setGroup(fullMatterCluster.getGroup())
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(fullMatterCluster.getIngredients(), 81)))
                     .setCount(Math.max(1, result.getCount()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)
+            return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), AvaritiaRecipeEditorTypes.FULL_MATTER_CLUSTER)
                     .setData(data));
         }
         if (recipe instanceof CompressorRecipe compressor) {
@@ -92,7 +90,7 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                     .setIngredient(RecipeImporter.importIngredient(compressor.getInput()).setCount(compressor.getInputCount()))
                     .setResult(RecipeImporter.copyResult(compressor, provider))
                     .setTimeCost(compressor.getTimeCost());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.COMPRESSOR).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), AvaritiaRecipeEditorTypes.COMPRESSOR).setData(data));
         }
         if (recipe instanceof ExtremeSmithingRecipe smithing) {
             var data = new AvaritiaExtremeSmithingRecipeData()
@@ -100,12 +98,12 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                     .setBase(RecipeImporter.importIngredient(smithing.base))
                     .setAdditions(importAdditions(smithing.additions))
                     .setResult(RecipeImporter.copyResult(smithing, provider));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), AvaritiaRecipeEditorTypes.EXTREME_SMITHING).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), AvaritiaRecipeEditorTypes.EXTREME_SMITHING).setData(data));
         }
         return null;
     }
 
-    private static RecipeEntry importShapedTable(RecipeHolder<?> holder, HolderLookup.Provider provider, ShapedTableCraftingRecipe recipe, ResourceLocation type, boolean compatible) throws RecipeImportException {
+    private static RecipeEntry importShapedTable(Recipe<?> holder, HolderLookup.Provider provider, ShapedTableCraftingRecipe recipe, ResourceLocation type, boolean compatible) throws RecipeImportException {
         var pattern = RecipeImporter.importShapedPattern(recipe.getIngredients(), recipe.getWidth(), recipe.getHeight());
         var data = new AvaritiaTableRecipeData()
                 .setWidth(recipe.getWidth())
@@ -115,13 +113,13 @@ public final class AvaritiaRecipeImporter implements RecipeImportHandler {
                 .setPattern(pattern.pattern())
                 .setKey(pattern.key())
                 .setResult(RecipeImporter.copyResult(recipe, provider));
-        return RecipeImporter.baseEntry(holder.id(), type).setData(data);
+        return RecipeImporter.baseEntry(holder.getId(), type).setData(data);
     }
 
     private static List<RecipeIngredient> importAdditions(Ingredient additions) throws RecipeImportException {
         var imported = new ArrayList<RecipeIngredient>();
-        if (additions != null && additions.isCustom() && additions.getCustomIngredient() instanceof CompoundIngredient compound) {
-            for (var child : compound.children()) {
+        if (additions instanceof CompoundIngredient compound) {
+            for (var child : compound.getChildren()) {
                 if (child != null && !child.isEmpty()) {
                     imported.add(RecipeImporter.importIngredient(child));
                 }

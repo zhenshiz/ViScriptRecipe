@@ -69,8 +69,8 @@ public final class ShapedGridHelper {
     /**移除模板四周的空行和空列，避免无意义的空原料*/
     static ArrayList<String> cutEmptySide(ArrayList<String> pattern) {
         while (!pattern.isEmpty()) {
-            if (pattern.getFirst().isBlank()) { pattern.removeFirst(); continue; }
-            if (pattern.getLast().isBlank()) { pattern.removeLast(); continue; }
+            if (pattern.get(0).isBlank()) { pattern.remove(0); continue; }
+            if (pattern.get(pattern.size() - 1).isBlank()) { pattern.remove(pattern.size() - 1); continue; }
             // 检查左边：所有行的第一个字符是否为空格
             boolean leftAllSpaces = true;
             for (String s : pattern) {

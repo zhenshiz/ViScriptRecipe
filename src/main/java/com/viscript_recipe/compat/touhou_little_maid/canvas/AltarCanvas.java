@@ -1,5 +1,6 @@
 package com.viscript_recipe.compat.touhou_little_maid.canvas;
 
+import com.lowdragmc.lowdraglib2.configurator.ui.TagConfigurator;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
@@ -8,6 +9,7 @@ import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 
@@ -24,7 +26,6 @@ public class AltarCanvas extends RecipeCanvas<TouhouLittleMaidAltarRecipeData> {
         var data = getData();
         loadIngredients(data.getIngredients());
         setVisualOutput(0, data.getResult());
-        updateLabels();
     }
 
     @Override
@@ -49,6 +50,7 @@ public class AltarCanvas extends RecipeCanvas<TouhouLittleMaidAltarRecipeData> {
 
     @Override
     public void buildRecipeProperties(UIElement content) {
+        updateLabels();
         var data = getData();
         content.addChildren(sectionTitle("viscript_recipe.editor.properties.touhou_little_maid.altar"),
                 floatField("viscript_recipe.config.touhou_little_maid.altar.power",
@@ -56,16 +58,18 @@ public class AltarCanvas extends RecipeCanvas<TouhouLittleMaidAltarRecipeData> {
                 RecipeSearchComponents.entityType("viscript_recipe.config.touhou_little_maid.altar.entity",
                         data::getEntityType, data::setEntityType,
                         RecipeCanvas::reloadProperties, EntityType.ITEM).style(style -> style.tooltips(
-                        Component.translatable("viscript_recipe.config.touhou_little_maid.altar.entity.tooltip"))),
+                        Component.translatable("viscript_recipe.config.touhou_little_maid.altar.entity.tooltip")))/*,
                 textField("viscript_recipe.config.touhou_little_maid.altar.lang",
-                        data.getLangKey(), data::setLangKey, this::updateLabels));
+                        data.getLangKey(), data::setLangKey, this::updateLabels)*/);
+        if (!data.isItemCraft()) content.addChild(new TagConfigurator("", data::getExtraData, data::setExtraData, new CompoundTag(), true));
     }
 
     private void updateLabels() {
-        powerLabel.setText(Component.literal(String.format(Locale.ROOT, "×%.2f", getData().getPower())));
-        var result = getVisualOutput(0).getItem();
-        var resultName = getData().getLangKey() == null || getData().getLangKey().isBlank()
-                ? result.getHoverName() : Component.translatable(getData().getLangKey());
-        resultDescriptionLabel.setText(Component.translatable("jei.touhou_little_maid.altar_craft.result", resultName));
+        var data = getData();
+        powerLabel.setText(Component.literal(String.format(Locale.ROOT, "×%.2f", data.getPower())));
+        if (data.isItemCraft()) {
+            var result = getVisualOutput(0).getItem().getHoverName();
+            resultDescriptionLabel.setText(Component.translatable("jei.touhou_little_maid.altar_craft.result", result));
+        } else resultDescriptionLabel.setText(Component.empty());
     }
 }

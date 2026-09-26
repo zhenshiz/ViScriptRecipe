@@ -10,8 +10,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public record RecipeEditorType(
-        ResourceLocation id, ResourceLocation category,
-        String translationKey,
+        ResourceLocation id, ResourceLocation category, String translationKey,
         Class<? extends IVSRecipeData> dataClass, Supplier<? extends IVSRecipeData> dataSupplier,
         BiFunction<NavigationView, RecipeEntry, RecipeCanvas<?>> canvasSupplier,
         String... requiredMods

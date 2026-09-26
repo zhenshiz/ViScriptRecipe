@@ -3,14 +3,11 @@ package com.viscript_recipe.data;
 import com.lowdragmc.lowdraglib2.configurator.IConfigurable;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_lib.util.ISkipDefaultedSerialize;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeFactory;
-import com.viscript_recipe.recipe.ComponentStackIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
+import net.minecraftforge.common.crafting.StrictNBTIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,7 +34,7 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
     @Persisted
     private ItemStack item = new ItemStack(Items.STONE);
     @Persisted
-    private ResourceLocation tag = ResourceLocation.withDefaultNamespace("planks");
+    private ResourceLocation tag = new ResourceLocation("minecraft", "planks");
     @Persisted
     private String itemAbility = "knife_dig";
     @Persisted
@@ -72,7 +69,7 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
 
     public static RecipeIngredient tag(String tagId) {
         var location = ResourceLocation.tryParse(tagId);
-        return RecipeIngredient.tag(location == null ? ResourceLocation.withDefaultNamespace("planks") : location);
+        return RecipeIngredient.tag(location == null ? new ResourceLocation("minecraft", "planks") : location);
     }
 
     public static RecipeIngredient itemAbility(String itemAbility) {
@@ -85,22 +82,16 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
             case ITEM -> {
                 var stack = item.copyWithCount(1);
                 if (stack.isEmpty()) yield Ingredient.EMPTY;
-                // PotionItem's default instance is a water bottle, while a plain ingredient accepts every potion.
-                if (ItemStack.isSameItemSameComponents(stack, new ItemStack(stack.getItem()))) {
+                if (ItemStack.isSameItemSameTags(stack, stack.getItem().getDefaultInstance())) {
                     yield Ingredient.of(stack.getItem());
                 }
-                // DataComponentIngredient restores item defaults because its predicate cannot encode removals.
-                if (stack.getComponentsPatch().entrySet().stream().anyMatch(component -> component.getValue().isEmpty())) {
-                    yield new ComponentStackIngredient(stack).toVanilla();
-                }
-                yield DataComponentIngredient.of(true, stack);
+                yield StrictNBTIngredient.of(stack);
             }
             case TAG -> {
                 if (tag == null) {
                     throw new IllegalArgumentException("Ingredient tag cannot be empty");
                 }
-                var tagKey = TagKey.create(Registries.ITEM, tag);
-                yield Ingredient.of(tagKey);
+                yield Ingredient.of(TagKey.create(Registries.ITEM, tag));
             }
             case ITEM_ABILITY -> FarmersDelightRecipeFactory.compileItemAbilityIngredient(itemAbility);
         };

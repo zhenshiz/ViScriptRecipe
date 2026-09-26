@@ -48,7 +48,7 @@ public final class AvaritiaCanvasFactory {
     }
 
     private static IGuiTexture jeiTexture(String path, int width, int height) {
-        return SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
+        return SpriteTexture.of(new ResourceLocation(
                 "avaritia",
                 "textures/gui/jei/" + path + ".png"
         )).setSprite(0, 0, width, height);

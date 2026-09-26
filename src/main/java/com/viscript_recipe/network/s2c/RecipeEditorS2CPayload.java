@@ -2,7 +2,6 @@ package com.viscript_recipe.network.s2c;
 
 import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.editor.ui.EditorWindow;
-import com.lowdragmc.lowdraglib2.gui.holder.ModularUIContainerMenu;
 import com.lowdragmc.lowdraglib2.gui.holder.ModularUIContainerScreen;
 import com.lowdragmc.lowdraglib2.gui.holder.ModularUIScreen;
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacket;
@@ -66,8 +65,7 @@ public final class RecipeEditorS2CPayload {
     private static EditorWindow getCurrentEditorWindow() {
         var screen = Minecraft.getInstance().screen;
         if (screen instanceof ModularUIContainerScreen containerScreen
-                && containerScreen.getMenu() instanceof ModularUIContainerMenu menu
-                && menu.getModularUI().ui.rootElement instanceof EditorWindow editorWindow) {
+                && containerScreen.getMenu().getModularUI().ui.rootElement instanceof EditorWindow editorWindow) {
             return editorWindow;
         }
         if (screen instanceof ModularUIScreen modularUIScreen

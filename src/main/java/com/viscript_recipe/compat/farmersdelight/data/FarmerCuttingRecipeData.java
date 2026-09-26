@@ -29,7 +29,7 @@ public class FarmerCuttingRecipeData implements IVSRecipeData {
     @Persisted
     private boolean customSound;
     @Persisted
-    private ResourceLocation sound = ResourceLocation.withDefaultNamespace("item.axe.strip");
+    private ResourceLocation sound = new ResourceLocation("item.axe.strip");
 
     @Override
     public Recipe<?> compile(ResourceLocation typeId) {

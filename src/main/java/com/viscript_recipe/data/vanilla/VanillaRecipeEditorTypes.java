@@ -119,6 +119,6 @@ public final class VanillaRecipeEditorTypes implements IModModule {
     }
 
     private static ResourceLocation minecraft(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 }

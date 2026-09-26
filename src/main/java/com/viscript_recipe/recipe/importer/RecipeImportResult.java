@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** Describes the entries produced by one recipe import request. */
 public record RecipeImportResult(boolean successful, List<RecipeEntry> entries, Component message) {
     public static RecipeImportResult success(RecipeEntry entry, Component message) {
         return success(List.of(entry), message);
@@ -27,12 +26,7 @@ public record RecipeImportResult(boolean successful, List<RecipeEntry> entries, 
         return failure(Component.translatable(key, args));
     }
 
-    /**
-     * Returns the first imported entry for callers that only consume one entry.
-     *
-     * @return the first imported entry, or {@code null} when this result contains no entry
-     */
     public @Nullable RecipeEntry entry() {
-        return entries.isEmpty() ? null : entries.getFirst();
+        return entries.isEmpty() ? null : entries.get(0);
     }
 }

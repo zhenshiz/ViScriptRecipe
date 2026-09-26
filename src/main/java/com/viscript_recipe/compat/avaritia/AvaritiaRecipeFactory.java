@@ -1,11 +1,14 @@
 package com.viscript_recipe.compat.avaritia;
 
+import com.viscript_lib.util.math.Clamp;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaTableRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
+import com.viscript_recipe.recipe.vanilla.ShapedRecipePattern;
 import committee.nova.mods.avaritia.common.crafting.recipe.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import net.minecraftforge.common.crafting.CompoundIngredient;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,16 +34,20 @@ public final class AvaritiaRecipeFactory {
     public static Recipe<?> compileTable(ResourceLocation type, AvaritiaTableRecipeData data) {
         var tier = data.getTier();
         if (AvaritiaRecipeEditorTypes.isShapedTableType(type)) {
+            var compiled = compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight());
             return new ShapedTableCraftingRecipe(
-                    compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight()),
+                    ViScriptRecipe.placeholder,
+                    compiled.width(), compiled.height(), compiled.ingredients(),
                     requireResult(data.getResult(), "Avaritia table recipe result cannot be empty"),
                     tier,
                     data.isCompatible()
             );
         }
         if (AvaritiaRecipeEditorTypes.isNoConsumeCatalystType(type)) {
+            var compiled = compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight());
             return new NoConsumeCatalystShapedRecipe(
-                    compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight()),
+                    ViScriptRecipe.placeholder,
+                    compiled.width(), compiled.height(), compiled.ingredients(),
                     requireResult(data.getResult(), "Avaritia no-consume catalyst recipe result cannot be empty"),
                     tier == 0 ? 4 : tier
             );
@@ -48,7 +55,7 @@ public final class AvaritiaRecipeFactory {
         if (AvaritiaRecipeEditorTypes.isShapelessTableType(type)) {
             var ingredients = compileIngredients(data.getShapelessIngredients(), MAX_TABLE_INPUTS, false);
             return new ShapelessTableCraftingRecipe(
-                    ingredients,
+                    ViScriptRecipe.placeholder, ingredients,
                     requireResult(data.getResult(), "Avaritia shapeless table recipe result cannot be empty"),
                     tier
             );
@@ -62,7 +69,7 @@ public final class AvaritiaRecipeFactory {
             throw new IllegalArgumentException("Avaritia compressor recipe ingredient cannot be empty");
         }
         return new CompressorRecipe(
-                ingredient,
+                ViScriptRecipe.placeholder, ingredient,
                 requireResult(data.getResult(), "Avaritia compressor recipe result cannot be empty"),
                 data.getIngredient().getCount(),
                 data.getTimeCost()
@@ -71,15 +78,17 @@ public final class AvaritiaRecipeFactory {
 
     public static Recipe<?> compileExtremeSmithing(AvaritiaExtremeSmithingRecipeData data) {
         return new ExtremeSmithingRecipe(
+                ViScriptRecipe.placeholder,
                 requireIngredient(data.getTemplate(), "Avaritia extreme smithing template cannot be empty"),
                 requireIngredient(data.getBase(), "Avaritia extreme smithing base cannot be empty"),
-                compileExtremeSmithingAdditions(data.getIngredients()),
+                compileExtremeSmithingAdditions(data.getAdditions()),
                 requireResult(data.getResult(), "Avaritia extreme smithing result cannot be empty")
         );
     }
 
     public static Recipe<?> compileInfinityCatalyst(AvaritiaSpecialShapelessRecipeData data) {
         return new InfinityCatalystCraftRecipe(
+                ViScriptRecipe.placeholder,
                 normalizedGroup(data.getGroup()),
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, false),
                 Math.max(1, data.getCount())
@@ -88,6 +97,7 @@ public final class AvaritiaRecipeFactory {
 
     public static Recipe<?> compileEternalSingularity(AvaritiaSpecialShapelessRecipeData data) {
         return new EternalSingularityCraftRecipe(
+                ViScriptRecipe.placeholder,
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, true),
                 Math.max(1, data.getCount())
         );
@@ -95,6 +105,7 @@ public final class AvaritiaRecipeFactory {
 
     public static Recipe<?> compileFullMatterCluster(AvaritiaSpecialShapelessRecipeData data) {
         return new FullMatterClusterRecipe(
+                ViScriptRecipe.placeholder,
                 normalizedGroup(data.getGroup()),
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, false),
                 Math.max(1, data.getCount())
@@ -124,8 +135,8 @@ public final class AvaritiaRecipeFactory {
 
     private static List<String> normalizePattern(List<String> pattern, int width, int height) {
         var normalized = new ArrayList<String>();
-        var safeWidth = Math.clamp(width, 1, 9);
-        var safeHeight = Math.clamp(height, 1, 9);
+        var safeWidth = Clamp.clamp(width, 1, 9);
+        var safeHeight = Clamp.clamp(height, 1, 9);
         for (int row = 0; row < safeHeight; row++) {
             var line = pattern != null && row < pattern.size() && pattern.get(row) != null ? pattern.get(row) : "";
             if (line.length() > safeWidth) {
@@ -169,7 +180,7 @@ public final class AvaritiaRecipeFactory {
         if (compiled.length < 3) {
             throw new IllegalArgumentException("Avaritia extreme smithing requires three addition ingredients");
         }
-        return net.neoforged.neoforge.common.crafting.CompoundIngredient.of(compiled);
+        return CompoundIngredient.of(compiled);
     }
 
     private static Ingredient compileIngredient(RecipeIngredient ingredient) {
@@ -181,7 +192,7 @@ public final class AvaritiaRecipeFactory {
             throw new IllegalArgumentException(message);
         }
         var copy = stack.copy();
-        copy.setCount(Math.clamp(copy.getCount(), 1, 99));
+        copy.setCount(Clamp.clamp(copy.getCount(), 1, 99));
         return copy;
     }
 

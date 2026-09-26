@@ -1,66 +1,8 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-    id 'idea'
-    id 'net.neoforged.moddev' version '2.0.82'
-    id 'io.freefair.lombok' version '8.6'
-    id("dev.vfyjxf.modaccessor") version "1.1"
-}
 
 version = mod_version
 group = mod_group_id
 
 repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        name = "IE dependencies"
-        url = "https://maven.blamejared.com/"
-        content { includeGroup "malte0811" }
-    }
-
-    //kubejs
-    maven {
-        name = "Latvian"
-        url = "https://maven.latvian.dev/releases"
-        content {
-            includeGroup "dev.latvian.mods"
-            includeGroup "dev.latvian.apps"
-        }
-    }
-    maven {
-        name = "JitPack"
-        url = "https://jitpack.io"
-        content {
-            includeGroup "com.github.rtyley"
-        }
-    }
-
-    // LDLib2
-    maven {
-        name = "Jared's maven"
-        url = "https://maven.firstdarkdev.xyz/snapshots"
-    }
-
-    //GeckoLib
-    maven {
-        name = 'GeckoLib'
-        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-        content {
-            includeGroupByRegex("software\\.bernie.*")
-            includeGroup("com.eliotlash.mclib")
-        }
-    }
-
-    // Curios
-    maven {
-        name = "Illusive Soulworks"
-        url = "https://maven.theillusivec4.top/"
-        content {
-            includeGroup "top.theillusivec4.curios"
-        }
-    }
-
     // Player Animator
     maven {
         name = "KosmX"
@@ -68,24 +10,6 @@ repositories {
         content {
             includeGroup "dev.kosmx.player-anim"
         }
-    }
-
-    //Modrinth
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-    }
-
-    //cf
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-
-    maven {
-        url "https://maven.sighs.cc/repository/maven-public/"
     }
 
     maven {
@@ -111,62 +35,40 @@ repositories {
             includeGroup "mekanism"
         }
     }
-
-    flatDir {
-        dirs "../viscript_lib/build/libs"
-    }
 }
 
 base {
-    archivesName = "${mod_name}-neoforge-${minecraft_version}"
+    archivesName = "${mod_name}-forge-${minecraft_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+configurations.configureEach {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
-// mixinAgent 配置、neoForge 的 version/parchment 由根项目 build.gradle 的 subprojects 块统一提供
-neoForge {
+legacyForge {
     runs {
         client {
             client()
-
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
-
-        clinet2 {
-            client()
-
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-            programArgument '--username'
-            programArgument 'zhenshiz'
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+            var file = file("../runs/client")
+            if (!file.exists()) file.mkdirs()
+            setGameDirectory file
         }
 
         server {
             server()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            programArgument '--nogui'
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+            var file = file("../runs/server")
+            if (!file.exists()) file.mkdirs()
+            setGameDirectory file
         }
 
-        gameTestServer {
-            type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
-
-        data {
-            data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-
+        // applies to all the run configs above
         configureEach {
-            def files = configurations.mixinAgent.files
-            if (!files.isEmpty()) {
-                jvmArgument '-javaagent:' + files.first().toPath()
-            }
             systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            jvmArguments.add '-XX:+AllowEnhancedClassRedefinition'
-            jvmArguments.add '-XX:HotswapAgent=fatjar'
-
             logLevel = org.slf4j.event.Level.DEBUG
-            systemProperty("terminal.jline", "true")
         }
     }
 
@@ -177,175 +79,97 @@ neoForge {
     }
 }
 
-apply from: project.file('gradle/ldlib2-uitest.gradle')
-
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-// modAccessor 由根项目 build.gradle 的 subprojects 块统一配置
 dependencies {
     implementation project(":ViScriptLib")
-    jarJar "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${vsl_jij_version}"
-
-    // KubeJS
-    implementation "dev.latvian.mods:rhino:${rhino_version}"
-    implementation "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+    jarJar(project(":ViScriptLib"))
 
     // Optional
     //铁魔法
-    implementation "io.redspace:irons_spellbooks:${irons_spells_version}"
-    runtimeOnly "io.redspace:irons_lib:${irons_lib_version}"
-    runtimeOnly "dev.kosmx.player-anim:player-animation-lib-forge:${playeranimator_version}"
-    runtimeOnly "software.bernie.geckolib:geckolib-neoforge-1.21.1:${geckolib_version}"
-    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+//    implementation "io.redspace:irons_spellbooks:${irons_spells_version}"
+//    runtimeOnly "io.redspace:irons_lib:${irons_lib_version}"
+//    runtimeOnly "dev.kosmx.player-anim:player-animation-lib-forge:${playeranimator_version}"
     //冰火传说
-    implementation "curse.maven:iceandfire-ce-1040076:7722420"
-    runtimeOnly "curse.maven:uranus-1010827:8008516"
-    runtimeOnly "curse.maven:jupiter-1072905:7738312"
+//    implementation "curse.maven:iceandfire-ce-1040076:7722420"
+//    runtimeOnly "curse.maven:uranus-1010827:8008516"
+//    runtimeOnly "curse.maven:jupiter-1072905:7738312"
     //农夫乐事
-    implementation "maven.modrinth:farmers-delight:${farmers_delight_version}"
+    modImplementation "maven.modrinth:farmers-delight:${farmers_delight_version}"
     //机械动力
-    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
-        transitive = false
-    }
-    runtimeOnly "net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}"
-    runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}"
-    runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}"
-    runtimeOnly "com.tterrag.registrate:Registrate:${registrate_version}"
+    modImplementation "maven.modrinth:create:${create_version}"
+    modImplementation "net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}"
+//    runtimeOnly "dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}"
+//    runtimeOnly "dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}"
+//    runtimeOnly "com.tterrag.registrate:Registrate:${registrate_version}"
     //新生魔艺
-    implementation "curse.maven:ars-nouveau-401955:${ars_nouveau_file}"
+//    implementation "curse.maven:ars-nouveau-401955:${ars_nouveau_file}"
     //无尽贪婪：重生
-    implementation "curse.maven:re-avaritia-623969:${re_avaritia_file}"
+    modCompileOnly "curse.maven:re-avaritia-623969:${re_avaritia_file}"
     //合成拓展
-    implementation "curse.maven:cucumber-272335:${cucumber_file}"
-    //神秘农业
-    implementation "curse.maven:mystical-agriculture-246640:${mystical_agriculture_file}"
-    implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
+//    implementation "curse.maven:cucumber-272335:${cucumber_file}"
+//    implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
     //森罗物语：厨房
-    implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
-    //森罗物语：酒馆
-    implementation "maven.modrinth:kaleidoscopetavern:${kaleidoscope_tavern_version}"
+//    implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
     //灾变：L_Ender's Cataclysm
-    implementation "curse.maven:lendercataclysm-551586:${cataclysm_file}"
-    runtimeOnly "curse.maven:lionfish-api-1001614:${lionfish_api_file}"
+//    implementation "curse.maven:lendercataclysm-551586:${cataclysm_file}"
+//    runtimeOnly "curse.maven:lionfish-api-1001614:${lionfish_api_file}"
     //菌类感染：孢子
-    implementation "curse.maven:fungal-infection-spore-678295:${fungal_infection_spore_file}"
+//    implementation "curse.maven:fungal-infection-spore-678295:${fungal_infection_spore_file}"
     //诡厄巫法：Goety
-    implementation "curse.maven:goety-586095:${goety_file}"
+    modCompileOnly "curse.maven:goety-586095:${goety_file}"
     //东方女仆：Touhou Little Maid
-    implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
-    //汇流来世：Confluence: Otherworld
-    implementation "maven.modrinth:confluence:${confluence_version}"
-    // Confluence's public recipe classes inherit these codecs; the modpack supplies it at runtime.
-    compileOnly files("libs/Confluence-Magic-Lib-0.0.8.jar")
-    //工业先锋：Industrial Foregoing
-    implementation "curse.maven:titanium-287342:${titanium_file}"
-    implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
+    modImplementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
     //通用机械：Mekanism
-    implementation "mekanism:Mekanism:${mekanism_version}"
-    //Alloy Smelter
-    implementation "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
-    // Applied Energistics 2
-    implementation "maven.modrinth:ae2:${ae2_version}"
-    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
-    runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
-    // [Let's Do] Farm & Charm
-    implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
-    runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
-    // Immersive Engineering
-    implementation "curse.maven:immersive-engineering-231951:${immersive_engineering_file}"
-    compileOnly "malte0811:DualCodecs:0.1.2"
+    modCompileOnly "mekanism:Mekanism:${mekanism_version}"
 
     //must
-    implementation "maven.modrinth:sodium:${sodium_version}"
-    implementation "maven.modrinth:iris:${iris_version}"
-    implementation "maven.modrinth:lan-server-properties:${lsp_version}"
-    implementation "maven.modrinth:jei:${jei_version}"
-    implementation "maven.modrinth:advanced-loot-info:${advanced_loot_info_version}"
-
-    //plugin
-    additionalRuntimeClasspath("dev.vfyjxf:mixin-hotswap-agent:1.1")
+//    implementation "maven.modrinth:advanced-loot-info:${advanced_loot_info_version}"
 }
 
-tasks.withType(ProcessResources).configureEach {
-    var replaceProperties = [minecraft_version      : minecraft_version,
-                             minecraft_version_range: minecraft_version_range,
-                             neo_version            : neo_version,
-                             neo_version_range      : neo_version_range,
-                             loader_version_range   : loader_version_range,
-                             mod_id                 : mod_id,
-                             mod_name               : mod_name,
-                             mod_license            : mod_license,
-                             mod_version            : mod_version,
-                             mod_authors            : mod_authors,
-                             mod_description        : mod_description,
-                             ldlib2_version         : ldlib2_version]
-    inputs.properties replaceProperties
+// Uncomment the lines below if you wish to configure mixin. The mixin file should be named modid.mixins.json.
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
 
-    filesMatching(['META-INF/neoforge.mods.toml']) {
-        expand replaceProperties
-    }
+jar {
+    manifest.attributes([
+            "MixinConfigs": "${mod_id}.mixins.json"
+    ])
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        register('mavenJava', MavenPublication) {
             from components.java
-
-            groupId = project.group
-            artifactId = base.archivesName.get()
-            version = project.version
-
-            pom.withXml {
-                def dependenciesNode = asNode().getAt("dependencies")[0]
-                if (dependenciesNode != null) {
-                    // 这里添加你希望保留在 POM 中的 groupId 或 artifactId，也就是从 Maven 拉依赖时会附带的库、模组啥的
-                    def whiteList = [
-                    ]
-
-                    def dependencies = dependenciesNode.children()
-                    def toRemove = []
-
-                    dependencies.each { dep ->
-                        def artifactId = dep.artifactId.text()
-                        def groupId = dep.groupId.text()
-
-                        if (!whiteList.contains(artifactId) && !whiteList.contains(groupId)) {
-                            toRemove.add(dep)
-                        }
-                    }
-
-                    toRemove.each { dependenciesNode.remove(it) }
-                }
-            }
         }
     }
-
     repositories {
-        def modVersion = project.findProperty('mod_version') ?: 'unknown'
-
-        boolean isSnapshot = modVersion.toLowerCase().contains('snapshot')
-
-        def publishUrl = isSnapshot ?
-                "https://maven.sighs.cc/repository/maven-snapshots/" :
-                "https://maven.sighs.cc/repository/maven-releases/"
-
-        def publishUser = System.getenv("SIGHS_PUBLISH_USER")
-        def publishPassword = System.getenv("SIGHS_PUBLISH_PASSWORD")
-
         maven {
-            name = "remoteRepo"
-            url = uri(publishUrl)
-            credentials {
-                username = publishUser
-                password = publishPassword
-            }
+            url "file://${project.projectDir}/repo"
         }
     }
 }
 
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version        : minecraft_version,
+            minecraft_version_range  : minecraft_version_range,
+            forge_version            : forge_version,
+            forge_version_range      : forge_version_range,
+            loader_version_range     : loader_version_range,
+            mod_id                   : mod_id,
+            mod_name                 : mod_name,
+            mod_license              : mod_license,
+            mod_version              : mod_version,
+            mod_authors              : mod_authors,
+            mod_description          : mod_description,
+            ldlib2_version           : ldlib2_version,
+            viscriptlib_version      : project(":ViScriptLib").mod_version
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
     }
 }

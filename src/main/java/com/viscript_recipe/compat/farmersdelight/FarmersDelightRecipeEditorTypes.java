@@ -60,6 +60,6 @@ public final class FarmersDelightRecipeEditorTypes implements IModModule {
     }
 
     private static ResourceLocation farmer(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 }

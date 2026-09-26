@@ -5,8 +5,8 @@ import com.viscript_recipe.Config;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import com.viscript_recipe.network.s2c.JeiShowcaseS2CPayload;
 import com.viscript_recipe.network.s2c.RecipeDeltaS2CPayload;
-import net.minecraft.network.protocol.common.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateTagsPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagNetworkSerialization;
@@ -21,7 +21,7 @@ public final class RecipeReloadSyncService {
         if (players.isEmpty()) {
             return;
         }
-        var payload = delta.serialize(server.registryAccess());
+        var payload = delta.serialize();
         for (var player : players) {
             RPCPacketDistributor.rpcToPlayer(player, RecipeDeltaS2CPayload.APPLY_RECIPE_DELTA, payload.copy());
         }
@@ -33,12 +33,11 @@ public final class RecipeReloadSyncService {
             return;
         }
 
-        var recipesPacket = new ClientboundUpdateRecipesPacket(server.getRecipeManager().getOrderedRecipes());
+        var recipesPacket = new ClientboundUpdateRecipesPacket(server.getRecipeManager().getRecipes());
         var tagsPacket = syncTags
                 ? new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registries()))
                 : null;
-        var baseline = RecipeOverrideManager.createBaseline(server.getRecipeManager(), server.registryAccess())
-                .serialize(server.registryAccess());
+        var baseline = RecipeOverrideManager.createBaseline(server.getRecipeManager()).serialize();
         for (var player : players) {
             syncFullToPlayer(player, recipesPacket, tagsPacket, baseline);
         }
@@ -49,12 +48,11 @@ public final class RecipeReloadSyncService {
         if (server == null) {
             return;
         }
-        var recipesPacket = new ClientboundUpdateRecipesPacket(server.getRecipeManager().getOrderedRecipes());
+        var recipesPacket = new ClientboundUpdateRecipesPacket(server.getRecipeManager().getRecipes());
         var tagsPacket = syncTags
                 ? new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(server.registries()))
                 : null;
-        var baseline = RecipeOverrideManager.createBaseline(server.getRecipeManager(), server.registryAccess())
-                .serialize(server.registryAccess());
+        var baseline = RecipeOverrideManager.createBaseline(server.getRecipeManager()).serialize();
         syncFullToPlayer(player, recipesPacket, tagsPacket, baseline);
     }
 
@@ -63,8 +61,7 @@ public final class RecipeReloadSyncService {
         if (server == null) {
             return;
         }
-        var baseline = RecipeOverrideManager.createBaseline(server.getRecipeManager(), server.registryAccess())
-                .serialize(server.registryAccess());
+        var baseline = RecipeOverrideManager.createBaseline(server.getRecipeManager()).serialize();
         RPCPacketDistributor.rpcToPlayer(player, RecipeDeltaS2CPayload.SYNC_RECIPE_BASELINE, baseline);
     }
 

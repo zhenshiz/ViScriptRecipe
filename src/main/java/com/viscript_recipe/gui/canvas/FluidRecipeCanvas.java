@@ -11,7 +11,7 @@ import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +65,7 @@ public abstract class FluidRecipeCanvas<D extends IVSRecipeData> extends RecipeC
         var ingredient = getSelectedFluidInput();
         ingredient.setKind(kind);
         if (kind == FluidIngredientKind.TAG) {
-            if (ingredient.getTag() == null) ingredient.setTag(ResourceLocation.fromNamespaceAndPath("c", "milk"));
+            if (ingredient.getTag() == null) ingredient.setTag(new ResourceLocation("forge", "milk"));
             if (ingredient.getAmount() <= 0) ingredient.setAmount(1000);
         }
         setSelectedFluidInput(ingredient);

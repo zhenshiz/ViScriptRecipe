@@ -57,7 +57,7 @@ public final class TouhouLittleMaidAltarCanvasFactory {
             layout.top(40);
             layout.width(13);
             layout.height(13);
-        }).style(style -> style.backgroundTexture(SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(
+        }).style(style -> style.backgroundTexture(SpriteTexture.of(new ResourceLocation(
                 "touhou_little_maid",
                 "textures/entity/power_point.png"
         )).setSprite(32, 0, 16, 16)));

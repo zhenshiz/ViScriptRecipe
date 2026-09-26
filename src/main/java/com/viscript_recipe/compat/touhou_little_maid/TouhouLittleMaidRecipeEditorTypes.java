@@ -39,6 +39,6 @@ public final class TouhouLittleMaidRecipeEditorTypes implements IModModule{
     }
 
     public static ResourceLocation touhouLittleMaid(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 }

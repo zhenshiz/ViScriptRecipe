@@ -1,9 +1,10 @@
 package com.viscript_recipe;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.config.ModConfigs;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ConfigTracker;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,11 +13,11 @@ public class Config {
     public static final String CONFIG_FILE_NAME = ViScriptRecipe.MOD_ID + "_config.toml";
     private static final String SHOWCASE_ONLY_PATH = "recipes.showcase_only_viscript_recipes";
 
-    public static final ModConfigSpec CONFIG_SPEC;
-    public static final ModConfigSpec.BooleanValue SHOWCASE_ONLY_VISCRIPT_RECIPES;
+    public static final ForgeConfigSpec CONFIG_SPEC;
+    public static final ForgeConfigSpec.BooleanValue SHOWCASE_ONLY_VISCRIPT_RECIPES;
 
     static {
-        ModConfigSpec.Builder CONFIG_BUILDER = new ModConfigSpec.Builder();
+        ForgeConfigSpec.Builder CONFIG_BUILDER = new ForgeConfigSpec.Builder();
         CONFIG_BUILDER.push("recipes");
         SHOWCASE_ONLY_VISCRIPT_RECIPES = CONFIG_BUILDER
                 .translation("viscript_recipe.configuration.showcase_only_viscript_recipes")
@@ -39,7 +40,7 @@ public class Config {
         }
     }
 
-    private static void reloadBoolean(CommentedFileConfig config, String configPath, ModConfigSpec.BooleanValue value, Path filePath) {
+    private static void reloadBoolean(CommentedFileConfig config, String configPath, ForgeConfigSpec.BooleanValue value, Path filePath) {
         Object rawValue = config.get(configPath);
         if (rawValue instanceof Boolean booleanValue) {
             value.set(booleanValue);
@@ -49,15 +50,9 @@ public class Config {
     }
 
     private static Path configPath() {
-        for (var config : ModConfigs.getModConfigs(ViScriptRecipe.MOD_ID)) {
-            if (config.getType() != ModConfig.Type.COMMON || !CONFIG_FILE_NAME.equals(config.getFileName())) {
-                continue;
-            }
-            try {
-                return config.getFullPath();
-            } catch (IllegalStateException ignored) {
-                return null;
-            }
+        String fileName = ConfigTracker.INSTANCE.getConfigFileName(ViScriptRecipe.MOD_ID, ModConfig.Type.COMMON);
+        if (CONFIG_FILE_NAME.equals(fileName)) {
+            return FMLLoader.getGamePath().resolve("config/" + CONFIG_FILE_NAME);
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package com.viscript_recipe.recipe.vanilla;
 
+import com.viscript_recipe.ViScriptRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -10,7 +11,7 @@ public class ViscriptShapelessRecipe extends ShapelessRecipe {
     private final boolean showNotification;
 
     public ViscriptShapelessRecipe(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients, boolean showNotification) {
-        super(group, category, result, ingredients);
+        super(ViScriptRecipe.placeholder, group, category, result, ingredients);
         this.showNotification = showNotification;
     }
 

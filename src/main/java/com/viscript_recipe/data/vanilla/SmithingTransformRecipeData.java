@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
 @Getter
@@ -29,9 +30,9 @@ public class SmithingTransformRecipeData implements IVSRecipeData {
 
     @Override
     public Recipe<?> compile(ResourceLocation typeId) {
-        var compiledTemplate = template == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : template.compile();
-        var compiledBase = base == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : base.compile();
-        var compiledAddition = addition == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : addition.compile();
+        var compiledTemplate = template == null ? Ingredient.EMPTY : template.compile();
+        var compiledBase = base == null ? Ingredient.EMPTY : base.compile();
+        var compiledAddition = addition == null ? Ingredient.EMPTY : addition.compile();
         if (compiledTemplate.isEmpty()) {
             throw new IllegalArgumentException("Smithing transform template cannot be empty");
         }

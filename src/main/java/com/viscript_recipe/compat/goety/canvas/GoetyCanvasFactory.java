@@ -12,13 +12,11 @@ import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.CustomData;
 
 /**
  * Builds Goety recipe canvases from its official JEI coordinates with an LDLib2 fallback skin.
@@ -290,12 +288,14 @@ public final class GoetyCanvasFactory {
         }
         var stack = new ItemStack(item);
         if (id.equals("goety:dark_altar") || id.equals("goety:pedestal_dummy") || id.equals("goety:necro_brazier")) {
-            CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean("RenderFull", true));
+            var tag = stack.getOrCreateTag();
+            tag.putBoolean("RenderFull", true);
+            stack.setTag(tag);
         }
         return stack;
     }
 
     private static ResourceLocation texture(String name) {
-        return ResourceLocation.fromNamespaceAndPath("goety", "textures/gui/jei/" + name);
+        return new ResourceLocation("goety", "textures/gui/jei/" + name);
     }
 }

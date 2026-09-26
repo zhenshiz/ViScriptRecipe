@@ -1,6 +1,7 @@
 package com.viscript_recipe.compat.avaritia.data;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_lib.util.math.Clamp;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeEditorTypes;
 import com.viscript_recipe.compat.avaritia.AvaritiaRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
@@ -59,7 +60,7 @@ public class AvaritiaTableRecipeData implements IVSRecipeData {
     }
 
     public AvaritiaTableRecipeData setTier(int tier) {
-        this.tier = Math.clamp(tier, 0, 4);
+        this.tier = Clamp.clamp(tier, 0, 4);
         return this;
     }
 
@@ -69,7 +70,7 @@ public class AvaritiaTableRecipeData implements IVSRecipeData {
     }
 
     private static int clampSize(int value) {
-        return Math.clamp(value, MIN_SIZE, MAX_SIZE);
+        return Clamp.clamp(value, MIN_SIZE, MAX_SIZE);
     }
 
     @Override

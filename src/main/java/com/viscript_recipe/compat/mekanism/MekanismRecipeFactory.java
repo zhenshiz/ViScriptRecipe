@@ -1,24 +1,37 @@
 package com.viscript_recipe.compat.mekanism;
 
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.mekanism.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.data.RecipeIngredient;
 import mekanism.api.MekanismAPI;
-import mekanism.api.chemical.Chemical;
 import mekanism.api.chemical.ChemicalStack;
-import mekanism.api.recipes.basic.*;
+import mekanism.api.chemical.ChemicalTags;
+import mekanism.api.chemical.ChemicalType;
+import mekanism.api.chemical.gas.GasStack;
+import mekanism.api.chemical.infuse.InfusionStack;
+import mekanism.api.chemical.pigment.PigmentStack;
+import mekanism.api.chemical.slurry.SlurryStack;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import mekanism.api.recipes.ingredients.ItemStackIngredient;
+import mekanism.api.recipes.ingredients.creator.IChemicalStackIngredientCreator;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
+import mekanism.common.recipe.impl.*;
+import mekanism.common.recipe.ingredient.creator.GasStackIngredientCreator;
+import mekanism.common.recipe.ingredient.creator.InfusionStackIngredientCreator;
+import mekanism.common.recipe.ingredient.creator.PigmentStackIngredientCreator;
+import mekanism.common.recipe.ingredient.creator.SlurryStackIngredientCreator;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 /**
  * Compiles editor data into Mekanism's native basic recipe implementations.
@@ -46,44 +59,42 @@ public final class MekanismRecipeFactory {
         var extraChemicalInput = kind.chemicalInputs() > 1 ? chemicalIngredient(data.getExtraChemicalInput(), "extra chemical input") : null;
 
         return switch (kind) {
-            case CRUSHING -> new BasicCrushingRecipe(itemInput, itemOutput(data));
-            case ENRICHING -> new BasicEnrichingRecipe(itemInput, itemOutput(data));
-            case SMELTING -> new BasicSmeltingRecipe(itemInput, itemOutput(data));
-            case CHEMICAL_INFUSING -> new BasicChemicalInfuserRecipe(chemicalInput, extraChemicalInput, chemicalOutput(data.getChemicalOutput(), false));
-            case COMBINING -> new BasicCombinerRecipe(itemInput, extraItemInput, itemOutput(data));
-            case SEPARATING -> new BasicElectrolysisRecipe(fluidInput, positive(data.getEnergyMultiplier(), "energy multiplier"),
-                    chemicalOutput(data.getChemicalOutput(), false), chemicalOutput(data.getSecondaryChemicalOutput(), false));
-            case WASHING -> new BasicWashingRecipe(fluidInput, chemicalInput, chemicalOutput(data.getChemicalOutput(), false));
-            case EVAPORATING -> new BasicFluidToFluidRecipe(fluidInput, fluidOutput(data));
-            case ACTIVATING -> new BasicActivatingRecipe(chemicalInput, chemicalOutput(data.getChemicalOutput(), false));
-            case CENTRIFUGING -> new BasicCentrifugingRecipe(chemicalInput, chemicalOutput(data.getChemicalOutput(), false));
-            case CRYSTALLIZING -> new BasicChemicalCrystallizerRecipe(chemicalInput, itemOutput(data));
-            case DISSOLUTION -> new BasicChemicalDissolutionRecipe(itemInput, chemicalInput, chemicalOutput(data.getChemicalOutput(), false), data.isPerTickUsage());
-            case COMPRESSING -> new BasicCompressingRecipe(itemInput, chemicalInput, itemOutput(data), data.isPerTickUsage());
-            case PURIFYING -> new BasicPurifyingRecipe(itemInput, chemicalInput, itemOutput(data), data.isPerTickUsage());
-            case INJECTING -> new BasicInjectingRecipe(itemInput, chemicalInput, itemOutput(data), data.isPerTickUsage());
-            case NUCLEOSYNTHESIZING -> new BasicNucleosynthesizingRecipe(itemInput, chemicalInput, itemOutput(data),
-                    positive(data.getDuration(), "duration"), data.isPerTickUsage());
-            case ENERGY_CONVERSION -> new BasicItemStackToEnergyRecipe(itemInput, positive(data.getEnergyOutput(), "energy output"));
-            case CHEMICAL_CONVERSION -> new BasicChemicalConversionRecipe(itemInput, chemicalOutput(data.getChemicalOutput(), false));
-            case OXIDIZING -> new BasicChemicalOxidizerRecipe(itemInput, chemicalOutput(data.getChemicalOutput(), false));
-            case PIGMENT_EXTRACTING -> new BasicPigmentExtractingRecipe(itemInput, chemicalOutput(data.getChemicalOutput(), false));
-            case PIGMENT_MIXING -> new BasicPigmentMixingRecipe(chemicalInput, extraChemicalInput, chemicalOutput(data.getChemicalOutput(), false));
-            case METALLURGIC_INFUSING -> new BasicMetallurgicInfuserRecipe(itemInput, chemicalInput, itemOutput(data), data.isPerTickUsage());
-            case PAINTING -> new BasicPaintingRecipe(itemInput, chemicalInput, itemOutput(data), data.isPerTickUsage());
-            case REACTION -> new BasicPressurizedReactionRecipe(itemInput, fluidInput, chemicalInput,
-                    nonNegative(data.getEnergyRequired(), "energy required"), positive(data.getDuration(), "duration"),
-                    optionalItemOutput(data.getItemOutput()), chemicalOutput(data.getChemicalOutput(), true));
-            case CONDENSENTRATING -> new BasicRotaryRecipe(chemicalInput, fluidOutput(data));
-            case DECONDENSENTRATING -> new BasicRotaryRecipe(fluidInput,
-                    chemicalOutput(data.getChemicalOutput(), false));
-            case SAWING -> new BasicSawmillRecipe(itemInput, optionalItemOutput(data.getItemOutput()),
+            case ACTIVATING -> new ActivatingIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case CENTRIFUGING -> new CentrifugingIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case CRYSTALLIZING -> new ChemicalCrystallizerIRecipe(ViScriptRecipe.placeholder, chemicalInput, itemOutput(data));
+            case DISSOLUTION -> new ChemicalDissolutionIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, chemicalOutput(data.getChemicalOutput(), false));
+            case CHEMICAL_INFUSING -> new ChemicalInfuserIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (ChemicalStackIngredient.GasStackIngredient) extraChemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case OXIDIZING -> new ChemicalOxidizerIRecipe(ViScriptRecipe.placeholder, itemInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case COMBINING -> new CombinerIRecipe(ViScriptRecipe.placeholder, itemInput, extraItemInput, itemOutput(data));
+            case COMPRESSING -> new CompressingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
+            case CRUSHING -> new CrushingIRecipe(ViScriptRecipe.placeholder, itemInput, itemOutput(data));
+            case SEPARATING -> new ElectrolysisIRecipe(ViScriptRecipe.placeholder, fluidInput, FloatingLong.create(positive(data.getEnergyMultiplier(), "energy multiplier")), (GasStack) chemicalOutput(data.getChemicalOutput(), false), (GasStack) chemicalOutput(data.getSecondaryChemicalOutput(), false));
+            case ENERGY_CONVERSION -> new EnergyConversionIRecipe(ViScriptRecipe.placeholder, itemInput, FloatingLong.create(positive(data.getEnergyOutput(), "energy output")));
+            case ENRICHING -> new EnrichingIRecipe(ViScriptRecipe.placeholder, itemInput, itemOutput(data));
+            case WASHING -> new FluidSlurryToSlurryIRecipe(ViScriptRecipe.placeholder, fluidInput, (ChemicalStackIngredient.SlurryStackIngredient) chemicalInput, (SlurryStack) chemicalOutput(data.getChemicalOutput(), false));
+            case EVAPORATING -> new FluidToFluidIRecipe(ViScriptRecipe.placeholder, fluidInput, fluidOutput(data));
+            case GAS_CONVERSION -> new GasConversionIRecipe(ViScriptRecipe.placeholder, itemInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case INFUSION_CONVERSION -> new InfusionConversionIRecipe(ViScriptRecipe.placeholder, itemInput, (InfusionStack) chemicalOutput(data.getChemicalOutput(), false));
+            case INJECTING -> new InjectingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
+            case METALLURGIC_INFUSING -> new MetallurgicInfuserIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.InfusionStackIngredient) chemicalInput, itemOutput(data));
+            case NUCLEOSYNTHESIZING -> new NucleosynthesizingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data), positive(data.getDuration(), "duration"));
+
+            case PAINTING -> new PaintingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.PigmentStackIngredient) chemicalInput, itemOutput(data));
+            case PIGMENT_EXTRACTING -> new PigmentExtractingIRecipe(ViScriptRecipe.placeholder, itemInput, (PigmentStack) chemicalOutput(data.getChemicalOutput(), false));
+            case PIGMENT_MIXING -> new PigmentMixingIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.PigmentStackIngredient) chemicalInput, (ChemicalStackIngredient.PigmentStackIngredient) extraChemicalInput, (PigmentStack) chemicalOutput(data.getChemicalOutput(), false));
+            case REACTION -> new PressurizedReactionIRecipe(ViScriptRecipe.placeholder, itemInput, fluidInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, FloatingLong.create(positive(data.getEnergyRequired(), "energy required")), positive(data.getDuration(), "duration"), optionalItemOutput(data.getItemOutput()), (GasStack) chemicalOutput(data.getChemicalOutput(), true));
+            case PURIFYING -> new PurifyingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
+            case CONDENSENTRATING -> new RotaryIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, fluidOutput(data));
+            case DECONDENSENTRATING -> new RotaryIRecipe(ViScriptRecipe.placeholder, fluidInput,
+                    (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case SAWING -> new SawmillIRecipe(ViScriptRecipe.placeholder, itemInput, optionalItemOutput(data.getItemOutput()),
                     optionalItemOutput(data.getSecondaryItemOutput()), sawmillChance(data));
+            case SMELTING -> new SmeltingIRecipe(ViScriptRecipe.placeholder, itemInput, itemOutput(data));
         };
     }
 
     private static ItemStackIngredient itemIngredient(RecipeIngredient data, int amount, String field) {
-        var ingredient = data == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : data.compile();
+        var ingredient = data == null ? Ingredient.EMPTY : data.compile();
         if (ingredient.isEmpty()) {
             throw new IllegalArgumentException("Mekanism " + field + " cannot be empty");
         }
@@ -104,35 +115,62 @@ public final class MekanismRecipeFactory {
         if (stack == null || stack.isEmpty() || stack.getFluid() == Fluids.EMPTY) {
             throw new IllegalArgumentException("Mekanism fluid input cannot be empty");
         }
-        return IngredientCreatorAccess.fluid().from(stack.copyWithAmount(amount));
+        FluidStack copy = stack.copy();
+        copy.setAmount(amount);
+        return IngredientCreatorAccess.fluid().from(copy);
     }
 
-    private static ChemicalStackIngredient chemicalIngredient(MekanismChemicalIngredientData data, String field) {
+    static IChemicalStackIngredientCreator<?,?,?> getIngredientCreator(ChemicalType type) {
+        return switch (type) {
+            case GAS -> IngredientCreatorAccess.gas();
+            case INFUSION -> IngredientCreatorAccess.infusion();
+            case PIGMENT -> IngredientCreatorAccess.pigment();
+            case SLURRY -> IngredientCreatorAccess.slurry();
+        };
+    }
+
+    @SuppressWarnings("all")
+    public static ChemicalStackIngredient<?,?> chemicalIngredient(MekanismChemicalIngredientData data, String field) {
         if (data == null) {
             throw new IllegalArgumentException("Mekanism " + field + " cannot be empty");
         }
         var amount = positive(data.getAmount(), field + " amount");
+        var type = data.getChemicalType();
+        var creator = getIngredientCreator(type);
         if (data.getKind() == MekanismChemicalIngredientKind.TAG) {
-            return IngredientCreatorAccess.chemicalStack().from(
-                    TagKey.create(MekanismAPI.CHEMICAL_REGISTRY_NAME, requireId(data.getTag(), field + " tag")), amount);
+            ResourceLocation tag = requireId(data.getTag(), field + " tag");
+            return switch (type) {
+                case GAS -> ((GasStackIngredientCreator) creator).from(ChemicalTags.GAS.tag(tag), amount);
+                case INFUSION -> ((InfusionStackIngredientCreator) creator).from(ChemicalTags.INFUSE_TYPE.tag(tag), amount);
+                case PIGMENT -> ((PigmentStackIngredientCreator) creator).from(ChemicalTags.PIGMENT.tag(tag), amount);
+                case SLURRY -> ((SlurryStackIngredientCreator) creator).from(ChemicalTags.SLURRY.tag(tag), amount);
+            };
         }
-        return IngredientCreatorAccess.chemicalStack().fromHolder(chemicalHolder(data.getChemical(), field), amount);
+        ResourceLocation id = data.getChemical();
+        return switch (type) {
+            case GAS -> ((GasStackIngredientCreator) creator).from(MekanismAPI.gasRegistry().getValue(id), amount);
+            case INFUSION -> ((InfusionStackIngredientCreator) creator).from(MekanismAPI.infuseTypeRegistry().getValue(id), amount);
+            case PIGMENT -> ((PigmentStackIngredientCreator) creator).from(MekanismAPI.pigmentRegistry().getValue(id), amount);
+            case SLURRY -> ((SlurryStackIngredientCreator) creator).from(MekanismAPI.slurryRegistry().getValue(id), amount);
+        };
     }
 
-    private static ChemicalStack chemicalOutput(MekanismChemicalStackData data, boolean allowEmpty) {
+    @SuppressWarnings("all")
+    private static ChemicalStack<?> chemicalOutput(MekanismChemicalStackData data, boolean allowEmpty) {
         if (data == null || data.isEmpty()) {
             if (allowEmpty) {
-                return ChemicalStack.EMPTY;
+                return GasStack.EMPTY;
             }
             throw new IllegalArgumentException("Mekanism chemical output cannot be empty");
         }
-        return new ChemicalStack(chemicalHolder(data.getChemical(), "chemical output"), positive(data.getAmount(), "chemical output amount"));
-    }
-
-    private static net.minecraft.core.Holder<Chemical> chemicalHolder(ResourceLocation id, String field) {
-        var location = requireId(id, field);
-        return MekanismAPI.CHEMICAL_REGISTRY.getHolder(location)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown Mekanism chemical for " + field + ": " + location));
+        ResourceLocation id = data.getChemical();
+        long amount = positive(data.getAmount(), "chemical output amount");
+        return switch (data.getChemicalType()) {
+            case GAS -> new GasStack(MekanismAPI.gasRegistry().getValue(id), amount);
+            case INFUSION -> new InfusionStack(MekanismAPI.infuseTypeRegistry().getValue(id), amount);
+            case PIGMENT -> new PigmentStack(MekanismAPI.pigmentRegistry().getValue(id), amount);
+            case SLURRY -> new SlurryStack(MekanismAPI.slurryRegistry().getValue(id), amount);
+        };
     }
 
     private static ItemStack itemOutput(MekanismRecipeData data) {

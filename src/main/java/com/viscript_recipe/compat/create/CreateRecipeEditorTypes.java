@@ -92,6 +92,6 @@ public final class CreateRecipeEditorTypes implements IModModule {
     }
 
     public static ResourceLocation create(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 }

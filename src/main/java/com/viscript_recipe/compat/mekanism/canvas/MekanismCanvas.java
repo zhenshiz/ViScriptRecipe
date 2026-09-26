@@ -13,6 +13,8 @@ import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.SlotSelection;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
+import mekanism.api.chemical.ChemicalType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -24,6 +26,7 @@ import java.util.function.Consumer;
  * 输出：0，1--物品输出，2，3--化学输出
  * 液体：0--液体输入，2--液体输出
  */
+@SuppressWarnings("UnstableApiUsage")
 public class MekanismCanvas extends FluidRecipeCanvas<MekanismRecipeData> {
     static ChemicalDisplay[] chemicals = new ChemicalDisplay[4];
     Runnable refresh = Runnables.doNothing();
@@ -103,8 +106,9 @@ public class MekanismCanvas extends FluidRecipeCanvas<MekanismRecipeData> {
     public void buildRecipeProperties(UIElement content) {
         var data = getData(); var kind = kind();
         content.addChild(sectionTitle("viscript_recipe.editor.properties.mekanism"));
-        if (kind.hasPerTickUsage()) content.addChild(switchField("viscript_recipe.config.mekanism.per_tick_usage",
-                data.isPerTickUsage(), data::setPerTickUsage));
+        // 1.20.1 不支持 perTickUsage
+//        if (kind.hasPerTickUsage()) content.addChild(switchField("viscript_recipe.config.mekanism.per_tick_usage",
+//                data.isPerTickUsage(), data::setPerTickUsage));
         if (kind.hasDuration()) content.addChild(intField("viscript_recipe.config.mekanism.duration",
                 data.getDuration(), 1, Integer.MAX_VALUE, data::setDuration));
         if (kind.hasEnergyRequired()) content.addChild(longField("viscript_recipe.config.mekanism.energy_required",
@@ -180,15 +184,20 @@ public class MekanismCanvas extends FluidRecipeCanvas<MekanismRecipeData> {
         );
         if (kind == MekanismChemicalIngredientKind.TAG) {
             content.addChild(MekanismSearchComponents.chemicalTag("viscript_recipe.config.mekanism.chemical_ingredient.tag",
-                    data::getTag, tag -> setSelectedChemicalI(data.setTag(tag)), Runnables.doNothing()));
-        } else content.addChild(MekanismSearchComponents.chemical("viscript_recipe.config.mekanism.chemical_ingredient.chemical", data::getChemical, id -> setSelectedChemicalI(data.setChemical(id)), Runnables.doNothing()));
+                    data.getChemicalType(), data::getTag, tag -> setSelectedChemicalI(data.setTag(tag)), Runnables.doNothing()));
+        } else content.addChild(MekanismSearchComponents.chemical("viscript_recipe.config.mekanism.chemical_ingredient.chemical", data.getChemicalType(), data::getChemical, id -> setSelectedChemicalI(data.setChemical(id)), Runnables.doNothing()));
         content.addChild(longField("viscript_recipe.config.mekanism.chemical_ingredient.amount", data.getAmount(),
                 1, Long.MAX_VALUE, l -> setSelectedChemicalI(data.setAmount(l))));
     }
 
     private void buildChemicalOutputProperties(UIElement content, MekanismChemicalStackData data, String titleKey) {
+        if (kind() == MekanismRecipeKind.DISSOLUTION) content.addChild(selector("Chemical Type",
+                List.of(ChemicalType.values()), data.getChemicalType(),
+                c -> Component.nullToEmpty(c.getSerializedName()), value -> {
+                    setSelectedChemicalO(data.setChemicalType(value)); reloadProperties();
+                }));
         content.addChildren(
-                MekanismSearchComponents.chemical(titleKey, data::getChemical, id -> {
+                MekanismSearchComponents.chemical(titleKey, data.getChemicalType(), data::getChemical, id -> {
                     if (data.getAmount() <= 0) data.setAmount(1);
                     setSelectedChemicalO(data.setChemical(id));
                 }, Runnables.doNothing()),

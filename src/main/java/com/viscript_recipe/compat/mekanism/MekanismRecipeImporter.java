@@ -7,24 +7,26 @@ import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.chemical.ChemicalType;
 import mekanism.api.recipes.*;
+import mekanism.api.recipes.chemical.*;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
 import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import mekanism.api.recipes.ingredients.ItemStackIngredient;
-import mekanism.api.recipes.ingredients.chemical.SingleChemicalIngredient;
-import mekanism.api.recipes.ingredients.chemical.TagChemicalIngredient;
+import mekanism.common.recipe.ingredient.chemical.SingleChemicalStackIngredient;
+import mekanism.common.recipe.ingredient.chemical.TaggedChemicalStackIngredient;
+import mekanism.common.recipe.ingredient.creator.FluidStackIngredientCreator;
+import mekanism.common.recipe.ingredient.creator.ItemStackIngredientCreator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.SingleFluidIngredient;
-import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Imports native Mekanism recipe objects into the shared typed editor model.
@@ -36,19 +38,18 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
     }
 
     @Override
-    public boolean canImport(RecipeHolder<?> holder) {
+    public boolean canImport(Recipe<?> holder) {
         return holder != null && kind(holder) != null;
     }
 
     @Override
-    public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
-        var kind = kind(holder);
+    public RecipeImportResult tryImport(Recipe<?> recipe, HolderLookup.Provider provider) throws RecipeImportException {
+        var kind = kind(recipe);
         if (kind == null) {
             return null;
         }
-        var recipe = holder.value();
         if (recipe instanceof RotaryRecipe rotaryRecipe) {
-            return importRotary(holder, rotaryRecipe);
+            return importRotary(rotaryRecipe);
         }
         var data = new MekanismRecipeData();
 
@@ -72,9 +73,9 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
             }
             case SEPARATING -> {
                 var typed = (ElectrolysisRecipe) recipe;
-                var output = typed.getOutputDefinition().getFirst();
+                var output = typed.getOutputDefinition().get(0);
                 data.setFluidInput(importFluidInput(typed.getInput()))
-                        .setEnergyMultiplier(Math.max(1, typed.getEnergyMultiplier()))
+                        .setEnergyMultiplier(Math.max(1, typed.getEnergyMultiplier().getValue()))
                         .setChemicalOutput(copyChemical(output.left()))
                         .setSecondaryChemicalOutput(copyChemical(output.right()));
             }
@@ -87,7 +88,7 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
             case EVAPORATING -> {
                 var typed = (FluidToFluidRecipe) recipe;
                 data.setFluidInput(importFluidInput(typed.getInput()))
-                        .setFluidOutput(typed.getOutputDefinition().getFirst().copy());
+                        .setFluidOutput(typed.getOutputDefinition().get(0).copy());
             }
             case ACTIVATING, CENTRIFUGING -> {
                 var typed = (ChemicalToChemicalRecipe) recipe;
@@ -102,45 +103,42 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
             case DISSOLUTION -> {
                 var typed = (ChemicalDissolutionRecipe) recipe;
                 importItemInput(data, typed.getItemInput(), false);
-                data.setChemicalInput(importChemicalInput(typed.getChemicalInput()))
-                        .setChemicalOutput(copyFirstChemical(typed.getOutputDefinition()))
-                        .setPerTickUsage(typed.perTickUsage());
+                data.setChemicalInput(importChemicalInput(typed.getGasInput()))
+                        .setChemicalOutput(copyFirstChemical(List.of(typed.getOutputDefinition().get(0).getChemicalStack())));
             }
             case COMPRESSING, PURIFYING, INJECTING, METALLURGIC_INFUSING, PAINTING -> {
                 var typed = (ItemStackChemicalToItemStackRecipe) recipe;
                 importItemInput(data, typed.getItemInput(), false);
                 data.setChemicalInput(importChemicalInput(typed.getChemicalInput()))
-                        .setItemOutput(copyFirstItem(typed.getOutputDefinition()))
-                        .setPerTickUsage(typed.perTickUsage());
+                        .setItemOutput(copyFirstItem(typed.getOutputDefinition()));
             }
             case NUCLEOSYNTHESIZING -> {
                 var typed = (NucleosynthesizingRecipe) recipe;
                 importItemInput(data, typed.getItemInput(), false);
                 data.setChemicalInput(importChemicalInput(typed.getChemicalInput()))
                         .setItemOutput(copyFirstItem(typed.getOutputDefinition()))
-                        .setDuration(Math.max(1, typed.getDuration()))
-                        .setPerTickUsage(typed.perTickUsage());
+                        .setDuration(Math.max(1, typed.getDuration()));
             }
             case ENERGY_CONVERSION -> {
                 var typed = (ItemStackToEnergyRecipe) recipe;
                 importItemInput(data, typed.getInput(), false);
-                data.setEnergyOutput(Math.max(1, typed.getOutputDefinition()[0]));
+                data.setEnergyOutput(Math.max(1, typed.getOutputDefinition().get(0).getValue()));
             }
-            case CHEMICAL_CONVERSION, OXIDIZING, PIGMENT_EXTRACTING -> {
+            case GAS_CONVERSION, INFUSION_CONVERSION, OXIDIZING, PIGMENT_EXTRACTING -> {
                 var typed = (ItemStackToChemicalRecipe) recipe;
                 importItemInput(data, typed.getInput(), false);
                 data.setChemicalOutput(copyFirstChemical(typed.getOutputDefinition()));
             }
             case REACTION -> {
                 var typed = (PressurizedReactionRecipe) recipe;
-                var output = typed.getOutputDefinition().getFirst();
+                var output = typed.getOutputDefinition().get(0);
                 importItemInput(data, typed.getInputSolid(), false);
                 data.setFluidInput(importFluidInput(typed.getInputFluid()))
-                        .setChemicalInput(importChemicalInput(typed.getInputChemical()))
-                        .setEnergyRequired(Math.max(0, typed.getEnergyRequired()))
+                        .setChemicalInput(importChemicalInput(typed.getInputGas()))
+                        .setEnergyRequired(Math.max(0, typed.getEnergyRequired().getValue()))
                         .setDuration(Math.max(1, typed.getDuration()))
                         .setItemOutput(output.item().copy())
-                        .setChemicalOutput(copyChemical(output.chemical()));
+                        .setChemicalOutput(copyChemical(output.gas()));
             }
             case CONDENSENTRATING, DECONDENSENTRATING -> throw new IllegalStateException(
                     "Rotary recipes must be imported before the serializer switch"
@@ -153,26 +151,26 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
                         .setSecondaryChance((float) typed.getSecondaryChance());
             }
         }
-        return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), kind.typeId()).setData(data));
+        return RecipeImporter.success(RecipeImporter.baseEntry(recipe.getId(), kind.typeId()).setData(data));
     }
 
-    private static RecipeImportResult importRotary(RecipeHolder<?> holder, RotaryRecipe recipe)
+    private static RecipeImportResult importRotary(RotaryRecipe recipe)
             throws RecipeImportException {
         var entries = new ArrayList<com.viscript_recipe.data.RecipeEntry>(2);
-        boolean split = recipe.hasChemicalToFluid() && recipe.hasFluidToChemical();
-        if (recipe.hasChemicalToFluid()) {
+        boolean split = recipe.hasGasToFluid() && recipe.hasFluidToGas();
+        if (recipe.hasGasToFluid()) {
             var data = new MekanismRecipeData()
-                    .setChemicalInput(importChemicalInput(recipe.getChemicalInput()))
-                    .setFluidOutput(recipe.getFluidOutputDefinition().getFirst().copy());
-            var id = split ? splitRotaryId(holder.id(), "condensentrating") : holder.id();
+                    .setChemicalInput(importChemicalInput(recipe.getGasInput()))
+                    .setFluidOutput(recipe.getFluidOutputDefinition().get(0).copy());
+            var id = split ? splitRotaryId(recipe.getId(), "condensentrating") : recipe.getId();
             entries.add(RecipeImporter.baseEntry(id, MekanismRecipeKind.CONDENSENTRATING.typeId())
                     .setData(data));
         }
-        if (recipe.hasFluidToChemical()) {
+        if (recipe.hasFluidToGas()) {
             var data = new MekanismRecipeData()
                     .setFluidInput(importFluidInput(recipe.getFluidInput()))
-                    .setChemicalOutput(copyFirstChemical(recipe.getChemicalOutputDefinition()));
-            var id = split ? splitRotaryId(holder.id(), "decondensentrating") : holder.id();
+                    .setChemicalOutput(copyFirstChemical(List.of(recipe.getGasOutputDefinition().get(0))));
+            var id = split ? splitRotaryId(recipe.getId(), "decondensentrating") : recipe.getId();
             entries.add(RecipeImporter.baseEntry(id, MekanismRecipeKind.DECONDENSENTRATING.typeId())
                     .setData(data));
         }
@@ -180,77 +178,78 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_result");
         }
         if (!split) {
-            return RecipeImporter.success(entries.getFirst());
+            return RecipeImporter.success(entries.get(0));
         }
         return RecipeImportResult.success(entries, Component.translatable(
                 "viscript_recipe.editor.import_recipe.success.mekanism_rotary_split",
-                holder.id().toString()
+                recipe.getId().toString()
         ));
     }
 
     private static ResourceLocation splitRotaryId(ResourceLocation id, String direction) {
-        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath() + '_' + direction);
+        return new ResourceLocation(id.getNamespace(), id.getPath() + '_' + direction);
     }
 
     private static void importItemInput(MekanismRecipeData data, ItemStackIngredient input, boolean extra) throws RecipeImportException {
-        var amount = Math.max(1, input.ingredient().count());
-        var imported = RecipeImporter.importIngredient(input.ingredient().ingredient()).setCount(amount);
-        if (extra) {
-            data.setExtraItemInput(imported);
-        } else {
-            data.setItemInput(imported);
-        }
+        if (input instanceof ItemStackIngredientCreator.SingleItemStackIngredient single) {
+            var amount = Math.max(1, single.getAmountRaw());
+            var imported = RecipeImporter.importIngredient(single.getInputRaw()).setCount(amount);
+            if (extra) {
+                data.setExtraItemInput(imported);
+            } else {
+                data.setItemInput(imported);
+            }
+        } else throw new IllegalArgumentException("Unsupported ItemStackIngredient");
     }
 
     private static FluidIngredientData importFluidInput(FluidStackIngredient input) throws RecipeImportException {
-        var sized = input.ingredient();
-        var amount = Math.max(1, sized.amount());
-        if (sized.ingredient() instanceof TagFluidIngredient tag) {
-            return FluidIngredientData.tag(tag.tag().location()).setAmount(amount);
+        if (input instanceof FluidStackIngredientCreator.SingleFluidStackIngredient single) {
+            FluidStack raw = single.getInputRaw();
+            return FluidIngredientData.fluid(raw).setAmount(raw.getAmount());
         }
-        if (sized.ingredient() instanceof SingleFluidIngredient single) {
-            return FluidIngredientData.fluid(new FluidStack(single.fluid(), amount)).setAmount(amount);
+        if (input instanceof FluidStackIngredientCreator.TaggedFluidStackIngredient tag) {
+            return FluidIngredientData.tag(tag.getTag().location()).setAmount(Math.max(1, tag.getRawAmount()));
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.mekanism_unsupported_fluid_ingredient");
     }
 
-    private static MekanismChemicalIngredientData importChemicalInput(ChemicalStackIngredient input) throws RecipeImportException {
-        if (input.ingredient() instanceof SingleChemicalIngredient single) {
+    private static MekanismChemicalIngredientData importChemicalInput(ChemicalStackIngredient<?,?> input) throws RecipeImportException {
+        if (input instanceof SingleChemicalStackIngredient<?,?> single) {
             return new MekanismChemicalIngredientData()
+                    .setChemicalType(ChemicalType.getTypeFor(single))
                     .setKind(MekanismChemicalIngredientKind.CHEMICAL)
-                    .setChemical(holderId(single.chemical()))
-                    .setAmount(Math.max(1, input.amount()));
+                    .setChemical(single.getInputRaw().getRegistryName())
+                    .setAmount(Math.max(1, input.getRepresentations().get(0).getAmount()));
         }
-        if (input.ingredient() instanceof TagChemicalIngredient tag) {
+        if (input instanceof TaggedChemicalStackIngredient<?,?> tag) {
+            var serialize = tag.serialize().getAsJsonObject();
             return new MekanismChemicalIngredientData()
+                    .setChemicalType(ChemicalType.getTypeFor(tag))
                     .setKind(MekanismChemicalIngredientKind.TAG)
-                    .setTag(tag.tag().location())
-                    .setAmount(Math.max(1, input.amount()));
+                    .setTag(new ResourceLocation(serialize.get("tag").getAsString()))
+                    .setAmount(Math.max(1, serialize.get("amount").getAsLong()));
         }
         throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.mekanism_unsupported_chemical_ingredient");
     }
 
-    private static MekanismChemicalStackData copyFirstChemical(java.util.List<ChemicalStack> stacks) throws RecipeImportException {
+    private static MekanismChemicalStackData copyFirstChemical(List<ChemicalStack<?>> stacks) throws RecipeImportException {
         if (stacks == null || stacks.isEmpty()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_result");
         }
-        return copyChemical(stacks.getFirst());
+        return copyChemical(stacks.get(0));
     }
 
-    private static MekanismChemicalStackData copyChemical(ChemicalStack stack) {
+    private static MekanismChemicalStackData copyChemical(ChemicalStack<?> stack) {
         if (stack == null || stack.isEmpty()) {
-            return new MekanismChemicalStackData().setChemical(null).setAmount(0);
+            return MekanismChemicalStackData.empty();
         }
         return new MekanismChemicalStackData()
-                .setChemical(holderId(stack.getChemicalHolder()))
+                .setChemicalType(ChemicalType.getTypeFor(stack))
+                .setChemical(stack.getRaw().getRegistryName())
                 .setAmount(stack.getAmount());
     }
 
-    private static ResourceLocation holderId(net.minecraft.core.Holder<?> holder) {
-        return holder.unwrapKey().map(ResourceKey::location).orElseThrow();
-    }
-
-    private static ItemStack copyFirstItem(java.util.List<ItemStack> stacks) throws RecipeImportException {
+    private static ItemStack copyFirstItem(List<ItemStack> stacks) throws RecipeImportException {
         var result = copyFirstItemOrEmpty(stacks);
         if (result.isEmpty()) {
             throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.empty_result");
@@ -258,15 +257,15 @@ public final class MekanismRecipeImporter implements RecipeImportHandler {
         return result;
     }
 
-    private static ItemStack copyFirstItemOrEmpty(java.util.List<ItemStack> stacks) {
-        return stacks == null || stacks.isEmpty() ? ItemStack.EMPTY : stacks.getFirst().copy();
+    private static ItemStack copyFirstItemOrEmpty(List<ItemStack> stacks) {
+        return stacks == null || stacks.isEmpty() ? ItemStack.EMPTY : stacks.get(0).copy();
     }
 
-    private static MekanismRecipeKind kind(RecipeHolder<?> holder) {
-        if (holder.value() instanceof RotaryRecipe) {
+    private static MekanismRecipeKind kind(Recipe<?> holder) {
+        if (holder instanceof RotaryRecipe) {
             return MekanismRecipeKind.CONDENSENTRATING;
         }
-        var serializer = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
+        var serializer = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.getSerializer());
         return MekanismRecipeKind.byType(serializer).orElse(null);
     }
 }

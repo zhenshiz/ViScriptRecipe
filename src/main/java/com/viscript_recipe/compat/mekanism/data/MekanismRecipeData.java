@@ -8,12 +8,13 @@ import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import mekanism.api.chemical.ChemicalType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 @Getter
 @Setter
@@ -44,8 +45,8 @@ public class MekanismRecipeData implements IVSRecipeData {
     @Persisted
     private MekanismChemicalStackData secondaryChemicalOutput = new MekanismChemicalStackData();
 
-    @Persisted
-    private boolean perTickUsage;
+//    @Persisted
+//    private boolean perTickUsage;
     @Persisted
     private int duration = 100;
     @Persisted
@@ -66,19 +67,40 @@ public class MekanismRecipeData implements IVSRecipeData {
     }
 
     private void applyMekanism(MekanismRecipeKind kind) {
-        setFluidInput(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)))
-                .setChemicalInput(chemicalIngredient("oxygen"))
-                .setExtraChemicalInput(chemicalIngredient("hydrogen"))
-                .setChemicalOutput(chemicalOutput("hydrogen"))
-                .setSecondaryChemicalOutput(chemicalOutput("oxygen"));
+        setFluidInput(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
+        if (kind.gasInput()) {
+            setChemicalInput(chemicalIngredient("oxygen")).setExtraChemicalInput(chemicalIngredient("hydrogen"));
+        }
+        if (kind.gasOutput()) {
+            setChemicalOutput(chemicalOutput("hydrogen")).setSecondaryChemicalOutput(chemicalOutput("oxygen"));
+        }
+        if (kind.infuseTypeInput()) {
+            setChemicalInput(chemicalIngredient("carbon").setChemicalType(ChemicalType.INFUSION));
+        }
+        if (kind.infuseTypeOutput()) {
+            setChemicalOutput(chemicalOutput("redstone").setChemicalType(ChemicalType.INFUSION));
+        }
+        if (kind.pigmentInput()) {
+            setChemicalInput(chemicalIngredient("red").setChemicalType(ChemicalType.PIGMENT))
+                    .setExtraChemicalInput(chemicalIngredient("yellow").setChemicalType(ChemicalType.PIGMENT));
+        }
+        if (kind.pigmentOutput()) {
+            setChemicalOutput(chemicalOutput("orange").setChemicalType(ChemicalType.PIGMENT));
+        }
+        if (kind.slurryInput()) {
+            setChemicalInput(chemicalIngredient("dirty_iron").setChemicalType(ChemicalType.SLURRY));
+        }
+        if (kind.slurryOutput()) {
+            setChemicalOutput(chemicalOutput("clean_iron").setChemicalType(ChemicalType.SLURRY));
+        }
         if (kind == MekanismRecipeKind.SAWING) setItemOutput(new ItemStack(Items.STICK));
     }
 
     static MekanismChemicalIngredientData chemicalIngredient(String path) {
-        return new MekanismChemicalIngredientData().setChemical(ResourceLocation.fromNamespaceAndPath("mekanism", path));
+        return new MekanismChemicalIngredientData().setChemical(new ResourceLocation("mekanism", path));
     }
 
     static MekanismChemicalStackData chemicalOutput(String path) {
-        return new MekanismChemicalStackData().setChemical(ResourceLocation.fromNamespaceAndPath("mekanism", path));
+        return new MekanismChemicalStackData().setChemical(new ResourceLocation("mekanism", path));
     }
 }

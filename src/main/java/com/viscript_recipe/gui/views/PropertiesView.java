@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -116,10 +116,10 @@ public class PropertiesView extends View {
                     entry.setEnabled(value); navigationView.updateStatus(); // 更新状态栏
                 }),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.recipe_id",
-                        RecipeEditorUi.resourceLocationField(entry.getRecipeId(), entry::setRecipeId).setId("recipe_entry_id")),
+                        RecipeEditorUi.resourceLocationField(entry.getRecipeId(), entry::setRecipeId)),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.operation",
                         RecipeEditorUi.selector(List.of(RecipeOperation.values()),
-                                entry.getOperation(), RecipeOperation::displayName, entry::setOperation).setId("recipe_entry_operation"))
+                                entry.getOperation(), RecipeOperation::displayName, entry::setOperation))
         );
         if (workBenchView.supportsNotification()) {
             content.addChild(RecipeCanvas.switchField("viscript_recipe.config.recipe.show_notification",
@@ -285,11 +285,11 @@ public class PropertiesView extends View {
     }
 
     public static ResourceLocation defaultTag() {
-        return ResourceLocation.fromNamespaceAndPath("minecraft", "planks");
+        return new ResourceLocation("minecraft", "planks");
     }
 
     public static ResourceLocation defaultFluidTag() {
-        return ResourceLocation.fromNamespaceAndPath("c", "water");
+        return new ResourceLocation("forge", "water");
     }
 
     public static Block ingredientBlock(RecipeIngredient ingredient) {

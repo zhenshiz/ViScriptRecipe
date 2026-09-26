@@ -3,6 +3,7 @@ package com.viscript_recipe.compat.create.canvas;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
+import com.viscript_lib.util.math.Clamp;
 import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -127,7 +128,7 @@ public class MechanicalCraftingCanvas extends RecipeCanvas<CreateMechanicalCraft
     }
 
     static int mechanicalCraftingGridInnerDimension(int slots) {
-        var normalized = Math.clamp(slots, 1, maxSize());
+        var normalized = Clamp.clamp(slots, 1, maxSize());
         return MECHANICAL_CRAFTING_SLOT_SIZE * normalized + Math.max(0, normalized - 1) * mechanicalCraftingGridGap();
     }
 

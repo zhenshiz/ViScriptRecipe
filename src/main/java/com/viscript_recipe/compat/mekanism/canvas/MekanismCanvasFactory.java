@@ -220,7 +220,7 @@ public final class MekanismCanvasFactory {
                 case COMPRESSING, PURIFYING, INJECTING -> layoutItemChemicalMachine();
                 case NUCLEOSYNTHESIZING -> layoutNucleosynthesizing();
                 case ENERGY_CONVERSION -> layoutEnergyConversion();
-                case CHEMICAL_CONVERSION, OXIDIZING, PIGMENT_EXTRACTING -> layoutItemToChemical();
+                case GAS_CONVERSION, INFUSION_CONVERSION, OXIDIZING, PIGMENT_EXTRACTING -> layoutItemToChemical();
                 case METALLURGIC_INFUSING -> layoutMetallurgicInfusing();
                 case PAINTING -> layoutPainting();
                 case REACTION -> layoutReaction();
@@ -607,12 +607,12 @@ public final class MekanismCanvasFactory {
             int width,
             int height
     ) {
-        return SpriteTexture.of(ResourceLocation.fromNamespaceAndPath(MEKANISM_MOD_ID, "gui/" + textureName))
+        return SpriteTexture.of(new ResourceLocation(MEKANISM_MOD_ID, "gui/" + textureName))
                 .setSprite(x, y, width, height);
     }
 
     private static IGuiTexture canvasBackground() {
-        var background = ResourceLocation.fromNamespaceAndPath(
+        var background = new ResourceLocation(
                 JEI_MOD_ID, "textures/jei/atlas/gui/single_recipe_background.png"
         );
         if (!ViScriptRecipe.isPresentResource(background)) {
@@ -622,7 +622,7 @@ public final class MekanismCanvasFactory {
     }
 
     private static UIElement shapelessIcon() {
-        var texture = ResourceLocation.fromNamespaceAndPath(
+        var texture = new ResourceLocation(
                 JEI_MOD_ID, "textures/jei/atlas/gui/icons/shapeless_icon.png"
         );
         boolean present = ViScriptRecipe.isPresentResource(texture);

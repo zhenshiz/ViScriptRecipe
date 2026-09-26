@@ -6,21 +6,16 @@ import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.mojang.logging.LogUtils;
 import com.viscript_recipe.client.RecipeDeltaClientEvents;
 import com.viscript_recipe.gui.editor.RecipeEditor;
-import com.viscript_recipe.recipe.ComponentStackIngredient;
 import com.viscript_recipe.recipe.RecipeDeltaServerEvents;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.slf4j.Logger;
 
 @Mod(ViScriptRecipe.MOD_ID)
@@ -28,8 +23,9 @@ public class ViScriptRecipe {
     public static final String MOD_ID = "viscript_recipe";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public ViScriptRecipe(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
-        ComponentStackIngredient.register(modEventBus);
+    public static final ResourceLocation placeholder = id("placeholder");
+
+    public ViScriptRecipe() {
         RecipeDeltaServerEvents.register();
         PlayerUIMenuType.register(RecipeEditor.WINDOW_ID, ignored -> player -> {
             if (player.level().isClientSide) {
@@ -37,11 +33,8 @@ public class ViScriptRecipe {
             }
             return new ModularUI(UI.empty());
         });
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC, Config.CONFIG_FILE_NAME);
-        if (dist.isClient()) {
-            RecipeDeltaClientEvents.register();
-            modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-        }
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC, Config.CONFIG_FILE_NAME);
+        if (isClient()) RecipeDeltaClientEvents.register();
         for (var holder : IModModule.MODULES) {
             var module = holder.value().get();
             module.registerEditorTypes();
@@ -50,7 +43,7 @@ public class ViScriptRecipe {
     }
 
     public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return new ResourceLocation(MOD_ID, path);
     }
 
     public static String formattedMod(String path) {
@@ -62,7 +55,7 @@ public class ViScriptRecipe {
     }
 
     public static boolean isClient() {
-        return FMLEnvironment.dist == Dist.CLIENT;
+        return FMLEnvironment.dist.isClient();
     }
 
     public static boolean isDevEnv() {

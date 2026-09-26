@@ -17,15 +17,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public final class FarmersDelightCanvasFactory {
-    private static final ResourceLocation JEI_COOKING_POT = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation JEI_COOKING_POT = new ResourceLocation(
             "farmersdelight",
             "textures/gui/jei/cooking_pot.png"
     );
-    private static final ResourceLocation COOKING_POT_SCREEN = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation COOKING_POT_SCREEN = new ResourceLocation(
             "farmersdelight",
             "textures/gui/cooking_pot.png"
     );
-    private static final ResourceLocation JEI_CUTTING_BOARD = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation JEI_CUTTING_BOARD = new ResourceLocation(
             "farmersdelight",
             "textures/gui/jei/cutting_board.png"
     );

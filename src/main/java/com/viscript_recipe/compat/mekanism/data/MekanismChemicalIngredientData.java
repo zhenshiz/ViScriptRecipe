@@ -5,6 +5,7 @@ import com.viscript_lib.util.ISkipDefaultedSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import mekanism.api.chemical.ChemicalType;
 import net.minecraft.resources.ResourceLocation;
 
 @Getter
@@ -12,11 +13,13 @@ import net.minecraft.resources.ResourceLocation;
 @Accessors(chain = true)
 public class MekanismChemicalIngredientData implements ISkipDefaultedSerialize {
     @Persisted
+    private ChemicalType chemicalType = ChemicalType.GAS;
+    @Persisted
     private MekanismChemicalIngredientKind kind = MekanismChemicalIngredientKind.CHEMICAL;
     @Persisted
-    private ResourceLocation chemical = ResourceLocation.fromNamespaceAndPath("mekanism", "oxygen");
+    private ResourceLocation chemical = new ResourceLocation("mekanism", "oxygen");
     @Persisted
-    private ResourceLocation tag = ResourceLocation.fromNamespaceAndPath("mekanism", "clean");
+    private ResourceLocation tag = new ResourceLocation("mekanism", "water_vapor");
     @Persisted
     private long amount = 1;
 

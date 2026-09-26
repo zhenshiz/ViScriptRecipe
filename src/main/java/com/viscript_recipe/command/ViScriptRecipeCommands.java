@@ -24,7 +24,6 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -145,19 +144,18 @@ public class ViScriptRecipeCommands implements ICommand {
         }
         CompoundTag tag;
         try {
-            tag = NbtIo.read(path);
+            tag = NbtIo.read(path.toFile());
         } catch (IOException rawReadError) {
             try {
-                tag = NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap());
+                tag = NbtIo.readCompressed(path.toFile());
             } catch (Exception compressedReadError) {
                 throw rawReadError;
             }
         }
         if (tag == null) {
             try {
-                tag = NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap());
+                tag = NbtIo.readCompressed(path.toFile());
             } catch (Exception ignored) {
-                tag = null;
             }
         }
         if (tag == null) {

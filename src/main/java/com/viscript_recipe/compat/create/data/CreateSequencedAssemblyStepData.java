@@ -10,7 +10,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 
 @Getter
 @Setter

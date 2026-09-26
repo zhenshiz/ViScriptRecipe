@@ -8,9 +8,9 @@ import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.viscript_lib.gui.components.search.RegistrySearchBox;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -20,7 +20,8 @@ import java.util.function.Supplier;
 
 public final class GoetyRitualSearchComponents {
     private static final ResourceLocation DEFAULT_RITUAL_TYPE =
-            ResourceLocation.fromNamespaceAndPath("goety", "craft");
+            new ResourceLocation("goety", "craft");
+    static IForgeRegistry<ModRitualFactory> ritualRegistry() {return ModRituals.REGISTRY.get();}
 
     private GoetyRitualSearchComponents() {
     }
@@ -30,14 +31,13 @@ public final class GoetyRitualSearchComponents {
             Consumer<ResourceLocation> consumer,
             Runnable onChanged
     ) {
-        var registry = ModRituals.REGISTRY;
+        var registry = ritualRegistry();
         var requestedId = supplier.get();
         // Goety can expose an empty ritual registry briefly while its client data
         // is loading.  Do not turn that normal lifecycle state into an editor crash.
         // RegistrySearchBox accepts a null value and will populate candidates once
         // the registry contains entries.
-        var current = registry.getOptional(Objects.requireNonNullElse(requestedId, DEFAULT_RITUAL_TYPE))
-                .orElseGet(() -> registry.getAny().map(Holder.Reference::value).orElse(null));
+        var current = registry.getValue(Objects.requireNonNullElse(requestedId, DEFAULT_RITUAL_TYPE));
         var searchBox = new RitualTypeSearchBox(current);
         searchBox.setOnValueChanged(value -> {
             var id = registry.getKey(value);
@@ -102,11 +102,11 @@ public final class GoetyRitualSearchComponents {
         private RitualTypeSearchBox(ModRitualFactory defaultValue) {
             super(
                     defaultValue,
-                    () -> ModRituals.REGISTRY,
-                    ModRituals.REGISTRY::getKey,
-                    value -> Objects.toString(ModRituals.REGISTRY.getKey(value), ""),
+                    ModRituals.REGISTRY::get,
+                    id -> ritualRegistry().getKey(id),
+                    value -> Objects.toString(ModRituals.REGISTRY.get().getKey(value), ""),
                     RitualTypeSearchBox::search,
-                    UIElementProvider.text(value -> ritualTypeName(ModRituals.REGISTRY.getKey(value)))
+                    UIElementProvider.text(value -> ritualTypeName(ritualRegistry().getKey(value)))
             );
         }
 
@@ -115,11 +115,12 @@ public final class GoetyRitualSearchComponents {
                 com.lowdragmc.lowdraglib2.utils.search.IResultHandler<ModRitualFactory> result
         ) {
             var query = word.toLowerCase(Locale.ROOT);
-            for (var value : ModRituals.REGISTRY) {
+            var registry = ritualRegistry();
+            for (var value : registry) {
                 if (Thread.currentThread().isInterrupted()) {
                     return;
                 }
-                var id = ModRituals.REGISTRY.getKey(value);
+                var id = registry.getKey(value);
                 if (id != null && (id.toString().toLowerCase(Locale.ROOT).contains(query)
                         || ritualTypeName(id).getString().toLowerCase(Locale.ROOT).contains(query))) {
                     result.acceptResult(value);

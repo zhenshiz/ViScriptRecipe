@@ -1,21 +1,7 @@
 package com.viscript_recipe.data;
 
-import com.viscript_recipe.compat.alloy_smelter.AlloySmelterRecipeEditorTypes;
-import com.viscript_recipe.compat.ars_nouveau.ArsNouveauRecipeEditorTypes;
-import com.viscript_recipe.compat.avaritia.AvaritiaRecipeEditorTypes;
-import com.viscript_recipe.compat.cataclysm.CataclysmRecipeEditorTypes;
-import com.viscript_recipe.compat.confluence.ConfluenceRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.compat.extendedcrafting.data.ExtendedCraftingRecipeEditorTypes;
 import com.viscript_recipe.compat.farmersdelight.FarmersDelightRecipeEditorTypes;
-import com.viscript_recipe.compat.goety.GoetyRecipeEditorTypes;
-import com.viscript_recipe.compat.iceandfire.IceAndFireRecipeEditorTypes;
-import com.viscript_recipe.compat.industrial_foregoing.IndustrialForegoingRecipeEditorTypes;
-import com.viscript_recipe.compat.kaleidoscope_cookery.KaleidoscopeCookeryRecipeEditorTypes;
-import com.viscript_recipe.compat.kaleidoscope_tavern.KaleidoscopeTavernRecipeEditorTypes;
-import com.viscript_recipe.compat.mysticalagriculture.MysticalAgricultureRecipeEditorTypes;
-import com.viscript_recipe.compat.spore.SporeRecipeEditorTypes;
-import com.viscript_recipe.compat.touhou_little_maid.TouhouLittleMaidRecipeEditorTypes;
 import com.viscript_recipe.data.vanilla.VanillaRecipeEditorTypes;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -41,13 +27,13 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation CAMPFIRE_COOKING = VanillaRecipeEditorTypes.CAMPFIRE_COOKING;
     public static final ResourceLocation STONECUTTING = VanillaRecipeEditorTypes.STONECUTTING;
     public static final ResourceLocation SMITHING_TRANSFORM = VanillaRecipeEditorTypes.SMITHING_TRANSFORM;
-    public static final ResourceLocation ICEANDFIRE_DRAGON_FORGE = IceAndFireRecipeEditorTypes.DRAGON_FORGE;
-    public static final ResourceLocation ICEANDFIRE_DRAGONFORGE = IceAndFireRecipeEditorTypes.DRAGONFORGE;
+//    public static final ResourceLocation ICEANDFIRE_DRAGON_FORGE = IceAndFireRecipeEditorTypes.DRAGON_FORGE;
+//    public static final ResourceLocation ICEANDFIRE_DRAGONFORGE = IceAndFireRecipeEditorTypes.DRAGONFORGE;
     public static final ResourceLocation FARMERSDELIGHT_COOKING_POT = FarmersDelightRecipeEditorTypes.COOKING_POT;
     public static final ResourceLocation FARMERSDELIGHT_CUTTING_BOARD = FarmersDelightRecipeEditorTypes.CUTTING_BOARD;
     public static final ResourceLocation FARMERSDELIGHT_COOKING = FarmersDelightRecipeEditorTypes.COOKING;
     public static final ResourceLocation FARMERSDELIGHT_CUTTING = FarmersDelightRecipeEditorTypes.CUTTING;
-    public static final ResourceLocation ARS_NOUVEAU_ENCHANTING_APPARATUS = ArsNouveauRecipeEditorTypes.APPARATUS;
+/*    public static final ResourceLocation ARS_NOUVEAU_ENCHANTING_APPARATUS = ArsNouveauRecipeEditorTypes.APPARATUS;
     public static final ResourceLocation ARS_NOUVEAU_ARMOR_UPGRADE = ArsNouveauRecipeEditorTypes.ARMOR_UPGRADE;
     public static final ResourceLocation ARS_NOUVEAU_ENCHANTMENT = ArsNouveauRecipeEditorTypes.ENCHANTMENT;
     public static final ResourceLocation ARS_NOUVEAU_IMBUEMENT = ArsNouveauRecipeEditorTypes.IMBUEMENT;
@@ -61,16 +47,12 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_MILLSTONE = KaleidoscopeCookeryRecipeEditorTypes.MILLSTONE;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_CHOPPING_BOARD = KaleidoscopeCookeryRecipeEditorTypes.CHOPPING_BOARD;
     public static final ResourceLocation KALEIDOSCOPE_COOKERY_STEAMER = KaleidoscopeCookeryRecipeEditorTypes.STEAMER;
-    public static final ResourceLocation KALEIDOSCOPE_COOKERY_TEAPOT = KaleidoscopeCookeryRecipeEditorTypes.TEAPOT;
-    public static final ResourceLocation KALEIDOSCOPE_COOKERY_BAMBOO_TRAY = KaleidoscopeCookeryRecipeEditorTypes.BAMBOO_TRAY;
-    public static final ResourceLocation KALEIDOSCOPE_TAVERN_BARREL = KaleidoscopeTavernRecipeEditorTypes.BARREL;
-    public static final ResourceLocation KALEIDOSCOPE_TAVERN_PRESSING_TUB = KaleidoscopeTavernRecipeEditorTypes.PRESSING_TUB;
-    public static final ResourceLocation KALEIDOSCOPE_TAVERN_SHAKER = KaleidoscopeTavernRecipeEditorTypes.SHAKER;
+    public static final ResourceLocation KALEIDOSCOPE_COOKERY_TEAPOT = KaleidoscopeCookeryRecipeEditorTypes.TEAPOT;*/
     public static final ResourceLocation CREATE_CRUSHING = CreateRecipeEditorTypes.create("crushing");
     public static final ResourceLocation CREATE_MIXING = CreateRecipeEditorTypes.create("mixing");
     public static final ResourceLocation CREATE_MECHANICAL_CRAFTING = CreateRecipeEditorTypes.MECHANICAL_CRAFTING;
     public static final ResourceLocation CREATE_SEQUENCED_ASSEMBLY = CreateRecipeEditorTypes.SEQUENCED_ASSEMBLY;
-    public static final ResourceLocation EXTENDEDCRAFTING_CRAFTING_CORE = ExtendedCraftingRecipeEditorTypes.CRAFTING_CORE;
+/*    public static final ResourceLocation EXTENDEDCRAFTING_CRAFTING_CORE = ExtendedCraftingRecipeEditorTypes.CRAFTING_CORE;
     public static final ResourceLocation EXTENDEDCRAFTING_CRAFTING_TABLE = ExtendedCraftingRecipeEditorTypes.CRAFTING_TABLE;
     public static final ResourceLocation EXTENDEDCRAFTING_BASIC_TABLE = ExtendedCraftingRecipeEditorTypes.BASIC_TABLE;
     public static final ResourceLocation EXTENDEDCRAFTING_ADVANCED_TABLE = ExtendedCraftingRecipeEditorTypes.ADVANCED_TABLE;
@@ -125,7 +107,7 @@ public final class RecipeEditorTypes {
     public static final ResourceLocation CONFLUENCE_HARDMODE_FORGE = ConfluenceRecipeEditorTypes.HARDMODE_FORGE;
     public static final ResourceLocation CONFLUENCE_LOOM = ConfluenceRecipeEditorTypes.LOOM;
     public static final ResourceLocation CONFLUENCE_DYE_VAT = ConfluenceRecipeEditorTypes.DYE_VAT;
-    public static final ResourceLocation CONFLUENCE_CRYSTAL_BALL = ConfluenceRecipeEditorTypes.CRYSTAL_BALL;
+    public static final ResourceLocation CONFLUENCE_CRYSTAL_BALL = ConfluenceRecipeEditorTypes.CRYSTAL_BALL;*/
 
     private static final LinkedHashMap<ResourceLocation, RecipeEditorCategory> CATEGORIES = new LinkedHashMap<>();
     private static final LinkedHashMap<ResourceLocation, RecipeEditorType> TYPES = new LinkedHashMap<>();
@@ -154,12 +136,12 @@ public final class RecipeEditorTypes {
     }
 
     public static Optional<RecipeEditorType> get(@Nullable ResourceLocation id) {
-        return Optional.ofNullable(id == null ? null : TYPES.get(normalizeTypeAlias(id)));
+        return Optional.ofNullable(id == null ? null : TYPES.get(/*normalizeTypeAlias(id)*/id));
     }
 
-    private static ResourceLocation normalizeTypeAlias(ResourceLocation id) {
+/*    private static ResourceLocation normalizeTypeAlias(ResourceLocation id) {
         return AvaritiaRecipeEditorTypes.normalizeAlias(ExtendedCraftingRecipeEditorTypes.normalizeAlias(id));
-    }
+    }*/
 
     public static RecipeEditorCategory requireCategory(ResourceLocation id) {
         return getCategory(id).orElseThrow(() -> new IllegalArgumentException("Unknown recipe editor category: " + id));

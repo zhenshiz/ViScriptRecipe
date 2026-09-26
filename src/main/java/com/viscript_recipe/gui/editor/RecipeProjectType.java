@@ -28,7 +28,7 @@ public class RecipeProjectType extends FunctionFileProjectType {
 
     @Override
     public IProject loadProjectFromFile(File file) throws Exception {
-        var tag = NbtIo.read(file.toPath());
+        var tag = NbtIo.read(file);
         if (tag == null) {
             return null;
         }
@@ -47,7 +47,7 @@ public class RecipeProjectType extends FunctionFileProjectType {
         }
         if (project instanceof RecipeProject recipeProject) {
             recipeProject.saveCurrentVisualState();
-            NbtIo.write(recipeProject.getRecipeFile().serializeNBT(Platform.getFrozenRegistry()), file.toPath());
+            NbtIo.write(recipeProject.getRecipeFile().serializeNBT(Platform.getFrozenRegistry()), file);
         }
     }
 
@@ -60,7 +60,7 @@ public class RecipeProjectType extends FunctionFileProjectType {
             }
             return !Objects.equals(
                     recipeProject.getRecipeFile().serializeNBT(Platform.getFrozenRegistry()),
-                    NbtIo.read(file.toPath())
+                    NbtIo.read(file)
             );
         }
         return super.isProjectDirty(project, file);

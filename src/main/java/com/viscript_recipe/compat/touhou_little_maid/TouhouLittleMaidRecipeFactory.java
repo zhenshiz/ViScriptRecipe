@@ -1,11 +1,15 @@
 package com.viscript_recipe.compat.touhou_little_maid;
 
 import com.github.tartaricacid.touhoulittlemaid.crafting.AltarRecipe;
+import com.lowdragmc.lowdraglib2.utils.LDLibExtraCodecs;
+import com.lowdragmc.lowdraglib2.utils.TagBuilder;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
@@ -35,25 +39,22 @@ public final class TouhouLittleMaidRecipeFactory {
         if (entityType == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(entityType)) {
             throw new IllegalArgumentException("Unknown altar output entity type: " + entityType);
         }
+        if (!data.isItemCraft()) result = data.getExtraData();
         var power = data.getPower();
         if (!Float.isFinite(power) || power < 0) {
             throw new IllegalArgumentException("Altar power cost must be a finite non-negative number");
         }
         return new AltarRecipe(
-                "",
-                CraftingBookCategory.MISC,
-                ingredients,
-                power,
+                ViScriptRecipe.placeholder,
+                BuiltInRegistries.ENTITY_TYPE.get(entityType),
                 result,
-                entityType,
-                data.getLangKey() == null ? "" : data.getLangKey()
+                power,
+                ingredients.toArray(Ingredient[]::new)
         );
     }
 
-    private static ItemStack requireResult(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) {
-            throw new IllegalArgumentException("Touhou Little Maid altar result cannot be empty");
-        }
-        return stack.copy();
+    private static CompoundTag requireResult(ItemStack stack) {
+        var tag = LDLibExtraCodecs.getOrThrow(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack));
+        return TagBuilder.compound().add("Item", tag).build();
     }
 }
