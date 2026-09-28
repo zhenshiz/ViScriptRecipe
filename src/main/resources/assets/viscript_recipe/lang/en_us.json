@@ -260,6 +260,7 @@
   "viscript_recipe.editor.category.kaleidoscope_cookery.teapot": "Teapot",
   "viscript_recipe.editor.category.kaleidoscope_cookery.bamboo_tray": "Bamboo Tray",
   "viscript_recipe.editor.category.unknown": "Unknown workstation: %s",
+  "viscript_recipe.editor.category.unknown.canvas": "The mod for this recipe is not loaded. The recipe data can be restored if the mod is loaded. If you are sure you no longer need this recipe, delete it.",
   "viscript_recipe.editor.type.minecraft.crafting_shaped": "Crafting: Shaped",
   "viscript_recipe.editor.type.minecraft.crafting_shapeless": "Crafting: Shapeless",
   "viscript_recipe.editor.type.minecraft.smelting": "Furnace: Smelting",

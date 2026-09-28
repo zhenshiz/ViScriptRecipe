@@ -260,6 +260,7 @@
   "viscript_recipe.editor.category.kaleidoscope_cookery.teapot": "茶壶",
   "viscript_recipe.editor.category.kaleidoscope_cookery.bamboo_tray": "竹匾",
   "viscript_recipe.editor.category.unknown": "未知工作站：%s",
+  "viscript_recipe.editor.category.unknown.canvas": "这个配方所属的模组没有加载，配方数据可以在模组重新加载后恢复。如果你确定不再需要这个配方，删除即可。",
   "viscript_recipe.editor.type.minecraft.crafting_shaped": "工作台：有序",
   "viscript_recipe.editor.type.minecraft.crafting_shapeless": "工作台：无序",
   "viscript_recipe.editor.type.minecraft.smelting": "熔炉：烧炼",

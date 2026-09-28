@@ -11,6 +11,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.gui.canvas.MissingRecipeCanvas;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import dev.vfyjxf.taffy.style.AlignContent;
@@ -96,13 +97,9 @@ public class WorkBenchView extends View {
         updateStatus();
         var entry = getSelectedEntry();
         if (entry == null) { canvas = null; return; }
-        var canvasSupplier = RecipeEditorTypes.require(entry.getType()).canvasSupplier();
-        if (canvasSupplier == null) {
-            canvas = null;
-            titleLabel.setText(Component.literal("The mod for " + entry.getType() + " is not loaded."));
-            return;
-        }
-        canvas = canvasSupplier.apply(navigationView, entry);
+        canvas = RecipeEditorTypes.require(entry.getType()).canvasSupplier().apply(navigationView, entry);
+        if (canvas instanceof MissingRecipeCanvas)
+            titleLabel.setText(Component.translatable("viscript_recipe.editor.category.unknown", entry.getType()));
         canvas.initVisualState();
         canvas.load();
         canvasStack.addChild(canvas);
