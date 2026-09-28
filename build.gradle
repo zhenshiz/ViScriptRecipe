@@ -1,64 +1,12 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-    id 'idea'
-    id 'net.neoforged.moddev' version '2.0.82'
-    id 'io.freefair.lombok' version '8.6'
-    id("dev.vfyjxf.modaccessor") version "1.1"
-}
 
 version = mod_version
 group = mod_group_id
 
 repositories {
-    mavenLocal()
-    mavenCentral()
     maven {
         name = "IE dependencies"
         url = "https://maven.blamejared.com/"
         content { includeGroup "malte0811" }
-    }
-
-    //kubejs
-    maven {
-        name = "Latvian"
-        url = "https://maven.latvian.dev/releases"
-        content {
-            includeGroup "dev.latvian.mods"
-            includeGroup "dev.latvian.apps"
-        }
-    }
-    maven {
-        name = "JitPack"
-        url = "https://jitpack.io"
-        content {
-            includeGroup "com.github.rtyley"
-        }
-    }
-
-    // LDLib2
-    maven {
-        name = "Jared's maven"
-        url = "https://maven.firstdarkdev.xyz/snapshots"
-    }
-
-    //GeckoLib
-    maven {
-        name = 'GeckoLib'
-        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-        content {
-            includeGroupByRegex("software\\.bernie.*")
-            includeGroup("com.eliotlash.mclib")
-        }
-    }
-
-    // Curios
-    maven {
-        name = "Illusive Soulworks"
-        url = "https://maven.theillusivec4.top/"
-        content {
-            includeGroup "top.theillusivec4.curios"
-        }
     }
 
     // Player Animator
@@ -67,20 +15,6 @@ repositories {
         url = "https://maven.kosmx.dev/"
         content {
             includeGroup "dev.kosmx.player-anim"
-        }
-    }
-
-    //Modrinth
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-    }
-
-    //cf
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
         }
     }
 
@@ -111,65 +45,14 @@ repositories {
             includeGroup "mekanism"
         }
     }
-
-    flatDir {
-        dirs "../viscript_lib/build/libs"
-    }
 }
 
 base {
     archivesName = "${mod_name}-neoforge-${minecraft_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-
 // mixinAgent 配置、neoForge 的 version/parchment 由根项目 build.gradle 的 subprojects 块统一提供
 neoForge {
-    runs {
-        client {
-            client()
-
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
-
-        clinet2 {
-            client()
-
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-            programArgument '--username'
-            programArgument 'zhenshiz'
-        }
-
-        server {
-            server()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
-
-        gameTestServer {
-            type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
-
-        data {
-            data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-
-        configureEach {
-            def files = configurations.mixinAgent.files
-            if (!files.isEmpty()) {
-                jvmArgument '-javaagent:' + files.first().toPath()
-            }
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            jvmArguments.add '-XX:+AllowEnhancedClassRedefinition'
-            jvmArguments.add '-XX:HotswapAgent=fatjar'
-
-            logLevel = org.slf4j.event.Level.DEBUG
-            systemProperty("terminal.jline", "true")
-        }
-    }
-
     mods {
         "${mod_id}" {
             sourceSet(sourceSets.main)
@@ -186,17 +69,12 @@ dependencies {
     implementation project(":ViScriptLib")
     jarJar "com.zhenshiz:ViScriptLib-neoforge-${minecraft_version}:${vsl_jij_version}"
 
-    // KubeJS
-    implementation "dev.latvian.mods:rhino:${rhino_version}"
-    implementation "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
-
     // Optional
     //铁魔法
     implementation "io.redspace:irons_spellbooks:${irons_spells_version}"
     runtimeOnly "io.redspace:irons_lib:${irons_lib_version}"
     runtimeOnly "dev.kosmx.player-anim:player-animation-lib-forge:${playeranimator_version}"
     runtimeOnly "software.bernie.geckolib:geckolib-neoforge-1.21.1:${geckolib_version}"
-    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
     //冰火传说
     implementation "curse.maven:iceandfire-ce-1040076:7722420"
     runtimeOnly "curse.maven:uranus-1010827:8008516"
@@ -233,10 +111,6 @@ dependencies {
     implementation "curse.maven:goety-586095:${goety_file}"
     //东方女仆：Touhou Little Maid
     implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
-    //汇流来世：Confluence: Otherworld
-    implementation "maven.modrinth:confluence:${confluence_version}"
-    // Confluence's public recipe classes inherit these codecs; the modpack supplies it at runtime.
-    compileOnly files("libs/Confluence-Magic-Lib-0.0.8.jar")
     //工业先锋：Industrial Foregoing
     implementation "curse.maven:titanium-287342:${titanium_file}"
     implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
@@ -254,16 +128,6 @@ dependencies {
     // Immersive Engineering
     implementation "curse.maven:immersive-engineering-231951:${immersive_engineering_file}"
     compileOnly "malte0811:DualCodecs:0.1.2"
-
-    //must
-    implementation "maven.modrinth:sodium:${sodium_version}"
-    implementation "maven.modrinth:iris:${iris_version}"
-    implementation "maven.modrinth:lan-server-properties:${lsp_version}"
-    implementation "maven.modrinth:jei:${jei_version}"
-    implementation "maven.modrinth:advanced-loot-info:${advanced_loot_info_version}"
-
-    //plugin
-    additionalRuntimeClasspath("dev.vfyjxf:mixin-hotswap-agent:1.1")
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -341,12 +205,5 @@ publishing {
                 password = publishPassword
             }
         }
-    }
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
     }
 }

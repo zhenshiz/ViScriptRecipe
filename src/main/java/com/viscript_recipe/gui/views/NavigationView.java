@@ -631,7 +631,7 @@ public class NavigationView extends View {
     }
 
     private boolean shouldShow(RecipeEntry entry) {
-        return showAllEntries ? RecipeEditorTypes.get(entry.getType()).isPresent() : isEntryInCategory(entry, selectedCategoryId);
+        return showAllEntries || isEntryInCategory(entry, selectedCategoryId);
     }
 
     private void refreshWorkstationSearch() {
