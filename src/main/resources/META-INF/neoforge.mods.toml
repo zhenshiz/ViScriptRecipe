@@ -158,3 +158,17 @@ modId = "immersiveengineering"
 type = "optional"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "draconicevolution"
+type = "optional"
+versionRange = "[3.1.4,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "eidolon_repraised"
+type = "optional"
+versionRange = "[0.5.0.5,)"
+ordering = "AFTER"
+side = "BOTH"

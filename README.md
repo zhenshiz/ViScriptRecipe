@@ -15,7 +15,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持 20 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld。
+- 支持 22 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised 和 Confluence: Otherworld。
 
 ## 基本信息
 
@@ -53,6 +53,8 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Farm & Charm | `farm_and_charm` | 支持 |
 | Create | `create` | 支持 |
 | Applied Energistics 2 | `ae2` | 支持 |
+| Draconic Evolution | `draconicevolution` | 支持 |
+| Eidolon: Repraised | `eidolon_repraised` | 支持 |
 | Extended Crafting | `extendedcrafting` | 支持 |
 | Ars Nouveau | `ars_nouveau` | 支持 |
 | Kaleidoscope Cookery | `kaleidoscope_cookery` | 支持 |
@@ -378,6 +380,32 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 东方女仆祭坛支持材料、灵力消耗、结果、显示翻译键和输出实体类型。输出实体使用自动补全选择；普通物品输出使用 `minecraft:item`，也可选择女仆、闪电等祭坛原生支持的实体类型。
 
+### Eidolon: Repraised (`eidolon_repraised`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 坩埚 | `eidolon_repraised:crucible` |
+| 灵工台 | `eidolon_repraised:worktable`、`eidolon_repraised:dye` |
+| 火盆仪式 | `eidolon_repraised:ritual_brazier`、`eidolon_repraised:ritual_brazier_crafting`、`eidolon_repraised:ritual_brazier_summoning`、`eidolon_repraised:ritual_brazier_location`、`eidolon_repraised:ritual_brazier_command` |
+
+覆盖原生 JEI 的坩埚、灵工台、火盆仪式三个分类，以及原版合成分类中的特殊染色配方。坩埚按步骤编辑材料和搅拌次数，支持纯搅拌步骤及步骤排序；灵工台提供可调尺寸的中心图案和上、右、下、左四个试剂槽。特殊染色使用原生配方类，保留输入物品的组件继承和染料颜色计算行为。
+
+火盆仪式可编辑试剂、基座材料、聚焦材料、生命消耗，以及原生行为 ID、合成结果、召唤实体及数量、结构标签或有序命令列表。通用仪式还提供不消耗的固定材料槽；物品合成仪式支持继承试剂组件；物品和命令仪式支持粒子符号与 ARGB 颜色。材料候选项、标签、部分组件匹配和严格组件匹配均可在槽位属性面板中编辑。
+
+所有八种类型都支持已加载原生配方导入。由于原生 JEI 将五种仪式合并到一个分类，修改这些配方时通过 JEI 配方更新事件重建分类，避免增量重载后留下旧配方。唱咒等没有接入上述 JEI 分类的类型不在本次编辑器范围内。
+
+### Draconic Evolution / 龙之进化 (`draconicevolution`)
+
+| 工作站 | 支持的配方类型 |
+| --- | --- |
+| 聚合合成核心 | `draconicevolution:fusion_crafting` |
+
+聚合合成使用龙之进化 JEI 的核心、产物和两侧注入材料布局，支持核心材料、物品或标签候选项、所需堆叠数量、结果及其组件、四级科技等级、64 位总能量消耗，以及每个注入材料的消耗开关。可以调整材料槽数；超过 32 槽时分页编辑，其他页面的材料会保留。空槽不会编译进原生配方。没有 JEI 时使用内置槽位背景。
+
+导入器使用原生 `FusionRecipe`，保留所有候选项、标签、`StackIngredient` 数量和消耗标记。为避免改变自定义配方的行为，带自定义匹配/执行逻辑的 `IFusionRecipe` 实现和无法精确表达的自定义 Ingredient 会拒绝导入。核心按所需数量消耗；注入器遵循龙之进化原生逻辑，即满足所需堆叠数量，但开启消耗时只消耗 1 个。
+
+龙岩箱在 JEI 中使用原版工作台合成与熔炼类别，可通过已有原版编辑器编辑对应配方。龙之进化是可选联动；开发环境依赖的版本集中在主工程 `gradle.properties`，其必需前置 Brandon's Core 和 CodeChickenLib 由 `ViScriptRecipe/build.gradle` 配置。
+
 ### Goety / 诡厄巫法 (`goety`)
 
 | 工作站 | 支持的配方类型 |
@@ -394,7 +422,7 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 
@@ -434,4 +462,4 @@ git submodule update --init --recursive
 
 ## 开发者文档
 
-后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构；兼容模组清单以 `src/main/java/com/viscript_recipe/compat/RecipeCompatModules.java` 和 `src/main/resources/META-INF/neoforge.mods.toml` 中的实际注册为准。
+后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构；兼容模组清单以 `src/main/java/com/viscript_recipe/IModModule.java` 的 `@LDLRegister` 模块注册和 `src/main/resources/META-INF/neoforge.mods.toml` 中的实际注册为准。

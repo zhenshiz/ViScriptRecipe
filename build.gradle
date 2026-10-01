@@ -3,10 +3,25 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    // Draconic Evolution / Brandon's Core / CodeChickenLib
     maven {
-        name = "IE dependencies"
+        name = "ChickenBones"
+        url = "https://chickenbones.net/maven/"
+        content {
+            includeGroup "com.brandon3055.draconicevolution"
+            includeGroup "com.brandon3055.brandonscore"
+            includeGroup "io.codechicken"
+            includeGroup "net.covers1624"
+        }
+    }
+
+    maven {
+        name = "BlameJared"
         url = "https://maven.blamejared.com/"
-        content { includeGroup "malte0811" }
+        content {
+            includeGroup "malte0811"
+            includeGroup "com.alexthw.eidolon_repraised"
+        }
     }
 
     // Player Animator
@@ -125,6 +140,14 @@ dependencies {
     // [Let's Do] Farm & Charm
     implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
     runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
+    // Eidolon: Repraised
+    implementation("com.alexthw.eidolon_repraised:eidolon_repraised-${minecraft_version}:${eidolon_repraised_version}") {
+        transitive = false
+    }
+    // 龙之进化：Draconic Evolution
+    implementation "com.brandon3055.draconicevolution:Draconic-Evolution:${draconic_evolution_version}"
+    implementation "com.brandon3055.brandonscore:BrandonsCore:${brandons_core_version}"
+    runtimeOnly "io.codechicken:CodeChickenLib:${codechicken_lib_version}"
     // Immersive Engineering
     implementation "curse.maven:immersive-engineering-231951:${immersive_engineering_file}"
     compileOnly "malte0811:DualCodecs:0.1.2"

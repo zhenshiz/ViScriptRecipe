@@ -183,6 +183,9 @@ public final class RecipeDeltaJeiSynchronizer {
         var uniqueTypes = new LinkedHashSet<ResourceLocation>();
         typeHints.values().forEach(uniqueTypes::addAll);
         for (var typeId : uniqueTypes) {
+            // Eidolon exposes raw recipes, and merges five native ritual types into its "rituals" JEI category.
+            // Rebuild JEI so replacements/deletions update every category, including those without a native UID.
+            if ("eidolon_repraised".equals(typeId.getNamespace())) return false;
             var farmCharm = FarmCharmRecipeKind.byType(typeId);
             var jeiType = recipeManager.getRecipeType(farmCharm.map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId)).orElse(null);
             if (farmCharm.isPresent()) continue;
