@@ -4,7 +4,6 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Arrays;
 import java.util.Optional;
 
-/** Maps native Farm & Charm recipe types to their JEI categories and machine capacities. */
 public enum FarmCharmRecipeKind {
     COOKING_POT("pot_cooking", "cooking_pot", "cooking_pot", 6),
     STOVE("stove", "stove", "stove", 3),

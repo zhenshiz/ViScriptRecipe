@@ -16,7 +16,6 @@ import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import static com.viscript_recipe.compat.ae2.canvas.Ae2CanvasFactory.*;
 
-/** Edits world transformation recipes with a fluid tag or explosion condition and paged ingredients. */
 public class TransformCanvas extends Ae2ItemRecipeCanvas<Ae2TransformRecipeData> {
     private static final int PAGE_SIZE = 9;
     private int page;

@@ -10,7 +10,6 @@ import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 import static com.viscript_recipe.compat.ae2.canvas.Ae2CanvasFactory.*;
 
-/** Mirrors AE2's charger JEI layout, with the crank energy requirement shown as a hint. */
 public class ChargerCanvas extends Ae2ItemRecipeCanvas<Ae2ChargerRecipeData> {
     public ChargerCanvas(NavigationView navigation, RecipeEntry entry) { super(navigation, entry); }
 

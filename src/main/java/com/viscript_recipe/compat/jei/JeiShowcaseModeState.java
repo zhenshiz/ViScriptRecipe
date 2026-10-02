@@ -3,9 +3,7 @@ package com.viscript_recipe.compat.jei;
 import com.viscript_recipe.ViScriptRecipe;
 import lombok.Getter;
 
-/**
- * Keeps the server-synced showcase mode flag without depending on JEI classes.
- */
+/** 保存服务端同步的展示模式标志，避免依赖 JEI 类。 */
 public final class JeiShowcaseModeState {
     private static final Runnable NOOP = () -> {
     };

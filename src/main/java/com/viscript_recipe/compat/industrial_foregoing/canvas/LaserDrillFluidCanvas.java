@@ -102,7 +102,7 @@ public class LaserDrillFluidCanvas extends FluidRecipeCanvas<IndustrialLaserDril
             onUpdate.run();
         });
         content.addChild(rules.layout(layout -> layout.widthPercent(100)));
-    } // todo 编辑之后不会立即刷新，先摆了
+    }
 
     private static Configurator createRarityRuleConfigurator(
             Supplier<IndustrialLaserDrillRarityData> getter, Supplier<List<IndustrialLaserDrillRarityData>> source

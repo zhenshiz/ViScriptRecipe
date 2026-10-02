@@ -60,7 +60,7 @@ public final class EidolonRecipeFactory {
             reagentRow.append(symbol(keys, ingredient, (char) ('J' + i)));
         }
         if (outer.stream().allMatch(Ingredient::isEmpty)) throw new IllegalArgumentException("Worktable reagents cannot be empty");
-        // Both native codecs write the same 'key' field. They must receive the same complete map.
+        // 两个原生 Codec 都写入 key 字段，必须传入同一份完整映射。
         var corePattern = WorktableRecipe.Serializer.PATTERN_CORE_CODEC.codec().parse(
                 RegistryOps.create(JsonOps.INSTANCE,
                         Platform.getFrozenRegistry()), patternJson(keys, rows, "pattern")).getOrThrow();
@@ -92,7 +92,7 @@ public final class EidolonRecipeFactory {
         var inputs = ingredients(data.getInputs());
         if (inputs.isEmpty() || inputs.size() > 9) throw new IllegalArgumentException("Dye recipe needs 1-9 ingredients");
         var list = NonNullList.<Ingredient>create(); list.addAll(inputs);
-        // The native DyeRecipe preserves input components and applies the dye during assemble().
+        // 原生 DyeRecipe 会保留输入的数据组件，并在 assemble() 中应用染料。
         return new DyeRecipe(data.getGroup(), data.getCategory(), result(data.getResult()), list);
     }
 

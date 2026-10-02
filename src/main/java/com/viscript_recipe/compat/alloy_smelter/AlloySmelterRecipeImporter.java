@@ -12,7 +12,6 @@ import sk.alloy_smelter.recipe.SmeltingRecipe;
 
 import java.util.ArrayList;
 
-/** Imports Alloy Smelter recipes registered in the vanilla recipe manager. */
 public final class AlloySmelterRecipeImporter implements RecipeImportHandler {
     public static final AlloySmelterRecipeImporter INSTANCE = new AlloySmelterRecipeImporter();
 

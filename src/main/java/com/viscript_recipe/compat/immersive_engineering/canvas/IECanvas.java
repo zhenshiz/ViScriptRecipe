@@ -25,10 +25,7 @@ import java.util.stream.IntStream;
 
 import static com.viscript_recipe.compat.immersive_engineering.canvas.IECanvasVisuals.*;
 
-/**
- * Edits IE recipes in the coordinate system of their native JEI categories.
- * Unused variable slots remain accessible below the native recipe, without moving its contents.
- */
+/** 保持原生 JEI 坐标不变，将额外的可编辑空槽放在原生配方区域下方。 */
 public final class IECanvas extends FluidRecipeCanvas<IERecipeData> {
     private int itemInputs;
     private int itemOutputs;
@@ -221,7 +218,7 @@ public final class IECanvas extends FluidRecipeCanvas<IERecipeData> {
         }
         var nativePanel = panel;
         int nativeWidth = width, nativeHeight = height;
-        // Keep a distinct native rectangle for comparison with JEI and optional editor-only slots.
+        // 原生配方区域单独保留，便于对照 JEI，并与编辑器额外槽位区分。
         nativePanel.layout(layout -> { layout.width(nativeWidth); layout.height(nativeHeight); })
                 .style(style -> style.backgroundTexture(new com.lowdragmc.lowdraglib2.gui.texture.ColorRectTexture(0xFFC6C6C6)));
         var wrapper = panel("ie_editor", Math.max(176, width), height + 76);
@@ -305,7 +302,7 @@ public final class IECanvas extends FluidRecipeCanvas<IERecipeData> {
 
     private void fluidIn(UIElement panel, int x, int y, int w, int h, int capacity, IGuiTexture overlay) {
         var slot = createFluidInputSlot(fluidInputs);
-        // FluidDisplaySlot's tag model must follow fluids dragged from JEI as well as property edits.
+        // 从 JEI 拖入流体时，也必须同步 FluidDisplaySlot 的标签原料模型。
         slot.registerValueListener(stack -> slot.setFluidIngredient(FluidIngredientData.fluid(stack.copy())));
         tank(panel, slot, "ie_fluid_input_" + fluidInputs++, x, y, w, h, capacity, overlay);
     }
@@ -325,7 +322,7 @@ public final class IECanvas extends FluidRecipeCanvas<IERecipeData> {
         slot.addEventListener(UIEvents.MOUSE_DOWN, event -> event.stopPropagation());
         panel.addChild(at(slot.setId(id), x, y, w, h));
         if (overlay != null) {
-            // Foreground is drawn after the fluid; a background overlay would be covered by it.
+            // 覆盖层必须在流体之后绘制；放在背景层会被流体遮挡。
             slot.style(style -> style.overlayTexture(overlay));
         }
     }
@@ -411,7 +408,7 @@ public final class IECanvas extends FluidRecipeCanvas<IERecipeData> {
     }
 
     @Override public void setVisualFluidOutput(int index, FluidStack stack) {
-        // A coke oven always produces creosote; JEI drops may change its amount, never its identity.
+        // 焦炉产物固定为杂酚油；从 JEI 拖入流体只能修改数量，不能改变种类。
         super.setVisualFluidOutput(index, creosoteOutput
                 ? new FluidStack(IEFluids.CREOSOTE.getStill(), stack.getAmount()) : stack);
         if (creosoteOutput) getData().setCreosote(stack.getAmount());

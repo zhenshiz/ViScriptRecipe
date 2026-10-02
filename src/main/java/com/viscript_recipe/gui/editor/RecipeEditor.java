@@ -69,9 +69,7 @@ public class RecipeEditor extends FunctionFileEditor {
         return null;
     }
 
-    /**
-     * Removes the unused bottom split after both the default layout and a persisted layout are built.
-     */
+    /** 默认布局或已保存布局构建完成后，均需移除未使用的底部分栏。 */
     private void removeUnusedBottomWindow() {
         if (bottomWindow != rootWindow && bottomWindow.getAllViews().isEmpty()) {
             removeBottomWindow();

@@ -13,9 +13,6 @@ import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Builds Mystical Agriculture recipe canvases from the coordinates used by its JEI categories.
- */
 final class MysticalAgricultureCanvasFactory {
     static final int SLOT_SIZE = 18;
     private static final ResourceLocation INFUSION = texture("infusion.png");

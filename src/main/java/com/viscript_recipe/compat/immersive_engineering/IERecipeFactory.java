@@ -24,7 +24,6 @@ import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Compiles editable IE data into the same native recipe classes registered by IE. */
 public final class IERecipeFactory {
     private IERecipeFactory() {}
 

@@ -19,14 +19,14 @@ import java.util.List;
 import static com.viscript_recipe.compat.goety.canvas.BrazierCanvas.useJeiCanvas;
 
 public class BrewingCanvas extends RecipeCanvas<GoetyBrewingRecipeData> {
-    static final Label infoLabel = emptyLabel();
-    static final UIElement outputPreview = createItemIcon(ItemStack.EMPTY, useJeiCanvas ? JEI_SLOT_SIZE : SLOT_SIZE);
-    static {
+    private final Label infoLabel = emptyLabel();
+    private final UIElement outputPreview = createItemIcon(ItemStack.EMPTY, useJeiCanvas ? JEI_SLOT_SIZE : SLOT_SIZE);
+
+    public BrewingCanvas(NavigationView navigationView, RecipeEntry entry) {
+        super(navigationView, entry);
         BrazierCanvas.centerLabel(infoLabel);
         tooltip(outputPreview, "viscript_recipe.editor.goety.brewing.derived_output");
     }
-
-    public BrewingCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
     @Override
     public void load() {

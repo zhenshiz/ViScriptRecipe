@@ -11,9 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
-/**
- * Encodes the server-owned structure tag catalog needed by client editor search fields.
- */
+/** 客户端结构标签搜索以服务端注册表快照为准。 */
 public final class StructureTagSnapshot {
     private static final String TAGS_KEY = "tags";
     private static final String TAG_ID_KEY = "id";
@@ -22,12 +20,7 @@ public final class StructureTagSnapshot {
     private StructureTagSnapshot() {
     }
 
-    /**
-     * Creates a compact snapshot containing structure tag identifiers and their member identifiers.
-     *
-     * @param  registryAccess the authoritative server registry access
-     * @return the encoded structure tag snapshot
-     */
+    /** 快照同时包含结构标签标识及其成员的结构标识。 */
     public static CompoundTag create(RegistryAccess registryAccess) {
         var snapshot = new CompoundTag();
         var entries = new ListTag();
@@ -50,12 +43,7 @@ public final class StructureTagSnapshot {
         return snapshot;
     }
 
-    /**
-     * Decodes a structure tag snapshot into immutable client search data.
-     *
-     * @param  snapshot the compound tag containing the encoded server snapshot
-     * @return structure tag identifiers mapped to their member structure identifiers
-     */
+    /** 将快照解码为不可变的标签到结构成员标识的映射。 */
     public static Map<ResourceLocation, List<ResourceLocation>> read(CompoundTag snapshot) {
         if (snapshot == null) {
             return Map.of();

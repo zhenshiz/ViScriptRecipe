@@ -22,7 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Validates editor data and builds native AE2 recipes using public constructors and builders. */
 public final class Ae2RecipeFactory {
     private Ae2RecipeFactory() {}
 

@@ -25,7 +25,6 @@ import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-/** Imports Industrial Foregoing recipes backed by native codecs. */
 public final class IndustrialForegoingRecipeImporter implements RecipeImportHandler {
     public static final IndustrialForegoingRecipeImporter INSTANCE = new IndustrialForegoingRecipeImporter();
 

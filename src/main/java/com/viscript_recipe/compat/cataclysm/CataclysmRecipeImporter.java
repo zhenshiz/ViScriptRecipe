@@ -11,9 +11,6 @@ import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-/**
- * Imports Cataclysm's two JEI-backed custom recipe types into explicit editor data.
- */
 public final class CataclysmRecipeImporter implements RecipeImportHandler {
     public static final CataclysmRecipeImporter INSTANCE = new CataclysmRecipeImporter();
 

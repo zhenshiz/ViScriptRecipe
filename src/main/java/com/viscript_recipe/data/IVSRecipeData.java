@@ -22,7 +22,7 @@ public interface IVSRecipeData extends ISkipDefaultedSerialize, IConfigurable {
     @Override
     default String getConfigurableName() {return "viscript_recipe.config.entry." + getDataName();}
 
-    /**默认情况表示不支持该功能*/
+    /** 返回 null 表示不支持配方通知配置。 */
     default Boolean getShowNotification() {return null;}
 
     default <T extends IVSRecipeData> T setShowNotification(Boolean showNotification) {return (T) this;}
@@ -43,7 +43,7 @@ public interface IVSRecipeData extends ISkipDefaultedSerialize, IConfigurable {
         ISkipDefaultedSerialize.super.deserializeNBT(provider, nbt);
     }
 
-    /**需要方便读写的原料列表数据，如果返回的列表不是ArrayList，则无法使用setIngredient方法设置原料*/
+    /** 返回的列表必须是 ArrayList，setIngredient 才能修改或扩展原料。 */
     default List<RecipeIngredient> getIngredients() {return List.of();}
 
     default RecipeIngredient ingredient(int index) {
@@ -51,7 +51,7 @@ public interface IVSRecipeData extends ISkipDefaultedSerialize, IConfigurable {
         return getIngredients().get(index);
     }
 
-    /**设置指定索引的原料，如果索引超出范围，则自动在列表添加空原料*/
+    /** 索引超出当前列表长度时，用空原料补齐；负索引不作修改。 */
     default <T extends IVSRecipeData> T setIngredient(int index, RecipeIngredient ingredient) {
         if (index < 0 || !(getIngredients() instanceof ArrayList<RecipeIngredient>)) return (T) this;
         while (getIngredients().size() <= index) getIngredients().add(RecipeIngredient.empty());

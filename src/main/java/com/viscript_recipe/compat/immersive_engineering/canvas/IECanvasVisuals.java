@@ -17,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import java.text.DecimalFormat;
 import java.util.function.Supplier;
 
-/** Renders IE's original GUI sprites at their native JEI pixel sizes. */
 final class IECanvasVisuals {
     private IECanvasVisuals() {}
 
@@ -69,7 +68,7 @@ final class IECanvasVisuals {
     }
 
     static void image(UIElement panel, IGuiTexture texture, int x, int y, int width, int height) {
-        // Decorations must not intercept editor clicks or JEI ingredient drops.
+        // 装饰元素不能拦截编辑器点击或 JEI 原料拖放。
         panel.addChild(at(new UIElement().setAllowHitTest(false)
                 .style(style -> style.backgroundTexture(texture)), x, y, width, height));
     }

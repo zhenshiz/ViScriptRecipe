@@ -15,6 +15,7 @@ import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.SlotSelection;
 import com.viscript_recipe.gui.views.NavigationView;
+import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,39 +32,38 @@ import static com.viscript_recipe.gui.views.PropertiesView.*;
 import static com.viscript_recipe.recipe.RecipeHelper.itemsFromTag;
 
 /**
- * 配方编辑器界面中间显示的画布 <p>
- * 主要作用：将原料和输出槽位显示在画布上，玩家编辑配方时，可见的物品等内容不会立即写入{@link #getData()}，以避免频繁地保存和加载。
- * 需要通过属性栏编辑的详细属性（如熔炉配方的烧制时间）会在编辑后立即写入配方数据。 <p>
- * 代码流程：当画布的实现类初始化时，会调用{@link #initVisualState()}方法构建所有画布的UI元素，随后调用{@link #load()}方法加载原料和产物数据到可见槽位上。
- * 当画布需要更新或者玩家切换到其他配方时，才会调用{@link #save()}方法将当前可见槽位的物品写入配方数据。 <p>
- * 若配方包含流体，需要继承{@link FluidRecipeCanvas}。
+ * 可见槽位的修改在画布更新或切换配方时经 {@link #save()} 写入数据，避免频繁保存和加载；属性栏修改则立即写入。
+ * <p>初始化时先由 {@link #initVisualState()} 构建槽位，再由 {@link #load()} 填入数据。
+ * 包含流体的配方应继承 {@link FluidRecipeCanvas}。
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
 public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     public static final char[] SHAPED_SYMBOLS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>/?|~".toCharArray();
     protected static NavigationView navigationView;
-    protected static RecipeEntry entry;
+    protected final RecipeEntry entry;
+    // 旧属性框可能在切换画布后提交值，必须始终访问创建画布时的数据对象。
+    @Getter
+    private final D data;
 
     public static final int SLOT_SIZE = 24;
     public static final int JEI_SLOT_SIZE = 18;
     public static final int OUTPUT_SLOT_SIZE = 30;
-    public static RecipeOutputData[] visualOutputs;
-    public static boolean containsUnsupportedIngredients;
+    public RecipeOutputData[] visualOutputs;
+    public boolean containsUnsupportedIngredients;
 
     public static final int MAX_INGREDIENT = maxSize() * maxSize();
     public static final int MAX_OUTPUT = 16;
-    public static final IngredientDisplaySlot[] visualIngredientSlots = new IngredientDisplaySlot[MAX_INGREDIENT];
-    public static final ItemSlot[] visualOutputSlots = new ItemSlot[MAX_OUTPUT];
+    public final IngredientDisplaySlot[] visualIngredientSlots = new IngredientDisplaySlot[MAX_INGREDIENT];
+    public final ItemSlot[] visualOutputSlots = new ItemSlot[MAX_OUTPUT];
     // 额外的槽位，用于显示如机械动力序列装配的中间产物和农夫乐事的容器等物品
-    public static final ItemSlot[] extraItemSlots = new ItemSlot[1];
+    public final ItemSlot[] extraItemSlots = new ItemSlot[1];
 
     public RecipeCanvas(NavigationView navigationView, RecipeEntry entry) {
         RecipeCanvas.navigationView = navigationView;
-        RecipeCanvas.entry = entry;
+        this.entry = entry;
+        this.data = entry.getData();
     }
-
-    public D getData() {return entry.getData();}
 
     public abstract void load();
 
@@ -76,7 +76,6 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         Arrays.fill(visualIngredientSlots, null);
         Arrays.fill(visualOutputSlots, null);
         Arrays.fill(extraItemSlots, null);
-        // 确保删除旧的槽位，再添加新的槽位
         addChildren(createCanvas());
         visualOutputs = defaultedArrays(new RecipeOutputData[MAX_OUTPUT], RecipeOutputData.empty());
     }
@@ -86,7 +85,6 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         return array;
     }
 
-    /**配方原料是否支持数量配置*/
     public boolean ingredientHasCount(int slotIndex) {return false;}
 
     public void buildRecipeProperties(UIElement content) {}
@@ -153,14 +151,10 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         };
     }
 
-    // ============================== 导航栏类方法 ==============================
-
     public static void selectSlot(SlotSelection selection) {navigationView.setSlotSelection(selection);}
     public static void selectRecipe() {navigationView.selectRecipe();}
     public static void reloadProperties() {navigationView.refreshPropertiesView();}
     public static void reloadCanvas() {navigationView.reloadCanvas();}
-
-    // ============================== 槽位构建方法 ==============================
 
     @Deprecated
     public ItemSlot createEditorSlot(int size) {
@@ -188,13 +182,11 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         return slot;
     }
 
-    /**新建一个输出槽位，并且绑定到visualOutputSlots[index]上*/
     public ItemSlot createOutputSlot(int index, int size) {
         visualOutputSlots[index] = createEditorSlot(size);
         return configureResultSlot(index);
     }
 
-    /**新建一个原料槽位，并且绑定到visualIngredientSlots[index]上*/
     public IngredientDisplaySlot createIngredientSlot(int index, int size) {
         visualIngredientSlots[index] = createIngredientSlot(size);
         return configureIngredientSlot(index);
@@ -235,7 +227,6 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         element.removeEventListener(type, listeners.getFirst(), useCapture);
     }
 
-    /**新建一个额外物品槽位，并且绑定到extraItemSlots[0]上*/
     public ItemSlot createExtraItemSlot(int size, Component... tips) {
         var slot = configureExtraItemSlot(createEditorSlot(size), tips);
         extraItemSlots[0] = slot;
@@ -316,8 +307,6 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
     private record ItemSlotDragPayload(ItemSlot source, ItemStack stack, RecipeIngredient ingredient) {
     }
 
-    // ============================== 槽位数据读写方法 ==============================
-
     public static int selectedSlotIndex() {return navigationView.getSlotSelection().index();}
 
     public void loadIngredientSlot(int index, RecipeIngredient ingredient) {
@@ -334,7 +323,6 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         }
     }
 
-    /**不需要自己copy ingredient*/
     public void setVisualIngredient(int index, RecipeIngredient ingredient) {
         try {
             visualIngredientSlots[index].setIngredient(ingredient);
@@ -346,8 +334,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         reloadProperties();
     }
 
-    /**获取可视槽位从offset开始的count个ingredient
-     * @param includeEmpty 默认不包含空ingredient*/
+    /** 从 offset 起读取 count 个槽位；默认排除空原料，仅 includeEmpty 首项为 true 时保留。 */
     public List<RecipeIngredient> getIngredients(int count, int offset, boolean... includeEmpty) {
         boolean bl = includeEmpty.length > 0 && includeEmpty[0];
         var ingredients = new ArrayList<RecipeIngredient>();
@@ -357,8 +344,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         }
         return ingredients;
     }
-    /**获取可视槽位的count个ingredient
-     * @param includeEmpty 默认不包含空ingredient*/
+    /** 从首槽读取 count 个槽位；默认排除空原料，仅 includeEmpty 首项为 true 时保留。 */
     public List<RecipeIngredient> getIngredients(int count, boolean... includeEmpty) {
         return getIngredients(count, 0, includeEmpty);
     }
@@ -377,7 +363,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         }
     }
 
-    /**不需要自己copy output*/
+    /** 内部复制产物数据，调用方无需预先复制。 */
     public void setVisualOutput(int index, RecipeOutputData output) {
         try {
             visualOutputs[index] = output.copy();
@@ -419,8 +405,6 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         if (s1 == null || s2 == null) return false;
         return ItemStack.matches(s1, s2);
     }
-
-    // ============================== UI元素构建方法 ==============================
 
     public static void tooltip(UIElement element, Component... tips) {
         element.style(style -> style.tooltips(tips));

@@ -15,12 +15,7 @@ import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Builds the Alloy Smelter recipe canvas from the coordinates used by its JEI categories.
- *
- * <p>The displayed coal is a read-only JEI hint. Alloy Smelter recipes store fuel consumption,
- * but they do not store a fuel ingredient.
- */
+/** 煤炭仅为只读提示；配方只记录燃料消耗量，不记录燃料原料。 */
 public final class AlloySmelterCanvasFactory {
     private static final ResourceLocation JEI_TEXTURE = ResourceLocation.fromNamespaceAndPath(
             "alloy_smelter",

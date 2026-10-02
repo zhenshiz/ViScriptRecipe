@@ -13,7 +13,7 @@ import com.viscript_recipe.compat.ae2.Ae2RecipeEditorTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 
-/** Stores editable AE2 Charger recipe data independently of AE2's runtime classes. */
+/** 持久化数据不依赖 AE2 的运行时类。 */
 @Getter
 @Setter
 @Accessors(chain = true)

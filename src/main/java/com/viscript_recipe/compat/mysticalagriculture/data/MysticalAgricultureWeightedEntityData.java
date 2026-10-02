@@ -7,9 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Stores an entity registry identifier and its positive spawner selection weight.
- */
+/** 实体的刷怪选择权重必须为正数。 */
 @Getter
 @Setter
 @Accessors(chain = true)

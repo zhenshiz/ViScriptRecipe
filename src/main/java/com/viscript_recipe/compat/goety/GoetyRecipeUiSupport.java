@@ -14,30 +14,18 @@ import net.minecraft.world.item.component.CustomData;
 
 import java.util.List;
 
-/**
- * Resolves Goety-owned read-only JEI preview items behind the optional-mod loading boundary.
- */
+/** 隔离 Goety 原生类的加载，仅在该模组存在时生成只读 JEI 预览。 */
 public final class GoetyRecipeUiSupport {
     private GoetyRecipeUiSupport() {
     }
 
-    /**
-     * Returns the official JEI icon for a ritual craft type.
-     *
-     * @param  craftType serialized ritual craft type
-     * @return ritual icon, or an empty stack when the type is unknown
-     */
+    /** 返回原生 JEI 仪式图标；类型未知或缺少图标时返回空物品堆。 */
     public static ItemStack ritualTypeIcon(String craftType) {
         var type = RitualType.getRitualType(craftType);
         return type == null || type.getJeiIcon() == null ? ItemStack.EMPTY : type.getJeiIcon().copy();
     }
 
-    /**
-     * Returns the scroll item associated with a Goety research key.
-     *
-     * @param  researchName serialized research key
-     * @return matching research scroll, or an empty stack when no scroll is registered
-     */
+    /** 返回研究对应的卷轴；未注册对应卷轴时返回空物品堆。 */
     public static ItemStack researchScroll(String researchName) {
         var research = ResearchList.getResearch(researchName == null ? "" : researchName);
         if (research == null) {
@@ -52,11 +40,11 @@ public final class GoetyRecipeUiSupport {
     }
 
     /**
-     * Creates the same effect-bearing brew preview used by Goety's JEI recipe maker.
+     * 按 Goety 的 JEI 规则生成带效果的酿造预览。
      *
-     * @param  effectId mob effect registry ID
-     * @param  duration effect duration in ticks
-     * @return derived Goety brew preview
+     * @param effectId 生物效果的注册标识
+     * @param duration 效果持续时间，单位为游戏刻
+     * @return 酿造物品预览
      */
     public static ItemStack brewPreview(ResourceLocation effectId, int duration) {
         var stack = new ItemStack(ModItems.BREW.get());

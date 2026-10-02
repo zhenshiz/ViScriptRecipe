@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Keeps all alternatives and the native StackIngredient wrapper, including a count of one. */
+/** 保留所有候选项及原生 StackIngredient 包装，即使数量为 1 也不展开包装。 */
 @Getter
 @Setter
 @Accessors(chain = true)

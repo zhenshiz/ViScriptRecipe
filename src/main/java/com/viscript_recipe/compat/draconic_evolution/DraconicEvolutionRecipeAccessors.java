@@ -6,7 +6,7 @@ import com.viscript_recipe.compat.draconic_evolution.data.DraconicFusionIngredie
 import com.viscript_recipe.compat.draconic_evolution.data.DraconicFusionRecipeData;
 import com.viscript_recipe.compat.draconic_evolution.data.DraconicIngredientData;
 
-/** Register before RPC scanning; the optional mod guard keeps native TechLevel safe when DE is absent. */
+/** 必须在 RPC 扫描前注册；通过可选模组检查，避免未安装龙之进化时加载原生 TechLevel。 */
 public final class DraconicEvolutionRecipeAccessors {
     private DraconicEvolutionRecipeAccessors() {}
 

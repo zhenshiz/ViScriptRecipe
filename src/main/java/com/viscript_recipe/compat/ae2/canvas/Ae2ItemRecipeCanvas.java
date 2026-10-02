@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Uses ordinary editor slots while preserving and editing every alternative in an AE2 input. */
+/** 编辑单个候选原料时，保留该输入的其他候选项。 */
 public abstract class Ae2ItemRecipeCanvas<D extends IVSRecipeData> extends RecipeCanvas<D> {
     private final Map<Integer, Ae2IngredientData> ingredients = new HashMap<>();
     private final Map<Integer, Integer> selectedAlternatives = new HashMap<>();

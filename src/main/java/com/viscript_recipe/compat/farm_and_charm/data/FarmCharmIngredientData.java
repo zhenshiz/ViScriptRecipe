@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Preserves every accepted item or tag of one input, including client-expanded alternatives. */
+/** 保留输入接受的全部物品和标签，包括客户端展开的候选项。 */
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -28,11 +28,7 @@ public class FarmCharmIngredientData implements ISkipDefaultedSerialize {
 
     public boolean isEmpty() { return alternatives.stream().allMatch(RecipeIngredient::isEmpty); }
 
-    /**
-     * Combines all nonempty alternatives into one accepted ingredient.
-     *
-     * @return the union of the alternatives, or an empty ingredient if all alternatives are empty
-     */
+    /** 合并非空候选项；所有候选项均为空时返回空原料。 */
     public Ingredient compile() {
         var children = alternatives.stream().filter(value -> !value.isEmpty()).map(RecipeIngredient::compile).toList();
         if (children.stream().anyMatch(Ingredient::isCustom)) {

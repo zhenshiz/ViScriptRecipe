@@ -17,15 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 目前所有包含流体的配方中，除了机械动力模组的序列装配配方，都没有需要超过2个流体输入和两个流体输出的。因此流体槽位的选择索引没有区分输入和输出。 <p>
- * 当前的流体属性配置（不包括序列装配）：索引0-1为输入，索引2-3为输出。万一以后遇到需要更多输入槽位的配方，根据实际需要调整即可。
+ * 流体属性索引 0–1 为输入，2–3 为输出；机械动力的序列装配不使用此索引约定。
  */
 public abstract class FluidRecipeCanvas<D extends IVSRecipeData> extends RecipeCanvas<D> {
     protected static final int CREATE_MAX_FLUID_INPUTS = 2;
     protected static final int CREATE_MAX_FLUID_OUTPUTS = 2;
 
-    public static final FluidDisplaySlot[] fluidInputSlots = new FluidDisplaySlot[81];
-    public static final FluidSlot[] fluidOutputSlots = new FluidSlot[2];
+    public final FluidDisplaySlot[] fluidInputSlots = new FluidDisplaySlot[81];
+    public final FluidSlot[] fluidOutputSlots = new FluidSlot[2];
 
     public FluidRecipeCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 

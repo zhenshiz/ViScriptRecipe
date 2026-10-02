@@ -16,16 +16,14 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 
-/** Stores the item, fluid, and machine parameters shared by IE's JEI recipe categories. */
 @Getter
 @Setter
 @Accessors(chain = true)
 public class IERecipeData implements IVSRecipeData {
     @Persisted private ArrayList<RecipeIngredient> inputs = new ArrayList<>();
     /**
-     * Stores output slots in editor order. For arc furnaces, indices 0–3 and 9–10 are main
-     * products, 4 is slag, and 5–8 are chance products. The original indices remain stable
-     * when loading projects written before support for the fifth and sixth main products.
+     * 电弧炉输出索引：0–3 和 9–10 为主要产物，4 为炉渣，5–8 为概率产物。
+     * 第五、第六个主要产物追加在末尾，以兼容旧项目的槽位索引。
      */
     @Persisted private ArrayList<RecipeOutputData> outputs = new ArrayList<>();
     @Persisted private ArrayList<FluidIngredientData> fluidInputs = new ArrayList<>();

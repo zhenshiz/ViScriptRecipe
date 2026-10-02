@@ -8,21 +8,18 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.satisfy.farm_and_charm.core.recipe.*;
 
-/** Validates machine capacities and creates native Farm & Charm recipes through public constructors. */
 public final class FarmCharmRecipeFactory {
     private FarmCharmRecipeFactory() {}
 
     /**
-     * Creates a native recipe, omitting empty editor cells while retaining repeated ingredients.
+     * 忽略空槽位并保留重复原料，不修改传入数据。
      *
-     * <p>Cooking pots and roasters require a nonempty container stack in the native serialized format,
-     * including cooking pot recipes whose container requirement is disabled.
+     * <p>烹饪锅和烤炉的原生序列化格式要求容器物品堆非空，即使烹饪锅已关闭容器需求。
      *
-     * @param typeId the identifier of one of the six supported native recipe types
-     * @param data the editor data to compile without mutation
-     * @return the native recipe with copied output and container stacks
-     * @throws IllegalArgumentException if the type is unknown, inputs exceed the machine capacity,
-     *         required inputs or stacks are empty, or stove experience is not finite
+     * @param typeId 支持的原生配方类型标识
+     * @param data 待编译的编辑器数据
+     * @return 使用产物和容器物品堆副本创建的原生配方
+     * @throws IllegalArgumentException 类型未知、原料超出机器容量、必需原料或物品堆为空，或炉灶经验值非有限数
      */
     public static Recipe<?> compile(ResourceLocation typeId, FarmCharmRecipeData data) {
         var kind = FarmCharmRecipeKind.byType(typeId).orElseThrow(() -> new IllegalArgumentException("Unknown Farm & Charm type: " + typeId));

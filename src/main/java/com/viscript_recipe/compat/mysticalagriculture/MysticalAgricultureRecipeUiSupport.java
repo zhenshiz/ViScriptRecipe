@@ -21,9 +21,7 @@ import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Creates read-only previews derived from Mystical Agriculture recipe fields.
- */
+/** 预览由配方字段派生，仅供查看。 */
 public final class MysticalAgricultureRecipeUiSupport {
     private MysticalAgricultureRecipeUiSupport() {
     }
@@ -83,10 +81,8 @@ public final class MysticalAgricultureRecipeUiSupport {
         var key = ResourceKey.create(Registries.ENCHANTMENT, id);
         var level = Minecraft.getInstance().level;
         var registryAccess = level == null ? Platform.getFrozenRegistry() : level.registryAccess();
-        // Enchantments are a dynamic registry.  During resource reloads the UI can
-        // be rendered before that registry is attached to the client level, so a
-        // missing lookup should produce an empty preview instead of crashing the
-        // whole editor.
+        // 资源重载期间，附魔动态注册表可能尚未挂接到客户端世界。
+        // 查找失败时返回空预览，避免编辑器崩溃。
         return registryAccess.lookup(Registries.ENCHANTMENT)
                 .flatMap(registry -> registry.get(key))
                 .orElse(null);

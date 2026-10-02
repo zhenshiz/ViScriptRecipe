@@ -32,10 +32,7 @@ public final class GoetyRitualSearchComponents {
     ) {
         var registry = ModRituals.REGISTRY;
         var requestedId = supplier.get();
-        // Goety can expose an empty ritual registry briefly while its client data
-        // is loading.  Do not turn that normal lifecycle state into an editor crash.
-        // RegistrySearchBox accepts a null value and will populate candidates once
-        // the registry contains entries.
+        // 客户端加载期间仪式注册表可能暂时为空；RegistrySearchBox 接受 null，待注册表有内容后再提供候选项。
         var current = registry.getOptional(Objects.requireNonNullElse(requestedId, DEFAULT_RITUAL_TYPE))
                 .orElseGet(() -> registry.getAny().map(Holder.Reference::value).orElse(null));
         var searchBox = new RitualTypeSearchBox(current);

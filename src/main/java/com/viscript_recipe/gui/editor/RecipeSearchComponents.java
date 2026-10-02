@@ -177,12 +177,8 @@ public final class RecipeSearchComponents {
         var current = TagKey.create(Registries.STRUCTURE,
                 Objects.requireNonNullElse(supplier.get(), DEFAULT_STRUCTURE_TAG));
         var structureTags = StructureTagClientData.tags();
-        // Structure is a dynamic registry.  It is not guaranteed to exist in the
-        // client built-in registry while the editor is being constructed (for
-        // example, during the first tick after connecting to a server).  Always use
-        // the server snapshot-backed search box here; an empty snapshot simply means
-        // that there are no candidates yet and, importantly, does not throw the
-        // registry's "Missing registry" exception.
+        // 刚连接服务器时，客户端可能尚无结构动态注册表，因此搜索使用服务端快照。
+        // 快照为空时只返回空候选项，避免访问缺失注册表而抛出异常。
         RegistrySearchBox<TagKey<Structure>> searchBox =
                 new RecipeStructureTagSearchBox(current, structureTags);
         return configure(nameKey, searchBox,
@@ -400,10 +396,9 @@ public final class RecipeSearchComponents {
 
         @Override
         protected void onSearchWordChanged(String word) {
-            // Keep the raw text while the player is typing. ResourceLocation.tryParse
-            // treats an unqualified path as a minecraft ID (and an empty value as
-            // minecraft:), so feeding that parsed value back through setSelected would
-            // overwrite the field before the player can enter another namespace.
+            // 输入期间保留原文；ResourceLocation.tryParse 会为无命名空间的路径补上 minecraft，
+            // 并将空值解析为 minecraft:。此时调用 setSelected 回写解析结果，
+            // 会在玩家输入其他命名空间之前覆盖文本。
             if (word != null && !word.isBlank()) {
                 var typedId = ResourceLocation.tryParse(word);
                 if (typedId != null && !typedId.getPath().isEmpty() && onTyped != null) {

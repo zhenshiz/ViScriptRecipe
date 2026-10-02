@@ -13,14 +13,14 @@ import net.minecraft.world.item.Items;
 import static com.viscript_recipe.compat.goety.canvas.BrazierCanvas.useJeiCanvas;
 
 public class CursedInfuserCanvas extends RecipeCanvas<GoetyCursedInfuserRecipeData> {
-    static final UIElement machine = new UIElement();
-    static final Label timeLabel = emptyLabel();
-    static {
+    private final UIElement machine = new UIElement();
+    private final Label timeLabel = emptyLabel();
+
+    public CursedInfuserCanvas(NavigationView navigationView, RecipeEntry entry) {
+        super(navigationView, entry);
         tooltip(machine, "viscript_recipe.editor.goety.cursed_infuser.machine");
         BrazierCanvas.centerLabel(timeLabel);
     }
-
-    public CursedInfuserCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
     @Override
     public void load() {

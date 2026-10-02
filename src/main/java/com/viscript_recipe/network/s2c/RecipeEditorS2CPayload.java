@@ -23,20 +23,12 @@ public final class RecipeEditorS2CPayload {
     private RecipeEditorS2CPayload() {
     }
 
-    /**
-     * Replaces the client editor's structure tag catalog with an authoritative server snapshot.
-     *
-     * <p>The snapshot contains structure tag identifiers and the structure identifiers bound to each tag.
-     *
-     * @param  sender the RPC sender identifying the server
-     * @param  snapshot the compound tag containing the encoded structure tag catalog
-     */
+    /** 用服务端快照整体替换客户端结构标签目录；快照包含各标签及其成员结构标识。 */
     @RPCPacket(value = SYNC_STRUCTURE_TAGS, modId = ViScriptRecipe.MOD_ID)
     public static void syncStructureTags(RPCSender sender, CompoundTag snapshot) {
         StructureTagClientData.updateFromServer(snapshot);
     }
 
-    /** Replaces the client's dynamic registry completion catalog with server-owned data. */
     @RPCPacket(value = SYNC_RECIPE_REGISTRIES, modId = ViScriptRecipe.MOD_ID)
     public static void syncRecipeRegistries(RPCSender sender, CompoundTag snapshot) {
         RecipeRegistryClientData.updateFromServer(snapshot);

@@ -53,7 +53,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
 
     public CreateProcessingCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
-    protected static CreateProcessingKind getCreateProcessingKind() {
+    protected CreateProcessingKind getCreateProcessingKind() {
         return CreateProcessingKind.byType(entry.getType()).orElse(null);
     }
 
@@ -154,7 +154,6 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
 
     @Override
     public UIElement createCanvas() {
-        // var generic = createGenericCreateProcessingCanvas();
         var variant = switch (getCreateProcessingKind()) {
             case CRUSHING -> createCreateCrushingCanvas();
             case MILLING -> createCreateMillingCanvas();
@@ -170,7 +169,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
             case ITEM_APPLICATION -> createCreateManualApplicationCanvas();
             case BLASTING, SMOKING, HAUNTING, SPLASHING -> createCreateFanCanvas();
         };
-        return CreateProcessingCanvasFactory.createProcessingStack(/*generic, */variant);
+        return CreateProcessingCanvasFactory.createProcessingStack(variant);
     }
 
     @Override
@@ -313,7 +312,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
     }
 
     private UIElement createCreateCrushingOutputRow() {
-        return RecipeGridFactory.borderedRow(/*createCrushingOutputSlots.length*/7, SLOT_SIZE, i -> {
+        return RecipeGridFactory.borderedRow(7, SLOT_SIZE, i -> {
             var slot = createOutputSlot(i, SLOT_SIZE);
             return RecipeGridFactory.slotCell(slot, SLOT_SIZE);
         });
@@ -326,7 +325,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
     }
 
     private UIElement createCreateMillingOutputRow() {
-        return RecipeGridFactory.borderedRow(/*createMillingOutputSlots.length*/ 4, SLOT_SIZE, i -> {
+        return RecipeGridFactory.borderedRow( 4, SLOT_SIZE, i -> {
             var slot = createOutputSlot(i, SLOT_SIZE);
             return RecipeGridFactory.slotCell(slot, SLOT_SIZE);
         });
@@ -509,7 +508,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
     }
 
     private UIElement createCreatePressingOutputRow() {
-        return RecipeGridFactory.borderedRow(/*createPressingOutputSlots.length*/2, SLOT_SIZE, i -> {
+        return RecipeGridFactory.borderedRow(2, SLOT_SIZE, i -> {
             var slot = createOutputSlot(i, SLOT_SIZE);
             return RecipeGridFactory.slotCell(slot, SLOT_SIZE);
         });
@@ -607,7 +606,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         });
-        for (int i = 0; i < /*fluidInputSlots.length*/2; i++) {
+        for (int i = 0; i < 2; i++) {
             var slot = createFluidInputSlot(i);
             var column = RecipeEditorUi.column().layout(layout -> {
                 layout.width(46);
@@ -662,7 +661,7 @@ public class CreateProcessingCanvas extends FluidRecipeCanvas<CreateProcessingRe
             layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         });
-        for (int i = 0; i < /*fluidOutputSlots.length*/2; i++) {
+        for (int i = 0; i < 2; i++) {
             var slot = createFluidOutputSlot(i);
             var column = RecipeEditorUi.column().layout(layout -> {
                 layout.width(52);

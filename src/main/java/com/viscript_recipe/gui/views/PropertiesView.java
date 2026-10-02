@@ -113,7 +113,7 @@ public class PropertiesView extends View {
                         )),
                 RecipeCanvas.switchField("viscript_recipe.config.entry.enabled",
                         entry.isEnabled(), value -> {
-                    entry.setEnabled(value); navigationView.updateStatus(); // 更新状态栏
+                    entry.setEnabled(value); navigationView.updateStatus();
                 }),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.recipe_id",
                         RecipeEditorUi.resourceLocationField(entry.getRecipeId(), entry::setRecipeId).setId("recipe_entry_id")),

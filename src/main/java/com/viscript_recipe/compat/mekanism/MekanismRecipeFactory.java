@@ -20,20 +20,17 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-/**
- * Compiles editor data into Mekanism's native basic recipe implementations.
- */
 public final class MekanismRecipeFactory {
     private MekanismRecipeFactory() {
     }
 
     /**
-     * Compiles a recipe using the serializer represented by {@code type}.
+     * 按序列化器标识创建原生配方，并校验必需字段。
      *
-     * @param  type the Mekanism recipe serializer identifier
-     * @param  data the editable recipe data
-     * @return the native Mekanism recipe
-     * @throws IllegalArgumentException if required input, output, amount, or registry data is invalid
+     * @param type Mekanism 配方序列化器标识
+     * @param data 待编译的编辑器数据
+     * @return 原生 Mekanism 配方
+     * @throws IllegalArgumentException 必需输入、输出、数量或注册表数据无效
      */
     @SuppressWarnings("all")
     public static Recipe<?> compile(ResourceLocation type, MekanismRecipeData data) {

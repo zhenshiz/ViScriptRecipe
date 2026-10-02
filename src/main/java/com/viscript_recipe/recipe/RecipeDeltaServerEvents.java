@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
-/** Supplies the recipe-delta baseline after vanilla finishes a player's normal login sync. */
+/** 等原版玩家登录同步完成后，再发送配方增量同步的基线。 */
 public final class RecipeDeltaServerEvents {
     private static boolean registered;
 

@@ -14,7 +14,7 @@ public class IngredientDisplaySlot extends ItemSlot {
     private int tagDisplayTicks;
 
     public void setIngredient(RecipeIngredient ingredient) {
-        // 因为内部调用setItem后会重复触发事件，通过判断新旧物品是否匹配来避免重复设置（为什么内部不把notify设置为false？因为有必要触发事件）
+        // setItem 必须触发通知；比较新旧物品可避免事件回调再次设置相同内容。
         if (ingredient.getKind() == IngredientValueKind.ITEM && tagDisplayStacks.length > 0
                 && ItemStack.matches(tagDisplayStacks[tagDisplayIndex], ingredient.toStack())) return;
         this.ingredient = ingredient;

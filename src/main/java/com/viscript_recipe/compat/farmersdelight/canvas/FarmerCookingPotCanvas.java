@@ -67,7 +67,6 @@ public class FarmerCookingPotCanvas extends RecipeCanvas<FarmerCookingPotRecipeD
     @Override
     public void setVisualOutput(int index, RecipeOutputData output) {
         super.setVisualOutput(index, output);
-        // 让预览槽和输出槽保持一致
         if (index == 0) {
             visualOutputs[14] = output.copy();
             visualOutputSlots[14].setItem(output.getItem(), false);

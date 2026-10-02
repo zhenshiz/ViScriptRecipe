@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.*;
 
-/** Tracks native recipe identities because Farm & Charm's JEI categories contain raw recipes without holder IDs. */
+/** Farm & Charm 的 JEI 分类直接持有配方而无 holder ID，因此需要跟踪原生配方对象的身份。 */
 final class FarmCharmJeiRecipeSynchronizer {
     private static final Map<ResourceLocation, Map<ResourceLocation, RecipeHolder<?>>> displayedByType = new HashMap<>();
 

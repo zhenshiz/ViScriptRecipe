@@ -15,7 +15,7 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Imports only the native classes whose complete behavior is represented by the editor. */
+/** 仅导入编辑器能够完整表达其行为的原生配方类。 */
 public final class EidolonRecipeImporter implements RecipeImportHandler {
     public static final EidolonRecipeImporter INSTANCE = new EidolonRecipeImporter();
     private EidolonRecipeImporter() {}

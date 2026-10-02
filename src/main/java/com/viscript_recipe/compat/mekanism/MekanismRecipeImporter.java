@@ -26,9 +26,6 @@ import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
 import java.util.ArrayList;
 
-/**
- * Imports native Mekanism recipe objects into the shared typed editor model.
- */
 public final class MekanismRecipeImporter implements RecipeImportHandler {
     public static final MekanismRecipeImporter INSTANCE = new MekanismRecipeImporter();
 

@@ -20,9 +20,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * Renders a Mekanism chemical as a tinted gauge or compact bar for recipe previews.
- */
 class ChemicalDisplay {
     MekanismChemicalIngredientData input = MekanismChemicalIngredientData.empty();
     MekanismChemicalStackData output = MekanismChemicalStackData.empty();

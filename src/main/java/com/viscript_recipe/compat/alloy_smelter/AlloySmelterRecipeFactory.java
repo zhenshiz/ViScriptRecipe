@@ -5,7 +5,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Items;
 import sk.alloy_smelter.recipe.SmeltingRecipe;
 
-/** Converts editor-owned data into Alloy Smelter's native recipe class. */
 public final class AlloySmelterRecipeFactory {
     private AlloySmelterRecipeFactory() {
     }

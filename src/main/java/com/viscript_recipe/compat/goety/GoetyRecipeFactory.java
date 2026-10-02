@@ -18,21 +18,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
-/**
- * Creates Goety's native recipe objects from editor-owned persisted data.
- */
 public final class GoetyRecipeFactory {
     private static final ResourceLocation FALLBACK_ID = ResourceLocation.fromNamespaceAndPath("viscript_recipe", "goety_editor");
 
     private GoetyRecipeFactory() {
     }
 
-    /**
-     * Compiles a cursed infuser recipe.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety recipe
-     */
     public static Recipe<?> compileCursedInfuser(GoetyCursedInfuserRecipeData data) {
         return new CursedInfuserRecipes(
                 FALLBACK_ID,
@@ -45,12 +36,7 @@ public final class GoetyRecipeFactory {
         );
     }
 
-    /**
-     * Compiles a dark ritual recipe with at most twelve pedestal ingredients.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety ritual recipe
-     */
+    /** 仪式最多接受 12 个基座原料。 */
     public static Recipe<?> compileRitual(GoetyRitualRecipeData data) {
         var ritualType = data.getRitualType();
         if (ritualType == null || ModRituals.REGISTRY.get(ritualType) == null) {
@@ -105,12 +91,7 @@ public final class GoetyRecipeFactory {
         );
     }
 
-    /**
-     * Compiles a three-input necro brazier recipe.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety brazier recipe
-     */
+    /** 死灵火盆需要 3 个输入原料。 */
     public static Recipe<?> compileBrazier(GoetyBrazierRecipeData data) {
         var ingredients = NonNullList.<Ingredient>create();
         for (var ingredient : data.getIngredients()) {
@@ -124,12 +105,7 @@ public final class GoetyRecipeFactory {
         );
     }
 
-    /**
-     * Compiles a pulverize recipe using only the selected result field.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety pulverize recipe
-     */
+    /** 仅使用当前选中的产物字段编译粉碎配方。 */
     public static Recipe<?> compilePulverize(GoetyPulverizeRecipeData data) {
         var itemResult = data.getResultKind() == GoetyPulverizeResultKind.ITEM
                 ? requireItem(data.getItemResult(), "Goety pulverize item result cannot be empty")
@@ -145,12 +121,6 @@ public final class GoetyRecipeFactory {
         );
     }
 
-    /**
-     * Compiles a witch cauldron brewing recipe.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety brewing recipe
-     */
     public static Recipe<?> compileBrewing(GoetyBrewingRecipeData data) {
         var kind = data.getEntityKind() == null ? GoetyBrewingEntityKind.NONE : data.getEntityKind();
         TagKey<EntityType<?>> entityTag = kind == GoetyBrewingEntityKind.TAG

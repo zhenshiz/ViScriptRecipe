@@ -8,20 +8,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
-/**
- * Creates Cataclysm's native recipe objects from editor data.
- */
 public final class CataclysmRecipeFactory {
     private CataclysmRecipeFactory() {
     }
 
-    /**
-     * Compiles a mechanical fusion anvil recipe. Returning Cataclysm's native class is important because its
-     * assembly logic transfers the base item's data components to the fused result.
-     *
-     * @param data editor recipe data
-     * @return native weapon fusion recipe
-     */
+    /** 必须使用灾变的原生配方类，以便合成时将基础物品的数据组件传递给产物。 */
     public static Recipe<?> compileWeaponFusion(CataclysmWeaponFusionRecipeData data) {
         var base = requireIngredient(data.getBase(), "Weapon fusion base ingredient cannot be empty");
         var addition = requireIngredient(data.getAddition(), "Weapon fusion addition ingredient cannot be empty");
@@ -29,12 +20,6 @@ public final class CataclysmRecipeFactory {
         return new WeaponfusionRecipe(base, addition, result);
     }
 
-    /**
-     * Compiles an Altar of Amethyst blessing recipe.
-     *
-     * @param data editor recipe data
-     * @return native amethyst blessing recipe
-     */
     public static Recipe<?> compileAmethystBless(CataclysmAmethystBlessRecipeData data) {
         var ingredient = requireIngredient(data.getIngredient(), "Amethyst blessing ingredient cannot be empty");
         var result = requireItem(data.getResult(), "Amethyst blessing result cannot be empty");

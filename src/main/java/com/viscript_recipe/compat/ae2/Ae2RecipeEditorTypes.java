@@ -9,7 +9,6 @@ import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-/** Registers AE2's four recipe-manager-backed JEI categories when AE2 is installed. */
 @LDLRegister(registry = IModModule.ID, name = Ae2RecipeEditorTypes.MOD_ID, modID = Ae2RecipeEditorTypes.MOD_ID)
 public final class Ae2RecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "ae2";

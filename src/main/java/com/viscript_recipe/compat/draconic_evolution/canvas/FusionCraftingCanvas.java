@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Editable native JEI layout. Pages retain every injector, even for unusually large custom recipes. */
+/** 分页保留全部注入器槽位，包括超大自定义配方中的槽位。 */
 public class FusionCraftingCanvas extends RecipeCanvas<DraconicFusionRecipeData> {
     public static final int PAGE_SIZE = 32;
     private final Map<Integer, Integer> selectedAlternatives = new HashMap<>();
@@ -65,7 +65,7 @@ public class FusionCraftingCanvas extends RecipeCanvas<DraconicFusionRecipeData>
         var current = getVisualIngredient(slot);
         if (input.getAlternatives().isEmpty() && current.isEmpty()) return;
         while (input.getAlternatives().size() <= selected) input.getAlternatives().add(RecipeIngredient.empty());
-        // The count belongs to the whole native StackIngredient, rather than one alternative.
+        // 数量属于整个原生 StackIngredient，不属于其中某个候选项。
         input.getAlternatives().set(selected, current.copy().setCount(1));
     }
 

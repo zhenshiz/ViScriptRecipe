@@ -21,10 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * Displays the recipes in the current file grouped by their editor workstation.
- * Each workstation starts collapsed so files containing many recipes remain easy to scan.
- */
+/** 工作站分组默认折叠，便于浏览包含大量配方的文件。 */
 final class RecipeWorkstationSummaryDialog {
     private RecipeWorkstationSummaryDialog() {
     }

@@ -9,7 +9,6 @@ import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
-/** Registers the sixteen recipe-manager-backed JEI recipe types supplied by IE. */
 @LDLRegister(registry = IModModule.ID, name = IERecipeEditorTypes.MOD_ID, modID = IERecipeEditorTypes.MOD_ID)
 public final class IERecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "immersiveengineering";
@@ -27,7 +26,9 @@ public final class IERecipeEditorTypes implements IModModule {
             var id = id(name);
             var key = "viscript_recipe.editor.type.immersive_engineering." + name;
             registerCategory(RecipeEditorCategory.of(id, key, MOD_ID, id, icon(name)));
-            registerEditorType(RecipeEditorType.of(id, id, key, IERecipeData.class, IERecipeData::new, IECanvas::new, MOD_ID));
+            // 使用延迟构造，避免公共初始化阶段在服务端加载 IECanvas 的客户端类。
+            registerEditorType(RecipeEditorType.of(id, id, key, IERecipeData.class, IERecipeData::new,
+                    (navigation, entry) -> new IECanvas(navigation, entry), MOD_ID));
         }
     }
 

@@ -20,9 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
-/**
- * Builds Goety recipe canvases from its official JEI coordinates with an LDLib2 fallback skin.
- */
+/** 沿用 Goety 的 JEI 坐标，纹理不可用时回退到 LDLib2 样式。 */
 public final class GoetyCanvasFactory {
     private static final int SLOT_SIZE = 18;
     private static final ResourceLocation JEI_GUI = texture("jei_gui.png");

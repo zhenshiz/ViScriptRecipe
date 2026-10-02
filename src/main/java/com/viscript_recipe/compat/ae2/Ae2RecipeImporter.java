@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Imports native AE2 recipes without flattening state constraints or optional press slots. */
+/** 导入时保留原生状态约束和可选压印模板槽位。 */
 public final class Ae2RecipeImporter implements RecipeImportHandler {
     public static final Ae2RecipeImporter INSTANCE = new Ae2RecipeImporter();
     private Ae2RecipeImporter() {}

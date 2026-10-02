@@ -20,7 +20,6 @@ import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.*;
 
-/** Applies recipe changes through JEI's public runtime API and performs a JEI-only fallback when needed. */
 public final class RecipeDeltaJeiSynchronizer {
     private static final int MAX_HIDDEN_RUNTIME_RECIPES = 256;
     private static final String SYNTHETIC_PREFIX = "jei_delta/";
@@ -30,9 +29,8 @@ public final class RecipeDeltaJeiSynchronizer {
     private static int hiddenRuntimeRecipes;
     private static boolean forcingFullReload;
     /**
-     * A delta can arrive before JEI has created its runtime/config objects.  Keep
-     * the fallback request until the runtime is available instead of posting a
-     * RecipesUpdatedEvent into a half-initialized JEI instance.
+     * 增量包可能早于 JEI 运行时和配置初始化完成；回退请求需等运行时可用后再执行，
+     * 避免向尚未初始化完成的 JEI 发送 RecipesUpdatedEvent。
      */
     private static String pendingFullReloadReason;
 
@@ -129,9 +127,7 @@ public final class RecipeDeltaJeiSynchronizer {
                 forceFullJeiReload("the hidden JEI recipe history reached its cleanup threshold");
             }
         } catch (RuntimeException | LinkageError e) {
-            // JEI's public runtime API can reject a category while it is rebuilding.
-            // A failed incremental operation must not bring down the client; defer
-            // one complete JEI-only rebuild until the runtime is safe to use.
+            // JEI 重建期间可能拒绝分类更新；增量操作失败时，等运行时可用后再完整重建 JEI，避免客户端崩溃。
             ViScriptRecipe.LOGGER.warn("Failed to apply an incremental JEI recipe update", e);
             forceFullJeiReload("JEI rejected an incremental recipe update");
         }
@@ -183,9 +179,10 @@ public final class RecipeDeltaJeiSynchronizer {
         var uniqueTypes = new LinkedHashSet<ResourceLocation>();
         typeHints.values().forEach(uniqueTypes::addAll);
         for (var typeId : uniqueTypes) {
-            // Eidolon exposes raw recipes, and merges five native ritual types into its "rituals" JEI category.
-            // Rebuild JEI so replacements/deletions update every category, including those without a native UID.
+            // Eidolon 的 rituals 分类合并了五种原生仪式且直接持有配方；需完整重建 JEI，才能更新没有原生 UID 的分类。
             if ("eidolon_repraised".equals(typeId.getNamespace())) return false;
+            // 附魔配方在 JEI 中按等级展开到 enchanter 分类，需重建全部等级的包装配方。
+            if (typeId.equals(ResourceLocation.parse("enderio:enchanting"))) return false;
             var farmCharm = FarmCharmRecipeKind.byType(typeId);
             var jeiType = recipeManager.getRecipeType(farmCharm.map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId)).orElse(null);
             if (farmCharm.isPresent()) continue;

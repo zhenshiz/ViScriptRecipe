@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** Stores every alternative of an AE2 ingredient, including client-expanded tag contents. */
+/** 保留原料的全部候选项，包括客户端展开的标签内容。 */
 @Getter
 @Setter
 @Accessors(chain = true)

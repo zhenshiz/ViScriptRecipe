@@ -40,9 +40,6 @@ public class ArsNouveauPedestalOnlyRecipeData implements IVSRecipeData, IPreview
 
     @Override
     public ItemStack outputPreview() {
-        /*selectedEntry.isType(ArsNouveauRecipeEditorTypes.REACTIVE_ENCHANTMENT)
-                    ? new ItemStack(Items.ENCHANTED_BOOK)
-                    : new ItemStack(itemFromRegistry("ars_nouveau:spell_parchment", Items.PAPER));*/
         return RecipeHelper.registryItem("ars_nouveau:spell_parchment", Items.PAPER);
     }
 

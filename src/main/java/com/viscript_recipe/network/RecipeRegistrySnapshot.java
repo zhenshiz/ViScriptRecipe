@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
-/** Transfers server-owned dynamic registry identifiers needed by client-side recipe completion fields. */
+/** 客户端补全所需的动态注册表标识以服务端快照为准。 */
 public final class RecipeRegistrySnapshot {
     private static final String BIOME_TAGS = "biome_tags";
     private static final String DIMENSION_TYPES = "dimension_types";
@@ -21,7 +21,6 @@ public final class RecipeRegistrySnapshot {
     private RecipeRegistrySnapshot() {
     }
 
-    /** Creates the authoritative biome-tag and dimension-type catalog. */
     public static CompoundTag create(RegistryAccess access) {
         var result = new CompoundTag();
         var biomeTags = new ListTag();
@@ -47,7 +46,7 @@ public final class RecipeRegistrySnapshot {
         return result;
     }
 
-    /** Reads immutable biome-tag candidates from a snapshot. */
+    /** 返回不可变的生物群系标签候选项。 */
     public static Map<ResourceLocation, List<ResourceLocation>> readBiomeTags(CompoundTag snapshot) {
         if (snapshot == null) {
             return Map.of();
@@ -73,7 +72,7 @@ public final class RecipeRegistrySnapshot {
         return Collections.unmodifiableMap(result);
     }
 
-    /** Reads immutable dimension-type identifiers from a snapshot. */
+    /** 返回不可变的维度类型标识列表。 */
     public static List<ResourceLocation> readDimensionTypes(CompoundTag snapshot) {
         if (snapshot == null) {
             return List.of();

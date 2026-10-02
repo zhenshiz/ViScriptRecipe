@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.Map;
 
-/** Holds immutable dynamic-registry completion data supplied by the current server connection. */
+/** 动态注册表候选项来自当前服务端连接，缓存内容不可变。 */
 public final class RecipeRegistryClientData {
     private static volatile Map<ResourceLocation, List<ResourceLocation>> biomeTags = Map.of();
     private static volatile List<ResourceLocation> dimensionTypes = List.of();
@@ -15,7 +15,6 @@ public final class RecipeRegistryClientData {
     private RecipeRegistryClientData() {
     }
 
-    /** Replaces all client candidates with one authoritative server snapshot. */
     public static void updateFromServer(CompoundTag snapshot) {
         biomeTags = RecipeRegistrySnapshot.readBiomeTags(snapshot);
         dimensionTypes = RecipeRegistrySnapshot.readDimensionTypes(snapshot);

@@ -9,9 +9,6 @@ import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Builds Cataclysm recipe canvases using the same textures and coordinates as its JEI categories.
- */
 public final class CataclysmCanvasFactory {
     private static final String MOD_ID = "cataclysm";
     private static final int JEI_SLOT_SIZE = 18;

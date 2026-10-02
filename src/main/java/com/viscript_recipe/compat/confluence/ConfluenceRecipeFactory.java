@@ -21,7 +21,7 @@ import org.confluence.mod.common.init.ModRecipes;
 import java.util.List;
 import java.util.Objects;
 
-/** Converts editor data with the same native Codec used by Confluence's data packs. */
+/** 使用 Confluence 数据包的原生 Codec，保持序列化语义一致。 */
 public final class ConfluenceRecipeFactory {
     private static final char[] PATTERN_SYMBOLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 

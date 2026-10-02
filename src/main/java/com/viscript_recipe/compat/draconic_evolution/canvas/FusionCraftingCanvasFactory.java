@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-/** Coordinates match DE 1.21.1's FusionRecipeCategory, with readable spacing for large pages. */
+/** 坐标沿用龙之进化 1.21.1 的 FusionRecipeCategory，大页面额外调整间距。 */
 final class FusionCraftingCanvasFactory {
     private static final int WIDTH = 164;
     private static final int HEIGHT = 111;
@@ -36,7 +36,7 @@ final class FusionCraftingCanvasFactory {
                             Label tier, Label energy, boolean skin) {
         int columns = injectors.length > 16 ? 4 : 2;
         int rows = (injectors.length + columns - 1) / columns;
-        // More than five rows overlap in the native JEI formula. Keep every editable slot accessible.
+        // 原生 JEI 布局超过五行后会重叠，需要扩展高度以保留所有可编辑槽位。
         int height = rows > 5 ? Math.max(HEIGHT, 24 + rows * 20 + 24) : HEIGHT;
         IGuiTexture background = skin ? SpriteTexture.of(BACKGROUND).setSprite(0, 0, WIDTH, HEIGHT) : Sprites.BORDER_DARK;
         var panel = new UIElement().layout(layout -> {

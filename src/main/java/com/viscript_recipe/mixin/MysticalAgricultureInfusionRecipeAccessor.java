@@ -4,17 +4,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-/**
- * Exposes the serialized component-transfer flag on Mystical Agriculture infusion recipes.
- */
 @Pseudo
 @Mixin(targets = "com.blakebr0.mysticalagriculture.crafting.recipe.InfusionRecipe")
 public interface MysticalAgricultureInfusionRecipeAccessor {
-    /**
-     * Gets whether the recipe transfers components from the altar input to its result.
-     *
-     * @return {@code true} when the recipe transfers input components
-     */
+    /** 为 true 时，将祭坛输入的数据组件传递给产物。 */
     @Accessor("transferComponents")
     boolean viscriptRecipe$getTransferComponents();
 }

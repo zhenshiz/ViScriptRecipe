@@ -29,12 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Converts editor-owned data into Industrial Foregoing's native codec-backed recipe classes. */
 public final class IndustrialForegoingRecipeFactory {
     private IndustrialForegoingRecipeFactory() {
     }
 
-    /** Compiles a material stonework crushing recipe. */
     public static CrusherRecipe compileCrusher(IndustrialCrusherRecipeData data) {
         return new CrusherRecipe(
                 requireIngredient(data.getInput(), "Crusher input"),
@@ -42,7 +40,6 @@ public final class IndustrialForegoingRecipeFactory {
         );
     }
 
-    /** Compiles a dissolution chamber recipe. */
     public static DissolutionChamberRecipe compileDissolution(IndustrialDissolutionRecipeData data) {
         var inputs = new ArrayList<Ingredient>();
         for (var input : safeList(data.getInput())) {
@@ -62,7 +59,7 @@ public final class IndustrialForegoingRecipeFactory {
                 Math.max(0, data.getProcessingTime()), output, outputFluid);
     }
 
-    /** Compiles a fluid extractor recipe, validating every stored block-state property. */
+    /** 编译流体提取配方时，校验保存的每个方块状态属性。 */
     public static FluidExtractorRecipe compileFluidExtractor(IndustrialFluidExtractorRecipeData data) {
         return new FluidExtractorRecipe(
                 requireIngredient(data.getInput(), "Fluid extractor input"),
@@ -73,7 +70,6 @@ public final class IndustrialForegoingRecipeFactory {
         );
     }
 
-    /** Compiles an ore laser drill recipe. */
     public static LaserDrillOreRecipe compileLaserOre(IndustrialLaserDrillOreRecipeData data) {
         return new LaserDrillOreRecipe(
                 new SizedIngredient(requireIngredient(data.getOutput(), "Laser drill ore output"), data.getOutput().getCount()),
@@ -83,7 +79,6 @@ public final class IndustrialForegoingRecipeFactory {
         );
     }
 
-    /** Compiles a fluid laser drill recipe. */
     public static LaserDrillFluidRecipe compileLaserFluid(IndustrialLaserDrillFluidRecipeData data) {
         return new LaserDrillFluidRecipe(
                 compileFluidIngredient(data.getOutput()),
@@ -93,7 +88,6 @@ public final class IndustrialForegoingRecipeFactory {
         );
     }
 
-    /** Compiles a material stonework generation recipe. */
     public static StoneWorkGenerateRecipe compileStoneWork(IndustrialStoneWorkRecipeData data) {
         return new StoneWorkGenerateRecipe(
                 requireOutput(data.getOutput(), "Stonework output"),

@@ -14,7 +14,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Persists Farm & Charm inputs and native parameters without loading the optional mod's classes. */
+/** 持久化输入和原生参数时，不加载可选模组的类。 */
 @Getter
 @Setter
 @Accessors(chain = true)

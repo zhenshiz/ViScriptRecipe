@@ -13,10 +13,12 @@ import net.minecraft.network.chat.Component;
 
 public class BrazierCanvas extends RecipeCanvas<GoetyBrazierRecipeData> {
     static final boolean useJeiCanvas = GoetyCanvasFactory.hasJeiSkin();
-    static final Label soulLabel = emptyLabel();
-    static {centerLabel(soulLabel);}
+    private final Label soulLabel = emptyLabel();
 
-    public BrazierCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
+    public BrazierCanvas(NavigationView navigationView, RecipeEntry entry) {
+        super(navigationView, entry);
+        centerLabel(soulLabel);
+    }
 
     @Override
     public void load() {

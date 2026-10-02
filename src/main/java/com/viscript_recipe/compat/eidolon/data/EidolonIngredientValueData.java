@@ -23,7 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 
-/** Keeps the exact component predicate separately from a stack's implicit item defaults. */
+/** 显式的数据组件匹配条件与物品堆隐含的默认组件分开保存。 */
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -52,7 +52,7 @@ public class EidolonIngredientValueData implements ISkipDefaultedSerialize {
         return new DataComponentIngredient(items, predicate, strict).toVanilla();
     }
 
-    /** A representative stack lets tag-based predicates use the same visual component editor as items. */
+    /** 使用代表物品堆，让标签匹配条件也能通过物品的数据组件编辑器修改。 */
     public ItemStack componentPreview() {
         var stack = value.toStack().copyWithCount(1);
         if (stack.isEmpty()) stack = new ItemStack(Items.STONE);
@@ -75,7 +75,7 @@ public class EidolonIngredientValueData implements ISkipDefaultedSerialize {
             var value = stack.get(entry.getKey());
             if (value != null) setComponent(components, entry.getKey(), value);
         }
-        // Only explicit components are predicates; item defaults must not be added on an unmodified import.
+        // 只有显式组件才是匹配条件；导入内容未经修改时，不能把物品默认组件加入条件。
         for (var entry : stack.getComponentsPatch().entrySet()) entry.getValue().ifPresent(component ->
                 setComponent(components, entry.getKey(), component));
         setPredicate(DataComponentPredicate.allOf(components.build()));

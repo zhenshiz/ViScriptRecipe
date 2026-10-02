@@ -14,7 +14,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
-// 把重复使用的服务端侧的方法统一放到这里
 public class RecipeHelper {
 
     public static Item itemFromRegistry(String id, Item fallback) {

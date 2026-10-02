@@ -12,7 +12,6 @@ import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-/** Compact JEI-shaped canvases for the Confluence workstation categories. */
 public final class ConfluenceCanvasFactory {
     private static final int SLOT = 18;
     private static final ResourceLocation FLETCHING_BACKGROUND = confluenceTexture("fletching_table");

@@ -10,7 +10,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.satisfy.farm_and_charm.core.recipe.*;
 import java.util.ArrayList;
 
-/** Imports all six native categories, retaining containers, learning flags, experience, and alternatives. */
 public final class FarmCharmRecipeImporter implements RecipeImportHandler {
     public static final FarmCharmRecipeImporter INSTANCE = new FarmCharmRecipeImporter();
     private FarmCharmRecipeImporter() {}

@@ -13,7 +13,7 @@ import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-/** Positions AE2 slots in logical JEI pixels; item icons remain centered in their 18-pixel cells. */
+/** 槽位坐标采用 JEI 逻辑像素，物品图标在 18 像素的单元格内居中。 */
 public final class Ae2CanvasFactory {
     private Ae2CanvasFactory() {}
 

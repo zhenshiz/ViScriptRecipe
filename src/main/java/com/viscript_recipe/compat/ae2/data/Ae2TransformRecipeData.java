@@ -16,7 +16,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Stores editable AE2 Transform recipe data independently of AE2's runtime classes. */
+/** 持久化数据不依赖 AE2 的运行时类。 */
 @Getter
 @Setter
 @Accessors(chain = true)

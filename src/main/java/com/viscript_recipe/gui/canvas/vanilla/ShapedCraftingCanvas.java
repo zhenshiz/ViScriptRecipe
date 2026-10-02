@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShapedCraftingCanvas extends RecipeCanvas<ShapedCraftingRecipeData> {
-    public static CraftingRemainderRule[] visualRemainders;
+    public CraftingRemainderRule[] visualRemainders;
 
     public ShapedCraftingCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
 
@@ -67,7 +67,7 @@ public class ShapedCraftingCanvas extends RecipeCanvas<ShapedCraftingRecipeData>
         }
     }
 
-    public static CraftingRemainderRule getVisualRemainder(int index) {
+    public CraftingRemainderRule getVisualRemainder(int index) {
         try {
             return visualRemainders[index].copy();
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class ShapedCraftingCanvas extends RecipeCanvas<ShapedCraftingRecipeData>
         }
     }
 
-    public static void setVisualRemainder(int index, CraftingRemainderRule rule) {
+    public void setVisualRemainder(int index, CraftingRemainderRule rule) {
         try {
             visualRemainders[index] = rule;
         } catch (Exception ignored) {

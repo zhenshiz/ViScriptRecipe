@@ -9,9 +9,6 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
-/**
- * Creates Touhou Little Maid's native altar recipes from editor data.
- */
 public final class TouhouLittleMaidRecipeFactory {
     private TouhouLittleMaidRecipeFactory() {
     }

@@ -12,9 +12,6 @@ import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Builds the altar editor canvas from Touhou Little Maid's JEI coordinates.
- */
 public final class TouhouLittleMaidAltarCanvasFactory {
     private static final int WIDTH = 160;
     private static final int HEIGHT = 125;

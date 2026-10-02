@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Imports Confluence RecipeManager recipes, including Magic Lib's counted ingredients. */
+/** 导入时保留 Magic Lib 原料的数量要求。 */
 public final class ConfluenceRecipeImporter implements RecipeImportHandler {
     public static final ConfluenceRecipeImporter INSTANCE = new ConfluenceRecipeImporter();
     private ConfluenceRecipeImporter() {}

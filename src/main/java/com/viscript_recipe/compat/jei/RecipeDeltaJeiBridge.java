@@ -7,7 +7,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.Map;
 import java.util.Set;
 
-/** Keeps optional JEI classes out of the recipe synchronization and RPC layers. */
+/** 隔离可选的 JEI 类，避免同步和 RPC 层直接加载它们。 */
 public final class RecipeDeltaJeiBridge {
     private static final String JEI = "jei";
 

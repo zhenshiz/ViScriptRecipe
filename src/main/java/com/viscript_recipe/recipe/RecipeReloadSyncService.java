@@ -11,7 +11,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagNetworkSerialization;
 
-/** Coordinates full and incremental recipe synchronization without command-layer duplication. */
 public final class RecipeReloadSyncService {
     private RecipeReloadSyncService() {
     }

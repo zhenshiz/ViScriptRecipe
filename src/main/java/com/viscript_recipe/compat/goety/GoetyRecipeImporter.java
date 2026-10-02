@@ -13,9 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
-/**
- * Imports Goety's five JEI-backed recipe classes into editor-owned data.
- */
 public final class GoetyRecipeImporter implements RecipeImportHandler {
     public static final GoetyRecipeImporter INSTANCE = new GoetyRecipeImporter();
 

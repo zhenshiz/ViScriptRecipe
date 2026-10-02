@@ -21,9 +21,6 @@ import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.ArrayList;
 
-/**
- * Creates Mystical Agriculture recipe objects from editor-owned data.
- */
 public final class MysticalAgricultureRecipeFactory {
     private MysticalAgricultureRecipeFactory() {
     }

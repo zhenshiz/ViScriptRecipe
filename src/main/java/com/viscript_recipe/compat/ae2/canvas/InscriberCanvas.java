@@ -10,7 +10,6 @@ import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
 import static com.viscript_recipe.compat.ae2.canvas.Ae2CanvasFactory.*;
 
-/** Edits the middle ingredient, optional upper/lower presses, and the press consumption mode. */
 public class InscriberCanvas extends Ae2ItemRecipeCanvas<Ae2InscriberRecipeData> {
     public InscriberCanvas(NavigationView navigation, RecipeEntry entry) { super(navigation, entry); }
 

@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Persists an entropy state constraint, including native multiple-value and range matchers. */
+/** 保留原生状态约束的多值匹配和范围匹配语义。 */
 @Getter
 @Setter
 @Accessors(chain = true)

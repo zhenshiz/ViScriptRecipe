@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-/**缺失模组的配方数据会被原封不动地保存在这里，即使用编辑器编辑后保存也不会丢失。当缺少的模组再次加载后，数据还能正常加载*/
+/** 缺少兼容模组时原样保存配方数据，编辑保存后仍可在模组恢复加载时读取。 */
 @Getter
 @Setter
 @Accessors(chain = true)

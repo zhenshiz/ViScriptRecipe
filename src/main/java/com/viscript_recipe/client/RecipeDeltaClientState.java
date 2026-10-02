@@ -18,7 +18,6 @@ import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
 
 import java.util.*;
 
-/** Owns the client recipe revision and JEI reconciliation metadata for incremental reloads. */
 public final class RecipeDeltaClientState {
     private static long revision = -1;
     private static boolean fullSyncRequested;

@@ -85,11 +85,11 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
             case ITEM -> {
                 var stack = item.copyWithCount(1);
                 if (stack.isEmpty()) yield Ingredient.EMPTY;
-                // PotionItem's default instance is a water bottle, while a plain ingredient accepts every potion.
+                // PotionItem 的默认实例是水瓶，而普通物品原料接受所有药水，不能用默认实例限定匹配。
                 if (ItemStack.isSameItemSameComponents(stack, new ItemStack(stack.getItem()))) {
                     yield Ingredient.of(stack.getItem());
                 }
-                // DataComponentIngredient restores item defaults because its predicate cannot encode removals.
+                // DataComponentIngredient 无法编码组件删除，会恢复物品默认组件，因此删除语义需要专用原料。
                 if (stack.getComponentsPatch().entrySet().stream().anyMatch(component -> component.getValue().isEmpty())) {
                     yield new ComponentStackIngredient(stack).toVanilla();
                 }

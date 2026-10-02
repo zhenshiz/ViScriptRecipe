@@ -8,7 +8,6 @@ import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 
-/** Registers the six native JEI recipe editors only when Farm & Charm is installed. */
 @LDLRegister(registry = IModModule.ID, name = FarmCharmRecipeKind.MOD_ID, modID = FarmCharmRecipeKind.MOD_ID)
 public final class FarmCharmRecipeEditorTypes implements IModModule {
     private static boolean registered;

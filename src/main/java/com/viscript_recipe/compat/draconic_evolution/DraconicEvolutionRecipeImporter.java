@@ -26,7 +26,7 @@ public final class DraconicEvolutionRecipeImporter implements RecipeImportHandle
 
     @Override
     public boolean canImport(RecipeHolder<?> holder) {
-        // Custom IFusionRecipe implementations can override matching/ticking; don't replace those semantics.
+        // 自定义 IFusionRecipe 可能重写匹配或逐刻处理逻辑，不能用普通配方替换这些语义。
         return holder != null && holder.value().getClass() == FusionRecipe.class;
     }
 
@@ -63,12 +63,12 @@ public final class DraconicEvolutionRecipeImporter implements RecipeImportHandle
         } else if (custom instanceof CompoundIngredient compound) {
             for (var child : compound.children()) {
                 var imported = importIngredient(child);
-                // A counted ingredient inside a compound is not consumed like a counted DE catalyst.
+                // 复合原料内部的数量原料，与龙之进化带数量催化剂的消耗语义不同。
                 if (imported.isStackIngredient()) throw unsupported();
                 data.getAlternatives().addAll(imported.getAlternatives());
             }
         } else if (custom instanceof DataComponentIngredient components) {
-            // RecipeIngredient represents strict predicates as a component-aware ItemStack.
+            // RecipeIngredient 通过含数据组件的 ItemStack 表示严格匹配，无法保留非严格匹配语义。
             if (!components.isStrict()) throw unsupported();
             components.getItems().forEach(stack -> addStack(data, stack));
         } else if (custom instanceof ComponentStackIngredient components) {

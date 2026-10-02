@@ -21,16 +21,16 @@ import java.util.List;
 import static com.viscript_recipe.compat.goety.canvas.BrazierCanvas.useJeiCanvas;
 
 public class RitualCanvas extends RecipeCanvas<GoetyRitualRecipeData> {
-    static final UIElement typeIcon = new UIElement();
-    static final UIElement researchIcon = new UIElement();
-    static final Label infoLabel = emptyLabel();
-    static {
+    private final UIElement typeIcon = new UIElement();
+    private final UIElement researchIcon = new UIElement();
+    private final Label infoLabel = emptyLabel();
+
+    public RitualCanvas(NavigationView navigationView, RecipeEntry entry) {
+        super(navigationView, entry);
         tooltip(typeIcon, "viscript_recipe.editor.goety.ritual.type_icon");
         tooltip(researchIcon, "viscript_recipe.editor.goety.ritual.research_scroll");
         BrazierCanvas.centerLabel(infoLabel);
     }
-
-    public RitualCanvas(NavigationView navigationView, RecipeEntry entry) { super(navigationView, entry); }
 
     @Override
     public void load() {

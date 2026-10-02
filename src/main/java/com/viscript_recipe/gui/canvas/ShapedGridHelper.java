@@ -17,7 +17,10 @@ public final class ShapedGridHelper {
         for (int row = 0; row < Math.min(height, pattern.size()); row++) {
             var line = pattern.get(row);
             for (int col = 0; col < Math.min(width, line.length()); col++) {
-                canvas.loadIngredientSlot(row * storageWidth + col, ingredientForSymbol(map, line.charAt(col)));
+                var symbol = line.charAt(col);
+                var ingredient = ingredientForSymbol(map, symbol);
+                if (symbol != ' ' && ingredient.isEmpty()) canvas.containsUnsupportedIngredients = true;
+                canvas.loadIngredientSlot(row * storageWidth + col, ingredient);
             }
         }
     }
@@ -31,7 +34,6 @@ public final class ShapedGridHelper {
     private static RecipeIngredient ingredientForSymbol(HashMap<Character, RecipeIngredient> keys, char symbol) {
         if (symbol == ' ') return RecipeIngredient.empty();
         var ingredient = keys.getOrDefault(symbol, RecipeIngredient.empty());
-        if (ingredient.isEmpty()) RecipeCanvas.containsUnsupportedIngredients = true;
         return ingredient;
     }
 
@@ -71,22 +73,20 @@ public final class ShapedGridHelper {
         while (!pattern.isEmpty()) {
             if (pattern.getFirst().isBlank()) { pattern.removeFirst(); continue; }
             if (pattern.getLast().isBlank()) { pattern.removeLast(); continue; }
-            // 检查左边：所有行的第一个字符是否为空格
             boolean leftAllSpaces = true;
             for (String s : pattern) {
                 if (s.charAt(0) != ' ') { leftAllSpaces = false; break; }
             }
             if (leftAllSpaces) {
-                pattern.replaceAll(string -> string.substring(1)); // 去掉第一个字符
+                pattern.replaceAll(string -> string.substring(1));
                 continue;
             }
-            // 检查右边：所有行的最后一个字符是否为空格
             boolean rightAllSpaces = true;
             for (String s : pattern) {
                 if (s.charAt(s.length() - 1) != ' ') { rightAllSpaces = false; break; }
             }
             if (rightAllSpaces) {
-                pattern.replaceAll(s -> s.substring(0, s.length() - 1)); // 去掉最后一个字符
+                pattern.replaceAll(s -> s.substring(0, s.length() - 1));
                 continue;
             }
             break;

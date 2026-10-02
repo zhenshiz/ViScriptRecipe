@@ -15,7 +15,6 @@ import java.util.Map;
 import static com.viscript_recipe.compat.farm_and_charm.canvas.FarmCharmCanvasFactory.*;
 import static com.viscript_recipe.gui.views.PropertiesView.createItemStackConfigurator;
 
-/** Uses each native JEI layout with editable empty cells and preserves all ingredient alternatives. */
 public final class FarmCharmCanvas extends RecipeCanvas<FarmCharmRecipeData> {
     private final FarmCharmRecipeKind kind;
     private final Map<Integer, FarmCharmIngredientData> ingredients = new HashMap<>();
@@ -128,7 +127,7 @@ public final class FarmCharmCanvas extends RecipeCanvas<FarmCharmRecipeData> {
     public void save() {
         var inputs = new ArrayList<FarmCharmIngredientData>();
         for (int i = 0; i < kind.inputCount(); i++) inputs.add(saveInput(i));
-        // Keep invalid overflow data available for validation instead of silently dropping it.
+        // 保留超出容量的数据供校验，避免静默丢失原料。
         if (getData().getInputs().size() > kind.inputCount()) inputs.addAll(getData().getInputs().subList(kind.inputCount(), getData().getInputs().size()));
         getData().setInputs(inputs).setResult(getVisualOutput(0).getItem());
         if (kind.hasContainer()) getData().setContainer(getExtraItem(0));

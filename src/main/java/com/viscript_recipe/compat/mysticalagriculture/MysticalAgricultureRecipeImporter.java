@@ -19,9 +19,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
 
-/**
- * Imports the six Mystical Agriculture recipe serializer variants backed by Recipe Codecs.
- */
 public final class MysticalAgricultureRecipeImporter implements RecipeImportHandler {
     public static final MysticalAgricultureRecipeImporter INSTANCE = new MysticalAgricultureRecipeImporter();
 

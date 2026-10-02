@@ -29,7 +29,6 @@ public class IronArcaneAnvilCanvas extends RecipeCanvas<IronArcaneAnvilRecipeDat
 
     @Override
     public UIElement createCanvas() {
-        // 怎么还有没有jei就摆烂的canvas？
         if (!useJeiCanvas) return new UIElement().setDisplay(false);
         UIElement[] inputSlots = new UIElement[2];
         for (int index = 0; index < 2; index++) {

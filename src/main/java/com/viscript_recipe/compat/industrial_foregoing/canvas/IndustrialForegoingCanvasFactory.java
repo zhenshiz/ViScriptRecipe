@@ -9,7 +9,6 @@ import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import net.minecraft.network.chat.Component;
 
-/** Creates JEI-proportioned Industrial Foregoing recipe canvases. */
 public final class IndustrialForegoingCanvasFactory {
     private IndustrialForegoingCanvasFactory() {}
 
@@ -83,7 +82,7 @@ public final class IndustrialForegoingCanvasFactory {
         }).style(style -> style.backgroundTexture(Sprites.BORDER_DARK)).addChild(slot);
     }
 
-    /**与其它模组画布一致的居中包裹层，避免固定尺寸面板贴左侧布局*/
+    /** 固定尺寸面板需要额外的居中容器，避免贴左布局。 */
     private static UIElement centered(UIElement panel) {
         return RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);

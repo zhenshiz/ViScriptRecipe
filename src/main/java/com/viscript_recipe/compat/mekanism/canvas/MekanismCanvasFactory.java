@@ -25,7 +25,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-/** Builds JEI-proportioned Mekanism recipe previews for every supported recipe codec. */
 public final class MekanismCanvasFactory {
     private static final String MEKANISM_MOD_ID = "mekanism";
     private static final String JEI_MOD_ID = "jei";
@@ -270,7 +269,7 @@ public final class MekanismCanvasFactory {
 
         private void layoutChemicalMixing(boolean pigmentMixing) {
             resizePanel(CHEMICAL_MIXING_WIDTH, CHEMICAL_MIXING_HEIGHT);
-            // JEI's category offset (-3, -3) plus the four-pixel recipe background padding.
+            // JEI 分类偏移为 (-3, -3)，另加配方背景的 4 像素内边距。
             placeWithChemicalOffset(chemicalInputs[0].element(), 25, 13, TANK_WIDTH, TANK_HEIGHT);
             placeWithChemicalOffset(chemicalInputs[1].element(), 133, 13, TANK_WIDTH, TANK_HEIGHT);
             placeWithChemicalOffset(chemicalOutputs[0].element(), 79, 4, TANK_WIDTH, TANK_HEIGHT);
@@ -347,7 +346,7 @@ public final class MekanismCanvasFactory {
 
         private void layoutNucleosynthesizing() {
             resizePanel(WIDTH, NUCLEOSYNTHESIZER_HEIGHT);
-            // Mekanism JEI uses xOffset=-6 and yOffset=-18; the four-pixel canvas padding is included here.
+            // Mekanism JEI 偏移为 (-6, -18)，此处已包含画布的 4 像素内边距。
             place(nucleosynthesizerChemicalInput.element(), 3, 4,
                     SMALL_MED_GAUGE_WIDTH, SMALL_MED_GAUGE_HEIGHT);
             place(statusScreen, 43, 4, 104, 68);
@@ -374,7 +373,7 @@ public final class MekanismCanvasFactory {
 
         private void layoutMetallurgicInfusing() {
             resizePanel(METALLURGIC_INFUSING_WIDTH, METALLURGIC_INFUSING_HEIGHT);
-            // Category offset (-5, -16) plus the four-pixel JEI recipe background padding.
+            // JEI 分类偏移为 (-5, -16)，另加配方背景的 4 像素内边距。
             place(metallurgicChemicalInput.element(), 6, 3, 6, 54);
             place(chemicalCatalystSlot, 15, 22);
             place(itemInputs[0], 49, 30);

@@ -45,7 +45,7 @@ public final class DraconicEvolutionRecipeFactory {
         }
         var alternatives = data.getAlternatives().stream().filter(value -> !value.isEmpty()).toList();
         if (data.isStackIngredient() || data.getCount() > 1) {
-            // DE's counted catalyst must stay a top-level StackIngredient: completeCraft checks its class.
+            // 带数量的催化剂必须以 StackIngredient 作为最外层原料，completeCraft 会检查其类型。
             if (alternatives.size() == 1 && alternatives.getFirst().getKind() == IngredientValueKind.TAG) {
                 var tag = TagKey.create(Registries.ITEM, alternatives.getFirst().getTag());
                 return StackIngredient.of(data.getCount(), BuiltInRegistries.ITEM.getOrCreateTag(tag));

@@ -15,7 +15,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持 22 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised 和 Confluence: Otherworld。
+- 支持 23 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO 和 Confluence: Otherworld。
 
 ## 基本信息
 
@@ -55,6 +55,7 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Applied Energistics 2 | `ae2` | 支持 |
 | Draconic Evolution | `draconicevolution` | 支持 |
 | Eidolon: Repraised | `eidolon_repraised` | 支持 |
+| Ender IO | `enderio` | 支持 |
 | Extended Crafting | `extendedcrafting` | 支持 |
 | Ars Nouveau | `ars_nouveau` | 支持 |
 | Kaleidoscope Cookery | `kaleidoscope_cookery` | 支持 |
@@ -380,6 +381,29 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 东方女仆祭坛支持材料、灵力消耗、结果、显示翻译键和输出实体类型。输出实体使用自动补全选择；普通物品输出使用 `minecraft:item`，也可选择女仆、闪电等祭坛原生支持的实体类型。
 
+### Ender IO (`enderio`)
+
+基于 Minecraft 1.21.1 的 Ender IO `8.2.12-beta`，支持以下十类原生配方的创建、导入、编辑和覆盖：
+
+| 配方 | 编辑内容 |
+| --- | --- |
+| 火焰合成 | 基底方块/方块标签、允许维度、燃烧后方块、多产物概率和掉落数量范围 |
+| 合金冶炼 | 最多三个带数量的原料、产物、能量、经验和单原料熔炼模式 |
+| SAG 磨粉 | 原料、最多四个物品/标签产物、概率、可选产物和研磨球加成模式 |
+| 切片拼接 | 六个固定位置的原料、产物和能量；斧与剪刀显示为机器工具 |
+| 灵魂绑定 | 原料、产物、能量、经验等级、实体/生物分类/灵魂数据集条件和组件复制 |
+| 储罐 | 物品输入输出、带数量的流体或流体标签、灌入/倒出模式 |
+| 发酵槽 | 两个试剂标签、输入输出流体和发酵时间 |
+| 天气变更 | 消耗流体和目标天气 |
+| 附魔器 | 原料及数量、附魔 ID、费用倍率和等级预览 |
+| 灵魂实体有序合成 | 合成网格、产物、配方书分组；保留原生灵魂传递行为 |
+
+导入会保留多候选原料、特殊灵魂/组件原料和复合流体条件。特殊条件以只读预览显示，选择“替换为普通原料”才会清除。附魔器的 JEI 页面按附魔等级生成，修改时会完整重建 JEI 以刷新全部等级。
+
+JEI 的灵魂引擎页面读取 `eio_soul/engine` 实体燃料数据，并非 `RecipeManager` 配方，本次不将其注册为配方编辑类型。涂装机在该版本未注册 JEI 配方分类。上游原版工作台/熔炉配方继续使用 VSR 的原版编辑器。
+
+版本由根目录 `gradle.properties` 的 `ender_io_version` 统一管理；依赖声明位于 VSR 的 `build.gradle`。Ender Core 仅作为编译依赖，运行时由 Ender IO 自带的内嵌 JAR 提供。
+
 ### Eidolon: Repraised (`eidolon_repraised`)
 
 | 工作站 | 支持的配方类型 |
@@ -422,7 +446,7 @@ Avaritia 合成台在编辑器里统一为一个工作台，通过配方数据�
 
 编辑器支持输入配方 ID 导入当前世界已经加载的配方。导入时会按已注册的导入器判断配方是否兼容；兼容时自动生成对应类型的 `RecipeEntry`，不兼容时会显示错误提示。
 
-当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
+当前导入器覆盖原版配方，以及已安装联动模组中的 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO 和 Confluence: Otherworld 的上述已实现类型。导入优先使用对应模组的专用导入器，而不是按 JSON 字段猜测配方结构。
 
 部分复杂自定义材料表达可能无法导入，例如导入器暂不认识的自定义 Ingredient 或 FluidIngredient。遇到这种情况时，仍然可以手动在编辑器中重新创建配方。
 

@@ -82,7 +82,6 @@ public class WorkBenchView extends View {
             layout.heightPercent(100);
             layout.minWidth(0);
             layout.minHeight(0);
-//            layout.alignItems(AlignItems.CENTER);
             layout.justifyContent(AlignContent.CENTER);
         });
         return new RecipeCanvasViewport(canvasStack);
@@ -115,7 +114,7 @@ public class WorkBenchView extends View {
             statusLabel.setText(Component.empty());
             return;
         }
-        var warningKey = canvas != null && RecipeCanvas.containsUnsupportedIngredients
+        var warningKey = canvas != null && canvas.containsUnsupportedIngredients
                 ? "viscript_recipe.editor.status.unsupported_ingredient"
                 : "viscript_recipe.editor.status.ready";
         statusLabel.setText(Component.translatable(

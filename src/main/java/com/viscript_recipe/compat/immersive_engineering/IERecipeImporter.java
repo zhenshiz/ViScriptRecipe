@@ -23,7 +23,6 @@ import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
 import java.util.ArrayList;
 
-/** Imports native IE recipes while keeping their machine-specific parameters editable. */
 public final class IERecipeImporter implements RecipeImportHandler {
     public static final IERecipeImporter INSTANCE = new IERecipeImporter();
     private IERecipeImporter() {}

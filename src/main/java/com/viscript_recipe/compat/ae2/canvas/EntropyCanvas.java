@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import static com.viscript_recipe.compat.ae2.canvas.Ae2CanvasFactory.*;
 
-/** Edits entropy block/fluid conditions, output states, and additional item drops. */
 public class EntropyCanvas extends RecipeCanvas<Ae2EntropyRecipeData> {
     private static final int PAGE_SIZE = 8;
     private int page;

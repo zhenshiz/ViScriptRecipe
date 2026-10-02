@@ -21,7 +21,7 @@ import java.util.Map;
 import static com.viscript_recipe.gui.views.PropertiesView.createItemStackConfigurator;
 import static com.viscript_recipe.gui.views.PropertiesView.removeCountConfig;
 
-/** Edits one selected alternative while retaining the other accepted items, tags and component predicates. */
+/** 修改选中候选项时，保留其他物品、标签和数据组件匹配条件。 */
 public abstract class EidolonItemCanvas<D extends IVSRecipeData> extends RecipeCanvas<D> {
     protected final Map<Integer, EidolonIngredientData> inputs = new LinkedHashMap<>();
     private final Map<Integer, Integer> alternatives = new HashMap<>();
