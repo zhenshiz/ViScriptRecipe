@@ -23,7 +23,6 @@ import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeB
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.viscript_lib.util.math.Clamp;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
@@ -48,38 +47,36 @@ import java.util.List;
 import java.util.Objects;
 
 public final class CreateRecipeFactory {
-    private static final ResourceLocation DUMMY_RECIPE_ID = ViScriptRecipe.id("create_processing_preview");
-
     private CreateRecipeFactory() {
     }
 
-    public static Recipe<?> compileProcessing(ResourceLocation type, CreateProcessingRecipeData data) {
+    public static Recipe<?> compileProcessing(ResourceLocation recipeId, ResourceLocation type, CreateProcessingRecipeData data) {
         var kind = CreateProcessingKind.byType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported Create processing recipe type: " + type));
         return switch (kind) {
-            case CRUSHING -> compileStandard(kind, data, CrushingRecipe::new);
-            case MILLING -> compileStandard(kind, data, MillingRecipe::new);
-            case CUTTING -> compileStandard(kind, data, CuttingRecipe::new);
-            case BLOCK_CUTTING -> compileBlockCutting(kind, data).get(0);
-            case AUTO_PACKING -> compileAutoPacking(kind, data);
-            case PRESSING -> compileStandard(kind, data, PressingRecipe::new);
-            case SANDPAPER_POLISHING -> compileStandard(kind, data, SandPaperPolishingRecipe::new);
-            case BLASTING -> compileCooking(kind, data, SmeltingRecipe::new);
-            case SPLASHING -> compileStandard(kind, data, SplashingRecipe::new);
-            case HAUNTING -> compileStandard(kind, data, HauntingRecipe::new);
-            case SMOKING -> compileCooking(kind, data, SmokingRecipe::new);
-            case FILLING -> compileStandard(kind, data, FillingRecipe::new);
-            case EMPTYING -> compileStandard(kind, data, EmptyingRecipe::new);
-            case MIXING -> compileStandard(kind, data, MixingRecipe::new);
-            case AUTOMATIC_SHAPELESS -> compileAutomaticShapeless(kind, data);
-            case AUTOMATIC_BREWING -> compileStandard(kind, data, MixingRecipe::new);
-            case COMPACTING -> compileStandard(kind, data, CompactingRecipe::new);
-            case DEPLOYING -> compileItemApplication(kind, data, DeployerApplicationRecipe::new);
-            case ITEM_APPLICATION -> compileItemApplication(kind, data, ManualApplicationRecipe::new);
+            case CRUSHING -> compileStandard(recipeId, kind, data, CrushingRecipe::new);
+            case MILLING -> compileStandard(recipeId, kind, data, MillingRecipe::new);
+            case CUTTING -> compileStandard(recipeId, kind, data, CuttingRecipe::new);
+            case BLOCK_CUTTING -> compileBlockCutting(recipeId, kind, data).get(0);
+            case AUTO_PACKING -> compileAutoPacking(recipeId, kind, data);
+            case PRESSING -> compileStandard(recipeId, kind, data, PressingRecipe::new);
+            case SANDPAPER_POLISHING -> compileStandard(recipeId, kind, data, SandPaperPolishingRecipe::new);
+            case BLASTING -> compileCooking(recipeId, kind, data, SmeltingRecipe::new);
+            case SPLASHING -> compileStandard(recipeId, kind, data, SplashingRecipe::new);
+            case HAUNTING -> compileStandard(recipeId, kind, data, HauntingRecipe::new);
+            case SMOKING -> compileCooking(recipeId, kind, data, SmokingRecipe::new);
+            case FILLING -> compileStandard(recipeId, kind, data, FillingRecipe::new);
+            case EMPTYING -> compileStandard(recipeId, kind, data, EmptyingRecipe::new);
+            case MIXING -> compileStandard(recipeId, kind, data, MixingRecipe::new);
+            case AUTOMATIC_SHAPELESS -> compileAutomaticShapeless(recipeId, kind, data);
+            case AUTOMATIC_BREWING -> compileStandard(recipeId, kind, data, MixingRecipe::new);
+            case COMPACTING -> compileStandard(recipeId, kind, data, CompactingRecipe::new);
+            case DEPLOYING -> compileItemApplication(recipeId, kind, data, DeployerApplicationRecipe::new);
+            case ITEM_APPLICATION -> compileItemApplication(recipeId, kind, data, ManualApplicationRecipe::new);
         };
     }
 
-    public static Recipe<?> compileSequencedAssembly(CreateSequencedAssemblyRecipeData data) {
+    public static Recipe<?> compileSequencedAssembly(ResourceLocation recipeId, CreateSequencedAssemblyRecipeData data) {
         var ingredient = compileIngredient(data.getIngredient());
         if (ingredient.isEmpty()) {
             throw new IllegalArgumentException("Create sequenced assembly recipe must have an ingredient");
@@ -94,7 +91,7 @@ public final class CreateRecipeFactory {
             throw new IllegalArgumentException("Create sequenced assembly recipe must have at least one step");
         }
 
-        var builder = new SequencedAssemblyRecipeBuilder(DUMMY_RECIPE_ID)
+        var builder = new SequencedAssemblyRecipeBuilder(recipeId)
                 .require(ingredient)
                 .transitionTo(transitionalItem.getItem())
                 .loops(Math.max(1, data.getLoops()));
@@ -150,9 +147,8 @@ public final class CreateRecipeFactory {
         }
     }
 
-    private static Recipe<?> compileStandard(CreateProcessingKind kind, CreateProcessingRecipeData data,
-                                             ProcessingRecipeBuilder.ProcessingRecipeFactory<? extends ProcessingRecipe<?>> factory) {
-        var builder = new ProcessingRecipeBuilder<>(factory, DUMMY_RECIPE_ID);
+    private static Recipe<?> compileStandard(ResourceLocation recipeId, CreateProcessingKind kind, CreateProcessingRecipeData data, ProcessingRecipeBuilder.ProcessingRecipeFactory<? extends ProcessingRecipe<?>> factory) {
+        var builder = new ProcessingRecipeBuilder<>(factory, recipeId);
         builder.withItemIngredients(compileItemIngredients(data, kind.maxItemInputs()));
         builder.withFluidIngredients(compileFluidIngredients(data, kind.maxFluidInputs()));
         builder.withItemOutputs(compileItemOutputs(data, kind.maxItemOutputs()));
@@ -168,8 +164,7 @@ public final class CreateRecipeFactory {
         return builder.build();
     }
 
-    private static Recipe<?> compileCooking(CreateProcessingKind kind, CreateProcessingRecipeData data,
-                                            CookingRecipeData.Factory factory) {
+    private static Recipe<?> compileCooking(ResourceLocation recipeId, CreateProcessingKind kind, CreateProcessingRecipeData data, CookingRecipeData.Factory factory) {
         var ingredients = compileItemIngredients(data, kind.maxItemInputs());
         if (ingredients.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item input");
@@ -178,10 +173,10 @@ public final class CreateRecipeFactory {
         if (outputs.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
         }
-        return factory.create(ViScriptRecipe.placeholder, "", CookingBookCategory.MISC, ingredients.get(0), outputs.get(0).getStack().copy(), 0, Math.max(1, data.getProcessingTime()));
+        return factory.create(recipeId, "", CookingBookCategory.MISC, ingredients.get(0), outputs.get(0).getStack().copy(), 0, Math.max(1, data.getProcessingTime()));
     }
 
-    private static List<Recipe<?>> compileBlockCutting(CreateProcessingKind kind, CreateProcessingRecipeData data) {
+    private static List<Recipe<?>> compileBlockCutting(ResourceLocation recipeId, CreateProcessingKind kind, CreateProcessingRecipeData data) {
         var ingredients = compileItemIngredients(data, kind.maxItemInputs());
         if (ingredients.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item input");
@@ -192,12 +187,12 @@ public final class CreateRecipeFactory {
         }
         var recipes = new ArrayList<Recipe<?>>();
         for (var output : outputs) {
-            recipes.add(new ViscriptStonecutterRecipe("", ingredients.get(0), output.getStack().copy(), true));
+            recipes.add(new ViscriptStonecutterRecipe(recipeId, "", ingredients.get(0), output.getStack().copy(), true));
         }
         return recipes;
     }
 
-    private static Recipe<?> compileAutoPacking(CreateProcessingKind kind, CreateProcessingRecipeData data) {
+    private static Recipe<?> compileAutoPacking(ResourceLocation recipeId, CreateProcessingKind kind, CreateProcessingRecipeData data) {
         var ingredients = compileItemIngredients(data, kind.maxItemInputs());
         if (ingredients.size() != 4 && ingredients.size() != 9) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have 4 or 9 item inputs");
@@ -209,10 +204,10 @@ public final class CreateRecipeFactory {
         if (outputs.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
         }
-        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.get(0).getStack().copy(), ingredients, false);
+        return new ViscriptShapelessRecipe(recipeId, "", CraftingBookCategory.MISC, outputs.get(0).getStack().copy(), ingredients, false);
     }
 
-    private static Recipe<?> compileAutomaticShapeless(CreateProcessingKind kind, CreateProcessingRecipeData data) {
+    private static Recipe<?> compileAutomaticShapeless(ResourceLocation recipeId, CreateProcessingKind kind, CreateProcessingRecipeData data) {
         var ingredients = compileItemIngredients(data, kind.maxItemInputs());
         if (ingredients.size() < 2) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have at least 2 item inputs");
@@ -221,12 +216,11 @@ public final class CreateRecipeFactory {
         if (outputs.isEmpty()) {
             throw new IllegalArgumentException("Create " + kind.typeId() + " recipe must have an item output");
         }
-        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, outputs.get(0).getStack().copy(), ingredients, false);
+        return new ViscriptShapelessRecipe(recipeId, "", CraftingBookCategory.MISC, outputs.get(0).getStack().copy(), ingredients, false);
     }
 
-    private static Recipe<?> compileItemApplication(CreateProcessingKind kind, CreateProcessingRecipeData data,
-                                                    ProcessingRecipeBuilder.ProcessingRecipeFactory<? extends ItemApplicationRecipe> factory) {
-        var builder = new ProcessingRecipeBuilder<>(factory, DUMMY_RECIPE_ID);
+    private static Recipe<?> compileItemApplication(ResourceLocation recipeId, CreateProcessingKind kind, CreateProcessingRecipeData data, ProcessingRecipeBuilder.ProcessingRecipeFactory<? extends ItemApplicationRecipe> factory) {
+        var builder = new ProcessingRecipeBuilder<>(factory, recipeId);
         builder.withItemIngredients(compileItemIngredients(data, kind.maxItemInputs()));
         builder.withItemOutputs(compileItemOutputs(data, kind.maxItemOutputs()));
         if (data.isKeepHeldItem()) {

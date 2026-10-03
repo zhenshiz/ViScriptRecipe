@@ -24,8 +24,8 @@ public class AvaritiaCompressorRecipeData implements IVSRecipeData {
     private int timeCost = 240;
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return AvaritiaRecipeFactory.compileCompressor(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return AvaritiaRecipeFactory.compileCompressor(recipeId, this);
     }
 
     @Override

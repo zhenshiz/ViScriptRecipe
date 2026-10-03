@@ -1,6 +1,6 @@
 package com.viscript_recipe.recipe.vanilla;
 
-import com.viscript_recipe.ViScriptRecipe;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
@@ -8,8 +8,8 @@ import net.minecraft.world.item.crafting.StonecutterRecipe;
 public class ViscriptStonecutterRecipe extends StonecutterRecipe {
     private final boolean showNotification;
 
-    public ViscriptStonecutterRecipe(String group, Ingredient ingredient, ItemStack result, boolean showNotification) {
-        super(ViScriptRecipe.placeholder, group, ingredient, result);
+    public ViscriptStonecutterRecipe(ResourceLocation recipeId, String group, Ingredient ingredient, ItemStack result, boolean showNotification) {
+        super(recipeId, group, ingredient, result);
         this.showNotification = showNotification;
     }
 

@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.vanilla.ShapedRecipePattern;
@@ -41,7 +40,7 @@ public class ShapedCraftingRecipeData implements IVSRecipeData {
     public String getDataName() {return "shaped";}
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         if (pattern.isEmpty()) {
             throw new IllegalArgumentException("Shaped recipe pattern cannot be empty");
         }
@@ -55,8 +54,8 @@ public class ShapedCraftingRecipeData implements IVSRecipeData {
         }
         var compiledRemainders = remainders == null ? List.<CraftingRemainderRule>of() : remainders;
         if (compiledRemainders.stream().anyMatch(rule -> !rule.isDefault())) {
-            return new ViscriptShapedRecipe("", CraftingBookCategory.MISC, pattern1, result.copy(), showNotification, compiledRemainders);
+            return new ViscriptShapedRecipe(recipeId, "", CraftingBookCategory.MISC, pattern1, result.copy(), showNotification, compiledRemainders);
         }
-        return new ShapedRecipe(ViScriptRecipe.placeholder, "", CraftingBookCategory.MISC, pattern1.width(), pattern1.height(), pattern1.ingredients(), result.copy(), showNotification);
+        return new ShapedRecipe(recipeId, "", CraftingBookCategory.MISC, pattern1.width(), pattern1.height(), pattern1.ingredients(), result.copy(), showNotification);
     }
 }

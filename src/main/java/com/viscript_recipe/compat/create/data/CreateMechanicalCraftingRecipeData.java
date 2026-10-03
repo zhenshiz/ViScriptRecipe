@@ -3,7 +3,6 @@ package com.viscript_recipe.compat.create.data;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.simibubi.create.content.kinetics.crafter.MechanicalCraftingRecipe;
 import com.viscript_lib.util.math.Clamp;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.vanilla.ShapedKeyEntry;
@@ -54,7 +53,7 @@ public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
     }
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         var normalizedPattern = normalizedPattern();
         if (normalizedPattern.stream().allMatch(String::isBlank)) {
             throw new IllegalArgumentException("Mechanical crafting recipe pattern cannot be empty");
@@ -68,7 +67,7 @@ public class CreateMechanicalCraftingRecipeData implements IVSRecipeData {
         }
         ShapedRecipePattern pattern1 = ShapedRecipePattern.of(compiledKey, normalizedPattern);
         return new MechanicalCraftingRecipe(
-                ViScriptRecipe.placeholder, "",
+                recipeId, "",
                 pattern1.width(), pattern1.height(), pattern1.ingredients(),
                 result.copy(),
                 acceptMirrored

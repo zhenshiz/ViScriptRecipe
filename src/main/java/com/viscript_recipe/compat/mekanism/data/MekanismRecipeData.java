@@ -57,8 +57,8 @@ public class MekanismRecipeData implements IVSRecipeData {
     private long energyOutput = 1000;
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return MekanismRecipeFactory.compile(type, this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return MekanismRecipeFactory.compile(recipeId, type, this);
     }
 
     @Override

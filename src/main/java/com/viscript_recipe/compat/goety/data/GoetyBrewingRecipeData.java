@@ -31,7 +31,7 @@ public class GoetyBrewingRecipeData implements IVSRecipeData {
     private ResourceLocation entity = new ResourceLocation("zombie");
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return GoetyRecipeFactory.compileBrewing(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return GoetyRecipeFactory.compileBrewing(recipeId, this);
     }
 }

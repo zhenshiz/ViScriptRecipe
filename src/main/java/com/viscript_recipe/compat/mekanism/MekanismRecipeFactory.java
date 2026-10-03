@@ -1,6 +1,5 @@
 package com.viscript_recipe.compat.mekanism;
 
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.mekanism.data.*;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.FluidIngredientKind;
@@ -49,7 +48,7 @@ public final class MekanismRecipeFactory {
      * @throws IllegalArgumentException if required input, output, amount, or registry data is invalid
      */
     @SuppressWarnings("all")
-    public static Recipe<?> compile(ResourceLocation type, MekanismRecipeData data) {
+    public static Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type, MekanismRecipeData data) {
         var kind = MekanismRecipeKind.byType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported Mekanism recipe type: " + type));
         var itemInput = kind.itemInputs() > 0 ? itemIngredient(data.getItemInput(), data.getItemInput().getCount(), "item input") : null;
@@ -59,37 +58,37 @@ public final class MekanismRecipeFactory {
         var extraChemicalInput = kind.chemicalInputs() > 1 ? chemicalIngredient(data.getExtraChemicalInput(), "extra chemical input") : null;
 
         return switch (kind) {
-            case ACTIVATING -> new ActivatingIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
-            case CENTRIFUGING -> new CentrifugingIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
-            case CRYSTALLIZING -> new ChemicalCrystallizerIRecipe(ViScriptRecipe.placeholder, chemicalInput, itemOutput(data));
-            case DISSOLUTION -> new ChemicalDissolutionIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, chemicalOutput(data.getChemicalOutput(), false));
-            case CHEMICAL_INFUSING -> new ChemicalInfuserIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (ChemicalStackIngredient.GasStackIngredient) extraChemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
-            case OXIDIZING -> new ChemicalOxidizerIRecipe(ViScriptRecipe.placeholder, itemInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
-            case COMBINING -> new CombinerIRecipe(ViScriptRecipe.placeholder, itemInput, extraItemInput, itemOutput(data));
-            case COMPRESSING -> new CompressingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
-            case CRUSHING -> new CrushingIRecipe(ViScriptRecipe.placeholder, itemInput, itemOutput(data));
-            case SEPARATING -> new ElectrolysisIRecipe(ViScriptRecipe.placeholder, fluidInput, FloatingLong.create(positive(data.getEnergyMultiplier(), "energy multiplier")), (GasStack) chemicalOutput(data.getChemicalOutput(), false), (GasStack) chemicalOutput(data.getSecondaryChemicalOutput(), false));
-            case ENERGY_CONVERSION -> new EnergyConversionIRecipe(ViScriptRecipe.placeholder, itemInput, FloatingLong.create(positive(data.getEnergyOutput(), "energy output")));
-            case ENRICHING -> new EnrichingIRecipe(ViScriptRecipe.placeholder, itemInput, itemOutput(data));
-            case WASHING -> new FluidSlurryToSlurryIRecipe(ViScriptRecipe.placeholder, fluidInput, (ChemicalStackIngredient.SlurryStackIngredient) chemicalInput, (SlurryStack) chemicalOutput(data.getChemicalOutput(), false));
-            case EVAPORATING -> new FluidToFluidIRecipe(ViScriptRecipe.placeholder, fluidInput, fluidOutput(data));
-            case GAS_CONVERSION -> new GasConversionIRecipe(ViScriptRecipe.placeholder, itemInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
-            case INFUSION_CONVERSION -> new InfusionConversionIRecipe(ViScriptRecipe.placeholder, itemInput, (InfusionStack) chemicalOutput(data.getChemicalOutput(), false));
-            case INJECTING -> new InjectingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
-            case METALLURGIC_INFUSING -> new MetallurgicInfuserIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.InfusionStackIngredient) chemicalInput, itemOutput(data));
-            case NUCLEOSYNTHESIZING -> new NucleosynthesizingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data), positive(data.getDuration(), "duration"));
+            case ACTIVATING -> new ActivatingIRecipe(recipeId, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case CENTRIFUGING -> new CentrifugingIRecipe(recipeId, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case CRYSTALLIZING -> new ChemicalCrystallizerIRecipe(recipeId, chemicalInput, itemOutput(data));
+            case DISSOLUTION -> new ChemicalDissolutionIRecipe(recipeId, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, chemicalOutput(data.getChemicalOutput(), false));
+            case CHEMICAL_INFUSING -> new ChemicalInfuserIRecipe(recipeId, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, (ChemicalStackIngredient.GasStackIngredient) extraChemicalInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case OXIDIZING -> new ChemicalOxidizerIRecipe(recipeId, itemInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case COMBINING -> new CombinerIRecipe(recipeId, itemInput, extraItemInput, itemOutput(data));
+            case COMPRESSING -> new CompressingIRecipe(recipeId, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
+            case CRUSHING -> new CrushingIRecipe(recipeId, itemInput, itemOutput(data));
+            case SEPARATING -> new ElectrolysisIRecipe(recipeId, fluidInput, FloatingLong.create(positive(data.getEnergyMultiplier(), "energy multiplier")), (GasStack) chemicalOutput(data.getChemicalOutput(), false), (GasStack) chemicalOutput(data.getSecondaryChemicalOutput(), false));
+            case ENERGY_CONVERSION -> new EnergyConversionIRecipe(recipeId, itemInput, FloatingLong.create(positive(data.getEnergyOutput(), "energy output")));
+            case ENRICHING -> new EnrichingIRecipe(recipeId, itemInput, itemOutput(data));
+            case WASHING -> new FluidSlurryToSlurryIRecipe(recipeId, fluidInput, (ChemicalStackIngredient.SlurryStackIngredient) chemicalInput, (SlurryStack) chemicalOutput(data.getChemicalOutput(), false));
+            case EVAPORATING -> new FluidToFluidIRecipe(recipeId, fluidInput, fluidOutput(data));
+            case GAS_CONVERSION -> new GasConversionIRecipe(recipeId, itemInput, (GasStack) chemicalOutput(data.getChemicalOutput(), false));
+            case INFUSION_CONVERSION -> new InfusionConversionIRecipe(recipeId, itemInput, (InfusionStack) chemicalOutput(data.getChemicalOutput(), false));
+            case INJECTING -> new InjectingIRecipe(recipeId, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
+            case METALLURGIC_INFUSING -> new MetallurgicInfuserIRecipe(recipeId, itemInput, (ChemicalStackIngredient.InfusionStackIngredient) chemicalInput, itemOutput(data));
+            case NUCLEOSYNTHESIZING -> new NucleosynthesizingIRecipe(recipeId, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data), positive(data.getDuration(), "duration"));
 
-            case PAINTING -> new PaintingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.PigmentStackIngredient) chemicalInput, itemOutput(data));
-            case PIGMENT_EXTRACTING -> new PigmentExtractingIRecipe(ViScriptRecipe.placeholder, itemInput, (PigmentStack) chemicalOutput(data.getChemicalOutput(), false));
-            case PIGMENT_MIXING -> new PigmentMixingIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.PigmentStackIngredient) chemicalInput, (ChemicalStackIngredient.PigmentStackIngredient) extraChemicalInput, (PigmentStack) chemicalOutput(data.getChemicalOutput(), false));
-            case REACTION -> new PressurizedReactionIRecipe(ViScriptRecipe.placeholder, itemInput, fluidInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, FloatingLong.create(positive(data.getEnergyRequired(), "energy required")), positive(data.getDuration(), "duration"), optionalItemOutput(data.getItemOutput()), (GasStack) chemicalOutput(data.getChemicalOutput(), true));
-            case PURIFYING -> new PurifyingIRecipe(ViScriptRecipe.placeholder, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
-            case CONDENSENTRATING -> new RotaryIRecipe(ViScriptRecipe.placeholder, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, fluidOutput(data));
-            case DECONDENSENTRATING -> new RotaryIRecipe(ViScriptRecipe.placeholder, fluidInput,
+            case PAINTING -> new PaintingIRecipe(recipeId, itemInput, (ChemicalStackIngredient.PigmentStackIngredient) chemicalInput, itemOutput(data));
+            case PIGMENT_EXTRACTING -> new PigmentExtractingIRecipe(recipeId, itemInput, (PigmentStack) chemicalOutput(data.getChemicalOutput(), false));
+            case PIGMENT_MIXING -> new PigmentMixingIRecipe(recipeId, (ChemicalStackIngredient.PigmentStackIngredient) chemicalInput, (ChemicalStackIngredient.PigmentStackIngredient) extraChemicalInput, (PigmentStack) chemicalOutput(data.getChemicalOutput(), false));
+            case REACTION -> new PressurizedReactionIRecipe(recipeId, itemInput, fluidInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, FloatingLong.create(positive(data.getEnergyRequired(), "energy required")), positive(data.getDuration(), "duration"), optionalItemOutput(data.getItemOutput()), (GasStack) chemicalOutput(data.getChemicalOutput(), true));
+            case PURIFYING -> new PurifyingIRecipe(recipeId, itemInput, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, itemOutput(data));
+            case CONDENSENTRATING -> new RotaryIRecipe(recipeId, (ChemicalStackIngredient.GasStackIngredient) chemicalInput, fluidOutput(data));
+            case DECONDENSENTRATING -> new RotaryIRecipe(recipeId, fluidInput,
                     (GasStack) chemicalOutput(data.getChemicalOutput(), false));
-            case SAWING -> new SawmillIRecipe(ViScriptRecipe.placeholder, itemInput, optionalItemOutput(data.getItemOutput()),
+            case SAWING -> new SawmillIRecipe(recipeId, itemInput, optionalItemOutput(data.getItemOutput()),
                     optionalItemOutput(data.getSecondaryItemOutput()), sawmillChance(data));
-            case SMELTING -> new SmeltingIRecipe(ViScriptRecipe.placeholder, itemInput, itemOutput(data));
+            case SMELTING -> new SmeltingIRecipe(recipeId, itemInput, itemOutput(data));
         };
     }
 

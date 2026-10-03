@@ -23,8 +23,6 @@ public class ViScriptRecipe {
     public static final String MOD_ID = "viscript_recipe";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final ResourceLocation placeholder = id("placeholder");
-
     public ViScriptRecipe() {
         RecipeDeltaServerEvents.register();
         PlayerUIMenuType.register(RecipeEditor.WINDOW_ID, ignored -> player -> {

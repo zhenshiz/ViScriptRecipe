@@ -1,11 +1,11 @@
 package com.viscript_recipe.compat.farmersdelight;
 
 import com.viscript_lib.util.math.Clamp;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -22,7 +22,7 @@ public final class FarmersDelightRecipeFactory {
     private FarmersDelightRecipeFactory() {
     }
 
-    public static Recipe<?> compileCooking(FarmerCookingPotRecipeData data) {
+    public static Recipe<?> compileCooking(ResourceLocation recipeId, FarmerCookingPotRecipeData data) {
         var ingredients = NonNullList.<Ingredient>create();
         for (var ingredientData : safeList(data.getIngredients())) {
             var ingredient = compileIngredient(ingredientData);
@@ -37,7 +37,7 @@ public final class FarmersDelightRecipeFactory {
             throw new IllegalArgumentException("Farmer's Delight cooking pot recipe cannot have more than 6 ingredients");
         }
         return new CookingPotRecipe(
-                ViScriptRecipe.placeholder, "", null,
+                recipeId, "", null,
                 ingredients,
                 requireItem(data.getResult(), "Farmer's Delight cooking pot result cannot be empty"),
                 data.getContainer() == null ? ItemStack.EMPTY : data.getContainer().copy(),
@@ -46,7 +46,7 @@ public final class FarmersDelightRecipeFactory {
         );
     }
 
-    public static Recipe<?> compileCutting(FarmerCuttingRecipeData data) {
+    public static Recipe<?> compileCutting(ResourceLocation recipeId, FarmerCuttingRecipeData data) {
         var input = compileIngredient(data.getInput());
         var tool = compileIngredient(data.getTool());
         if (input.isEmpty()) {
@@ -68,7 +68,7 @@ public final class FarmersDelightRecipeFactory {
         if (results.size() > CuttingBoardRecipe.MAX_RESULTS) {
             throw new IllegalArgumentException("Farmer's Delight cutting board recipe cannot have more than 4 results");
         }
-        return new CuttingBoardRecipe(ViScriptRecipe.placeholder, "", input, tool, results, sound(data));
+        return new CuttingBoardRecipe(recipeId, "", input, tool, results, sound(data));
     }
 
     public static Ingredient compileItemAbilityIngredient(String itemAbility) {

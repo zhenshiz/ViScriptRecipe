@@ -32,8 +32,8 @@ public class FarmerCuttingRecipeData implements IVSRecipeData {
     private ResourceLocation sound = new ResourceLocation("item.axe.strip");
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
-        return FarmersDelightRecipeFactory.compileCutting(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
+        return FarmersDelightRecipeFactory.compileCutting(recipeId, this);
     }
 
     @Override

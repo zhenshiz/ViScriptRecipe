@@ -2,7 +2,9 @@ package com.viscript_recipe.client;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
 import com.viscript_recipe.compat.jei.JeiShowcaseModeState;
+import com.viscript_recipe.compat.jei.RecipeDeltaJeiBridge;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import com.viscript_recipe.network.c2s.RecipeDeltaC2SPayload;
 import net.minecraft.client.Minecraft;
@@ -142,8 +144,9 @@ public final class RecipeDeltaClientState {
         SERVER_RECIPE_TYPE_HINTS.forEach(RecipeDeltaClientState::addRecipeTypeHint);
         DELTA_TOUCHED_IDS.addAll(affectedIds);
 
+        IronArcaneAnvilOverrideManager.replaceAll(snapshot.arcaneAnvilRecipes());
         JeiShowcaseModeState.updateFromServer(snapshot.showcaseOnly());
-/*        RecipeDeltaJeiBridge.applyDelta(
+        RecipeDeltaJeiBridge.applyDelta(
                 snapshot.revision(),
                 affectedIds,
                 oldRecipes,
@@ -151,7 +154,7 @@ public final class RecipeDeltaClientState {
                 oldEditorTypes,
                 Map.copyOf(MANAGED_EDITOR_TYPES),
                 snapshot.arcaneAnvilChanged()
-        );*/
+        );
         ViScriptRecipe.LOGGER.info(
                 "Applied recipe delta revision {}: {} removed, {} upserted",
                 snapshot.revision(),
@@ -169,8 +172,9 @@ public final class RecipeDeltaClientState {
         SERVER_RECIPE_TYPE_HINTS.putAll(snapshot.recipeTypeHints());
         DELTA_TOUCHED_IDS.clear();
         rebuildHistoricalHints();
+        IronArcaneAnvilOverrideManager.replaceAll(snapshot.arcaneAnvilRecipes());
         JeiShowcaseModeState.updateFromServer(snapshot.showcaseOnly());
-//        RecipeDeltaJeiBridge.applyBaseline();
+        RecipeDeltaJeiBridge.applyBaseline();
     }
 
     private static void requestFullSync() {

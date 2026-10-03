@@ -37,8 +37,8 @@ public class CreateSequencedAssemblyRecipeData implements IVSRecipeData {
     private int loops = 1;
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
-        return CreateRecipeFactory.compileSequencedAssembly(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
+        return CreateRecipeFactory.compileSequencedAssembly(recipeId, this);
     }
 
     @Override

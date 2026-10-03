@@ -65,8 +65,8 @@ public class AvaritiaTableRecipeData implements IVSRecipeData {
     }
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return AvaritiaRecipeFactory.compileTable(type, this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return AvaritiaRecipeFactory.compileTable(recipeId, type, this);
     }
 
     private static int clampSize(int value) {

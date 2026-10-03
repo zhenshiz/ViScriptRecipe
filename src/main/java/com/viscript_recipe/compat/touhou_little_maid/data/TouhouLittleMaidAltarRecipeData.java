@@ -46,8 +46,8 @@ public class TouhouLittleMaidAltarRecipeData implements IVSRecipeData {
     }
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
-        return TouhouLittleMaidRecipeFactory.compileAltar(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
+        return TouhouLittleMaidRecipeFactory.compileAltar(recipeId, this);
     }
 
     @Override

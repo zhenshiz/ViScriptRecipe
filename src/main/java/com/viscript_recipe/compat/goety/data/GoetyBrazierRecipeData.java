@@ -31,8 +31,8 @@ public class GoetyBrazierRecipeData implements IVSRecipeData {
     private int soulCost = 500;
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return GoetyRecipeFactory.compileBrazier(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return GoetyRecipeFactory.compileBrazier(recipeId, this);
     }
 
     @Override

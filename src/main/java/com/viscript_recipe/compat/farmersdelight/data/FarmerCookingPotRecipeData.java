@@ -35,8 +35,8 @@ public class FarmerCookingPotRecipeData implements IVSRecipeData {
     private int cookingTime = 200;
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
-        return FarmersDelightRecipeFactory.compileCooking(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
+        return FarmersDelightRecipeFactory.compileCooking(recipeId, this);
     }
 
     @Override

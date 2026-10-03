@@ -35,7 +35,7 @@ public class ShapelessCraftingRecipeData implements IVSRecipeData {
     public String getDataName() {return "shapeless";}
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         if (ingredients.isEmpty()) {
             throw new IllegalArgumentException("Shapeless recipe must have at least one ingredient");
         }
@@ -52,6 +52,6 @@ public class ShapelessCraftingRecipeData implements IVSRecipeData {
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
-        return new ViscriptShapelessRecipe("", CraftingBookCategory.MISC, result.copy(), compiledIngredients, showNotification);
+        return new ViscriptShapelessRecipe(recipeId, "", CraftingBookCategory.MISC, result.copy(), compiledIngredients, showNotification);
     }
 }

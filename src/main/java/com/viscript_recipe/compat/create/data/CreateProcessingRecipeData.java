@@ -39,8 +39,8 @@ public class CreateProcessingRecipeData implements IVSRecipeData {
     private boolean keepHeldItem;
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return CreateRecipeFactory.compileProcessing(type, this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return CreateRecipeFactory.compileProcessing(recipeId, type, this);
     }
 
     @Override

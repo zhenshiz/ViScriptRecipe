@@ -74,8 +74,8 @@ public class GoetyRitualRecipeData implements IVSRecipeData {
     private String research = "";
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return GoetyRecipeFactory.compileRitual(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return GoetyRecipeFactory.compileRitual(recipeId, this);
     }
 
     @Override

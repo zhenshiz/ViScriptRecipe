@@ -3,12 +3,12 @@ package com.viscript_recipe.compat.touhou_little_maid;
 import com.github.tartaricacid.touhoulittlemaid.crafting.AltarRecipe;
 import com.lowdragmc.lowdraglib2.utils.LDLibExtraCodecs;
 import com.lowdragmc.lowdraglib2.utils.TagBuilder;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.touhou_little_maid.data.TouhouLittleMaidAltarRecipeData;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -20,7 +20,7 @@ public final class TouhouLittleMaidRecipeFactory {
     private TouhouLittleMaidRecipeFactory() {
     }
 
-    public static Recipe<?> compileAltar(TouhouLittleMaidAltarRecipeData data) {
+    public static Recipe<?> compileAltar(ResourceLocation recipeId, TouhouLittleMaidAltarRecipeData data) {
         var ingredients = NonNullList.<Ingredient>create();
         for (var ingredientData : data.getIngredients()) {
             var ingredient = ingredientData == null ? Ingredient.EMPTY : ingredientData.compile();
@@ -45,7 +45,7 @@ public final class TouhouLittleMaidRecipeFactory {
             throw new IllegalArgumentException("Altar power cost must be a finite non-negative number");
         }
         return new AltarRecipe(
-                ViScriptRecipe.placeholder,
+                recipeId,
                 BuiltInRegistries.ENTITY_TYPE.get(entityType),
                 result,
                 power,

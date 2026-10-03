@@ -1,8 +1,8 @@
 package com.viscript_recipe.recipe.vanilla;
 
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.vanilla.CraftingRemainderRule;
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -14,8 +14,8 @@ import java.util.List;
 public class ViscriptShapedRecipe extends ShapedRecipe {
     private final List<CraftingRemainderRule> remainders;
 
-    public ViscriptShapedRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification, List<CraftingRemainderRule> remainders) {
-        super(ViScriptRecipe.placeholder, group, category, pattern.width(), pattern.height(), pattern.ingredients(), result, showNotification);
+    public ViscriptShapedRecipe(ResourceLocation recipeId, String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification, List<CraftingRemainderRule> remainders) {
+        super(recipeId, group, category, pattern.width(), pattern.height(), pattern.ingredients(), result, showNotification);
         this.remainders = remainders == null ? List.of() : remainders.stream().map(CraftingRemainderRule::copy).toList();
     }
 

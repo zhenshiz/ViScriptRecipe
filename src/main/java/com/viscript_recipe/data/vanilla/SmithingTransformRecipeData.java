@@ -29,7 +29,7 @@ public class SmithingTransformRecipeData implements IVSRecipeData {
     private ItemStack result = new ItemStack(Items.NETHERITE_SWORD);
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         var compiledTemplate = template == null ? Ingredient.EMPTY : template.compile();
         var compiledBase = base == null ? Ingredient.EMPTY : base.compile();
         var compiledAddition = addition == null ? Ingredient.EMPTY : addition.compile();
@@ -45,6 +45,6 @@ public class SmithingTransformRecipeData implements IVSRecipeData {
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
-        return new ViscriptSmithingTransformRecipe(compiledTemplate, compiledBase, compiledAddition, result.copy(), showNotification);
+        return new ViscriptSmithingTransformRecipe(recipeId, compiledTemplate, compiledBase, compiledAddition, result.copy(), showNotification);
     }
 }

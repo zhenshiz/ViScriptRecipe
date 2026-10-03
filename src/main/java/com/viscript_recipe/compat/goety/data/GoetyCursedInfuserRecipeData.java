@@ -26,8 +26,8 @@ public class GoetyCursedInfuserRecipeData implements IVSRecipeData {
     private boolean grim;
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return GoetyRecipeFactory.compileCursedInfuser(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return GoetyRecipeFactory.compileCursedInfuser(recipeId, this);
     }
 
     @Override

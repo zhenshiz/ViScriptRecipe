@@ -1,7 +1,6 @@
 package com.viscript_recipe.compat.avaritia;
 
 import com.viscript_lib.util.math.Clamp;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaSpecialShapelessRecipeData;
@@ -31,12 +30,12 @@ public final class AvaritiaRecipeFactory {
     private AvaritiaRecipeFactory() {
     }
 
-    public static Recipe<?> compileTable(ResourceLocation type, AvaritiaTableRecipeData data) {
+    public static Recipe<?> compileTable(ResourceLocation recipeId, ResourceLocation type, AvaritiaTableRecipeData data) {
         var tier = data.getTier();
         if (AvaritiaRecipeEditorTypes.isShapedTableType(type)) {
             var compiled = compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight());
             return new ShapedTableCraftingRecipe(
-                    ViScriptRecipe.placeholder,
+                    recipeId,
                     compiled.width(), compiled.height(), compiled.ingredients(),
                     requireResult(data.getResult(), "Avaritia table recipe result cannot be empty"),
                     tier,
@@ -46,7 +45,7 @@ public final class AvaritiaRecipeFactory {
         if (AvaritiaRecipeEditorTypes.isNoConsumeCatalystType(type)) {
             var compiled = compilePattern(data.getPattern(), data.getKey(), data.getWidth(), data.getHeight());
             return new NoConsumeCatalystShapedRecipe(
-                    ViScriptRecipe.placeholder,
+                    recipeId,
                     compiled.width(), compiled.height(), compiled.ingredients(),
                     requireResult(data.getResult(), "Avaritia no-consume catalyst recipe result cannot be empty"),
                     tier == 0 ? 4 : tier
@@ -55,7 +54,7 @@ public final class AvaritiaRecipeFactory {
         if (AvaritiaRecipeEditorTypes.isShapelessTableType(type)) {
             var ingredients = compileIngredients(data.getShapelessIngredients(), MAX_TABLE_INPUTS, false);
             return new ShapelessTableCraftingRecipe(
-                    ViScriptRecipe.placeholder, ingredients,
+                    recipeId, ingredients,
                     requireResult(data.getResult(), "Avaritia shapeless table recipe result cannot be empty"),
                     tier
             );
@@ -63,22 +62,22 @@ public final class AvaritiaRecipeFactory {
         throw new IllegalArgumentException("Unsupported Avaritia table recipe type: " + type);
     }
 
-    public static Recipe<?> compileCompressor(AvaritiaCompressorRecipeData data) {
+    public static Recipe<?> compileCompressor(ResourceLocation recipeId, AvaritiaCompressorRecipeData data) {
         var ingredient = compileIngredient(data.getIngredient());
         if (ingredient.isEmpty()) {
             throw new IllegalArgumentException("Avaritia compressor recipe ingredient cannot be empty");
         }
         return new CompressorRecipe(
-                ViScriptRecipe.placeholder, ingredient,
+                recipeId, ingredient,
                 requireResult(data.getResult(), "Avaritia compressor recipe result cannot be empty"),
                 data.getIngredient().getCount(),
                 data.getTimeCost()
         );
     }
 
-    public static Recipe<?> compileExtremeSmithing(AvaritiaExtremeSmithingRecipeData data) {
+    public static Recipe<?> compileExtremeSmithing(ResourceLocation recipeId, AvaritiaExtremeSmithingRecipeData data) {
         return new ExtremeSmithingRecipe(
-                ViScriptRecipe.placeholder,
+                recipeId,
                 requireIngredient(data.getTemplate(), "Avaritia extreme smithing template cannot be empty"),
                 requireIngredient(data.getBase(), "Avaritia extreme smithing base cannot be empty"),
                 compileExtremeSmithingAdditions(data.getAdditions()),
@@ -86,26 +85,26 @@ public final class AvaritiaRecipeFactory {
         );
     }
 
-    public static Recipe<?> compileInfinityCatalyst(AvaritiaSpecialShapelessRecipeData data) {
+    public static Recipe<?> compileInfinityCatalyst(ResourceLocation recipeId, AvaritiaSpecialShapelessRecipeData data) {
         return new InfinityCatalystCraftRecipe(
-                ViScriptRecipe.placeholder,
+                recipeId,
                 normalizedGroup(data.getGroup()),
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, false),
                 Math.max(1, data.getCount())
         );
     }
 
-    public static Recipe<?> compileEternalSingularity(AvaritiaSpecialShapelessRecipeData data) {
+    public static Recipe<?> compileEternalSingularity(ResourceLocation recipeId, AvaritiaSpecialShapelessRecipeData data) {
         return new EternalSingularityCraftRecipe(
-                ViScriptRecipe.placeholder,
+                recipeId,
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, true),
                 Math.max(1, data.getCount())
         );
     }
 
-    public static Recipe<?> compileFullMatterCluster(AvaritiaSpecialShapelessRecipeData data) {
+    public static Recipe<?> compileFullMatterCluster(ResourceLocation recipeId, AvaritiaSpecialShapelessRecipeData data) {
         return new FullMatterClusterRecipe(
-                ViScriptRecipe.placeholder,
+                recipeId,
                 normalizedGroup(data.getGroup()),
                 compileIngredients(data.getIngredients(), MAX_TABLE_INPUTS, false),
                 Math.max(1, data.getCount())

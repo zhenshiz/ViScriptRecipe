@@ -24,7 +24,7 @@ public class StonecuttingRecipeData implements IVSRecipeData {
     private ItemStack result = new ItemStack(Items.STONE_SLAB, 2);
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         var compiledIngredient = ingredient == null ? net.minecraft.world.item.crafting.Ingredient.EMPTY : ingredient.compile();
         if (compiledIngredient.isEmpty()) {
             throw new IllegalArgumentException("Stonecutting recipe ingredient cannot be empty");
@@ -32,6 +32,6 @@ public class StonecuttingRecipeData implements IVSRecipeData {
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Recipe result cannot be empty");
         }
-        return new ViscriptStonecutterRecipe("", compiledIngredient, result.copy(), showNotification);
+        return new ViscriptStonecutterRecipe(recipeId, "", compiledIngredient, result.copy(), showNotification);
     }
 }

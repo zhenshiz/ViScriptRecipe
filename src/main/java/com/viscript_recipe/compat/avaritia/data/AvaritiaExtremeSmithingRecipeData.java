@@ -35,8 +35,8 @@ public class AvaritiaExtremeSmithingRecipeData implements IVSRecipeData {
     private ItemStack result = new ItemStack(Items.NETHERITE_SWORD);
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return AvaritiaRecipeFactory.compileExtremeSmithing(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return AvaritiaRecipeFactory.compileExtremeSmithing(recipeId, this);
     }
 
     @Override

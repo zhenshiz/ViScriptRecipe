@@ -47,12 +47,12 @@ public class AvaritiaSpecialShapelessRecipeData implements IVSRecipeData {
     }
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
         if (type.equals(INFINITY_CATALYST)) {
-            return AvaritiaRecipeFactory.compileInfinityCatalyst(this);
+            return AvaritiaRecipeFactory.compileInfinityCatalyst(recipeId, this);
         } else if (type.equals(FULL_MATTER_CLUSTER)) {
-            return AvaritiaRecipeFactory.compileFullMatterCluster(this);
-        } else return AvaritiaRecipeFactory.compileEternalSingularity(this);
+            return AvaritiaRecipeFactory.compileFullMatterCluster(recipeId, this);
+        } else return AvaritiaRecipeFactory.compileEternalSingularity(recipeId, this);
     }
 
     @Override

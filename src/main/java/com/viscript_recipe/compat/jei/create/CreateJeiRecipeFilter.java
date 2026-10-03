@@ -3,8 +3,8 @@ package com.viscript_recipe.compat.jei.create;
 import com.simibubi.create.AllRecipeTypes;
 import com.simibubi.create.content.kinetics.mixer.MixingRecipe;
 import com.simibubi.create.content.processing.basin.BasinRecipe;
+import com.viscript_recipe.client.RecipeDeltaClientState;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
-import com.viscript_recipe.recipe.RecipeOverrideManager;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -107,7 +107,7 @@ public final class CreateJeiRecipeFilter {
         if (level == null) {
             return List.of();
         }
-        var ids = Set.copyOf(RecipeOverrideManager.recipeIdsForEditorType(CreateProcessingKind.AUTOMATIC_BREWING.typeId()));
+        var ids = Set.copyOf(RecipeDeltaClientState.recipeIdsForEditorType(CreateProcessingKind.AUTOMATIC_BREWING.typeId()));
         if (ids.isEmpty()) {
             return List.of();
         }

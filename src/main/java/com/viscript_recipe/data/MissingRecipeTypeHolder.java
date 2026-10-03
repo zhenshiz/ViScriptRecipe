@@ -29,7 +29,7 @@ public class MissingRecipeTypeHolder implements IVSRecipeData {
     CompoundTag missingData = new CompoundTag();
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         throw new UnsupportedOperationException("The mod for " + missingDataName + " is not loaded.");
     }
 

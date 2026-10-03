@@ -1,7 +1,6 @@
 package com.viscript_recipe.data.vanilla;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
-import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -29,7 +28,7 @@ public class CookingRecipeData implements IVSRecipeData {
     private int cookingTime = 200;
 
     @Override
-    public Recipe<?> compile(ResourceLocation typeId) {
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {
         var compiledIngredient = ingredient == null ? Ingredient.EMPTY : ingredient.compile();
         if (compiledIngredient.isEmpty()) {
             throw new IllegalArgumentException("Cooking recipe ingredient cannot be empty");
@@ -39,7 +38,7 @@ public class CookingRecipeData implements IVSRecipeData {
         }
         Factory factory = factories.get(typeId);
         if (factory == null) return null;
-        return factory.create(ViScriptRecipe.placeholder, "", CookingBookCategory.MISC, compiledIngredient, result.copy(), Math.max(0, Math.min(Integer.MAX_VALUE, experience)), Math.max(1, cookingTime));
+        return factory.create(recipeId, "", CookingBookCategory.MISC, compiledIngredient, result.copy(), Math.max(0, Math.min(Integer.MAX_VALUE, experience)), Math.max(1, cookingTime));
     }
     
     static final Map<ResourceLocation, Factory> factories = Map.of(

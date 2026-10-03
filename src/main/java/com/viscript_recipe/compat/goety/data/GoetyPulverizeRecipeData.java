@@ -45,7 +45,7 @@ public class GoetyPulverizeRecipeData implements IVSRecipeData {
     }
 
     @Override
-    public Recipe<?> compile(ResourceLocation type) {
-        return GoetyRecipeFactory.compilePulverize(this);
+    public Recipe<?> compile(ResourceLocation recipeId, ResourceLocation type) {
+        return GoetyRecipeFactory.compilePulverize(recipeId, this);
     }
 }

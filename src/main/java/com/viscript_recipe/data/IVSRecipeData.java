@@ -27,7 +27,7 @@ public interface IVSRecipeData extends ISkipDefaultedSerialize, IConfigurable {
 
     default <T extends IVSRecipeData> T setShowNotification(Boolean showNotification) {return (T) this;}
 
-    default Recipe<?> compile(ResourceLocation typeId) {return null;}
+    default Recipe<?> compile(ResourceLocation recipeId, ResourceLocation typeId) {return null;}
 
     default String[] getCompatNames() {return new String[0];}
 

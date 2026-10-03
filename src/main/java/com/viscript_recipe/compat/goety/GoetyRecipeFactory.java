@@ -18,24 +18,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
-/**
- * Creates Goety's native recipe objects from editor-owned persisted data.
- */
 public final class GoetyRecipeFactory {
-    private static final ResourceLocation FALLBACK_ID = new ResourceLocation("viscript_recipe", "goety_editor");
-
     private GoetyRecipeFactory() {
     }
 
-    /**
-     * Compiles a cursed infuser recipe.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety recipe
-     */
-    public static Recipe<?> compileCursedInfuser(GoetyCursedInfuserRecipeData data) {
+    public static Recipe<?> compileCursedInfuser(ResourceLocation recipeId, GoetyCursedInfuserRecipeData data) {
         return new CursedInfuserRecipes(
-                FALLBACK_ID,
+                recipeId,
                 "",
                 requireIngredient(data.getIngredient(), "Goety cursed infuser ingredient cannot be empty"),
                 requireItem(data.getResult(), "Goety cursed infuser result cannot be empty"),
@@ -45,13 +34,7 @@ public final class GoetyRecipeFactory {
         );
     }
 
-    /**
-     * Compiles a dark ritual recipe with at most twelve pedestal ingredients.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety ritual recipe
-     */
-    public static Recipe<?> compileRitual(GoetyRitualRecipeData data) {
+    public static Recipe<?> compileRitual(ResourceLocation recipeId, GoetyRitualRecipeData data) {
         var ritualType = data.getRitualType();
         if (ritualType == null || ModRituals.REGISTRY.get().getValue(ritualType) == null) {
             throw new IllegalArgumentException("Unknown Goety ritual type: " + ritualType);
@@ -80,7 +63,7 @@ public final class GoetyRecipeFactory {
                 ? requireLocation(data.getEnchantment(), "Goety enchantment cannot be empty")
                 : null;
         return new RitualRecipe(
-                FALLBACK_ID,
+                recipeId,
                 "",
                 data.getCraftType() == null ? "magic" : data.getCraftType().getSerializedName(),
                 ritualType,
@@ -104,32 +87,20 @@ public final class GoetyRecipeFactory {
         );
     }
 
-    /**
-     * Compiles a three-input necro brazier recipe.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety brazier recipe
-     */
-    public static Recipe<?> compileBrazier(GoetyBrazierRecipeData data) {
+    public static Recipe<?> compileBrazier(ResourceLocation recipeId, GoetyBrazierRecipeData data) {
         var ingredients = NonNullList.<Ingredient>create();
         for (var ingredient : data.getIngredients()) {
             ingredients.add(requireIngredient(ingredient, "Goety brazier ingredients cannot be empty"));
         }
         return new BrazierRecipe(
-                FALLBACK_ID,
+                recipeId,
                 requireItem(data.getResult(), "Goety brazier result cannot be empty"),
                 ingredients,
                 Math.max(0, data.getSoulCost())
         );
     }
 
-    /**
-     * Compiles a pulverize recipe using only the selected result field.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety pulverize recipe
-     */
-    public static Recipe<?> compilePulverize(GoetyPulverizeRecipeData data) {
+    public static Recipe<?> compilePulverize(ResourceLocation recipeId, GoetyPulverizeRecipeData data) {
         var itemResult = data.getResultKind() == GoetyPulverizeResultKind.ITEM
                 ? requireItem(data.getItemResult(), "Goety pulverize item result cannot be empty")
                 : ItemStack.EMPTY;
@@ -137,20 +108,14 @@ public final class GoetyRecipeFactory {
                 ? requireBlock(data.getBlockResult())
                 : Blocks.CAVE_AIR;
         return new PulverizeRecipe(
-                FALLBACK_ID,
+                recipeId,
                 requireIngredient(data.getIngredient(), "Goety pulverize ingredient cannot be empty"),
                 itemResult,
                 blockResult
         );
     }
 
-    /**
-     * Compiles a witch cauldron brewing recipe.
-     *
-     * @param  data editor recipe data
-     * @return the native Goety brewing recipe
-     */
-    public static Recipe<?> compileBrewing(GoetyBrewingRecipeData data) {
+    public static Recipe<?> compileBrewing(ResourceLocation recipeId, GoetyBrewingRecipeData data) {
         var kind = data.getEntityKind() == null ? GoetyBrewingEntityKind.NONE : data.getEntityKind();
         TagKey<EntityType<?>> entityTag = kind == GoetyBrewingEntityKind.TAG
                 ? TagKey.create(Registries.ENTITY_TYPE, requireLocation(data.getEntity(), "Goety brewing entity tag cannot be empty"))
@@ -159,7 +124,7 @@ public final class GoetyRecipeFactory {
                 ? requireEntity(data.getEntity(), "Goety brewing entity cannot be empty")
                 : null;
         return new BrewingRecipe(
-                FALLBACK_ID,
+                recipeId,
                 requireIngredient(data.getIngredient(), "Goety brewing catalyst cannot be empty"),
                 entityTag,
                 entityType,
