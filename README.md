@@ -223,7 +223,7 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | 动力合成器 | `create:mechanical_crafting` |
 | 序列组装 | `create:sequenced_assembly` |
 
-Create 处理配方支持物品输入、流体输入、物品输出、流体输出、处理时间、热量需求和保留手持物品等参数。带流体输入的 Create 配方可以使用具体流体或流体标签，当前包括 `create:filling`、`create:mixing`、`create:compacting`、`create:automatic_brewing`，以及序列组装中的注液步骤；`create:emptying` 的流体是输出，仍使用具体流体。动力搅拌、动力压缩和自动无序配方支持在单个物品槽中设置数量，保存时会展开为多个 Create `Ingredient`。`create:block_cutting` 会根据多个输出派生多个配方 ID。序列组装支持部署、冲压、切削和注液步骤。
+Create 处理配方支持物品输入、流体输入、物品输出、流体输出、处理时间、热量需求和保留手持物品等参数。带流体输入的 Create 配方可以使用具体流体或流体标签，当前包括 `create:filling`、`create:mixing`、`create:compacting`、`create:automatic_brewing`，以及序列组装中的注液步骤；`create:emptying` 的流体是输出，仍使用具体流体。动力搅拌、动力压缩和自动无序配方支持在单个物品槽中设置数量，保存时会展开为多个 Create `Ingredient`。每个 `RecipeEntry` 编译并注册一个配方 ID；配方内的多个产物属于同一个配方。序列组装支持部署、冲压、切削和注液步骤。
 
 ### Applied Energistics 2 / 应用能源2 (`ae2`)
 

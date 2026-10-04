@@ -463,33 +463,21 @@ public final class RecipeOverrideManager {
             boolean showcaseOnly
     ) {
         var id = entry.getRecipeId();
-        var holders = compileRecipeHolders(id, entry);
-        if (holders.isEmpty()) {
-            ViScriptRecipe.LOGGER.warn("Recipe override {} compiled no recipes for {}", source, id);
+        var recipe = entry.compile();
+        if (recipe == null) {
+            ViScriptRecipe.LOGGER.warn("Recipe override {} compiled no recipe for {}", source, id);
             return ApplyEntryResult.FAILED;
         }
-        for (var holder : holders) {
-            var exists = recipes.containsKey(holder.id());
-            if (entry.getOperation() == RecipeOperation.ADD && exists) {
-                ViScriptRecipe.LOGGER.warn("Recipe override {} adds existing recipe {}; replacing it", source, holder.id());
-            } else if (entry.getOperation() == RecipeOperation.REPLACE && !exists && !showcaseOnly) {
-                ViScriptRecipe.LOGGER.warn("Recipe override {} replaces missing recipe {}; adding it", source, holder.id());
-            }
-            recipes.put(holder.id(), holder);
-            appliedRecipeTypes.put(holder.id(), entry.getType());
-            managedRecipeTypes.put(holder.id(), entry.getType());
+        var exists = recipes.containsKey(id);
+        if (entry.getOperation() == RecipeOperation.ADD && exists) {
+            ViScriptRecipe.LOGGER.warn("Recipe override {} adds existing recipe {}; replacing it", source, id);
+        } else if (entry.getOperation() == RecipeOperation.REPLACE && !exists && !showcaseOnly) {
+            ViScriptRecipe.LOGGER.warn("Recipe override {} replaces missing recipe {}; adding it", source, id);
         }
+        recipes.put(id, new RecipeHolder<>(id, recipe));
+        appliedRecipeTypes.put(id, entry.getType());
+        managedRecipeTypes.put(id, entry.getType());
         return ApplyEntryResult.APPLIED;
-    }
-
-    private static List<RecipeHolder<?>> compileRecipeHolders(ResourceLocation id, RecipeEntry entry) {
-        var compiled = List.of(entry.compile());
-        var holders = new ArrayList<RecipeHolder<?>>();
-        for (int i = 0; i < compiled.size(); i++) {
-            var recipeId = derivedRecipeId(id, i);
-            holders.add(new RecipeHolder<>(recipeId, compiled.get(i)));
-        }
-        return holders;
     }
 
     private static List<ResourceLocation> removableRecipeIds(ResourceLocation id, RecipeEntry entry) {
@@ -497,6 +485,7 @@ public final class RecipeOverrideManager {
         if (createKind != CreateProcessingKind.BLOCK_CUTTING) {
             return List.of(id);
         }
+        // 删除旧版方块切割条目时，同时清理曾按输出生成的派生配方。
         var ids = new ArrayList<ResourceLocation>();
         for (int i = 0; i < createKind.maxItemOutputs(); i++) {
             ids.add(derivedRecipeId(id, i));
