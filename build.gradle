@@ -93,8 +93,8 @@ dependencies {
     //无尽贪婪：重生
     modCompileOnly "curse.maven:re-avaritia-623969:${re_avaritia_file}"
     //合成拓展
-//    implementation "curse.maven:cucumber-272335:${cucumber_file}"
-//    implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
+    modCompileOnly "curse.maven:cucumber-272335:${cucumber_file}"
+    modCompileOnly "curse.maven:extended-crafting-268387:${extended_crafting_file}"
     //森罗物语：厨房
 //    implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
     //灾变：L_Ender's Cataclysm
@@ -106,6 +106,9 @@ dependencies {
     modCompileOnly "curse.maven:goety-586095:${goety_file}"
     //东方女仆：Touhou Little Maid
     modCompileOnly "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
+    //工业先锋：Industrial Foregoing
+//    modImplementation "curse.maven:titanium-287342:${titanium_file}"
+//    modImplementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
     //通用机械：Mekanism
     modCompileOnly "mekanism:Mekanism:${mekanism_version}"
     // 龙之进化：Draconic Evolution

@@ -18,7 +18,7 @@ public abstract class IronArcaneAnvilMenuMixin extends ItemCombinerMenu {
         super(type, containerId, playerInventory, access);
     }
 
-    @Inject(method = "createResult", at = @At("HEAD"), cancellable = true, remap = true)
+    @Inject(method = "createResult", at = @At("HEAD"), cancellable = true)
     private void viscriptRecipe$createArcaneAnvilOverrideResult(CallbackInfo ci) {
         var result = IronArcaneAnvilOverrideManager.findResult(inputSlots.getItem(0), inputSlots.getItem(1));
         if (result.isEmpty()) {
