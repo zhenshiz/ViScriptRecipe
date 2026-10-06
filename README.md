@@ -15,7 +15,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持 23 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO 和 Confluence: Otherworld。
+- 支持 25 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO、TACZ、Just Dire Things 和 Confluence: Otherworld。
 
 ## 基本信息
 
@@ -65,6 +65,8 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | L_Ender's Cataclysm | `cataclysm` | 支持 |
 | Touhou Little Maid | `touhou_little_maid` | 支持 |
 | Goety | `goety` | 支持 |
+| TACZ（NeoForge 1.21.1 移植版） | `tacz` | 支持枪械工作台；枪械、弹药、配件和自定义物品共用原生配方类型 |
+| Just Dire Things | `justdirethings` | 凝胶蔓延、方块标签蔓延、投入流体、能力升级、镐尖斧合成 |
 | Mystical Agriculture | `mysticalagriculture` | 支持 |
 | Industrial Foregoing | `industrialforegoing` | 支持 |
 | Alloy Smelter | `alloy_smelter` | 支持 |
@@ -72,6 +74,8 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Confluence: Otherworld | `confluence` | 支持 |
 
 这里的“支持”指本模组已经注册了对应的编辑器类别、配方数据模型和原生配方构造逻辑；“导入器”只对能够无损映射到当前编辑器数据模型的原生配方启用。某些模组的 JEI 动态展示页、Data Map 或运行时 synthetic 配方不是 `RecipeManager` 配方，因此不会被错误地列为可上传的 `.recipe` 类型。
+
+TACZ 联动使用 `tacz:gun_smith_table_crafting` 原生配方，材料支持独立数量，产物保留完整物品组件及枪包页签。画布沿用 JEI 的左侧产物、右侧材料布局，并通过 VSR 属性栏编辑。特殊 NBT 或多候选原料会保留原始条件，直到玩家明确替换。配件适用查询是 JEI 的兼容关系展示，不作为合成配方导入。TACZ 的枪包工作台过滤器和页签仍决定配方在实际工作台及 JEI 中的可见性；增量重载涉及 TACZ 时会重建 JEI 的动态分类。
 
 ## 指令
 
@@ -487,3 +491,23 @@ git submodule update --init --recursive
 ## 开发者文档
 
 后续新增模组配方联动时，应沿用现有的数据模型、类型注册、原生配方工厂、导入器、槽位聚焦属性面板和 JEI 双贴图适配结构；兼容模组清单以 `src/main/java/com/viscript_recipe/IModModule.java` 的 `@LDLRegister` 模块注册和 `src/main/resources/META-INF/neoforge.mods.toml` 中的实际注册为准。
+
+### Just Dire Things (`justdirethings`)
+
+基于 NeoForge 1.21.1 的 **1.5.7**（CurseForge 文件 `7463040`）。提供五类原生配方的创建、导入、持久化、可视化编辑及重载：
+
+| 编辑类型 / 原生序列化器 | 编辑内容 |
+| --- | --- |
+| `justdirethings:goospread` | 输入/产物方块及完整状态、最低凝胶等级、转化时间 |
+| `justdirethings:goospread_tag` | 输入方块标签、产物方块状态、最低凝胶等级、转化时间 |
+| `justdirethings:fluiddrop` | 输入流体源方块、催化物品、产物方块或流体及状态 |
+| `justdirethings:ability` | 模板、基础工具、升级材料；原生逻辑动态生成升级后的工具 |
+| `justdirethings:paxel` | 镐、斧、锹和产物，保留原生能力继承与附魔合并逻辑 |
+
+能力升级和镐尖斧合成都归入已有的“锻造台”工作站，在右侧“配方类型”中选择，不单独注册工作站分类。它们在游戏中共用 `minecraft:smithing` 配方类型，但分别使用模组的 `justdirethings:ability` 与 `justdirethings:paxel` 序列化器，因此仍保留专用数据和编辑逻辑，避免转换成普通锻造配方后丢失能力安装、组件继承或附魔合并行为。已保存的条目无需迁移，打开后自动归入锻造台。
+
+画布按 JEI 的槽位关系居中展示，点击槽位使用 VSR 属性栏编辑，不重复显示工作台标题。流体以流体槽预览，保存的仍是原始方块状态；标签预览不会被保存成其中一个物品。复合原料保留完整 Codec 条件，只有明确替换时才丢弃原条件。
+
+凝胶/流体类别的 JEI UID 与原生 RecipeType 不同，并直接存储配方对象，重载时会重建 JEI；两类锻造配方继续使用原生锻造类别。普通工作台和熔炼配方沿用已有原版编辑器。JEI 的“矿物方块→资源”是模组硬编码的掉落说明，未注册原生配方序列化器，因此不作为配方导入；改变这种掉落需要修改战利品表。
+
+重载会让凝胶和流体查询缓存失效，已放置凝胶会重新匹配产物与时间；正在进行的凝胶转化会重新计时。移除配方也会清除先前命中或未命中的缓存。

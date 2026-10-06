@@ -2,6 +2,7 @@ package com.viscript_recipe.recipe;
 
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
+import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
@@ -255,6 +256,9 @@ public final class RecipeOverrideManager {
     }
 
     private static void invalidateCompatRecipeCaches(@Nullable ResourceManager resourceManager) {
+        if (ViScriptRecipe.isModLoaded("justdirethings")) {
+            JustDireRecipeRuntimeSupport.invalidateRecipeCaches();
+        }
         if (ViScriptRecipe.isModLoaded(CreateRecipeEditorTypes.MOD_ID)) {
             CreateRecipeRuntimeSupport.invalidateRecipeCaches(resourceManager);
         }

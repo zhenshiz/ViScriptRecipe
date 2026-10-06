@@ -179,3 +179,17 @@ type="optional"
 versionRange="[8.2.12-beta,8.3)"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "tacz"
+type = "optional"
+versionRange = "[1.1.8,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "justdirethings"
+type = "optional"
+versionRange = "[1.5.7,1.6)"
+ordering = "AFTER"
+side = "BOTH"

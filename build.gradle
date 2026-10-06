@@ -115,6 +115,8 @@ dependencies {
     runtimeOnly "curse.maven:lionfish-api-1001614:${lionfish_api_file}"
     implementation "curse.maven:fungal-infection-spore-678295:${fungal_infection_spore_file}"
     implementation "curse.maven:goety-586095:${goety_file}"
+    implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
+    implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
     implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
     implementation "curse.maven:titanium-287342:${titanium_file}"
     implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"

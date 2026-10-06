@@ -8,7 +8,9 @@
     "IronArcaneAnvilMenuMixin",
     "MysticalAgricultureAwakeningRecipeAccessor",
     "MysticalAgricultureInfusionRecipeAccessor",
-    "RecipeManagerMixin"
+    "RecipeManagerMixin",
+    "JustDireGooRecipeCacheMixin",
+    "JustDireFluidRecipeCacheMixin"
   ],
   "client": [
   ],

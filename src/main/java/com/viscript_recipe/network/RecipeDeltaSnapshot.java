@@ -1,8 +1,11 @@
 package com.viscript_recipe.network;
 
 import com.mojang.serialization.Codec;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
+import com.viscript_recipe.compat.tacz.TaczRecipeFactory;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -66,7 +69,7 @@ public record RecipeDeltaSnapshot(
         for (var holder : upsertedRecipes) {
             var entry = new CompoundTag();
             entry.putString("id", holder.id().toString());
-            entry.put("recipe", encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id()));
+            entry.put("recipe", encodeRecipe(provider, holder));
             upserted.add(entry);
         }
         root.put("upserted", upserted);
@@ -130,6 +133,11 @@ public record RecipeDeltaSnapshot(
     }
 
     public static Tag encodeRecipe(HolderLookup.Provider provider, RecipeHolder<?> holder) {
+        // TACZ 的产物 Codec 未实现写入，但原生解码器支持保留完整物品组件的 custom 格式。
+        if (ViScriptRecipe.isModLoaded("tacz") && ResourceLocation.parse("tacz:gun_smith_table_crafting")
+                .equals(BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer()))) {
+            return TaczRecipeFactory.encodeSnapshot(holder.value(), provider);
+        }
         return encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id());
     }
 
