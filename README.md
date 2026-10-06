@@ -504,7 +504,7 @@ git submodule update --init --recursive
 | `justdirethings:ability` | 模板、基础工具、升级材料；原生逻辑动态生成升级后的工具 |
 | `justdirethings:paxel` | 镐、斧、锹和产物，保留原生能力继承与附魔合并逻辑 |
 
-能力升级和镐尖斧合成都归入已有的“锻造台”工作站，在右侧“配方类型”中选择，不单独注册工作站分类。它们在游戏中共用 `minecraft:smithing` 配方类型，但分别使用模组的 `justdirethings:ability` 与 `justdirethings:paxel` 序列化器，因此仍保留专用数据和编辑逻辑，避免转换成普通锻造配方后丢失能力安装、组件继承或附魔合并行为。已保存的条目无需迁移，打开后自动归入锻造台。
+能力升级和镐尖斧合成在编辑器中各自显示为独立工作站，归属模组为 `justdirethings`，可以通过模组 ID 或名称搜索。它们在游戏中仍使用原版锻造台和 `minecraft:smithing` 配方类型，分别保留模组的 `justdirethings:ability` 与 `justdirethings:paxel` 序列化器及特殊合成逻辑。已保存的条目无需迁移。
 
 画布按 JEI 的槽位关系居中展示，点击槽位使用 VSR 属性栏编辑，不重复显示工作台标题。流体以流体槽预览，保存的仍是原始方块状态；标签预览不会被保存成其中一个物品。复合原料保留完整 Codec 条件，只有明确替换时才丢弃原条件。
 

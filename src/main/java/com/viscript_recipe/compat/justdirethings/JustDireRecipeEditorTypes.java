@@ -6,7 +6,6 @@ import com.viscript_recipe.compat.justdirethings.canvas.*;
 import com.viscript_recipe.compat.justdirethings.data.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.vanilla.VanillaRecipeEditorTypes;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 import java.util.List;
@@ -26,13 +25,16 @@ public final class JustDireRecipeEditorTypes implements IModModule {
         if (registered) return;
         registered = true;
         for (var type : TYPES) {
+            var icon = switch (type) {
+                case "goospread", "goospread_tag" -> id("gooblock_tier1");
+                case "fluiddrop" -> id("polymorphic_catalyst");
+                default -> ResourceLocation.withDefaultNamespace("smithing_table");
+            };
+            registerCategory(RecipeEditorCategory.of(id(type), key(type), MOD_ID, id(type), icon));
             if (type.equals("ability") || type.equals("paxel")) {
-                // 共用原版锻造台分类，保留模组配方的能力安装及附魔继承逻辑。
-                registerEditorType(RecipeEditorType.of(id(type), VanillaRecipeEditorTypes.SMITHING_TABLE, key(type), JustDireSmithingData.class,
+                registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), JustDireSmithingData.class,
                         () -> JustDireSmithingData.create(type), JustDireSmithingCanvas::new, MOD_ID));
             } else {
-                var icon = id(type.equals("fluiddrop") ? "polymorphic_catalyst" : "gooblock_tier1");
-                registerCategory(RecipeEditorCategory.of(id(type), key(type), MOD_ID, id(type), icon));
                 registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), JustDireTransformationData.class,
                         () -> JustDireTransformationData.create(type), JustDireTransformationCanvas::new, MOD_ID));
             }
