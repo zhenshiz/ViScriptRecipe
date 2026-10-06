@@ -33,7 +33,7 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
     public void load() {
         var data = getData();
         loadIngredientSlot(0, data.getInput());
-        setVisualOutput(0, isBrewEntry() ? ItemStack.EMPTY : data.getResult());
+        setVisualOutput(0, isBrewEntry() ? data.getByproduct() : data.getResult());
         if (isBrewEntry()) {
             setVisualFluidOutput(0, data.getBaseFluid());
             setVisualFluidOutput(1, data.firstResultFluid());
@@ -45,7 +45,7 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
         var data = getData();
         data.setInput(getVisualIngredient(0));
         if (isBrewEntry()) {
-            data.setByproduct(ItemStack.EMPTY);
+            data.setByproduct(getVisualOutput(0).getItem());
             data.setBaseFluid(getVisualFluidOutput(0));
             data.setFirstResultFluid(getVisualFluidOutput(1));
         } else {
@@ -70,25 +70,28 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
 
     @Override
     public UIElement createCanvas() {
+        setId("irons_cauldron_canvas");
         boolean isBrew = isBrewEntry();
         boolean isFill = isFillEntry();
         var ingredientSlot = createIngredientSlot(0, useJeiCanvas ? JEI_SLOT_SIZE : SLOT_SIZE);
         var middleFluidSlot = createFluidOutputSlot(0, useJeiCanvas ? 16 : 30);
         var resultFluidSlot = createFluidOutputSlot(1, useJeiCanvas ? 16 : 30);
         var outputSlot = createOutputSlot(0, useJeiCanvas ? 16 : OUTPUT_SLOT_SIZE);
+        outputSlot.setId("irons_cauldron_item_output");
         if (useJeiCanvas) {
             configureJeiOverlaySlotVisual(ingredientSlot);
             var chanceLabel = RecipeEditorUi.label(Component.empty());
+            chanceLabel.setId("irons_cauldron_recycle_chance");
             if (isBrew) configureInputSlot(ingredientSlot, chanceLabel);
             configureJeiOverlayFluidSlotVisual(middleFluidSlot);
             configureJeiOverlayFluidSlotVisual(resultFluidSlot);
             configureJeiOverlaySlotVisual(outputSlot);
             return AlchemistCauldronCanvasFactory.createCanvas(
                     ingredientSlot, middleFluidSlot, resultFluidSlot.setDisplay(isBrew),
-                    outputSlot.setDisplay(!isBrew),
+                    outputSlot,
                     createItemIcon(new ItemStack(RecipeHelper.itemFromRegistry(
                             "irons_spellbooks:alchemist_cauldron", Items.CAULDRON
-                    )), 23), chanceLabel
+                    )), 23), chanceLabel, isBrew
             );
         }
         var outputLabel = RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.alchemist_cauldron.result_item"));
@@ -121,7 +124,7 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
                 outputArrow,
                 resultFluidColumn.setDisplay(isBrew),
                 outputPlusLabel,
-                outputItemColumn.setDisplay(!isBrew)
+                outputItemColumn
         );
     }
 
@@ -130,7 +133,7 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
             boolean showChance = IRON_SCROLL_ID.equals(BuiltInRegistries.ITEM.getKey(stack.getItem()));
             chanceLabel.setDisplay(showChance);
             if (showChance) {
-                var chance = (int) Math.clamp(ServerConfigs.SCROLL_RECYCLE_CHANCE.get(), 0, 1) * 100;
+                var chance = (int) (Math.clamp(ServerConfigs.SCROLL_RECYCLE_CHANCE.get(), 0, 1) * 100);
                 var color = chance >= 100 ? ChatFormatting.GREEN.getColor() : ChatFormatting.RED.getColor();
                 chanceLabel.setText(Component.literal(chance + "%"))
                         .textStyle(style -> style.textColor(color == null ? 0xFFFFFF : color));

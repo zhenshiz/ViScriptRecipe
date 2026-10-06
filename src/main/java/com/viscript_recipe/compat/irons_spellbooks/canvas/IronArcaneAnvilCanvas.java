@@ -29,6 +29,7 @@ public class IronArcaneAnvilCanvas extends RecipeCanvas<IronArcaneAnvilRecipeDat
 
     @Override
     public UIElement createCanvas() {
+        setId("irons_arcane_anvil_canvas");
         if (!useJeiCanvas) return new UIElement().setDisplay(false);
         UIElement[] inputSlots = new UIElement[2];
         for (int index = 0; index < 2; index++) {

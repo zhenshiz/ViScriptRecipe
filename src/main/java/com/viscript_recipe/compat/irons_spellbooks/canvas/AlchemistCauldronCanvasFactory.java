@@ -31,7 +31,8 @@ public final class AlchemistCauldronCanvasFactory {
             UIElement fluidOutput,
             UIElement itemOutput,
             UIElement cauldronIcon,
-            Label chanceLabel
+            Label chanceLabel,
+            boolean brew
     ) {
         var background = positioned(new UIElement(), 0, 0, JEI_WIDTH, JEI_BACKGROUND_HEIGHT)
                 .style(style -> style.backgroundTexture(
@@ -51,9 +52,9 @@ public final class AlchemistCauldronCanvasFactory {
                 positioned(itemInput, 1, 1, 16, 16),
                 positioned(fluidInput, 54, 1, 16, 16),
                 positioned(fluidOutput, 108, 1, 16, 16),
-                positioned(itemOutput, 108, 1, 16, 16),
+                positioned(itemOutput, 108, brew ? 17 : 1, 16, 16),
                 positioned(cauldronIcon, 51, 17, 23, 22),
-                positioned(chanceLabel, 69, 19, 47, 10)
+                positioned(chanceLabel, 73, 19, 32, 10)
         );
         return RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);

@@ -54,7 +54,9 @@ public class IronAlchemistCauldronRecipeData implements IVSRecipeData {
 
     public void setFirstResultFluid(FluidStack stack) {
         var copy = stack == null ? FluidStack.EMPTY : stack.copy();
-        if (resultFluids.isEmpty()) resultFluids.add(copy);
+        if (resultFluids.isEmpty()) {
+            if (!copy.isEmpty()) resultFluids.add(copy);
+        }
         else resultFluids.set(0, copy);
     }
 
