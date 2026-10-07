@@ -62,6 +62,14 @@ public class IronAlchemistCauldronRecipeData implements IVSRecipeData {
 
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
+        input = RecipeIngredient.item(Items.WATER_BUCKET);
+        result = new ItemStack(Items.BUCKET);
+        fluid = new FluidStack(Fluids.WATER, 1000);
+        baseFluid = new FluidStack(Fluids.WATER, 1000);
+        resultFluids = new ArrayList<>(List.of(new FluidStack(Fluids.WATER, 1000)));
+        byproduct = ItemStack.EMPTY;
+        mustFitAll = true;
+        sound = ResourceLocation.withDefaultNamespace("item.bucket.empty");
         if (typeId.equals(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_FILL)) {
             setMustFitAll(false);
         } else if (typeId.equals(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_EMPTY)) {

@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ public class IERecipeData implements IVSRecipeData {
     @Persisted private boolean recycling = false;
     @Persisted private String arcSpecialType = "";
     @Persisted private ArrayList<Double> recyclingAmounts = new ArrayList<>();
-    @Persisted private ResourceLocation currentEditorType;
 
     public IERecipeData() {
         inputs.add(RecipeIngredient.item(Items.IRON_INGOT));
@@ -48,8 +48,6 @@ public class IERecipeData implements IVSRecipeData {
     @Override public String getDataName() { return "immersiveEngineering"; }
 
     @Override public void applyDefaultData(ResourceLocation typeId) {
-        if (typeId.equals(currentEditorType)) return;
-        currentEditorType = typeId;
         inputs = new ArrayList<>();
         inputs.add(RecipeIngredient.item(Items.IRON_INGOT));
         outputs = new ArrayList<>();
@@ -66,6 +64,19 @@ public class IERecipeData implements IVSRecipeData {
         growthModifier = 1.5f;
         blueprintCategory = "components";
         clocheRender = "{\"type\":\"immersiveengineering:generic\",\"block\":\"minecraft:wheat\"}";
+        switch (typeId.getPath()) {
+            case "alloy", "metal_press" -> inputs.add(RecipeIngredient.item(Items.IRON_INGOT));
+            case "cloche" -> {
+                inputs.set(0, RecipeIngredient.item(Items.WHEAT_SEEDS));
+                inputs.add(RecipeIngredient.item(Items.DIRT));
+                outputs.set(0, RecipeOutputData.of(Items.WHEAT.getDefaultInstance()));
+                fluidInputs.add(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
+            }
+            case "refinery", "mixer", "bottling_machine" -> {
+                fluidInputs.add(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
+                if (!typeId.getPath().equals("bottling_machine")) fluidOutput = new FluidStack(Fluids.WATER, 1000);
+            }
+        }
     }
 
     @Override

@@ -48,9 +48,9 @@ public final class ConfluenceRecipeFactory {
             json.add("base", encodeIngredient(data.ingredient(0)));
             json.add("ingredients", encodeIngredients(data, 1, 6));
         } else if (ConfluenceRecipeEditorTypes.FLETCHING_TABLE.equals(type)) {
-            json.add("tail", encodeIngredient(data.ingredient(0)));
-            json.add("body", encodeIngredient(data.ingredient(1)));
-            json.add("head", encodeIngredient(data.ingredient(2)));
+            if (!data.ingredient(0).isEmpty()) json.add("tail", encodeIngredient(data.ingredient(0)));
+            if (!data.ingredient(1).isEmpty()) json.add("body", encodeIngredient(data.ingredient(1)));
+            if (!data.ingredient(2).isEmpty()) json.add("head", encodeIngredient(data.ingredient(2)));
         } else if (ConfluenceRecipeEditorTypes.COOKING_POT.equals(type)) {
             json.add("ingredients", encodeIngredients(data, 0, 4));
             json.add("container", encodeIngredient(data.getContainer()));

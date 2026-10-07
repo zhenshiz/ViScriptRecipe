@@ -48,7 +48,12 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
     public RecipeIngredient setCount(int count) {
         count = Math.max(1, count);
         this.count = count;
-        item.setCount(count);
+        return this;
+    }
+
+    public RecipeIngredient setItem(ItemStack stack) {
+        // 原料数量由 count 保存，物品模板只保留一件，避免触发 ItemStack Codec 的数量限制。
+        item = stack == null || stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
         return this;
     }
 
@@ -63,7 +68,7 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
     public static RecipeIngredient item(Item item) {return item(new ItemStack(item));}
 
     public static RecipeIngredient item(ItemStack stack) {
-        return of().setItem(stack == null ? ItemStack.EMPTY : stack.copy());
+        return of().setItem(stack).setCount(stack == null ? 1 : stack.getCount());
     }
 
     public static RecipeIngredient tag(ResourceLocation tagId) {

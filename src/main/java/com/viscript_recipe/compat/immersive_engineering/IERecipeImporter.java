@@ -161,7 +161,6 @@ public final class IERecipeImporter implements RecipeImportHandler {
         };
         if (data.getInputs().size() > maxInputs || data.getOutputs().size() > maxOutputs)
             throw new RecipeImportException("viscript_recipe.editor.immersive_engineering.too_many_slots");
-        data.setCurrentEditorType(type);
         return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), type).setData(data));
     }
 

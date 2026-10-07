@@ -27,21 +27,19 @@ public final class JustDireSmithingData implements IVSRecipeData {
     @Persisted private JustDireIngredientData addition = new JustDireIngredientData();
     @Persisted private ItemStack result = ItemStack.EMPTY;
 
-    /**
-     * 创建能力升级或镐尖斧合成的默认模板。
-     *
-     * @param type 已注册的配方类型路径
-     * @return 可编译的默认配方数据
-     */
-    public static JustDireSmithingData create(String type) {
-        var data = new JustDireSmithingData();
-        data.base.setValue(RecipeIngredient.item(BuiltInRegistries.ITEM.get(id(type.equals("paxel") ? "celestigem_axe" : "celestigem_pickaxe"))));
-        data.addition.setValue(RecipeIngredient.item(BuiltInRegistries.ITEM.get(id(type.equals("paxel") ? "celestigem_shovel" : "upgrade_hammer"))));
-        if (type.equals("paxel")) {
-            data.template.setValue(RecipeIngredient.item(BuiltInRegistries.ITEM.get(id("celestigem_pickaxe"))));
-            data.result = BuiltInRegistries.ITEM.get(id("celestigem_paxel")).getDefaultInstance();
+    @Override
+    public void applyDefaultData(ResourceLocation typeId) {
+        boolean paxel = typeId.equals(id("paxel"));
+        template = new JustDireIngredientData();
+        base = new JustDireIngredientData().setValue(RecipeIngredient.item(
+                BuiltInRegistries.ITEM.get(id(paxel ? "celestigem_axe" : "celestigem_pickaxe"))));
+        addition = new JustDireIngredientData().setValue(RecipeIngredient.item(
+                BuiltInRegistries.ITEM.get(id(paxel ? "celestigem_shovel" : "upgrade_hammer"))));
+        result = ItemStack.EMPTY;
+        if (paxel) {
+            template.setValue(RecipeIngredient.item(BuiltInRegistries.ITEM.get(id("celestigem_pickaxe"))));
+            result = BuiltInRegistries.ITEM.get(id("celestigem_paxel")).getDefaultInstance();
         }
-        return data;
     }
 
     @Override

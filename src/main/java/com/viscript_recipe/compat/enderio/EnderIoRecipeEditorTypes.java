@@ -40,7 +40,7 @@ public final class EnderIoRecipeEditorTypes implements IModModule {
             };
             registerCategory(RecipeEditorCategory.of(id(type), key(type), MOD_ID, id(type), icon));
             registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), EnderIoRecipeData.class,
-                    () -> EnderIoRecipeData.create(type), (navigation, entry) -> new EnderIoRecipeCanvas(navigation, entry), MOD_ID));
+                    EnderIoRecipeData::new, EnderIoRecipeCanvas::new, MOD_ID));
         }
     }
 

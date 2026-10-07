@@ -50,9 +50,11 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
 
     private static RecipeEntry importCooking(ResourceLocation id, CookingPotRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
         var data = new FarmerCookingPotRecipeData()
+                .setGroup(recipe.getGroup())
+                .setRecipeBookTab(recipe.getRecipeBookTab().getSerializedName())
                 .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(recipe.getIngredients(), CookingPotRecipe.INPUT_SLOTS)))
                 .setResult(RecipeImporter.copyResult(recipe, provider))
-                .setContainer(RecipeImporter.copyStack(recipe.getOutputContainer()))
+                .setContainer(RecipeImporter.copyStack(recipe.getContainerOverride()))
                 .setExperience(recipe.getExperience())
                 .setCookingTime(Math.max(1, recipe.getCookTime()));
         return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_COOKING).setData(data);

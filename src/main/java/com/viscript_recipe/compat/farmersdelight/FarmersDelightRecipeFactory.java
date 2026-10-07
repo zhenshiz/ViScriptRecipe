@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.common.ItemAbility;
 import vectorwing.farmersdelight.common.crafting.CookingPotRecipe;
+import vectorwing.farmersdelight.client.recipebook.CookingPotRecipeBookTab;
 import vectorwing.farmersdelight.common.crafting.CuttingBoardRecipe;
 import vectorwing.farmersdelight.common.crafting.ingredient.ChanceResult;
 import vectorwing.farmersdelight.common.crafting.ingredient.ItemAbilityIngredient;
@@ -38,8 +39,8 @@ public final class FarmersDelightRecipeFactory {
             throw new IllegalArgumentException("Farmer's Delight cooking pot recipe cannot have more than 6 ingredients");
         }
         return new CookingPotRecipe(
-                "",
-                null,
+                data.getGroup(),
+                CookingPotRecipeBookTab.findByName(data.getRecipeBookTab()),
                 ingredients,
                 requireItem(data.getResult(), "Farmer's Delight cooking pot result cannot be empty"),
                 data.getContainer() == null ? ItemStack.EMPTY : data.getContainer().copy(),

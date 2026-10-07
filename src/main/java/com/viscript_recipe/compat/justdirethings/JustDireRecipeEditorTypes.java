@@ -33,10 +33,10 @@ public final class JustDireRecipeEditorTypes implements IModModule {
             registerCategory(RecipeEditorCategory.of(id(type), key(type), MOD_ID, id(type), icon));
             if (type.equals("ability") || type.equals("paxel")) {
                 registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), JustDireSmithingData.class,
-                        () -> JustDireSmithingData.create(type), JustDireSmithingCanvas::new, MOD_ID));
+                        JustDireSmithingData::new, JustDireSmithingCanvas::new, MOD_ID));
             } else {
                 registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), JustDireTransformationData.class,
-                        () -> JustDireTransformationData.create(type), JustDireTransformationCanvas::new, MOD_ID));
+                        JustDireTransformationData::new, JustDireTransformationCanvas::new, MOD_ID));
             }
         }
     }

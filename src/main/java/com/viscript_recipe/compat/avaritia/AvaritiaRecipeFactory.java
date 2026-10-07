@@ -73,7 +73,7 @@ public final class AvaritiaRecipeFactory {
         return new ExtremeSmithingRecipe(
                 requireIngredient(data.getTemplate(), "Avaritia extreme smithing template cannot be empty"),
                 requireIngredient(data.getBase(), "Avaritia extreme smithing base cannot be empty"),
-                compileExtremeSmithingAdditions(data.getIngredients()),
+                compileExtremeSmithingAdditions(data.getAdditions()),
                 requireResult(data.getResult(), "Avaritia extreme smithing result cannot be empty")
         );
     }

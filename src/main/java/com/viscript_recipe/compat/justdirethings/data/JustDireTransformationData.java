@@ -33,19 +33,23 @@ public final class JustDireTransformationData implements IVSRecipeData {
     @Persisted private int tier = 1;
     @Persisted private int duration = 1200;
 
-    /**
-     * 创建凝胶蔓延或流体投入的默认模板。
-     *
-     * @param type 已注册的配方类型路径
-     * @return 可编译的默认配方数据
-     */
-    public static JustDireTransformationData create(String type) {
-        var data = new JustDireTransformationData().setOutput(Registration.RawFerricoreOre.get().defaultBlockState());
-        if (type.equals("goospread_tag")) data.setOutput(Registration.RawCoal_T1.get().defaultBlockState()).setDuration(2400);
-        if (type.equals("fluiddrop")) data.setInput(Blocks.WATER.defaultBlockState())
-                .setOutput(Registration.POLYMORPHIC_FLUID_BLOCK.get().defaultBlockState())
-                .setCatalyst(Registration.PolymorphicCatalyst.get());
-        return data;
+    @Override
+    public void applyDefaultData(ResourceLocation typeId) {
+        nativeId = id("edited_transformation");
+        input = Blocks.IRON_BLOCK.defaultBlockState();
+        inputTag = ResourceLocation.parse("c:storage_blocks/charcoal");
+        output = Registration.RawFerricoreOre.get().defaultBlockState();
+        catalyst = Items.COAL;
+        tier = 1;
+        duration = 1200;
+        if (typeId.equals(id("goospread_tag"))) {
+            output = Registration.RawCoal_T1.get().defaultBlockState();
+            duration = 2400;
+        } else if (typeId.equals(id("fluiddrop"))) {
+            input = Blocks.WATER.defaultBlockState();
+            output = Registration.POLYMORPHIC_FLUID_BLOCK.get().defaultBlockState();
+            catalyst = Registration.PolymorphicCatalyst.get();
+        }
     }
 
     @Override

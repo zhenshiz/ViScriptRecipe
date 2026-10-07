@@ -59,6 +59,19 @@ public class ConfluenceRecipeData implements IVSRecipeData {
 
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
+        ingredients = new ArrayList<>(List.of(RecipeIngredient.item(Items.STONE)));
+        result = new ItemStack(Items.COBBLESTONE);
+        craftingMode = ConfluenceCraftingMode.SHAPED;
+        width = 1;
+        height = 1;
+        environment = new ConfluenceEnvironmentData();
+        container = RecipeIngredient.item(Items.BOWL);
+        heatSource = new ConfluenceHeatSourceData();
+        experience = 0;
+        cookingTime = 100;
+        requiresFuel = false;
+        shrink = 1;
+        gamePhase = ConfluenceGamePhase.BEFORE_SKELETRON;
         setTargets(new ArrayList<>());
         if (ConfluenceRecipeEditorTypes.ITEM_TRANSMUTATION.equals(typeId)) {
             setTargets(new ArrayList<>(List.of(new ItemStack(Items.COBBLESTONE))));

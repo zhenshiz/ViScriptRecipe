@@ -20,6 +20,10 @@ import java.util.List;
 @Accessors(chain = true)
 public class FarmerCookingPotRecipeData implements IVSRecipeData {
     @Persisted
+    private String group = "";
+    @Persisted
+    private String recipeBookTab = "misc";
+    @Persisted
     private List<RecipeIngredient> ingredients = new ArrayList<>(List.of(
             RecipeIngredient.item(Items.BEEF),
             RecipeIngredient.item(Items.CARROT),

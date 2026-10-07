@@ -20,7 +20,7 @@ public class SurgeryCanvas extends RecipeCanvas<SporeSurgeryRecipeData> {
     @Override
     public void save() {
         var data = getData();
-        data.setIngredients(getIngredients(SporeSurgeryRecipeData.INPUT_COUNT));
+        data.setIngredients(getIngredients(SporeSurgeryRecipeData.INPUT_COUNT, true));
         data.setResult(getVisualOutput(0).getItem());
     }
 
