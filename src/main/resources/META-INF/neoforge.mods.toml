@@ -154,6 +154,13 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies."${mod_id}"]]
+modId = "bakery"
+type = "optional"
+versionRange = "[2.1.7,2.2)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
 modId = "immersiveengineering"
 type = "optional"
 ordering = "AFTER"
@@ -191,5 +198,12 @@ side = "BOTH"
 modId = "justdirethings"
 type = "optional"
 versionRange = "[1.5.7,1.6)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "extradelight"
+type = "optional"
+versionRange = "[2.6.5,2.7)"
 ordering = "AFTER"
 side = "BOTH"

@@ -45,7 +45,14 @@ public final class FarmCharmRecipeImporter implements RecipeImportHandler {
         return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), type).setData(data));
     }
 
-    private static FarmCharmIngredientData importIngredient(Ingredient ingredient) throws RecipeImportException {
+    /**
+     * 保留普通材料的所有物品或标签候选，供使用相同材料格式的工作站导入。
+     *
+     * @param ingredient 原生材料条件
+     * @return 包含全部候选项的可编辑材料
+     * @throws RecipeImportException 材料使用不支持的自定义匹配条件时抛出
+     */
+    public static FarmCharmIngredientData importIngredient(Ingredient ingredient) throws RecipeImportException {
         var data = new FarmCharmIngredientData();
         if (ingredient.isEmpty()) return data;
         if (ingredient.isCustom()) throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.unsupported_ingredient");

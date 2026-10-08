@@ -188,7 +188,7 @@ public final class RecipeDeltaJeiSynchronizer {
             // 黏液和流体转化使用不同的 JEI UID，并直接持有配方对象；重建以同步增删改。
             if ("justdirethings".equals(typeId.getNamespace())) return false;
             var farmCharm = FarmCharmRecipeKind.byType(typeId);
-            var jeiType = recipeManager.getRecipeType(farmCharm.map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId)).orElse(null);
+            var jeiType = recipeManager.getRecipeType(jeiTypeId(typeId)).orElse(null);
             if (farmCharm.isPresent()) continue;
             if (jeiType != null && !RecipeHolder.class.isAssignableFrom(jeiType.getRecipeClass())) {
                 return false;
@@ -217,7 +217,7 @@ public final class RecipeDeltaJeiSynchronizer {
         allTypes.addAll(recipesByType.keySet());
         for (var typeId : allTypes) {
             var farmCharm = FarmCharmRecipeKind.byType(typeId);
-            var jeiType = recipeManager.getRecipeType(farmCharm.map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId)).orElse(null);
+            var jeiType = recipeManager.getRecipeType(jeiTypeId(typeId)).orElse(null);
             if (jeiType == null) {
                 continue;
             }
@@ -234,6 +234,12 @@ public final class RecipeDeltaJeiSynchronizer {
                     recipesByType.getOrDefault(typeId, new ArrayList<>())
             );
         }
+    }
+
+    private static ResourceLocation jeiTypeId(ResourceLocation typeId) {
+        // Bakery 的原生类型与 JEI 分类名称不同，分类直接持有配方对象，沿用现有完整重建路径。
+        if (typeId.equals(ResourceLocation.parse("bakery:baking_station"))) return ResourceLocation.parse("bakery:caking");
+        return FarmCharmRecipeKind.byType(typeId).map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

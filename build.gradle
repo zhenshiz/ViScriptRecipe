@@ -117,6 +117,7 @@ dependencies {
     implementation "curse.maven:goety-586095:${goety_file}"
     implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
     implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
+    implementation "curse.maven:extradelight-842106:${extra_delight_file}"
     implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
     implementation "curse.maven:titanium-287342:${titanium_file}"
     implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
@@ -126,6 +127,7 @@ dependencies {
     runtimeOnly "maven.modrinth:guideme:${guideme_version}"
     runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
     implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
+    implementation "curse.maven:lets-do-bakery-farm-charm-compat-1038130:${bakery_file}"
     runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
     implementation("com.alexthw.eidolon_repraised:eidolon_repraised-${minecraft_version}:${eidolon_repraised_version}") {
         transitive = false
