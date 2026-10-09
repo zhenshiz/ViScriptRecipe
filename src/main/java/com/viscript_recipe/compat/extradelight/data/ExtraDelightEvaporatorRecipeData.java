@@ -1,19 +1,20 @@
 package com.viscript_recipe.compat.extradelight.data;
 
+import com.lance5057.extradelight.workstations.evaporator.recipes.EvaporatorRecipe;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.data.FluidIngredientData;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.*;
 
-import com.lance5057.extradelight.workstations.evaporator.recipes.EvaporatorRecipe;
+import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.item;
+import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.requiredItem;
 
 /** Extra Delight 原生蒸发器配方的数据，默认值由接口统一初始化。 */
 @Getter

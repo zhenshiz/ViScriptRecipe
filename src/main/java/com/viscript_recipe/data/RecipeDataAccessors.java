@@ -1,9 +1,8 @@
 package com.viscript_recipe.data;
 
 import com.viscript_lib.annotation.ViScriptRegisterAccessors;
-import com.viscript_recipe.compat.ae2.data.*;
-import com.viscript_recipe.compat.farm_and_charm.data.*;
 import com.viscript_lib.event.RegisterAccessorEvent;
+import com.viscript_recipe.compat.ae2.data.*;
 import com.viscript_recipe.compat.ars_nouveau.data.*;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaCompressorRecipeData;
 import com.viscript_recipe.compat.avaritia.data.AvaritiaExtremeSmithingRecipeData;
@@ -16,12 +15,14 @@ import com.viscript_recipe.compat.create.data.CreateProcessingRecipeData;
 import com.viscript_recipe.compat.create.data.CreateSequencedAssemblyRecipeData;
 import com.viscript_recipe.compat.create.data.CreateSequencedAssemblyStepData;
 import com.viscript_recipe.compat.extendedcrafting.data.*;
+import com.viscript_recipe.compat.farm_and_charm.data.FarmCharmIngredientData;
+import com.viscript_recipe.compat.farm_and_charm.data.FarmCharmRecipeData;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
 import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
-import com.viscript_recipe.compat.industrial_foregoing.data.*;
 import com.viscript_recipe.compat.immersive_engineering.data.IERecipeData;
+import com.viscript_recipe.compat.industrial_foregoing.data.*;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronNoAdditionSmithingRecipeData;

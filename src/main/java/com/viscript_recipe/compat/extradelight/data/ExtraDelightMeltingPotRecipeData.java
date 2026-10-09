@@ -1,20 +1,21 @@
 package com.viscript_recipe.compat.extradelight.data;
 
+import com.lance5057.extradelight.workstations.meltingpot.MeltingPotRecipe;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
+
 import java.util.ArrayList;
 import java.util.List;
-import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.*;
 
-import com.lance5057.extradelight.workstations.meltingpot.MeltingPotRecipe;
+import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.requiredFluid;
 
 /** Extra Delight 原生熔化锅配方的数据，默认值由接口统一初始化。 */
 @Getter

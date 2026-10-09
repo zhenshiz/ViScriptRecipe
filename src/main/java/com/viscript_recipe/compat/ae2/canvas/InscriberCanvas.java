@@ -5,9 +5,9 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.ae2.Ae2RecipeEditorTypes;
 import com.viscript_recipe.compat.ae2.data.Ae2InscriberRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
+
 import static com.viscript_recipe.compat.ae2.canvas.Ae2CanvasFactory.*;
 
 public class InscriberCanvas extends Ae2ItemRecipeCanvas<Ae2InscriberRecipeData> {

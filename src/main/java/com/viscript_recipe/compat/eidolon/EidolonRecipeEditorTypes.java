@@ -2,8 +2,14 @@ package com.viscript_recipe.compat.eidolon;
 
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
 import com.viscript_recipe.IModModule;
-import com.viscript_recipe.compat.eidolon.canvas.*;
-import com.viscript_recipe.compat.eidolon.data.*;
+import com.viscript_recipe.compat.eidolon.canvas.CrucibleCanvas;
+import com.viscript_recipe.compat.eidolon.canvas.DyeCanvas;
+import com.viscript_recipe.compat.eidolon.canvas.RitualCanvas;
+import com.viscript_recipe.compat.eidolon.canvas.WorktableCanvas;
+import com.viscript_recipe.compat.eidolon.data.EidolonCrucibleRecipeData;
+import com.viscript_recipe.compat.eidolon.data.EidolonDyeRecipeData;
+import com.viscript_recipe.compat.eidolon.data.EidolonRitualRecipeData;
+import com.viscript_recipe.compat.eidolon.data.EidolonWorktableRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -21,31 +27,24 @@ public final class EidolonRecipeEditorTypes implements IModModule {
     public static final ResourceLocation SUMMON_RITUAL = id("ritual_brazier_summoning");
     public static final ResourceLocation COMMAND_RITUAL = id("ritual_brazier_command");
     public static final ResourceLocation LOCATION_RITUAL = id("ritual_brazier_location");
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() { return EidolonRecipeImporter.INSTANCE; }
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         category(CRUCIBLE, CRUCIBLE);
         category(WORKTABLE, WORKTABLE);
         category(BRAZIER, GENERIC_RITUAL);
         registerEditorType(RecipeEditorType.of(CRUCIBLE, CRUCIBLE, key(CRUCIBLE),
-                EidolonCrucibleRecipeData.class, EidolonCrucibleRecipeData::new,
-                (navigation, entry) -> new CrucibleCanvas(navigation, entry), MOD_ID));
+                EidolonCrucibleRecipeData.class, CrucibleCanvas.class));
         registerEditorType(RecipeEditorType.of(WORKTABLE, WORKTABLE, key(WORKTABLE),
-                EidolonWorktableRecipeData.class, EidolonWorktableRecipeData::new,
-                (navigation, entry) -> new WorktableCanvas(navigation, entry), MOD_ID));
+                EidolonWorktableRecipeData.class, WorktableCanvas.class));
         registerEditorType(RecipeEditorType.of(DYE, WORKTABLE, key(DYE),
-                EidolonDyeRecipeData.class, EidolonDyeRecipeData::new,
-                (navigation, entry) -> new DyeCanvas(navigation, entry), MOD_ID));
+                EidolonDyeRecipeData.class, DyeCanvas.class));
         for (var type : new ResourceLocation[]{GENERIC_RITUAL, ITEM_RITUAL, SUMMON_RITUAL, COMMAND_RITUAL, LOCATION_RITUAL}) {
             registerEditorType(RecipeEditorType.of(type, BRAZIER, key(type),
-                    EidolonRitualRecipeData.class, EidolonRitualRecipeData::new,
-                    (navigation, entry) -> new RitualCanvas(navigation, entry), MOD_ID));
+                    EidolonRitualRecipeData.class, RitualCanvas.class));
         }
     }
 

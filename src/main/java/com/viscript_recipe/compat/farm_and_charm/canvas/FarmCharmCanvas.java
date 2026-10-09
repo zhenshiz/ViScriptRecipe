@@ -3,15 +3,18 @@ package com.viscript_recipe.compat.farm_and_charm.canvas;
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.farm_and_charm.FarmCharmRecipeKind;
-import com.viscript_recipe.compat.farm_and_charm.data.*;
+import com.viscript_recipe.compat.farm_and_charm.data.FarmCharmIngredientData;
+import com.viscript_recipe.compat.farm_and_charm.data.FarmCharmRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import static com.viscript_recipe.compat.farm_and_charm.canvas.FarmCharmCanvasFactory.*;
 import static com.viscript_recipe.gui.views.PropertiesView.createItemStackConfigurator;
 

@@ -2,7 +2,6 @@ package com.viscript_recipe.compat.immersive_engineering;
 
 import blusunrize.immersiveengineering.api.crafting.*;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.RegistryOps;
 import com.viscript_recipe.compat.immersive_engineering.data.IERecipeData;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.RecipeIngredient;
@@ -12,13 +11,13 @@ import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SingleFluidIngredient;
-import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
 import java.util.ArrayList;

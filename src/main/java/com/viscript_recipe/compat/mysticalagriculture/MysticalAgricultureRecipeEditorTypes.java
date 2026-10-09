@@ -7,14 +7,9 @@ import com.viscript_recipe.compat.mysticalagriculture.data.*;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
-import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 @LDLRegister(registry = IModModule.ID, name = MysticalAgricultureRecipeEditorTypes.MOD_ID, modID = MysticalAgricultureRecipeEditorTypes.MOD_ID)
 public final class MysticalAgricultureRecipeEditorTypes implements IModModule{
@@ -34,15 +29,11 @@ public final class MysticalAgricultureRecipeEditorTypes implements IModModule{
     public static final ResourceLocation SOUL_EXTRACTION = mystical("soul_extraction");
     public static final ResourceLocation SOULIUM_SPAWNER = mystical("soulium_spawner");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return MysticalAgricultureRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(INFUSION_ALTAR, INFUSION);
         registerCategory(AWAKENING_ALTAR, AWAKENING);
         registerCategory(ENCHANTER_BLOCK, ENCHANTER);
@@ -61,26 +52,25 @@ public final class MysticalAgricultureRecipeEditorTypes implements IModModule{
 
     private void registerTypes() {
         register(INFUSION, INFUSION_ALTAR,
-                MysticalAgricultureInfusionRecipeData.class, MysticalAgricultureInfusionRecipeData::new, InfusionCanvas::new);
+                MysticalAgricultureInfusionRecipeData.class, InfusionCanvas.class);
         register(AWAKENING, AWAKENING_ALTAR,
-                MysticalAgricultureAwakeningRecipeData.class, MysticalAgricultureAwakeningRecipeData::new, AwakeningCanvas::new);
+                MysticalAgricultureAwakeningRecipeData.class, AwakeningCanvas.class);
         register(ENCHANTER, ENCHANTER_BLOCK,
-                MysticalAgricultureEnchanterRecipeData.class, MysticalAgricultureEnchanterRecipeData::new, EnchanterCanvas::new);
+                MysticalAgricultureEnchanterRecipeData.class, EnchanterCanvas.class);
         register(REPROCESSOR, REPROCESSOR_BLOCK,
-                MysticalAgricultureReprocessorRecipeData.class, MysticalAgricultureReprocessorRecipeData::new, ReprocessorCanvas::new);
+                MysticalAgricultureReprocessorRecipeData.class, ReprocessorCanvas.class);
         register(SOUL_EXTRACTION, SOUL_EXTRACTOR_BLOCK,
-                MysticalAgricultureSoulExtractionRecipeData.class, MysticalAgricultureSoulExtractionRecipeData::new, SoulExtractionCanvas::new);
+                MysticalAgricultureSoulExtractionRecipeData.class, SoulExtractionCanvas.class);
         register(SOULIUM_SPAWNER, SOULIUM_SPAWNER_BLOCK,
-                MysticalAgricultureSouliumSpawnerRecipeData.class, MysticalAgricultureSouliumSpawnerRecipeData::new, SouliumSpawnerCanvas::new);
+                MysticalAgricultureSouliumSpawnerRecipeData.class, SouliumSpawnerCanvas.class);
     }
 
     private void register(ResourceLocation id, ResourceLocation category,
-            Class<? extends IVSRecipeData> dataClass, Supplier<? extends IVSRecipeData> dataSupplier,
-            BiFunction<NavigationView, RecipeEntry, RecipeCanvas<?>> canvasSupplier
+            Class<? extends IVSRecipeData> dataClass, Class<? extends RecipeCanvas<?>> canvasClass
     ) {
         registerEditorType(RecipeEditorType.of(id, category,
                 "viscript_recipe.editor.type.mysticalagriculture." + id.getPath(),
-                dataClass, dataSupplier, canvasSupplier, MOD_ID
+                dataClass, canvasClass
         ));
     }
 

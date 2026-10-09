@@ -1,15 +1,19 @@
 package com.viscript_recipe.compat.enderio.canvas;
 
+import com.enderio.enderio.api.soul.Soul;
 import com.enderio.enderio.content.enchanter.EnchanterRecipe;
 import com.enderio.enderio.content.tools.vials.SoulVialItem;
-import com.enderio.enderio.api.soul.Soul;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
-import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.FluidSlot;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.viscript_recipe.compat.enderio.EnderIoRecipeEditorTypes;
-import com.viscript_recipe.compat.enderio.data.*;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.compat.enderio.data.EnderIoIngredientData;
+import com.viscript_recipe.compat.enderio.data.EnderIoOutputData;
+import com.viscript_recipe.compat.enderio.data.EnderIoRecipeData;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.FluidRecipeCanvas;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.editor.SlotSelection;
@@ -25,7 +29,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.viscript_recipe.compat.enderio.canvas.EnderIoCanvasLayout.*;
 
@@ -191,7 +198,7 @@ public final class EnderIoRecipeCanvas extends FluidRecipeCanvas<EnderIoRecipeDa
     private void loadInput(int index) {
         var data = getData().getInputs().get(index);
         if (!data.getCustomJson().isBlank() || visualIngredientSlots[index] == null) return;
-        int selected = Math.min(alternatives.getOrDefault(index, 0), Math.max(0, data.getAlternatives().size() - 1));
+        int selected = Math.clamp(data.getAlternatives().size() - 1, 0, alternatives.getOrDefault(index, 0));
         alternatives.put(index, selected);
         loadIngredientSlot(index, data.getAlternatives().isEmpty() ? RecipeIngredient.empty() : data.getAlternatives().get(selected).copy().setCount(data.getCount() * (type().equals("enchanting") ? previewLevel : 1)));
     }

@@ -2,8 +2,14 @@ package com.viscript_recipe.compat.ae2;
 
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
 import com.viscript_recipe.IModModule;
-import com.viscript_recipe.compat.ae2.canvas.*;
-import com.viscript_recipe.compat.ae2.data.*;
+import com.viscript_recipe.compat.ae2.canvas.ChargerCanvas;
+import com.viscript_recipe.compat.ae2.canvas.EntropyCanvas;
+import com.viscript_recipe.compat.ae2.canvas.InscriberCanvas;
+import com.viscript_recipe.compat.ae2.canvas.TransformCanvas;
+import com.viscript_recipe.compat.ae2.data.Ae2ChargerRecipeData;
+import com.viscript_recipe.compat.ae2.data.Ae2EntropyRecipeData;
+import com.viscript_recipe.compat.ae2.data.Ae2InscriberRecipeData;
+import com.viscript_recipe.compat.ae2.data.Ae2TransformRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -16,27 +22,24 @@ public final class Ae2RecipeEditorTypes implements IModModule {
     public static final ResourceLocation CHARGER = id("charger");
     public static final ResourceLocation TRANSFORM = id("transform");
     public static final ResourceLocation ENTROPY = id("entropy");
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() { return Ae2RecipeImporter.INSTANCE; }
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         category(INSCRIBER, "inscriber");
         category(CHARGER, "charger");
         category(TRANSFORM, "fluix_crystal");
         category(ENTROPY, "entropy_manipulator");
         registerEditorType(RecipeEditorType.of(INSCRIBER, INSCRIBER, key(INSCRIBER),
-                Ae2InscriberRecipeData.class, Ae2InscriberRecipeData::new, InscriberCanvas::new, MOD_ID));
+                Ae2InscriberRecipeData.class, InscriberCanvas.class));
         registerEditorType(RecipeEditorType.of(CHARGER, CHARGER, key(CHARGER),
-                Ae2ChargerRecipeData.class, Ae2ChargerRecipeData::new, ChargerCanvas::new, MOD_ID));
+                Ae2ChargerRecipeData.class, ChargerCanvas.class));
         registerEditorType(RecipeEditorType.of(TRANSFORM, TRANSFORM, key(TRANSFORM),
-                Ae2TransformRecipeData.class, Ae2TransformRecipeData::new, TransformCanvas::new, MOD_ID));
+                Ae2TransformRecipeData.class, TransformCanvas.class));
         registerEditorType(RecipeEditorType.of(ENTROPY, ENTROPY, key(ENTROPY),
-                Ae2EntropyRecipeData.class, Ae2EntropyRecipeData::new, EntropyCanvas::new, MOD_ID));
+                Ae2EntropyRecipeData.class, EntropyCanvas.class));
     }
 
     private void category(ResourceLocation type, String icon) {

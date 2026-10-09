@@ -11,7 +11,7 @@ import com.viscript_recipe.gui.views.NavigationView;
 
 import java.util.List;
 
-import static com.viscript_recipe.compat.extendedcrafting.data.ExtendedCraftingRecipeEditorTypes.*;
+import static com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeEditorTypes.*;
 
 public class CraftingTableCanvas extends RecipeCanvas<ExtendedCraftingTableRecipeData> {
     public CraftingTableCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}

@@ -1,27 +1,35 @@
 package com.viscript_recipe.compat.extradelight;
 
 import com.lance5057.extradelight.recipe.*;
-import com.lance5057.extradelight.workstations.mortar.recipes.MortarRecipe;
-import com.lance5057.extradelight.workstations.mixingbowl.recipes.MixingBowlRecipe;
-import com.lance5057.extradelight.workstations.oven.recipes.OvenRecipe;
-import com.lance5057.extradelight.workstations.dryingrack.DryingRackRecipe;
-import com.lance5057.extradelight.workstations.doughshaping.recipes.DoughShapingRecipe;
-import com.lance5057.extradelight.workstations.meltingpot.MeltingPotRecipe;
 import com.lance5057.extradelight.workstations.chiller.ChillerRecipe;
-import com.lance5057.extradelight.workstations.vat.recipes.VatRecipe;
+import com.lance5057.extradelight.workstations.doughshaping.recipes.DoughShapingRecipe;
+import com.lance5057.extradelight.workstations.dryingrack.DryingRackRecipe;
 import com.lance5057.extradelight.workstations.evaporator.recipes.EvaporatorRecipe;
 import com.lance5057.extradelight.workstations.juicer.JuicerRecipe;
+import com.lance5057.extradelight.workstations.meltingpot.MeltingPotRecipe;
+import com.lance5057.extradelight.workstations.mixingbowl.recipes.MixingBowlRecipe;
+import com.lance5057.extradelight.workstations.mortar.recipes.MortarRecipe;
+import com.lance5057.extradelight.workstations.oven.recipes.OvenRecipe;
+import com.lance5057.extradelight.workstations.vat.recipes.VatRecipe;
 import com.mojang.serialization.JsonOps;
 import com.viscript_recipe.compat.extradelight.data.*;
-import com.viscript_recipe.data.*;
-import com.viscript_recipe.recipe.importer.*;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.RecipeIngredient;
+import com.viscript_recipe.recipe.importer.RecipeImportException;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
+import com.viscript_recipe.recipe.importer.RecipeImportResult;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.importFluid;
 
 /** 在通用原版和农夫乐事导入器之前处理 Extra Delight 原生配方，保留子类加工行为。 */

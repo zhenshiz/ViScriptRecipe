@@ -2,7 +2,6 @@ package com.viscript_recipe.compat.ars_nouveau;
 
 import com.hollingsworth.arsnouveau.common.crafting.recipes.*;
 import com.viscript_recipe.compat.ars_nouveau.data.*;
-import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -40,7 +39,7 @@ public final class ArsNouveauRecipeImporter implements RecipeImportHandler {
                     .setPedestalItems(new ArrayList<>(RecipeImporter.importIngredientList(armorUpgrade.pedestalItems(), 8)))
                     .setSourceCost(Math.max(0, armorUpgrade.sourceCost()))
                     .setTier(armorUpgrade.tier());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_ARMOR_UPGRADE).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), ArsNouveauRecipeEditorTypes.ARMOR_UPGRADE).setData(data));
         }
         if (recipe instanceof EnchantmentRecipe enchantment && !(recipe instanceof ReactiveEnchantmentRecipe)) {
             var data = new ArsNouveauEnchantmentRecipeData()
@@ -48,7 +47,7 @@ public final class ArsNouveauRecipeImporter implements RecipeImportHandler {
                     .setEnchantment(enchantment.enchantmentKey().location())
                     .setLevel(Math.max(1, enchantment.enchantLevel()))
                     .setSourceCost(Math.max(0, enchantment.sourceCost()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_ENCHANTMENT).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), ArsNouveauRecipeEditorTypes.ENCHANTMENT).setData(data));
         }
         if (recipe instanceof EnchantingApparatusRecipe apparatus && !isPedestalOnly(apparatus)) {
             var data = new ArsNouveauApparatusRecipeData()
@@ -57,7 +56,7 @@ public final class ArsNouveauRecipeImporter implements RecipeImportHandler {
                     .setResult(RecipeImporter.copyResult(apparatus, provider))
                     .setSourceCost(Math.max(0, apparatus.sourceCost()))
                     .setKeepNbtOfReagent(apparatus.keepNbtOfReagent());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_ENCHANTING_APPARATUS).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), ArsNouveauRecipeEditorTypes.ENCHANTING_APPARATUS).setData(data));
         }
         if (recipe instanceof ImbuementRecipe imbuement) {
             var data = new ArsNouveauImbuementRecipeData()
@@ -65,14 +64,14 @@ public final class ArsNouveauRecipeImporter implements RecipeImportHandler {
                     .setPedestalItems(new ArrayList<>(RecipeImporter.importIngredientList(imbuement.getPedestalItems(), 8)))
                     .setResult(RecipeImporter.copyResult(imbuement, provider))
                     .setSource(Math.max(0, imbuement.getSource()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_IMBUEMENT).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), ArsNouveauRecipeEditorTypes.IMBUEMENT).setData(data));
         }
         if (recipe instanceof GlyphRecipe glyph) {
             var data = new ArsNouveauGlyphRecipeData()
                     .setInputs(new ArrayList<>(RecipeImporter.importIngredientList(glyph.getInputs(), 9)))
                     .setResult(RecipeImporter.copyResult(glyph, provider))
                     .setExp(Math.max(0, glyph.getExp()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_GLYPH).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), ArsNouveauRecipeEditorTypes.GLYPH).setData(data));
         }
         if (recipe instanceof CrushRecipe crush) {
             var outputs = new ArrayList<ArsNouveauCrushOutputData>();
@@ -88,7 +87,7 @@ public final class ArsNouveauRecipeImporter implements RecipeImportHandler {
                     .setInput(RecipeImporter.importIngredient(crush.input()))
                     .setOutputs(outputs)
                     .setSkipBlockPlace(crush.skipBlockPlace());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ARS_NOUVEAU_CRUSH).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), ArsNouveauRecipeEditorTypes.CRUSH).setData(data));
         }
         return null;
     }

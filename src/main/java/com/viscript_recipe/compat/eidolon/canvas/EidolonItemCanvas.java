@@ -3,18 +3,18 @@ package com.viscript_recipe.compat.eidolon.canvas;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.eidolon.data.EidolonIngredientData;
 import com.viscript_recipe.compat.eidolon.data.EidolonIngredientValueData;
-import com.viscript_recipe.data.IngredientValueKind;
-import net.minecraft.world.item.ItemStack;
 import com.viscript_recipe.data.IVSRecipeData;
+import com.viscript_recipe.data.IngredientValueKind;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
-import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 

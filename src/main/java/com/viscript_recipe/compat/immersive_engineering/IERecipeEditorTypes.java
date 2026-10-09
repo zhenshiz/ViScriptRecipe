@@ -15,20 +15,15 @@ public final class IERecipeEditorTypes implements IModModule {
     public static final String[] TYPES = {"coke_oven", "alloy", "blast_furnace", "blast_furnace_fuel",
             "cloche", "fertilizer", "metal_press", "crusher", "sawmill", "blueprint", "squeezer",
             "fermenter", "refinery", "arc_furnace", "mixer", "bottling_machine"};
-    private static boolean registered;
 
     @Override public RecipeImportHandler importHandler() { return IERecipeImporter.INSTANCE; }
 
     @Override public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         for (String name : TYPES) {
             var id = id(name);
             var key = "viscript_recipe.editor.type.immersive_engineering." + name;
             registerCategory(RecipeEditorCategory.of(id, key, MOD_ID, id, icon(name)));
-            // 使用延迟构造，避免公共初始化阶段在服务端加载 IECanvas 的客户端类。
-            registerEditorType(RecipeEditorType.of(id, id, key, IERecipeData.class, IERecipeData::new,
-                    (navigation, entry) -> new IECanvas(navigation, entry), MOD_ID));
+            registerEditorType(RecipeEditorType.of(id, id, key, IERecipeData.class, IECanvas.class));
         }
     }
 

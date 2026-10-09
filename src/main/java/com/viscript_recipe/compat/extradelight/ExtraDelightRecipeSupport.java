@@ -1,8 +1,10 @@
 package com.viscript_recipe.compat.extradelight;
 
 import com.lance5057.extradelight.workstations.vat.recipes.VatRecipe;
-import com.viscript_recipe.compat.extradelight.data.*;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.compat.extradelight.data.ExtraDelightRecipeData;
+import com.viscript_recipe.compat.extradelight.data.ExtraDelightVatRecipeData;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
@@ -11,7 +13,9 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.*;
+import net.neoforged.neoforge.fluids.crafting.SingleFluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.TagFluidIngredient;
 
 /** 转换 VSR 的通用槽位数据与 Extra Delight 原生配方字段。 */
 public final class ExtraDelightRecipeSupport {

@@ -15,22 +15,18 @@ public final class DraconicEvolutionRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "draconicevolution";
     public static final ResourceLocation FUSION_CRAFTING = id("fusion_crafting");
     public static final ResourceLocation CRAFTING_CORE = id("crafting_core");
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() { return DraconicEvolutionRecipeImporter.INSTANCE; }
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(RecipeEditorCategory.of(CRAFTING_CORE,
                 "viscript_recipe.editor.category.draconicevolution.crafting_core",
                 MOD_ID, FUSION_CRAFTING, CRAFTING_CORE));
         registerEditorType(RecipeEditorType.of(FUSION_CRAFTING, CRAFTING_CORE,
                 "viscript_recipe.editor.type.draconicevolution.fusion_crafting",
-                DraconicFusionRecipeData.class, DraconicFusionRecipeData::new,
-                (navigation, entry) -> new FusionCraftingCanvas(navigation, entry), MOD_ID));
+                DraconicFusionRecipeData.class, FusionCraftingCanvas.class));
     }
 
     public static ResourceLocation id(String path) {

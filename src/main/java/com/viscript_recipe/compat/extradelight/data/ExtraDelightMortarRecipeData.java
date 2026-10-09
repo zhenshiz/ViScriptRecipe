@@ -1,20 +1,21 @@
 package com.viscript_recipe.compat.extradelight.data;
 
+import com.lance5057.extradelight.workstations.mortar.recipes.MortarRecipe;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.fluids.FluidStack;
+
 import java.util.ArrayList;
 import java.util.List;
-import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.*;
 
-import com.lance5057.extradelight.workstations.mortar.recipes.MortarRecipe;
+import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeSupport.item;
 
 /** Extra Delight 原生研钵配方的数据，默认值由接口统一初始化。 */
 @Getter

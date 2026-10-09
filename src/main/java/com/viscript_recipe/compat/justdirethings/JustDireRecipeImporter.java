@@ -2,14 +2,20 @@ package com.viscript_recipe.compat.justdirethings;
 
 import com.direwolf20.justdirethings.datagen.recipes.*;
 import com.mojang.serialization.JsonOps;
-import com.viscript_recipe.compat.justdirethings.data.*;
+import com.viscript_recipe.compat.justdirethings.data.JustDireIngredientData;
+import com.viscript_recipe.compat.justdirethings.data.JustDireSmithingData;
+import com.viscript_recipe.compat.justdirethings.data.JustDireTransformationData;
 import com.viscript_recipe.data.IVSRecipeData;
-import com.viscript_recipe.recipe.importer.*;
+import com.viscript_recipe.recipe.importer.RecipeImportException;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
+import com.viscript_recipe.recipe.importer.RecipeImportResult;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+
 import static com.viscript_recipe.compat.justdirethings.JustDireRecipeEditorTypes.id;
 
 /** 导入三类世界转化与两类原生锻造配方；掉落展示不属于可编辑配方。 */

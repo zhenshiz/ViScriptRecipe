@@ -66,17 +66,6 @@ public class MekanismRecipeData implements IVSRecipeData {
     }
 
     private void applyMekanism(MekanismRecipeKind kind) {
-        itemInput = RecipeIngredient.item(Items.COBBLESTONE);
-        extraItemInput = RecipeIngredient.item(Items.COBBLESTONE);
-        itemOutput = new ItemStack(Items.IRON_INGOT);
-        secondaryItemOutput = ItemStack.EMPTY;
-        secondaryChance = 0;
-        fluidOutput = new FluidStack(Fluids.WATER, 1000);
-        perTickUsage = false;
-        duration = 100;
-        energyRequired = 0;
-        energyMultiplier = 1;
-        energyOutput = 1000;
         setFluidInput(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)))
                 .setChemicalInput(chemicalIngredient("oxygen"))
                 .setExtraChemicalInput(chemicalIngredient("hydrogen"))

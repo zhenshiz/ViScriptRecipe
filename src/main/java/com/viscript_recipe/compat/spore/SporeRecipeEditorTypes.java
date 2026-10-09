@@ -19,35 +19,25 @@ public final class SporeRecipeEditorTypes implements IModModule{
     public static final ResourceLocation SURGERY = spore("surgery");
     public static final ResourceLocation GRAFTING = spore("grafting");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return SporeRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(RecipeEditorCategory.of(
                 SURGERY_TABLE,
                 "viscript_recipe.editor.category.spore.surgery_table",
                 MOD_ID, SURGERY, SURGERY_TABLE
         ));
-        registerTypes();
-    }
-
-    private void registerTypes() {
         registerEditorType(RecipeEditorType.of(
                 SURGERY, SURGERY_TABLE,
                 "viscript_recipe.editor.type.spore.surgery",
-                SporeSurgeryRecipeData.class, SporeSurgeryRecipeData::new,
-                SurgeryCanvas::new, MOD_ID
+                SporeSurgeryRecipeData.class, SurgeryCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 GRAFTING, SURGERY_TABLE,
                 "viscript_recipe.editor.type.spore.grafting",
-                SporeGraftingRecipeData.class, SporeGraftingRecipeData::new,
-                GraftingCanvas::new, MOD_ID
+                SporeGraftingRecipeData.class, GraftingCanvas.class
         ));
     }
 

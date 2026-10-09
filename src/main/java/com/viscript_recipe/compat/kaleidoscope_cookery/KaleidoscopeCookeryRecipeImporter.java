@@ -2,7 +2,6 @@ package com.viscript_recipe.compat.kaleidoscope_cookery;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.*;
 import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
-import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeOutputData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
@@ -47,7 +46,7 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                     .setCarrier(importOptional(pot.carrier()))
                     .setTime(Math.max(1, pot.time()))
                     .setStirFryCount(Math.max(0, pot.stirFryCount()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_POT).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.POT).setData(data));
         }
         if (recipe instanceof StockpotRecipe stockpot) {
             var data = new KaleidoscopeStockpotRecipeData()
@@ -60,7 +59,7 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                     .setFinishedTexture(stockpot.finishedTexture())
                     .setCookingBubbleColor(stockpot.cookingBubbleColor())
                     .setFinishedBubbleColor(stockpot.finishedBubbleColor());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_STOCKPOT).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.STOCKPOT).setData(data));
         }
         if (recipe instanceof MillstoneRecipe millstone) {
             var data = new KaleidoscopeMillstoneRecipeData()
@@ -69,7 +68,7 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                             .limit(KaleidoscopeMillstoneRecipeData.MAX_RESULTS)
                             .map(output -> RecipeOutputData.of(output.stack(), output.chance()))
                             .toList());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_MILLSTONE).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.MILLSTONE).setData(data));
         }
         if (recipe instanceof ChoppingBoardRecipe choppingBoard) {
             var data = new KaleidoscopeChoppingBoardRecipeData()
@@ -77,14 +76,14 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                     .setResult(RecipeImporter.copyResult(choppingBoard, provider))
                     .setCutCount(Math.max(1, choppingBoard.getCutCount()))
                     .setModelId(choppingBoard.getModelId());
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_CHOPPING_BOARD).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.CHOPPING_BOARD).setData(data));
         }
         if (recipe instanceof SteamerRecipe steamer) {
             var data = new KaleidoscopeSteamerRecipeData()
                     .setIngredient(RecipeImporter.importIngredient(steamer.getIngredient()))
                     .setResult(RecipeImporter.copyResult(steamer, provider))
                     .setCookTick(Math.max(1, steamer.getCookTick()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_STEAMER).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.STEAMER).setData(data));
         }
         if (recipe instanceof TeapotRecipe teapot) {
             var data = new KaleidoscopeTeapotRecipeData()
@@ -93,7 +92,7 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                             .setCount(Math.max(1, teapot.ingredientCount())))
                     .setTime(Math.max(1, teapot.time()))
                     .setResult(RecipeImporter.copyResult(teapot, provider));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_TEAPOT).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.TEAPOT).setData(data));
         }
         if (recipe instanceof BambooTrayRecipe bambooTray) {
             var data = new KaleidoscopeBambooTrayRecipeData()
@@ -101,7 +100,7 @@ public final class KaleidoscopeCookeryRecipeImporter implements RecipeImportHand
                     .setResult(RecipeImporter.copyResult(bambooTray, provider))
                     .setSubtype(bambooTray.getSubtype().getSerializedName())
                     .setDuration(Math.max(1, bambooTray.getDuration()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_COOKERY_BAMBOO_TRAY).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeCookeryRecipeEditorTypes.BAMBOO_TRAY).setData(data));
         }
         return null;
     }

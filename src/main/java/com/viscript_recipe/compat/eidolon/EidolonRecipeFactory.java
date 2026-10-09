@@ -2,14 +2,14 @@ package com.viscript_recipe.compat.eidolon;
 
 import alexthw.eidolon_repraised.recipe.*;
 import alexthw.eidolon_repraised.registries.RitualRegistry;
-import com.lowdragmc.lowdraglib2.Platform;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.lowdragmc.lowdraglib2.Platform;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.RegistryOps;
 import com.viscript_recipe.compat.eidolon.data.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;

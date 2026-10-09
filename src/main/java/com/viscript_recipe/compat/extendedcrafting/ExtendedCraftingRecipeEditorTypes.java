@@ -1,9 +1,9 @@
-package com.viscript_recipe.compat.extendedcrafting.data;
+package com.viscript_recipe.compat.extendedcrafting;
 
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
 import com.viscript_recipe.IModModule;
-import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeImporter;
 import com.viscript_recipe.compat.extendedcrafting.canvas.*;
+import com.viscript_recipe.compat.extendedcrafting.data.*;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -41,15 +41,11 @@ public final class ExtendedCraftingRecipeEditorTypes implements IModModule{
     public static final ResourceLocation SHAPED_FLUX_CRAFTER = create("shaped_flux_crafter");
     public static final ResourceLocation SHAPELESS_FLUX_CRAFTER = create("shapeless_flux_crafter");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return ExtendedCraftingRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -86,22 +82,19 @@ public final class ExtendedCraftingRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 COMBINATION, CRAFTING_CORE,
                 "viscript_recipe.editor.type.extendedcrafting.combination",
-                ExtendedCraftingCombinationRecipeData.class, ExtendedCraftingCombinationRecipeData::new,
-                CombinationCanvas::new, MOD_ID
+                ExtendedCraftingCombinationRecipeData.class, CombinationCanvas.class
         ));
         registerTableType(SHAPED_TABLE, "viscript_recipe.editor.type.extendedcrafting.shaped_table");
         registerTableType(SHAPELESS_TABLE, "viscript_recipe.editor.type.extendedcrafting.shapeless_table");
         registerEditorType(RecipeEditorType.of(
                 ULTIMATE_SINGULARITY, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.extendedcrafting.ultimate_singularity",
-                ExtendedCraftingUltimateSingularityRecipeData.class, ExtendedCraftingUltimateSingularityRecipeData::new,
-                UltimateSingularityCanvas::new, MOD_ID
+                ExtendedCraftingUltimateSingularityRecipeData.class, UltimateSingularityCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 COMPRESSOR_RECIPE, COMPRESSOR,
                 "viscript_recipe.editor.type.extendedcrafting.compressor",
-                ExtendedCraftingCompressorRecipeData.class, ExtendedCraftingCompressorRecipeData::new,
-                CompressorCanvas::new, MOD_ID
+                ExtendedCraftingCompressorRecipeData.class, CompressorCanvas.class
         ));
         registerEnderType(SHAPED_ENDER_CRAFTER, "viscript_recipe.editor.type.extendedcrafting.shaped_ender_crafter");
         registerEnderType(SHAPELESS_ENDER_CRAFTER, "viscript_recipe.editor.type.extendedcrafting.shapeless_ender_crafter");
@@ -112,24 +105,21 @@ public final class ExtendedCraftingRecipeEditorTypes implements IModModule{
     private void registerTableType(ResourceLocation type, String translationKey) {
         registerEditorType(RecipeEditorType.of(
                 type, CRAFTING_TABLE, translationKey,
-                ExtendedCraftingTableRecipeData.class, ExtendedCraftingTableRecipeData::new,
-                CraftingTableCanvas::new, MOD_ID
+                ExtendedCraftingTableRecipeData.class, CraftingTableCanvas.class
         ));
     }
 
     private void registerEnderType(ResourceLocation type, String translationKey) {
         registerEditorType(RecipeEditorType.of(
                 type, ENDER_CRAFTER, translationKey,
-                ExtendedCraftingEnderCrafterRecipeData.class, ExtendedCraftingEnderCrafterRecipeData::new,
-                EnderCrafterCanvas::new, MOD_ID
+                ExtendedCraftingEnderCrafterRecipeData.class, EnderCrafterCanvas.class
         ));
     }
 
     private void registerFluxType(ResourceLocation type, String translationKey) {
         registerEditorType(RecipeEditorType.of(
                 type, FLUX_CRAFTER, translationKey,
-                ExtendedCraftingFluxCrafterRecipeData.class, ExtendedCraftingFluxCrafterRecipeData::new,
-                FluxCrafterCanvas::new, MOD_ID
+                ExtendedCraftingFluxCrafterRecipeData.class, FluxCrafterCanvas.class
         ));
     }
 

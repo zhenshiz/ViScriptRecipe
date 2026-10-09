@@ -1,18 +1,19 @@
 package com.viscript_recipe.compat.ae2.data;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_recipe.compat.ae2.Ae2RecipeEditorTypes;
 import com.viscript_recipe.compat.ae2.Ae2RecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
-import com.viscript_recipe.compat.ae2.Ae2RecipeEditorTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+
 import java.util.ArrayList;
 import java.util.List;
 

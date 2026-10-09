@@ -32,15 +32,12 @@ public final class ConfluenceRecipeEditorTypes implements IModModule{
     public static final ResourceLocation CRYSTAL_BALL = id("crystal_ball");
 
     private static final Map<ResourceLocation, ResourceLocation> WORKSTATIONS = workstationMap();
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() {return ConfluenceRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         for (var type : WORKSTATIONS.keySet()) {
             registerCategory(RecipeEditorCategory.of(
                     type, "viscript_recipe.editor.category.confluence." + type.getPath(),
@@ -49,8 +46,7 @@ public final class ConfluenceRecipeEditorTypes implements IModModule{
             registerEditorType(RecipeEditorType.of(
                     type, type,
                     "viscript_recipe.editor.type.confluence." + type.getPath(),
-                    ConfluenceRecipeData.class, ConfluenceRecipeData::new,
-                    ConfluenceCanvas::new, MOD_ID
+                    ConfluenceRecipeData.class, ConfluenceCanvas.class
             ));
         }
     }

@@ -4,8 +4,9 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.eidolon.data.EidolonDyeRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.views.NavigationView;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+
 import java.util.List;
 
 public final class DyeCanvas extends EidolonItemCanvas<EidolonDyeRecipeData> {

@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.kaleidoscope_cookery.canvas;
 
-import com.google.common.util.concurrent.Runnables;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.TeapotRecipe;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems;
+import com.google.common.util.concurrent.Runnables;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.compat.kaleidoscope_cookery.data.KaleidoscopeTeapotRecipeData;

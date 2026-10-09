@@ -19,24 +19,19 @@ public final class BakeryRecipeEditorTypes implements IModModule {
     public static final String NAME_KEY = "block.bakery.baker_station";
     public static final ResourceLocation CAKE_INTERACTION = ResourceLocation.fromNamespaceAndPath(MOD_ID, "blank_cake_interaction");
     public static final String INTERACTION_KEY = "viscript_recipe.editor.bakery.cake_interaction";
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() { return BakeryRecipeImporter.INSTANCE; }
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(RecipeEditorCategory.of(BAKING_STATION, NAME_KEY, MOD_ID, BAKING_STATION,
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "baker_station")));
         registerEditorType(RecipeEditorType.of(BAKING_STATION, BAKING_STATION, NAME_KEY,
-                BakeryBakingStationRecipeData.class, BakeryBakingStationRecipeData::new, BakeryBakingStationCanvas::new,
-                MOD_ID, "farm_and_charm"));
+                BakeryBakingStationRecipeData.class, BakeryBakingStationCanvas.class));
         registerCategory(RecipeEditorCategory.of(CAKE_INTERACTION, INTERACTION_KEY, MOD_ID, CAKE_INTERACTION,
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "baker_station")));
         registerEditorType(RecipeEditorType.of(CAKE_INTERACTION, CAKE_INTERACTION, INTERACTION_KEY,
-                BakeryCakeInteractionRecipeData.class, BakeryCakeInteractionRecipeData::new, BakeryCakeInteractionCanvas::new,
-                MOD_ID, "farm_and_charm"));
+                BakeryCakeInteractionRecipeData.class, BakeryCakeInteractionCanvas.class));
     }
 }

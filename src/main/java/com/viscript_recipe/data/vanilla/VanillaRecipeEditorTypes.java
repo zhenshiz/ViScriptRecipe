@@ -9,8 +9,6 @@ import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
-
 @LDLRegister(registry = IModModule.ID, name = VanillaRecipeEditorTypes.MOD_ID, priority = 1000)
 public final class VanillaRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "minecraft";
@@ -31,12 +29,8 @@ public final class VanillaRecipeEditorTypes implements IModModule {
     public static final ResourceLocation STONECUTTING = minecraft("stonecutting");
     public static final ResourceLocation SMITHING_TRANSFORM = minecraft("smithing_transform");
 
-    private static boolean registered;
-
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -47,31 +41,31 @@ public final class VanillaRecipeEditorTypes implements IModModule {
     private void registerCategories() {
         registerCategory(new RecipeEditorCategory(
                 CRAFTING_TABLE, "viscript_recipe.editor.category.minecraft.crafting_table",
-                MOD_ID, List.of(), CRAFTING_SHAPED
+                MOD_ID, CRAFTING_SHAPED
         ));
         registerCategory(new RecipeEditorCategory(
                 FURNACE, "viscript_recipe.editor.category.minecraft.furnace",
-                MOD_ID, List.of(), SMELTING
+                MOD_ID, SMELTING
         ));
         registerCategory(new RecipeEditorCategory(
                 BLAST_FURNACE, "viscript_recipe.editor.category.minecraft.blast_furnace",
-                MOD_ID, List.of(), BLASTING
+                MOD_ID, BLASTING
         ));
         registerCategory(new RecipeEditorCategory(
                 SMOKER, "viscript_recipe.editor.category.minecraft.smoker",
-                MOD_ID, List.of(), SMOKING
+                MOD_ID, SMOKING
         ));
         registerCategory(new RecipeEditorCategory(
                 CAMPFIRE, "viscript_recipe.editor.category.minecraft.campfire",
-                MOD_ID, List.of(), CAMPFIRE_COOKING
+                MOD_ID, CAMPFIRE_COOKING
         ));
         registerCategory(new RecipeEditorCategory(
                 STONECUTTER, "viscript_recipe.editor.category.minecraft.stonecutter",
-                MOD_ID, List.of(), STONECUTTING
+                MOD_ID, STONECUTTING
         ));
         registerCategory(new RecipeEditorCategory(
                 SMITHING_TABLE, "viscript_recipe.editor.category.minecraft.smithing_table",
-                MOD_ID, List.of(), SMITHING_TRANSFORM
+                MOD_ID, SMITHING_TRANSFORM
         ));
     }
 
@@ -79,42 +73,42 @@ public final class VanillaRecipeEditorTypes implements IModModule {
         registerEditorType(RecipeEditorType.of(
                 CRAFTING_SHAPED, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shaped",
-                ShapedCraftingRecipeData.class, ShapedCraftingRecipeData::new, ShapedCraftingCanvas::new
+                ShapedCraftingRecipeData.class, ShapedCraftingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 CRAFTING_SHAPELESS, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shapeless",
-                ShapelessCraftingRecipeData.class, ShapelessCraftingRecipeData::new, ShapelessCraftingCanvas::new
+                ShapelessCraftingRecipeData.class, ShapelessCraftingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 SMELTING, FURNACE,
                 "viscript_recipe.editor.type.minecraft.smelting",
-                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
+                CookingRecipeData.class, CookingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 BLASTING, BLAST_FURNACE,
                 "viscript_recipe.editor.type.minecraft.blasting",
-                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
+                CookingRecipeData.class, CookingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 SMOKING, SMOKER,
                 "viscript_recipe.editor.type.minecraft.smoking",
-                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
+                CookingRecipeData.class, CookingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 CAMPFIRE_COOKING, CAMPFIRE,
                 "viscript_recipe.editor.type.minecraft.campfire_cooking",
-                CookingRecipeData.class, CookingRecipeData::new, CookingCanvas::new
+                CookingRecipeData.class, CookingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 STONECUTTING, STONECUTTER,
                 "viscript_recipe.editor.type.minecraft.stonecutting",
-                StonecuttingRecipeData.class, StonecuttingRecipeData::new, StonecuttingCanvas::new
+                StonecuttingRecipeData.class, StonecuttingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 SMITHING_TRANSFORM, SMITHING_TABLE,
                 "viscript_recipe.editor.type.minecraft.smithing_transform",
-                SmithingTransformRecipeData.class, SmithingTransformRecipeData::new, SmithingTransformCanvas::new
+                SmithingTransformRecipeData.class, SmithingTransformCanvas.class
         ));
     }
 

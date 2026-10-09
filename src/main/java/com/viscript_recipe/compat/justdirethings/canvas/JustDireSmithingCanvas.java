@@ -5,7 +5,8 @@ import com.lowdragmc.lowdraglib2.gui.sync.bindings.impl.SupplierDataSource;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
-import com.viscript_recipe.compat.justdirethings.data.*;
+import com.viscript_recipe.compat.justdirethings.data.JustDireIngredientData;
+import com.viscript_recipe.compat.justdirethings.data.JustDireSmithingData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
+
 import static com.viscript_recipe.compat.justdirethings.JustDireRecipeEditorTypes.key;
 import static com.viscript_recipe.compat.justdirethings.canvas.JustDireCanvasLayout.*;
 

@@ -53,8 +53,7 @@ public class FusionCraftingCanvas extends RecipeCanvas<DraconicFusionRecipeData>
     }
 
     private void loadInput(int slot, DraconicIngredientData input) {
-        int selected = Math.min(selectedAlternatives.getOrDefault(inputKey(slot), 0),
-                Math.max(0, input.getAlternatives().size() - 1));
+        int selected = Math.clamp(input.getAlternatives().size() - 1, 0, selectedAlternatives.getOrDefault(inputKey(slot), 0));
         selectedAlternatives.put(inputKey(slot), selected);
         loadIngredientSlot(slot, input.getAlternatives().isEmpty() ? RecipeIngredient.empty()
                 : input.getAlternatives().get(selected).copy().setCount(input.getCount()));
@@ -72,7 +71,7 @@ public class FusionCraftingCanvas extends RecipeCanvas<DraconicFusionRecipeData>
     @Override
     public UIElement createCanvas() {
         int size = getData().getInjectors().size();
-        page = Math.min(page, Math.max(0, (size - 1) / PAGE_SIZE));
+        page = Math.clamp((size - 1) / PAGE_SIZE, 0, page);
         visibleInjectors = Math.min(PAGE_SIZE, size - page * PAGE_SIZE);
         boolean skin = FusionCraftingCanvasFactory.hasJeiSkin();
         var catalyst = createIngredientSlot(0, JEI_SLOT_SIZE);

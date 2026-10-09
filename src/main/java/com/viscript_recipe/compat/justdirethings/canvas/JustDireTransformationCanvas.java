@@ -3,8 +3,8 @@ package com.viscript_recipe.compat.justdirethings.canvas;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.lowdragmc.lowdraglib2.gui.sync.bindings.impl.SupplierDataSource;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
-import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.FluidSlot;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.viscript_recipe.compat.justdirethings.data.JustDireTransformationData;
 import com.viscript_recipe.data.RecipeEntry;
@@ -24,8 +24,10 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.neoforge.fluids.FluidStack;
+
 import java.util.List;
 import java.util.function.Consumer;
+
 import static com.viscript_recipe.compat.justdirethings.JustDireRecipeEditorTypes.key;
 import static com.viscript_recipe.compat.justdirethings.canvas.JustDireCanvasLayout.*;
 

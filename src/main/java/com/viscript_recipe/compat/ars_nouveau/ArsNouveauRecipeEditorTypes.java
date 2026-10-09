@@ -27,15 +27,11 @@ public final class ArsNouveauRecipeEditorTypes implements IModModule{
     public static final ResourceLocation SPELL_WRITE = ars("spell_write");
     public static final ResourceLocation PRESTIDIGITATION = ars("prestidigitation");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return ArsNouveauRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -67,38 +63,32 @@ public final class ArsNouveauRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 APPARATUS, ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.type.ars_nouveau.enchanting_apparatus",
-                ArsNouveauApparatusRecipeData.class, ArsNouveauApparatusRecipeData::new,
-                ApparatusCanvas::new, MOD_ID
+                ArsNouveauApparatusRecipeData.class, ApparatusCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 ARMOR_UPGRADE, ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.type.ars_nouveau.armor_upgrade",
-                ArsNouveauArmorUpgradeRecipeData.class, ArsNouveauArmorUpgradeRecipeData::new,
-                ArmorUpgradeCanvas::new, MOD_ID
+                ArsNouveauArmorUpgradeRecipeData.class, ArmorUpgradeCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 ENCHANTMENT, ENCHANTING_APPARATUS,
                 "viscript_recipe.editor.type.ars_nouveau.enchantment",
-                ArsNouveauEnchantmentRecipeData.class, ArsNouveauEnchantmentRecipeData::new,
-                EnchantmentCanvas::new, MOD_ID
+                ArsNouveauEnchantmentRecipeData.class, EnchantmentCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 IMBUEMENT, IMBUEMENT_CHAMBER,
                 "viscript_recipe.editor.type.ars_nouveau.imbuement",
-                ArsNouveauImbuementRecipeData.class, ArsNouveauImbuementRecipeData::new,
-                ImbuementCanvas::new, MOD_ID
+                ArsNouveauImbuementRecipeData.class, ImbuementCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 GLYPH, SCRIBES_TABLE,
                 "viscript_recipe.editor.type.ars_nouveau.glyph",
-                ArsNouveauGlyphRecipeData.class, ArsNouveauGlyphRecipeData::new,
-                GlyphCanvas::new, MOD_ID
+                ArsNouveauGlyphRecipeData.class, GlyphCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 CRUSH, CRUSHING,
                 "viscript_recipe.editor.type.ars_nouveau.crush",
-                ArsNouveauCrushRecipeData.class, ArsNouveauCrushRecipeData::new,
-                CrushCanvas::new, MOD_ID
+                ArsNouveauCrushRecipeData.class, CrushCanvas.class
         ));
     }
 

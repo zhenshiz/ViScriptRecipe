@@ -2,9 +2,9 @@ package com.viscript_recipe.compat.eidolon.canvas;
 
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
-import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
 import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
+import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.styletemplate.Sprites;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.eidolon.EidolonRecipeEditorTypes;

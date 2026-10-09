@@ -48,22 +48,8 @@ public class IERecipeData implements IVSRecipeData {
     @Override public String getDataName() { return "immersiveEngineering"; }
 
     @Override public void applyDefaultData(ResourceLocation typeId) {
-        inputs = new ArrayList<>();
         inputs.add(RecipeIngredient.item(Items.IRON_INGOT));
-        outputs = new ArrayList<>();
         outputs.add(RecipeOutputData.of(Items.GOLD_INGOT.getDefaultInstance()));
-        fluidInputs = new ArrayList<>();
-        fluidInputCodecs = new ArrayList<>();
-        fluidOutput = FluidStack.EMPTY;
-        recyclingAmounts = new ArrayList<>();
-        recycling = false;
-        arcSpecialType = "";
-        time = 200;
-        energy = 1600;
-        creosote = 500;
-        growthModifier = 1.5f;
-        blueprintCategory = "components";
-        clocheRender = "{\"type\":\"immersiveengineering:generic\",\"block\":\"minecraft:wheat\"}";
         switch (typeId.getPath()) {
             case "alloy", "metal_press" -> inputs.add(RecipeIngredient.item(Items.IRON_INGOT));
             case "cloche" -> {

@@ -20,15 +20,11 @@ public final class FarmersDelightRecipeEditorTypes implements IModModule {
     public static final ResourceLocation COOKING = farmer("cooking");
     public static final ResourceLocation CUTTING = farmer("cutting");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return FarmersDelightRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -48,14 +44,12 @@ public final class FarmersDelightRecipeEditorTypes implements IModModule {
         registerEditorType(RecipeEditorType.of(
                 COOKING, COOKING_POT,
                 "viscript_recipe.editor.type.farmersdelight.cooking",
-                FarmerCookingPotRecipeData.class, FarmerCookingPotRecipeData::new,
-                FarmerCookingPotCanvas::new, MOD_ID
+                FarmerCookingPotRecipeData.class, FarmerCookingPotCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 CUTTING, CUTTING_BOARD,
                 "viscript_recipe.editor.type.farmersdelight.cutting",
-                FarmerCuttingRecipeData.class, FarmerCuttingRecipeData::new,
-                FarmerCuttingCanvas::new, MOD_ID
+                FarmerCuttingRecipeData.class, FarmerCuttingCanvas.class
         ));
     }
 

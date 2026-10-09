@@ -22,15 +22,11 @@ public final class CreateRecipeEditorTypes implements IModModule {
     public static final ResourceLocation MECHANICAL_CRAFTING = create("mechanical_crafting");
     public static final ResourceLocation SEQUENCED_ASSEMBLY = create("sequenced_assembly");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return CreateRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -72,21 +68,18 @@ public final class CreateRecipeEditorTypes implements IModModule {
         registerEditorType(RecipeEditorType.of(
                 MECHANICAL_CRAFTING, MECHANICAL_CRAFTER,
                 "viscript_recipe.editor.type.create.mechanical_crafting",
-                CreateMechanicalCraftingRecipeData.class, CreateMechanicalCraftingRecipeData::new,
-                MechanicalCraftingCanvas::new, MOD_ID
+                CreateMechanicalCraftingRecipeData.class, MechanicalCraftingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 SEQUENCED_ASSEMBLY, SEQUENCED_ASSEMBLY,
                 "viscript_recipe.editor.type.create.sequenced_assembly",
-                CreateSequencedAssemblyRecipeData.class, CreateSequencedAssemblyRecipeData::new,
-                SequencedAssemblyCanvas::new, MOD_ID
+                CreateSequencedAssemblyRecipeData.class, SequencedAssemblyCanvas.class
         ));
         for (var kind : CreateProcessingKind.values()) {
             registerEditorType(RecipeEditorType.of(
                     kind.typeId(), kind.categoryId(),
                     "viscript_recipe.editor.type.create." + kind.translationPath(),
-                    CreateProcessingRecipeData.class, CreateProcessingRecipeData::new,
-                    CreateProcessingCanvas::new, MOD_ID
+                    CreateProcessingRecipeData.class, CreateProcessingCanvas.class
             ));
         }
     }

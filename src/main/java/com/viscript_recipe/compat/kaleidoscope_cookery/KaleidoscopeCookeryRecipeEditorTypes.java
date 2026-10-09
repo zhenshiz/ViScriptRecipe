@@ -21,15 +21,11 @@ public final class KaleidoscopeCookeryRecipeEditorTypes implements IModModule{
     public static final ResourceLocation TEAPOT = kaleidoscope("teapot");
     public static final ResourceLocation BAMBOO_TRAY = kaleidoscope("bamboo_tray");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return KaleidoscopeCookeryRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -52,44 +48,37 @@ public final class KaleidoscopeCookeryRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 POT, POT,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.pot",
-                KaleidoscopePotRecipeData.class, KaleidoscopePotRecipeData::new,
-                PotCanvas::new, MOD_ID
+                KaleidoscopePotRecipeData.class, PotCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 STOCKPOT, STOCKPOT,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.stockpot",
-                KaleidoscopeStockpotRecipeData.class, KaleidoscopeStockpotRecipeData::new,
-                StockpotCanvas::new, MOD_ID
+                KaleidoscopeStockpotRecipeData.class, StockpotCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 MILLSTONE, MILLSTONE,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.millstone",
-                KaleidoscopeMillstoneRecipeData.class, KaleidoscopeMillstoneRecipeData::new,
-                MillstoneCanvas::new, MOD_ID
+                KaleidoscopeMillstoneRecipeData.class, MillstoneCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 CHOPPING_BOARD, CHOPPING_BOARD,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.chopping_board",
-                KaleidoscopeChoppingBoardRecipeData.class, KaleidoscopeChoppingBoardRecipeData::new,
-                ChoppingBoardCanvas::new, MOD_ID
+                KaleidoscopeChoppingBoardRecipeData.class, ChoppingBoardCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 STEAMER, STEAMER,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.steamer",
-                KaleidoscopeSteamerRecipeData.class, KaleidoscopeSteamerRecipeData::new,
-                SteamerCanvas::new, MOD_ID
+                KaleidoscopeSteamerRecipeData.class, SteamerCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 TEAPOT, TEAPOT,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.teapot",
-                KaleidoscopeTeapotRecipeData.class, KaleidoscopeTeapotRecipeData::new,
-                TeapotCanvas::new, MOD_ID
+                KaleidoscopeTeapotRecipeData.class, TeapotCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 BAMBOO_TRAY, BAMBOO_TRAY,
                 "viscript_recipe.editor.type.kaleidoscope_cookery.bamboo_tray",
-                KaleidoscopeBambooTrayRecipeData.class, KaleidoscopeBambooTrayRecipeData::new,
-                BambooTrayCanvas::new, MOD_ID
+                KaleidoscopeBambooTrayRecipeData.class, BambooTrayCanvas.class
         ));
     }
 

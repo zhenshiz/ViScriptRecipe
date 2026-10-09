@@ -2,7 +2,6 @@ package com.viscript_recipe.compat.iceandfire;
 
 import com.iafenvoy.iceandfire.recipe.DragonForgeRecipe;
 import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
-import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -30,7 +29,7 @@ public final class IceAndFireRecipeImporter implements RecipeImportHandler {
                     .setResult(RecipeImporter.copyResult(recipe, provider))
                     .setDragonType(IceAndFireRecipeFactory.normalizeDragonType(recipe.getDragonType()))
                     .setCookTime(Math.max(1, recipe.getCookTime()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.ICEANDFIRE_DRAGONFORGE)
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), IceAndFireRecipeEditorTypes.DRAGONFORGE)
                     .setData(data));
         }
         return null;

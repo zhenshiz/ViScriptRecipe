@@ -4,8 +4,9 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.eidolon.data.EidolonCrucibleRecipeData;
 import com.viscript_recipe.compat.eidolon.data.EidolonCrucibleStepData;
 import com.viscript_recipe.data.RecipeEntry;
-import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
+import com.viscript_recipe.gui.views.NavigationView;
+
 import java.util.Collections;
 
 public final class CrucibleCanvas extends EidolonItemCanvas<EidolonCrucibleRecipeData> {

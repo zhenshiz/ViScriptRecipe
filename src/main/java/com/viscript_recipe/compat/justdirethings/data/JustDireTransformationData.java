@@ -1,6 +1,8 @@
 package com.viscript_recipe.compat.justdirethings.data;
 
-import com.direwolf20.justdirethings.datagen.recipes.*;
+import com.direwolf20.justdirethings.datagen.recipes.FluidDropRecipe;
+import com.direwolf20.justdirethings.datagen.recipes.GooSpreadRecipe;
+import com.direwolf20.justdirethings.datagen.recipes.GooSpreadRecipeTag;
 import com.direwolf20.justdirethings.setup.Registration;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.crafting.BlockTagIngredient;
+
 import static com.viscript_recipe.compat.justdirethings.JustDireRecipeEditorTypes.id;
 
 /** 保存完整方块状态；流体槽只是预览，不将源方块改写为桶物品。 */
@@ -35,13 +38,7 @@ public final class JustDireTransformationData implements IVSRecipeData {
 
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
-        nativeId = id("edited_transformation");
-        input = Blocks.IRON_BLOCK.defaultBlockState();
-        inputTag = ResourceLocation.parse("c:storage_blocks/charcoal");
         output = Registration.RawFerricoreOre.get().defaultBlockState();
-        catalyst = Items.COAL;
-        tier = 1;
-        duration = 1200;
         if (typeId.equals(id("goospread_tag"))) {
             output = Registration.RawCoal_T1.get().defaultBlockState();
             duration = 2400;

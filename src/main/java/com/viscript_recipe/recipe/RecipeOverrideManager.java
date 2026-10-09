@@ -2,7 +2,6 @@ package com.viscript_recipe.recipe;
 
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
@@ -10,6 +9,7 @@ import com.viscript_recipe.compat.irons_spellbooks.IronAlchemistCauldronFluidSup
 import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
+import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeOperation;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;

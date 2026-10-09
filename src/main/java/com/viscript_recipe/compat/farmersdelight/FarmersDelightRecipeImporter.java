@@ -2,7 +2,6 @@ package com.viscript_recipe.compat.farmersdelight;
 
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCookingPotRecipeData;
 import com.viscript_recipe.compat.farmersdelight.data.FarmerCuttingRecipeData;
-import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.data.RecipeOutputData;
@@ -57,7 +56,7 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
                 .setContainer(RecipeImporter.copyStack(recipe.getContainerOverride()))
                 .setExperience(recipe.getExperience())
                 .setCookingTime(Math.max(1, recipe.getCookTime()));
-        return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_COOKING).setData(data);
+        return RecipeImporter.baseEntry(id, FarmersDelightRecipeEditorTypes.COOKING).setData(data);
     }
 
     private static RecipeEntry importCutting(ResourceLocation id, CuttingBoardRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
@@ -83,7 +82,7 @@ public final class FarmersDelightRecipeImporter implements RecipeImportHandler {
         if (data.getResults().isEmpty()) {
             data.getResults().add(RecipeOutputData.of(RecipeImporter.copyResult(recipe, provider)));
         }
-        return RecipeImporter.baseEntry(id, RecipeEditorTypes.FARMERSDELIGHT_CUTTING).setData(data);
+        return RecipeImporter.baseEntry(id, FarmersDelightRecipeEditorTypes.CUTTING).setData(data);
     }
 
     private static RecipeIngredient importTool(Ingredient ingredient) throws RecipeImportException {

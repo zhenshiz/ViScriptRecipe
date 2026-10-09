@@ -16,15 +16,12 @@ public final class EnderIoRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "enderio";
     public static final List<String> TYPES = List.of("fire_crafting", "alloy_smelting", "enchanting", "sag_milling",
             "slicing", "soul_binding", "tank", "vat_fermenting", "weather_change", "shaped_entity_storage");
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() { return EnderIoRecipeImporter.INSTANCE; }
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         for (var type : TYPES) {
             var icon = switch (type) {
                 case "fire_crafting" -> id("grains_of_infinity");
@@ -39,8 +36,7 @@ public final class EnderIoRecipeEditorTypes implements IModModule {
                 default -> ResourceLocation.parse("minecraft:crafting_table");
             };
             registerCategory(RecipeEditorCategory.of(id(type), key(type), MOD_ID, id(type), icon));
-            registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), EnderIoRecipeData.class,
-                    EnderIoRecipeData::new, EnderIoRecipeCanvas::new, MOD_ID));
+            registerEditorType(RecipeEditorType.of(id(type), id(type), key(type), EnderIoRecipeData.class, EnderIoRecipeCanvas.class));
         }
     }
 

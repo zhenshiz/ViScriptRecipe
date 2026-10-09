@@ -1,13 +1,18 @@
 package com.viscript_recipe.compat.farm_and_charm;
 
-import com.viscript_recipe.compat.farm_and_charm.data.*;
+import com.viscript_recipe.compat.farm_and_charm.data.FarmCharmIngredientData;
+import com.viscript_recipe.compat.farm_and_charm.data.FarmCharmRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.recipe.importer.*;
+import com.viscript_recipe.recipe.importer.RecipeImportException;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
+import com.viscript_recipe.recipe.importer.RecipeImportResult;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.satisfy.farm_and_charm.core.recipe.*;
+
 import java.util.ArrayList;
 
 public final class FarmCharmRecipeImporter implements RecipeImportHandler {

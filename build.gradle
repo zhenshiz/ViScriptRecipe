@@ -82,9 +82,6 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 // modAccessor 由根项目 build.gradle 的 subprojects 块统一配置
 dependencies {
-    implementation("com.enderio:enderio:${ender_io_version}") { transitive = false }
-    // 运行时由 Ender IO 内嵌提供，编译时需要读取其配方父类。
-    compileOnly("com.enderio:endercore:${ender_io_version}") { transitive = false }
     implementation project(":ViScriptLib")
     jarJar project(path: ":ViScriptLib", configuration: "embeddedLibrary")
 
@@ -93,10 +90,13 @@ dependencies {
     runtimeOnly "io.redspace:irons_lib:${irons_lib_version}"
     runtimeOnly "dev.kosmx.player-anim:player-animation-lib-forge:${playeranimator_version}"
     runtimeOnly "software.bernie.geckolib:geckolib-neoforge-1.21.1:${geckolib_version}"
-    implementation "curse.maven:iceandfire-ce-1040076:7722420"
+    //冰火传说
+    compileOnly "curse.maven:iceandfire-ce-1040076:7722420"
     runtimeOnly "curse.maven:uranus-1010827:8008516"
     runtimeOnly "curse.maven:jupiter-1072905:7738312"
+    //农夫乐事
     implementation "maven.modrinth:farmers-delight:${farmers_delight_version}"
+    //机械动力
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
         transitive = false
     }
@@ -104,39 +104,64 @@ dependencies {
     runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}"
     runtimeOnly "dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}"
     runtimeOnly "com.tterrag.registrate:Registrate:${registrate_version}"
+    //新生魔艺
     implementation "curse.maven:ars-nouveau-401955:${ars_nouveau_file}"
+    //无尽贪婪：重生
     implementation "curse.maven:re-avaritia-623969:${re_avaritia_file}"
+    //合成拓展
     implementation "curse.maven:cucumber-272335:${cucumber_file}"
-    implementation "curse.maven:mystical-agriculture-246640:${mystical_agriculture_file}"
-    implementation "curse.maven:extended-crafting-268387:${extended_crafting_file}"
+    //神秘农业
+    compileOnly "curse.maven:mystical-agriculture-246640:${mystical_agriculture_file}"
+    compileOnly "curse.maven:extended-crafting-268387:${extended_crafting_file}"
+    //森罗物语：厨房
     implementation "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
+    //森罗物语：酒馆
     implementation "maven.modrinth:kaleidoscopetavern:${kaleidoscope_tavern_version}"
-    implementation "curse.maven:lendercataclysm-551586:${cataclysm_file}"
+    //灾变：L_Ender's Cataclysm
+    compileOnly "curse.maven:lendercataclysm-551586:${cataclysm_file}"
     runtimeOnly "curse.maven:lionfish-api-1001614:${lionfish_api_file}"
+    //菌类感染：孢子
     implementation "curse.maven:fungal-infection-spore-678295:${fungal_infection_spore_file}"
-    implementation "curse.maven:goety-586095:${goety_file}"
-    implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
-    implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
-    implementation "curse.maven:extradelight-842106:${extra_delight_file}"
-    implementation "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
-    implementation "curse.maven:titanium-287342:${titanium_file}"
-    implementation "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
-    implementation "mekanism:Mekanism:${mekanism_version}"
-    implementation "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
-    implementation "maven.modrinth:ae2:${ae2_version}"
-    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
-    runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
+    //诡厄巫法：Goety
+    compileOnly "curse.maven:goety-586095:${goety_file}"
+    //东方女仆：Touhou Little Maid
+    compileOnly "curse.maven:touhou-little-maid-355044:${touhou_little_maid_file}"
+    //工业先锋：Industrial Foregoing
+    compileOnly "curse.maven:titanium-287342:${titanium_file}"
+    compileOnly "curse.maven:industrial-foregoing-266515:${industrial_foregoing_file}"
+    //通用机械：Mekanism
+    compileOnly "mekanism:Mekanism:${mekanism_version}"
+    //Alloy Smelter
+    compileOnly "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
+    // Applied Energistics 2
+    compileOnly "maven.modrinth:ae2:${ae2_version}"
+//    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
+//    runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
+    // [Let's Do] Farm & Charm
     implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
-    implementation "curse.maven:lets-do-bakery-farm-charm-compat-1038130:${bakery_file}"
     runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
+    // [Let's Do] Bakery Farm & Charm
+    implementation "curse.maven:lets-do-bakery-farm-charm-compat-1038130:${bakery_file}"
+    // Extra Delight
+    implementation "curse.maven:extradelight-842106:${extra_delight_file}"
+    // Immersive Engineering
+    implementation "curse.maven:immersive-engineering-231951:${immersive_engineering_file}"
+    compileOnly "malte0811:DualCodecs:0.1.2"
+    // eidolon
     implementation("com.alexthw.eidolon_repraised:eidolon_repraised-${minecraft_version}:${eidolon_repraised_version}") {
         transitive = false
     }
-    implementation "com.brandon3055.draconicevolution:Draconic-Evolution:${draconic_evolution_version}"
+    // Draconic Evolution
+    implementation "maven.modrinth:draconic-evolution:${draconic_evolution_version}"
     implementation "com.brandon3055.brandonscore:BrandonsCore:${brandons_core_version}"
     runtimeOnly "io.codechicken:CodeChickenLib:${codechicken_lib_version}"
-    implementation "curse.maven:immersive-engineering-231951:${immersive_engineering_file}"
-    compileOnly "malte0811:DualCodecs:0.1.2"
+    // Ender IO
+    implementation("com.enderio:enderio:${ender_io_version}") { transitive = false }
+    compileOnly("com.enderio:endercore:${ender_io_version}") { transitive = false }
+    // tacz
+    implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
+    //just dire things
+    implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
 }
 
 tasks.withType(ProcessResources).configureEach {

@@ -20,15 +20,11 @@ public final class CataclysmRecipeEditorTypes implements IModModule{
     public static final ResourceLocation WEAPON_FUSION = cataclysm("weapon_fusion");
     public static final ResourceLocation AMETHYST_BLESS = cataclysm("amethyst_bless");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return CataclysmRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -50,14 +46,12 @@ public final class CataclysmRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 WEAPON_FUSION, MECHANICAL_FUSION_ANVIL,
                 "viscript_recipe.editor.type.cataclysm.weapon_fusion",
-                CataclysmWeaponFusionRecipeData.class, CataclysmWeaponFusionRecipeData::new,
-                WeaponFusionCanvas::new, MOD_ID
+                CataclysmWeaponFusionRecipeData.class, WeaponFusionCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 AMETHYST_BLESS, ALTAR_OF_AMETHYST,
                 "viscript_recipe.editor.type.cataclysm.amethyst_bless",
-                CataclysmAmethystBlessRecipeData.class, CataclysmAmethystBlessRecipeData::new,
-                AmethystBlessCanvas::new, MOD_ID
+                CataclysmAmethystBlessRecipeData.class, AmethystBlessCanvas.class
         ));
     }
 

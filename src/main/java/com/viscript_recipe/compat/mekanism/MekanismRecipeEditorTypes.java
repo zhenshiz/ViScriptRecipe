@@ -12,15 +12,12 @@ import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 @LDLRegister(registry = IModModule.ID, name = MekanismRecipeEditorTypes.MOD_ID, modID = MekanismRecipeEditorTypes.MOD_ID)
 public final class MekanismRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "mekanism";
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() {return MekanismRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         for (var kind : MekanismRecipeKind.values()) {
             var path = kind.typeId().getPath();
             registerCategory(RecipeEditorCategory.of(
@@ -30,8 +27,7 @@ public final class MekanismRecipeEditorTypes implements IModModule{
             registerEditorType(RecipeEditorType.of(
                     kind.typeId(), kind.typeId(),
                     "viscript_recipe.editor.type.mekanism." + path,
-                    MekanismRecipeData.class, MekanismRecipeData::new,
-                    MekanismCanvas::new, MOD_ID
+                    MekanismRecipeData.class, MekanismCanvas.class
             ));
         }
     }

@@ -6,7 +6,6 @@ import com.github.ysbbbbbb.kaleidoscopetavern.crafting.recipe.ShakerRecipe;
 import com.viscript_recipe.compat.kaleidoscope_tavern.data.KaleidoscopeBarrelRecipeData;
 import com.viscript_recipe.compat.kaleidoscope_tavern.data.KaleidoscopePressingTubRecipeData;
 import com.viscript_recipe.compat.kaleidoscope_tavern.data.KaleidoscopeShakerRecipeData;
-import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -48,20 +47,20 @@ public final class KaleidoscopeTavernRecipeImporter implements RecipeImportHandl
                     .setCarrier(importOptional(barrel.carrier()))
                     .setResult(RecipeImporter.copyResult(barrel, provider))
                     .setUnitTime(Math.max(1, barrel.unitTime()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_TAVERN_BARREL).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeTavernRecipeEditorTypes.BARREL).setData(data));
         }
         if (recipe instanceof PressingTubRecipe pressingTub) {
             var data = new KaleidoscopePressingTubRecipeData()
                     .setIngredient(RecipeImporter.importIngredient(pressingTub.getIngredient()))
                     .setFluid(nonNullId(KaleidoscopeTavernRecipeFactory.fluidId(pressingTub.getFluid())))
                     .setFluidAmount(Math.max(1, pressingTub.getFluidAmount()));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_TAVERN_PRESSING_TUB).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeTavernRecipeEditorTypes.PRESSING_TUB).setData(data));
         }
         if (recipe instanceof ShakerRecipe shaker) {
             var data = new KaleidoscopeShakerRecipeData()
                     .setIngredients(new ArrayList<>(RecipeImporter.importIngredientList(shaker.ingredients(), KaleidoscopeTavernRecipeFactory.SHAKER_MAX_INGREDIENTS)))
                     .setResult(RecipeImporter.copyResult(shaker, provider));
-            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), RecipeEditorTypes.KALEIDOSCOPE_TAVERN_SHAKER).setData(data));
+            return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), KaleidoscopeTavernRecipeEditorTypes.SHAKER).setData(data));
         }
         return null;
     }

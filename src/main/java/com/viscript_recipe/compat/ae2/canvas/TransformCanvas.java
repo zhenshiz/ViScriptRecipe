@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.ae2.canvas;
 
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
-import com.viscript_recipe.compat.ae2.data.Ae2TransformRecipeData;
 import com.viscript_recipe.compat.ae2.data.Ae2IngredientData;
+import com.viscript_recipe.compat.ae2.data.Ae2TransformRecipeData;
 import com.viscript_recipe.data.FluidIngredientData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.views.NavigationView;
@@ -13,7 +13,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
 import java.util.ArrayList;
+
 import static com.viscript_recipe.compat.ae2.canvas.Ae2CanvasFactory.*;
 
 public class TransformCanvas extends Ae2ItemRecipeCanvas<Ae2TransformRecipeData> {

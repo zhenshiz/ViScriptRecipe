@@ -15,18 +15,15 @@ public final class TaczRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "tacz";
     public static final ResourceLocation CRAFTING = ResourceLocation.fromNamespaceAndPath(MOD_ID, "gun_smith_table_crafting");
     public static final String NAME_KEY = "viscript_recipe.editor.tacz.workbench";
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() { return TaczRecipeImporter.INSTANCE; }
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(RecipeEditorCategory.of(CRAFTING, NAME_KEY, MOD_ID, CRAFTING,
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "workbench_a")));
         registerEditorType(RecipeEditorType.of(CRAFTING, CRAFTING, NAME_KEY,
-                TaczRecipeData.class, TaczRecipeData::new, TaczWorkbenchCanvas::new, MOD_ID));
+                TaczRecipeData.class, TaczWorkbenchCanvas.class));
     }
 }

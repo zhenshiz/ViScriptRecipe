@@ -21,15 +21,11 @@ public final class KaleidoscopeTavernRecipeEditorTypes implements IModModule {
     public static final ResourceLocation PRESSING_TUB = kaleidoscope("pressing_tub");
     public static final ResourceLocation SHAKER = kaleidoscope("shaker");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return KaleidoscopeTavernRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -48,20 +44,17 @@ public final class KaleidoscopeTavernRecipeEditorTypes implements IModModule {
         registerEditorType(RecipeEditorType.of(
                 BARREL, BARREL,
                 "viscript_recipe.editor.type.kaleidoscope_tavern.barrel",
-                KaleidoscopeBarrelRecipeData.class, KaleidoscopeBarrelRecipeData::new,
-                BarrelCanvas::new, MOD_ID
+                KaleidoscopeBarrelRecipeData.class, BarrelCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 PRESSING_TUB, PRESSING_TUB,
                 "viscript_recipe.editor.type.kaleidoscope_tavern.pressing_tub",
-                KaleidoscopePressingTubRecipeData.class, KaleidoscopePressingTubRecipeData::new,
-                PressingTubCanvas::new, MOD_ID
+                KaleidoscopePressingTubRecipeData.class, PressingTubCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 SHAKER, SHAKER,
                 "viscript_recipe.editor.type.kaleidoscope_tavern.shaker",
-                KaleidoscopeShakerRecipeData.class, KaleidoscopeShakerRecipeData::new,
-                ShakerCanvas::new, MOD_ID
+                KaleidoscopeShakerRecipeData.class, ShakerCanvas.class
         ));
     }
 

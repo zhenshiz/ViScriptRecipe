@@ -1,8 +1,8 @@
 package com.viscript_recipe.compat.extendedcrafting.canvas;
 
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
+import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
 import com.viscript_recipe.compat.extendedcrafting.data.ExtendedCraftingFluxCrafterRecipeData;
-import com.viscript_recipe.compat.extendedcrafting.data.ExtendedCraftingRecipeEditorTypes;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.canvas.ShapedGridHelper;

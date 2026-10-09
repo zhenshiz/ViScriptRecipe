@@ -13,15 +13,12 @@ import net.minecraft.resources.ResourceLocation;
 public final class AlloySmelterRecipeEditorTypes implements IModModule{
     public static final String MOD_ID = "alloy_smelter";
     public static final ResourceLocation SMELTING = id("smelting");
-    private static boolean registered;
 
     @Override
     public RecipeImportHandler importHandler() {return AlloySmelterRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(RecipeEditorCategory.of(
                 SMELTING, "viscript_recipe.editor.category.alloy_smelter.smelting",
                 MOD_ID, SMELTING, id("forge_controller_tier1")
@@ -29,8 +26,7 @@ public final class AlloySmelterRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 SMELTING, SMELTING,
                 "viscript_recipe.editor.type.alloy_smelter.smelting",
-                AlloySmelterRecipeData.class, AlloySmelterRecipeData::new,
-                AlloySmelterCanvas::new, MOD_ID
+                AlloySmelterRecipeData.class, AlloySmelterCanvas.class
         ));
     }
 

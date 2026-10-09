@@ -44,15 +44,11 @@ public final class AvaritiaRecipeEditorTypes implements IModModule{
     public static final ResourceLocation ETERNAL_SINGULARITY = create("eternal_singularity");
     public static final ResourceLocation FULL_MATTER_CLUSTER = create("full_matter_cluster");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return AvaritiaRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -84,14 +80,12 @@ public final class AvaritiaRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 COMPRESSOR, NEUTRON_COMPRESSOR,
                 "viscript_recipe.editor.type.avaritia.compressor",
-                AvaritiaCompressorRecipeData.class, AvaritiaCompressorRecipeData::new,
-                CompressorCanvas::new, MOD_ID
+                AvaritiaCompressorRecipeData.class, CompressorCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 EXTREME_SMITHING, EXTREME_SMITHING_TABLE,
                 "viscript_recipe.editor.type.avaritia.extreme_smithing",
-                AvaritiaExtremeSmithingRecipeData.class, AvaritiaExtremeSmithingRecipeData::new,
-                ExtremeSmithingCanvas::new, MOD_ID
+                AvaritiaExtremeSmithingRecipeData.class, ExtremeSmithingCanvas.class
         ));
         registerSpecialType(INFINITY_CATALYST, "viscript_recipe.editor.type.avaritia.infinity_catalyst");
         registerSpecialType(ETERNAL_SINGULARITY, "viscript_recipe.editor.type.avaritia.eternal_singularity");
@@ -101,16 +95,14 @@ public final class AvaritiaRecipeEditorTypes implements IModModule{
     private void registerTableType(ResourceLocation type, String translationKey) {
         registerEditorType(RecipeEditorType.of(
                 type, CRAFTING_TABLE, translationKey,
-                AvaritiaTableRecipeData.class, AvaritiaTableRecipeData::new,
-                TableCanvas::new, MOD_ID
+                AvaritiaTableRecipeData.class, TableCanvas.class
         ));
     }
 
     private void registerSpecialType(ResourceLocation type, String translationKey) {
         registerEditorType(RecipeEditorType.of(
                 type, CRAFTING_TABLE, translationKey,
-                AvaritiaSpecialShapelessRecipeData.class, AvaritiaSpecialShapelessRecipeData::new,
-                SpecialShapelessCanvas::new, MOD_ID
+                AvaritiaSpecialShapelessRecipeData.class, SpecialShapelessCanvas.class
         ));
     }
 

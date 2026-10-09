@@ -52,34 +52,15 @@ public class EnderIoRecipeData implements IVSRecipeData {
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
         var type = typeId.getPath();
-        inputs = new ArrayList<>();
-        outputs = new ArrayList<>();
-        fluidInput = new EnderIoFluidData();
-        fluidOutput = new FluidStack(Fluids.WATER, 1000);
-        energy = 2000;
-        experience = 0;
-        smelting = false;
-        experienceLevels = 1;
-        bonus = "multiply_output";
-        tankMode = "fill";
-        ticks = 200;
-        weather = "clear";
-        enchantment = ResourceLocation.parse("minecraft:sharpness");
-        costMultiplier = 1;
-        entityType = "minecraft:zombie";
-        mobCategory = "";
-        soulData = "";
-        copyInputComponents = false;
-        bases = new ArrayList<>(List.of(ResourceLocation.parse("minecraft:bedrock")));
-        baseTags = new ArrayList<>();
-        dimensions = new ArrayList<>(List.of(ResourceLocation.parse("minecraft:overworld")));
-        blockAfterBurning = "";
-        width = 3;
-        height = 3;
-        group = "";
-        category = CraftingBookCategory.MISC;
         showNotification = type.equals("shaped_entity_storage") ? true : null;
-        int count = switch (type) { case "alloy_smelting" -> 3; case "slicing" -> 6; case "shaped_entity_storage" -> 9; case "vat_fermenting" -> 2; case "fire_crafting", "weather_change" -> 0; default -> 1; };
+        int count = switch (type) {
+            case "alloy_smelting" -> 3;
+            case "slicing" -> 6;
+            case "shaped_entity_storage" -> 9;
+            case "vat_fermenting" -> 2;
+            case "fire_crafting", "weather_change" -> 0;
+            default -> 1;
+        };
         for (int i = 0; i < count; i++) inputs.add(EnderIoIngredientData.of(RecipeIngredient.item(Items.IRON_INGOT)));
         if (!type.equals("weather_change") && !type.equals("vat_fermenting") && !type.equals("enchanting")) outputs.add(new EnderIoOutputData());
         if (type.equals("vat_fermenting")) for (int i = 0; i < 2; i++) inputs.set(i, EnderIoIngredientData.of(RecipeIngredient.tag(ResourceLocation.parse(i == 0 ? "c:crops" : "c:seeds"))));

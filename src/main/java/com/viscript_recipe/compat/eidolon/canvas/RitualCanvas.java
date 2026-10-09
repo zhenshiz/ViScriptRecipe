@@ -1,5 +1,6 @@
 package com.viscript_recipe.compat.eidolon.canvas;
 
+import alexthw.eidolon_repraised.recipe.GenericRitualRecipe;
 import alexthw.eidolon_repraised.registries.RitualRegistry;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.viscript_recipe.compat.eidolon.EidolonRecipeEditorTypes;
@@ -7,14 +8,14 @@ import com.viscript_recipe.compat.eidolon.data.EidolonRitualRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import alexthw.eidolon_repraised.recipe.GenericRitualRecipe;
 import java.util.TreeSet;
 
 public final class RitualCanvas extends EidolonItemCanvas<EidolonRitualRecipeData> {

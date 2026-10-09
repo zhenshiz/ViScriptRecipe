@@ -4,20 +4,27 @@ import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.viscript_recipe.compat.extradelight.data.*;
-import com.viscript_recipe.data.*;
+import com.viscript_recipe.data.FluidIngredientData;
+import com.viscript_recipe.data.FluidIngredientKind;
+import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.FluidRecipeCanvas;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import com.viscript_recipe.gui.views.NavigationView;
 import com.viscript_recipe.gui.views.PropertiesView;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
-import dev.vfyjxf.taffy.style.*;
+import dev.vfyjxf.taffy.style.AlignContent;
+import dev.vfyjxf.taffy.style.AlignItems;
+import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.neoforged.neoforge.fluids.FluidStack;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static com.viscript_recipe.compat.extradelight.ExtraDelightRecipeEditorTypes.key;
 
 /** 复用 VSR 槽位、属性选择及 JEI 拖放，工作站布局与原模组 JEI 对齐。 */

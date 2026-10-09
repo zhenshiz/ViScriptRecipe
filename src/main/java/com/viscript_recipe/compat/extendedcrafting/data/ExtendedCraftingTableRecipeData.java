@@ -1,6 +1,7 @@
 package com.viscript_recipe.compat.extendedcrafting.data;
 
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
+import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeEditorTypes;
 import com.viscript_recipe.compat.extendedcrafting.ExtendedCraftingRecipeFactory;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;

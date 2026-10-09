@@ -98,7 +98,7 @@ public class WorkBenchView extends View {
         if (entry == null) { canvas = null; return; }
         canvas = RecipeEditorTypes.require(entry.getType()).canvasSupplier().apply(navigationView, entry);
         if (canvas instanceof MissingRecipeCanvas)
-            titleLabel.setText(Component.translatable("viscript_recipe.editor.category.unknown", entry.getType()));
+            titleLabel.setText(Component.translatable("viscript_recipe.editor.category.unknown", entry.getType().toString()));
         canvas.initVisualState();
         canvas.load();
         canvasStack.addChild(canvas);
@@ -108,7 +108,7 @@ public class WorkBenchView extends View {
         var id = navigationView.getSelectedCategoryId();
         titleLabel.setText(RecipeEditorTypes.getCategory(id)
                 .map(RecipeEditorCategory::displayName)
-                .orElseGet(() -> Component.translatable("viscript_recipe.editor.category.unknown", id)));
+                .orElseGet(() -> Component.translatable("viscript_recipe.editor.category.unknown", id.toString())));
         var selectedEntry = getSelectedEntry();
         if (selectedEntry == null) {
             statusLabel.setText(Component.empty());

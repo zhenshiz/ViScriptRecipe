@@ -10,12 +10,17 @@ import appeng.recipes.transform.TransformRecipe;
 import com.viscript_recipe.compat.ae2.data.*;
 import com.viscript_recipe.data.IVSRecipeData;
 import com.viscript_recipe.data.RecipeIngredient;
-import com.viscript_recipe.recipe.importer.*;
+import com.viscript_recipe.recipe.importer.RecipeImportException;
+import com.viscript_recipe.recipe.importer.RecipeImportHandler;
+import com.viscript_recipe.recipe.importer.RecipeImportResult;
+import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +80,7 @@ public final class Ae2RecipeImporter implements RecipeImportHandler {
                         .setKeepBlockProperties(block.keepProperties()).setOutputBlockProperties(importAppliers(block.properties())));
                 recipe.getOutput().fluid().ifPresent(fluid -> entropy.setOutputFluid(BuiltInRegistries.FLUID.getKey(fluid.fluid()))
                         .setKeepFluidProperties(fluid.keepProperties()).setOutputFluidProperties(importAppliers(fluid.properties())));
-                entropy.setDrops(new ArrayList<>(recipe.getDrops().stream().map(stack -> stack.copy()).toList()));
+                entropy.setDrops(new ArrayList<>(recipe.getDrops().stream().map(ItemStack::copy).toList()));
                 data = entropy;
             }
             default -> { return null; }

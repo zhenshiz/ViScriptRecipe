@@ -64,7 +64,6 @@ public class CreateProcessingRecipeData implements IVSRecipeData {
                     ? new ArrayList<>(List.of(RecipeOutputData.of(new ItemStack(kind.defaultOutput()))))
                     : new ArrayList<>())
                 .setFluidOutputs(new ArrayList<>())
-                .setKeepHeldItem(false)
                 .setProcessingTime(kind.durationAllowed() ? 100 : 0)
                 .setHeatRequirement(kind == CreateProcessingKind.AUTOMATIC_BREWING ? CreateHeatCondition.HEATED : CreateHeatCondition.NONE);
         if (kind.maxFluidInputs() > 0) getFluidIngredients().add(FluidIngredientData.fluid(new FluidStack(Fluids.WATER, 1000)));
