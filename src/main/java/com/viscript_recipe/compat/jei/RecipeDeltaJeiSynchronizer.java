@@ -5,9 +5,8 @@ import com.viscript_recipe.client.RecipeDeltaClientState;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.farm_and_charm.FarmCharmRecipeKind;
-import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
-import com.viscript_recipe.compat.jei.irons_spellbooks.IronSpellbooksJeiRecipeFilter;
+import com.viscript_recipe.compat.jei.irons_spellbooks.IronAlchemistCauldronJeiFilter;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -91,20 +90,17 @@ public final class RecipeDeltaJeiSynchronizer {
             Map<ResourceLocation, RecipeHolder<?>> oldRecipes,
             Map<ResourceLocation, RecipeHolder<?>> newRecipes,
             Map<ResourceLocation, ResourceLocation> oldEditorTypes,
-            Map<ResourceLocation, ResourceLocation> newEditorTypes,
-            boolean arcaneAnvilChanged
+            Map<ResourceLocation, ResourceLocation> newEditorTypes
     ) {
-        if (affectedRecipeIds.isEmpty() && !arcaneAnvilChanged) {
+        if (affectedRecipeIds.isEmpty()) {
             return;
         }
         if (runtime == null) {
             forceFullJeiReload("JEI runtime is not available yet");
             return;
         }
-        if (arcaneAnvilChanged || affectsAutomaticBrewing(affectedRecipeIds, oldEditorTypes, newEditorTypes)) {
-            forceFullJeiReload(arcaneAnvilChanged
-                    ? "Iron's Spells arcane anvil recipes changed"
-                    : "Create automatic brewing recipes changed");
+        if (affectsAutomaticBrewing(affectedRecipeIds, oldEditorTypes, newEditorTypes)) {
+            forceFullJeiReload("Create automatic brewing recipes changed");
             return;
         }
 
@@ -179,6 +175,8 @@ public final class RecipeDeltaJeiSynchronizer {
         var uniqueTypes = new LinkedHashSet<ResourceLocation>();
         typeHints.values().forEach(uniqueTypes::addAll);
         for (var typeId : uniqueTypes) {
+            // 炼药锅在 JEI 中使用包装对象和合并分类，重建以更新原生酿造及流体交互页面。
+            if ("irons_spellbooks".equals(typeId.getNamespace()) && typeId.getPath().startsWith("alchemist_cauldron_")) return false;
             // Eidolon 的 rituals 分类合并了五种原生仪式且直接持有配方；需完整重建 JEI，才能更新没有原生 UID 的分类。
             if ("eidolon_repraised".equals(typeId.getNamespace())) return false;
             // 附魔配方在 JEI 中按等级展开到 enchanter 分类，需重建全部等级的包装配方。
@@ -317,8 +315,8 @@ public final class RecipeDeltaJeiSynchronizer {
         if (ViScriptRecipe.isModLoaded(CreateRecipeEditorTypes.MOD_ID)) {
             CreateJeiRecipeFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
         }
-        if (ViScriptRecipe.isModLoaded(IronSpellbooksRecipeEditorTypes.MOD_ID)) {
-            IronSpellbooksJeiRecipeFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
+        if (ViScriptRecipe.isModLoaded("irons_spellbooks")) {
+            IronAlchemistCauldronJeiFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
         }
     }
 

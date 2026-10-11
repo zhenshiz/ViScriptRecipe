@@ -23,9 +23,8 @@ import com.viscript_recipe.compat.goety.data.*;
 import com.viscript_recipe.compat.iceandfire.data.DragonForgeRecipeData;
 import com.viscript_recipe.compat.immersive_engineering.data.IERecipeData;
 import com.viscript_recipe.compat.industrial_foregoing.data.*;
-import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronNoAdditionSmithingRecipeData;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.compat.kaleidoscope_cookery.data.*;
 import com.viscript_recipe.compat.mekanism.data.MekanismChemicalIngredientData;
 import com.viscript_recipe.compat.mekanism.data.MekanismChemicalStackData;
@@ -79,10 +78,10 @@ public final class RecipeDataAccessors {
         event.register(CookingRecipeData.class, CookingRecipeData::new);
         event.register(StonecuttingRecipeData.class, StonecuttingRecipeData::new);
         event.register(SmithingTransformRecipeData.class, SmithingTransformRecipeData::new);
+        event.register(VanillaEventRecipeData.class, VanillaEventRecipeData::new);
     }
 
     private static void registerIronSpellbooks(RegisterAccessorEvent event) {
-        event.register(IronArcaneAnvilRecipeData.class, IronArcaneAnvilRecipeData::new);
         event.register(IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new);
         event.register(IronNoAdditionSmithingRecipeData.class, IronNoAdditionSmithingRecipeData::new);
     }

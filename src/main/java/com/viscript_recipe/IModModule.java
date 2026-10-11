@@ -7,6 +7,7 @@ import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.IEventBus;
 
 import java.util.function.Supplier;
 
@@ -18,6 +19,8 @@ public interface IModModule extends ILDLRegister<IModModule, Supplier<IModModule
     RecipeImportHandler importHandler();
 
     void registerEditorTypes();
+
+    default void registerRuntime(IEventBus modEventBus) {}
 
     default void registerCategory(RecipeEditorCategory category) {RecipeEditorTypes.registerCategory(category);}
 

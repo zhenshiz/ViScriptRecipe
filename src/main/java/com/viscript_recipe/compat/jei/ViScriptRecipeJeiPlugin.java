@@ -3,7 +3,7 @@ package com.viscript_recipe.compat.jei;
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
-import com.viscript_recipe.compat.jei.irons_spellbooks.IronSpellbooksJeiRecipeFilter;
+import com.viscript_recipe.compat.jei.irons_spellbooks.IronAlchemistCauldronJeiFilter;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 @JeiPlugin
 public final class ViScriptRecipeJeiPlugin implements IModPlugin {
     private static final String CREATE = "create";
-    private static final String IRONS_SPELLBOOKS = "irons_spellbooks";
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -36,8 +35,8 @@ public final class ViScriptRecipeJeiPlugin implements IModPlugin {
         if (ViScriptRecipe.isModLoaded(CREATE)) {
             CreateJeiRecipeFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
         }
-        if (ViScriptRecipe.isModLoaded(IRONS_SPELLBOOKS)) {
-            IronSpellbooksJeiRecipeFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
+        if (ViScriptRecipe.isModLoaded("irons_spellbooks")) {
+            IronAlchemistCauldronJeiFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
         }
     }
 

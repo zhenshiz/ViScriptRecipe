@@ -5,12 +5,9 @@ import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
-import com.viscript_recipe.compat.irons_spellbooks.IronAlchemistCauldronFluidSupport;
-import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
-import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
-import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
 import com.viscript_recipe.data.RecipeEntry;
+import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeOperation;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import net.minecraft.core.HolderLookup;
@@ -20,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -79,7 +75,6 @@ public final class RecipeOverrideManager {
 
             var oldRecipes = snapshot(recipeManager.getRecipes());
             var oldManagedRecipeTypes = new LinkedHashMap<>(state.managedRecipeTypes);
-            var oldArcaneAnvilRecipes = state.arcaneAnvilRecipes;
             var oldShowcaseOnly = state.showcaseOnly;
             var baseRevision = state.revision;
             var result = applyOverrides(recipeManager, provider, state, resourceManager);
@@ -92,8 +87,7 @@ public final class RecipeOverrideManager {
                         recipeManager,
                         state,
                         oldRecipes,
-                        oldManagedRecipeTypes,
-                        oldArcaneAnvilRecipes
+                        oldManagedRecipeTypes
                 );
             } catch (RuntimeException | LinkageError e) {
                 ViScriptRecipe.LOGGER.warn("Failed to encode recipe delta; falling back to a full recipe sync", e);
@@ -128,12 +122,10 @@ public final class RecipeOverrideManager {
                     state.revision,
                     true,
                     state.showcaseOnly,
-                    false,
                     List.of(),
                     List.of(),
                     state.managedRecipeTypes,
-                    state.recipeTypeHints,
-                    state.arcaneAnvilRecipes
+                    state.recipeTypeHints
             );
         }
     }
@@ -168,8 +160,6 @@ public final class RecipeOverrideManager {
         var recipes = showcaseOnly ? new LinkedHashMap<ResourceLocation, RecipeHolder<?>>() : new LinkedHashMap<>(base);
         var appliedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
         var managedRecipeTypes = new LinkedHashMap<ResourceLocation, ResourceLocation>();
-        var arcaneAnvilRecipes = new LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe>();
-        var alchemistCauldronFluids = new ArrayList<FluidStack>();
 
         int entries = 0;
         int enabled = 0;
@@ -194,12 +184,8 @@ public final class RecipeOverrideManager {
                         recipes,
                         appliedRecipeTypes,
                         managedRecipeTypes,
-                        arcaneAnvilRecipes,
                         showcaseOnly
                 );
-                if (entryResult == ApplyEntryResult.APPLIED) {
-                    collectAlchemistCauldronRecipeFluids(entry, alchemistCauldronFluids);
-                }
                 switch (entryResult) {
                     case APPLIED -> applied++;
                     case SKIPPED -> skipped++;
@@ -208,14 +194,11 @@ public final class RecipeOverrideManager {
             }
         }
 
-        IronArcaneAnvilOverrideManager.replaceAll(arcaneAnvilRecipes.values());
-        IronAlchemistCauldronFluidSupport.replaceAll(alchemistCauldronFluids);
         recipeManager.replaceRecipes(recipes.values());
         invalidateCompatRecipeCaches(resourceManager);
         lastAppliedRecipeTypes = appliedRecipeTypes;
         state.managedRecipeTypes = managedRecipeTypes;
         state.recipeTypeHints = buildRecipeTypeHints(base, recipes, managedRecipeTypes.keySet());
-        state.arcaneAnvilRecipes = List.copyOf(arcaneAnvilRecipes.values());
         state.showcaseOnly = showcaseOnly;
         state.revision++;
         lastResult = new ApplyResult(
@@ -237,15 +220,6 @@ public final class RecipeOverrideManager {
                 lastResult.skippedEntryCount(),
                 lastResult.failedEntryCount()
         );
-        if (!arcaneAnvilRecipes.isEmpty()) {
-            ViScriptRecipe.LOGGER.info("Loaded {} Iron's Spells Arcane Anvil override recipes", arcaneAnvilRecipes.size());
-        }
-        if (IronAlchemistCauldronFluidSupport.allowedFluidCount() > 0) {
-            ViScriptRecipe.LOGGER.info(
-                    "Allowed {} Iron's Spells Alchemist Cauldron fluids referenced by ViScriptRecipe recipes",
-                    IronAlchemistCauldronFluidSupport.allowedFluidCount()
-            );
-        }
         if (showcaseOnly) {
             ViScriptRecipe.LOGGER.info(
                     "ViScriptRecipe showcase recipe mode is enabled: cleared {} base recipes before applying .recipe files",
@@ -282,8 +256,7 @@ public final class RecipeOverrideManager {
             RecipeManager recipeManager,
             ManagerState state,
             Map<ResourceLocation, RecipeHolder<?>> oldRecipes,
-            Map<ResourceLocation, ResourceLocation> oldManagedRecipeTypes,
-            List<IronArcaneAnvilOverrideManager.CompiledRecipe> oldArcaneAnvilRecipes
+            Map<ResourceLocation, ResourceLocation> oldManagedRecipeTypes
     ) {
         var currentRecipes = snapshot(recipeManager.getRecipes());
         var affectedIds = new LinkedHashSet<ResourceLocation>();
@@ -307,19 +280,15 @@ public final class RecipeOverrideManager {
             }
         }
 
-        var oldArcaneTag = RecipeDeltaSnapshot.encodeArcaneAnvilRecipes(provider, oldArcaneAnvilRecipes);
-        var newArcaneTag = RecipeDeltaSnapshot.encodeArcaneAnvilRecipes(provider, state.arcaneAnvilRecipes);
         return new RecipeDeltaSnapshot(
                 baseRevision,
                 state.revision,
                 false,
                 state.showcaseOnly,
-                !oldArcaneTag.equals(newArcaneTag),
                 removed,
                 upserted,
                 state.managedRecipeTypes,
-                state.recipeTypeHints,
-                state.arcaneAnvilRecipes
+                state.recipeTypeHints
         );
     }
 
@@ -361,7 +330,6 @@ public final class RecipeOverrideManager {
             LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes,
             LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes,
             LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes,
-            LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes,
             boolean showcaseOnly
     ) {
         if (entry.getRecipeId() == null) {
@@ -369,10 +337,11 @@ public final class RecipeOverrideManager {
             return ApplyEntryResult.FAILED;
         }
         var id = entry.getRecipeId();
+        if (RecipeEditorTypes.get(entry.getType()).isEmpty()) {
+            ViScriptRecipe.LOGGER.warn("Skipping recipe override {} from {} because editor type {} is unavailable", id, source, entry.getType());
+            return ApplyEntryResult.SKIPPED;
+        }
         try {
-            if (IronArcaneAnvilOverrideManager.isArcaneAnvilEntry(entry)) {
-                return applyArcaneAnvilEntry(source, entry, arcaneAnvilRecipes);
-            }
             return switch (entry.getOperation()) {
                 case REMOVE -> removeEntry(source, id, entry, recipes, managedRecipeTypes, showcaseOnly);
                 case ADD, REPLACE -> upsertEntry(
@@ -387,52 +356,6 @@ public final class RecipeOverrideManager {
         } catch (Exception | LinkageError e) {
             ViScriptRecipe.LOGGER.error("Failed to apply recipe override {} from {}", id, source, e);
             return ApplyEntryResult.FAILED;
-        }
-    }
-
-    private static ApplyEntryResult applyArcaneAnvilEntry(String source, RecipeEntry entry, LinkedHashMap<ResourceLocation, IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes) {
-        if (!ViScriptRecipe.isModLoaded(IronSpellbooksRecipeEditorTypes.MOD_ID)) {
-            ViScriptRecipe.LOGGER.warn("Skipping Iron's Spells Arcane Anvil override {} because irons_spellbooks is not loaded", entry.getRecipeId());
-            return ApplyEntryResult.SKIPPED;
-        }
-        var id = entry.getRecipeId();
-        return switch (entry.getOperation()) {
-            case REMOVE -> arcaneAnvilRecipes.remove(id) == null ? ApplyEntryResult.SKIPPED : ApplyEntryResult.APPLIED;
-            case ADD, REPLACE -> {
-                var exists = arcaneAnvilRecipes.containsKey(id);
-                if (entry.getOperation() == RecipeOperation.ADD && exists) {
-                    ViScriptRecipe.LOGGER.warn("Arcane Anvil override {} adds existing recipe {}; replacing it", source, id);
-                }
-                arcaneAnvilRecipes.put(id, IronArcaneAnvilOverrideManager.compile(id, entry.getData()));
-                yield ApplyEntryResult.APPLIED;
-            }
-        };
-    }
-
-    private static void collectAlchemistCauldronRecipeFluids(RecipeEntry entry, Collection<FluidStack> fluids) {
-        if (entry.getOperation() == RecipeOperation.REMOVE || !isAlchemistCauldronRecipe(entry)) {
-            return;
-        }
-        var data = (IronAlchemistCauldronRecipeData) entry.getData();
-        if (entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW)) {
-            addFluid(fluids, data.getBaseFluid());
-            if (data.getResultFluids() != null) {
-                data.getResultFluids().forEach(stack -> addFluid(fluids, stack));
-            }
-            return;
-        }
-        addFluid(fluids, data.getFluid());
-    }
-
-    private static boolean isAlchemistCauldronRecipe(RecipeEntry entry) {
-        return entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_FILL)
-                || entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_EMPTY)
-                || entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW);
-    }
-
-    private static void addFluid(Collection<FluidStack> fluids, FluidStack stack) {
-        if (stack != null && !stack.isEmpty()) {
-            fluids.add(stack.copy());
         }
     }
 
@@ -556,7 +479,6 @@ public final class RecipeOverrideManager {
         private LinkedHashMap<ResourceLocation, RecipeHolder<?>> baseRecipes;
         private LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes = new LinkedHashMap<>();
         private LinkedHashMap<ResourceLocation, ResourceLocation> recipeTypeHints = new LinkedHashMap<>();
-        private List<IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes = List.of();
         private boolean showcaseOnly;
         private long revision;
     }

@@ -2,10 +2,6 @@ package com.viscript_recipe.compat.irons_spellbooks.canvas;
 
 import com.lowdragmc.lowdraglib2.gui.texture.SpriteTexture;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
-import com.lowdragmc.lowdraglib2.gui.ui.data.Horizontal;
-import com.lowdragmc.lowdraglib2.gui.ui.data.TextWrap;
-import com.lowdragmc.lowdraglib2.gui.ui.data.Vertical;
-import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
 import dev.vfyjxf.taffy.style.AlignContent;
@@ -31,18 +27,12 @@ public final class AlchemistCauldronCanvasFactory {
             UIElement fluidOutput,
             UIElement itemOutput,
             UIElement cauldronIcon,
-            Label chanceLabel,
             boolean brew
     ) {
         var background = positioned(new UIElement(), 0, 0, JEI_WIDTH, JEI_BACKGROUND_HEIGHT)
                 .style(style -> style.backgroundTexture(
                         SpriteTexture.of(JEI_BACKGROUND).setSprite(0, 0, JEI_WIDTH, JEI_BACKGROUND_HEIGHT)
                 ));
-        chanceLabel.textStyle(style -> style
-                .fontSize(9)
-                .textAlignHorizontal(Horizontal.CENTER)
-                .textAlignVertical(Vertical.CENTER)
-                .textWrap(TextWrap.HOVER_ROLL));
         var panel = new UIElement().layout(layout -> {
             layout.width(JEI_WIDTH);
             layout.height(JEI_HEIGHT);
@@ -53,8 +43,7 @@ public final class AlchemistCauldronCanvasFactory {
                 positioned(fluidInput, 54, 1, 16, 16),
                 positioned(fluidOutput, 108, 1, 16, 16),
                 positioned(itemOutput, 108, brew ? 17 : 1, 16, 16),
-                positioned(cauldronIcon, 51, 17, 23, 22),
-                positioned(chanceLabel, 73, 19, 32, 10)
+                positioned(cauldronIcon, 51, 17, 23, 22)
         );
         return RecipeEditorUi.row().layout(layout -> {
             layout.widthPercent(100);

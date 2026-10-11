@@ -44,6 +44,7 @@ public class ViScriptRecipe {
         }
         for (var holder : IModModule.MODULES) {
             var module = holder.value().get();
+            module.registerRuntime(modEventBus);
             module.registerEditorTypes();
             RecipeImporter.HANDLERS.add(module.importHandler());
         }

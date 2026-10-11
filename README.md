@@ -7,6 +7,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 ## 功能总览
 
 - 游戏内可视化编辑 `.recipe` 文件，支持创建、替换、删除配方。
+- 通过 NeoForge 公开事件适配原版铁砧和酿造台，可编辑双输入、输出及铁砧费用。
 - 按工作站分类展示配方类型，联动模组只有在已安装时才会出现在编辑器中。
 - 支持物品输入、物品标签输入、工具动作输入、流体输入、Create 流体标签输入、概率输出、数量输出等常见配方参数。
 - 左侧配方列表支持新增、删除、复制到下方，适合批量制作相似配方。
@@ -47,7 +48,7 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 
 | 模组 | Mod ID | 编辑器/导入器 |
 | --- | --- | --- |
-| Iron's Spells 'n Spellbooks | `irons_spellbooks` | 支持 |
+| Iron's Spells 'n Spellbooks | `irons_spellbooks` | 支持 RecipeManager 配方 |
 | Ice and Fire CE | `iceandfire` | 支持 |
 | Farmer's Delight | `farmersdelight` | 支持 |
 | Farm & Charm | `farm_and_charm` | 支持 |
@@ -102,6 +103,18 @@ TACZ 联动使用 `tacz:gun_smith_table_crafting` 原生配方，材料支持独
 
 配方 ID 使用标准 `namespace:path` 格式。编辑器中导入已加载配方时，也使用这个 ID 查找当前世界 RecipeManager 中的配方。
 
+### 原版铁砧与酿造台事件配方
+
+在工作站中选择“铁砧”或“酿造台”，可以创建 `viscript_recipe:anvil`、`viscript_recipe:brewing` 规则。规则沿用 `.recipe` 文件、配方 ID、导入、上传、普通和增量重载；服务端通过 `AnvilUpdateEvent` 和 `RegisterBrewingRecipesEvent` 执行，无需工作站 Mixin。
+
+画布沿用 JEI 对应分类的槽位坐标和贴图：铁砧显示双输入、加号、箭头、输出和经验费用；酿造台显示顶部材料、底部三个输入槽及右上输出。三个底部槽同步编辑同一条输入条件。未安装 JEI 时使用原版贴图，布局不变。
+
+铁砧可编辑左侧物品、右侧材料、输出物品、经验等级消耗和右侧材料消耗。费用至少为 1 级，左侧按原版逻辑消耗整组；右侧不足时不允许取出结果。重命名输入仍有效。
+
+酿造台可编辑底部输入、顶部材料和输出，物品组件可用于限定具体药水。每个匹配的底部槽输出一件，一次酿造最多处理三个槽，共消耗一件顶部材料；时间、燃料和材料容器返还沿用原版逻辑。动态适配器读取当前世界的配方，因此重载后立即生效。
+
+原版硬编码铁砧操作和药水组合没有 RecipeManager 配方 ID，不能按 ID 导入或删除。`remove` 移除 VSR 自己创建的规则，随后恢复原版处理。多条 VSR 规则匹配同一组合时，按配方 ID 字典顺序选择第一条。
+
 ## 编辑器能力
 
 - 左侧是配方列表，可以按工作站分类查看、选择、新增、删除和复制配方。
@@ -121,7 +134,7 @@ TACZ 联动使用 `tacz:gun_smith_table_crafting` 原生配方，材料支持独
 
 `/viscript_recipe reload delta` 会比较本次与上一次由 ViScriptRecipe 管理的最终配方状态，只向在线玩家发送新增、修改和删除的配方。客户端会局部替换 RecipeManager 索引，并通过 JEI 公开运行时接口隐藏旧页面、加入新页面，不触发标准完整配方包所引发的原版配方书、搜索树和 JEI 全量重启。这个模式不会刷新原版配方书或标签，适合编辑期间频繁预览普通配方内容修改。
 
-如果展示模式已开启、变化数量过多、配方无法安全编码，或者客户端发现配方版本不一致，增量模式会自动回退或请求一次普通完整配方同步。JEI 分类使用专用展示对象而不能安全局部替换时，只重建 JEI，不重新传输服务器全部配方。Create 自动酿造和 Iron's Spells 黑暗铁砧属于这种专用展示类型。
+如果展示模式已开启、变化数量过多、配方无法安全编码，或者客户端发现配方版本不一致，增量模式会自动回退或请求一次普通完整配方同步。JEI 分类使用专用展示对象而不能安全局部替换时，只重建 JEI，不重新传输服务器全部配方。Create 自动酿造和 Iron's Spells 炼药锅属于这种专用展示类型。
 
 普通重载会向在线玩家发送新的配方包，并同步配方书。它不会同步标签包，因此卡顿更少，适合只改配方内容的开发流程。
 
@@ -174,10 +187,12 @@ TACZ 联动使用 `tacz:gun_smith_table_crafting` 原生配方，材料支持独
 
 | 工作站 | 支持的配方类型 |
 | --- | --- |
-| 炼金锅 | `irons_spellbooks:alchemist_cauldron_fill`、`irons_spellbooks:alchemist_cauldron_empty`、`irons_spellbooks:alchemist_cauldron_brew` |
-| 奥术铁砧 | `irons_spellbooks:arcane_anvil_transform` |
+| 炼药锅 | `irons_spellbooks:alchemist_cauldron_fill`、`irons_spellbooks:alchemist_cauldron_empty`、`irons_spellbooks:alchemist_cauldron_brew` |
+| 锻造台 | `irons_spellbooks:smithing_transform_no_addition` |
 
-炼金锅支持物品与流体输入、返回物品、副产物、输出流体和声音设置。奥术铁砧配方通过本模组的菜单覆盖逻辑生效，不直接写入原版 RecipeManager。
+仅支持通过 Minecraft RecipeManager 管理的配方。炼药锅可编辑物品、输入及多个输出流体、副产物、声音和容纳限制；酿造副产物遵循上游编码规则，数量固定为一件。无追加材料锻造可编辑模板、基础物品和结果，并保留原生装备数据继承规则。上述类型支持导入、保存和重载。铁魔法采用原版配方类型的配方使用现有原版编辑器，Create 联动配方使用 Create 编辑器。
+
+奥术铁砧、卷轴回收和动态药水逻辑不提供编辑入口。炼药锅遵循铁魔法原生流体黑名单，不注入工作站 Mixin。无追加材料锻造在当前版本没有内置 JSON 配方，但可以创建或导入数据包提供的配方。
 
 ### Ice and Fire CE (`iceandfire`)
 

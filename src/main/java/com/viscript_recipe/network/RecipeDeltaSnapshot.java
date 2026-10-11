@@ -2,14 +2,11 @@ package com.viscript_recipe.network;
 
 import com.mojang.serialization.Codec;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
 import com.viscript_recipe.compat.tacz.TaczRecipeFactory;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
@@ -27,12 +24,10 @@ public record RecipeDeltaSnapshot(
         long revision,
         boolean baseline,
         boolean showcaseOnly,
-        boolean arcaneAnvilChanged,
         List<ResourceLocation> removedRecipeIds,
         List<RecipeHolder<?>> upsertedRecipes,
         Map<ResourceLocation, ResourceLocation> managedEditorTypes,
-        Map<ResourceLocation, ResourceLocation> recipeTypeHints,
-        List<IronArcaneAnvilOverrideManager.CompiledRecipe> arcaneAnvilRecipes
+        Map<ResourceLocation, ResourceLocation> recipeTypeHints
 ) {
     public static final int PROTOCOL_VERSION = 1;
 
@@ -41,7 +36,6 @@ public record RecipeDeltaSnapshot(
         upsertedRecipes = List.copyOf(upsertedRecipes);
         managedEditorTypes = Map.copyOf(managedEditorTypes);
         recipeTypeHints = Map.copyOf(recipeTypeHints);
-        arcaneAnvilRecipes = List.copyOf(arcaneAnvilRecipes);
     }
 
     public int changedRecipeCount() {
@@ -49,7 +43,7 @@ public record RecipeDeltaSnapshot(
     }
 
     public boolean hasChanges() {
-        return changedRecipeCount() > 0 || arcaneAnvilChanged;
+        return changedRecipeCount() > 0;
     }
 
     public CompoundTag serialize(HolderLookup.Provider provider) {
@@ -59,7 +53,6 @@ public record RecipeDeltaSnapshot(
         root.putLong("revision", revision);
         root.putBoolean("baseline", baseline);
         root.putBoolean("showcase_only", showcaseOnly);
-        root.putBoolean("arcane_anvil_changed", arcaneAnvilChanged);
 
         var removed = new ListTag();
         removedRecipeIds.forEach(id -> removed.add(StringTag.valueOf(id.toString())));
@@ -76,16 +69,6 @@ public record RecipeDeltaSnapshot(
         root.put("managed_editor_types", encodeResourceLocationMap(managedEditorTypes, "editor_type"));
         root.put("recipe_type_hints", encodeResourceLocationMap(recipeTypeHints, "recipe_type"));
 
-        var arcaneAnvil = new ListTag();
-        for (var recipe : arcaneAnvilRecipes) {
-            var entry = new CompoundTag();
-            entry.putString("id", recipe.id().toString());
-            entry.put("input", encode(provider, Ingredient.CODEC, recipe.input(), "arcane anvil input " + recipe.id()));
-            entry.put("material", encode(provider, Ingredient.CODEC, recipe.material(), "arcane anvil material " + recipe.id()));
-            entry.put("result", encode(provider, ItemStack.CODEC, recipe.result(), "arcane anvil result " + recipe.id()));
-            arcaneAnvil.add(entry);
-        }
-        root.put("arcane_anvil", arcaneAnvil);
         return root;
     }
 
@@ -108,27 +91,15 @@ public record RecipeDeltaSnapshot(
             upserted.add(new RecipeHolder<>(id, recipe));
         }
 
-        var arcaneAnvil = new ArrayList<IronArcaneAnvilOverrideManager.CompiledRecipe>();
-        for (var tag : root.getList("arcane_anvil", Tag.TAG_COMPOUND)) {
-            var entry = (CompoundTag) tag;
-            var id = ResourceLocation.parse(entry.getString("id"));
-            var input = decode(provider, Ingredient.CODEC, entry.get("input"), "arcane anvil input " + id);
-            var material = decode(provider, Ingredient.CODEC, entry.get("material"), "arcane anvil material " + id);
-            var result = decode(provider, ItemStack.CODEC, entry.get("result"), "arcane anvil result " + id);
-            arcaneAnvil.add(new IronArcaneAnvilOverrideManager.CompiledRecipe(id, input, material, result));
-        }
-
         return new RecipeDeltaSnapshot(
                 root.getLong("base_revision"),
                 root.getLong("revision"),
                 root.getBoolean("baseline"),
                 root.getBoolean("showcase_only"),
-                root.getBoolean("arcane_anvil_changed"),
                 removed,
                 upserted,
                 decodeResourceLocationMap(root.getList("managed_editor_types", Tag.TAG_COMPOUND), "editor_type"),
-                decodeResourceLocationMap(root.getList("recipe_type_hints", Tag.TAG_COMPOUND), "recipe_type"),
-                arcaneAnvil
+                decodeResourceLocationMap(root.getList("recipe_type_hints", Tag.TAG_COMPOUND), "recipe_type")
         );
     }
 
@@ -139,22 +110,6 @@ public record RecipeDeltaSnapshot(
             return TaczRecipeFactory.encodeSnapshot(holder.value(), provider);
         }
         return encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id());
-    }
-
-    public static Tag encodeArcaneAnvilRecipes(
-            HolderLookup.Provider provider,
-            List<IronArcaneAnvilOverrideManager.CompiledRecipe> recipes
-    ) {
-        var encoded = new ListTag();
-        for (var recipe : recipes) {
-            var entry = new CompoundTag();
-            entry.putString("id", recipe.id().toString());
-            entry.put("input", encode(provider, Ingredient.CODEC, recipe.input(), "arcane anvil input " + recipe.id()));
-            entry.put("material", encode(provider, Ingredient.CODEC, recipe.material(), "arcane anvil material " + recipe.id()));
-            entry.put("result", encode(provider, ItemStack.CODEC, recipe.result(), "arcane anvil result " + recipe.id()));
-            encoded.add(entry);
-        }
-        return encoded;
     }
 
     private static ListTag encodeResourceLocationMap(

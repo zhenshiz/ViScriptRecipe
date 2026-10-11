@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -38,6 +39,30 @@ public final class RecipeSearchComponents {
     private static final int MAX_RECIPE_ID_CANDIDATES = 200;
 
     private RecipeSearchComponents() {
+    }
+
+    /**
+     * 创建按声音注册表 ID 搜索并选择的属性输入框。
+     *
+     * @param nameKey 属性名称的翻译键
+     * @param supplier 当前声音 ID 的提供方法
+     * @param consumer 选中声音 ID 的接收方法
+     * @param onChanged 声音 ID 改变后的回调
+     * @param defaultValue 当前 ID 未注册或为空时显示的默认声音；不会自动写回数据
+     * @return 使用 VSL 声音补全组件的属性输入框
+     */
+    public static UIElement sound(
+            String nameKey,
+            Supplier<ResourceLocation> supplier,
+            Consumer<ResourceLocation> consumer,
+            Runnable onChanged,
+            SoundEvent defaultValue
+    ) {
+        var registry = BuiltInRegistries.SOUND_EVENT;
+        var current = registry.getOptional(Objects.requireNonNullElse(supplier.get(), registry.getKey(defaultValue)))
+                .orElse(defaultValue);
+        return configure(nameKey, new SoundEventSearchBox(current),
+                value -> updateRegistryId(registry, value, supplier, consumer, onChanged));
     }
 
     public static UIElement entityType(

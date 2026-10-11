@@ -4,8 +4,6 @@
   "package": "com.viscript_recipe.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "IronAlchemistCauldronFluidHandlerMixin",
-    "IronArcaneAnvilMenuMixin",
     "MysticalAgricultureAwakeningRecipeAccessor",
     "MysticalAgricultureInfusionRecipeAccessor",
     "RecipeManagerMixin",

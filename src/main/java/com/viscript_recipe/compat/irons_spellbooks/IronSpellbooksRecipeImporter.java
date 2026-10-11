@@ -1,6 +1,8 @@
 package com.viscript_recipe.compat.irons_spellbooks;
 
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
+import com.viscript_recipe.compat.irons_spellbooks.data.IronNoAdditionSmithingRecipeData;
+import io.redspace.ironsspellbooks.recipe_types.NoAdditionSmithingTransformRecipe;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -33,7 +35,8 @@ public final class IronSpellbooksRecipeImporter implements RecipeImportHandler {
         var recipe = holder.value();
         return recipe instanceof FillAlchemistCauldronRecipe
                 || recipe instanceof EmptyAlchemistCauldronRecipe
-                || recipe instanceof BrewAlchemistCauldronRecipe;
+                || recipe instanceof BrewAlchemistCauldronRecipe
+                || recipe instanceof NoAdditionSmithingTransformRecipe;
     }
 
     @Override
@@ -72,6 +75,14 @@ public final class IronSpellbooksRecipeImporter implements RecipeImportHandler {
                         .setResultFluids(results)
                         .setByproduct(brew.byproduct().map(ItemStack::copy).orElse(ItemStack.EMPTY));
                 return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW)
+                        .setData(data));
+            }
+            case NoAdditionSmithingTransformRecipe smithing -> {
+                var data = new IronNoAdditionSmithingRecipeData()
+                        .setTemplate(RecipeImporter.importIngredient(smithing.getTemplate()))
+                        .setBase(RecipeImporter.importIngredient(smithing.getBase()))
+                        .setResult(RecipeImporter.copyStack(smithing.getResultItem(provider)));
+                return RecipeImporter.success(RecipeImporter.baseEntry(holder.id(), IronSpellbooksRecipeEditorTypes.SMITHING_TRANSFORM_NO_ADDITION)
                         .setData(data));
             }
             default -> { return null; }

@@ -47,19 +47,6 @@ public class IronAlchemistCauldronRecipeData implements IVSRecipeData {
                 IronSpellbooksRecipeFactory.compileFill(this) : IronSpellbooksRecipeFactory.compileEmpty(this);
     }
 
-    public FluidStack firstResultFluid() {
-        if (resultFluids.isEmpty()) return FluidStack.EMPTY;
-        return resultFluids.getFirst().copy();
-    }
-
-    public void setFirstResultFluid(FluidStack stack) {
-        var copy = stack == null ? FluidStack.EMPTY : stack.copy();
-        if (resultFluids.isEmpty()) {
-            if (!copy.isEmpty()) resultFluids.add(copy);
-        }
-        else resultFluids.set(0, copy);
-    }
-
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
         if (typeId.equals(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_FILL)) {
@@ -70,8 +57,7 @@ public class IronAlchemistCauldronRecipeData implements IVSRecipeData {
                     .setFluid(new FluidStack(Fluids.WATER, 250))
                     .setSound(ResourceLocation.withDefaultNamespace("item.bottle.fill"));
         } else if (typeId.equals(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW)) {
-            setInput(RecipeIngredient.item(Items.GOLD_INGOT))
-                    .setFirstResultFluid(new FluidStack(Fluids.WATER, 1000));
+            setInput(RecipeIngredient.item(Items.GOLD_INGOT));
         }
     }
 }

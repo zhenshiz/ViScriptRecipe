@@ -47,7 +47,7 @@ public final class IronSpellbooksRecipeFactory {
                 .toList();
         var byproduct = data.getByproduct() == null || data.getByproduct().isEmpty()
                 ? Optional.<ItemStack>empty()
-                : Optional.of(data.getByproduct().copy());
+                : Optional.of(data.getByproduct().copyWithCount(1));
         if (results.isEmpty() && byproduct.isEmpty()) {
             throw new IllegalArgumentException("Alchemist cauldron brew must have a result fluid or byproduct");
         }
