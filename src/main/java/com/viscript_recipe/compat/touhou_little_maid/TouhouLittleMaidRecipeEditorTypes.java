@@ -16,15 +16,11 @@ public final class TouhouLittleMaidRecipeEditorTypes implements IModModule{
     public static final ResourceLocation ALTAR = touhouLittleMaid("altar");
     public static final ResourceLocation ALTAR_RECIPE = touhouLittleMaid("altar_recipe");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return TouhouLittleMaidRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategory(RecipeEditorCategory.of(
                 ALTAR,
                 "viscript_recipe.editor.category.touhou_little_maid.altar",
@@ -33,8 +29,7 @@ public final class TouhouLittleMaidRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 ALTAR_RECIPE, ALTAR,
                 "viscript_recipe.editor.type.touhou_little_maid.altar",
-                TouhouLittleMaidAltarRecipeData.class, TouhouLittleMaidAltarRecipeData::new,
-                AltarCanvas::new, MOD_ID
+                TouhouLittleMaidAltarRecipeData.class, AltarCanvas.class
         ));
     }
 

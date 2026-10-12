@@ -21,8 +21,8 @@ public class MissingRecipeTypeHolder implements IVSRecipeData {
     public static final String MISSING = "missing";
     public static final RecipeEditorType TYPE = RecipeEditorType.of(
             ViScriptRecipe.id(MISSING), ViScriptRecipe.id(MISSING), MISSING,
-            MissingRecipeTypeHolder.class, MissingRecipeTypeHolder::new, MissingRecipeCanvas::new);
-    public static final RecipeEditorCategory CATEGORY = new RecipeEditorCategory(new ResourceLocation("barrier"), MISSING, MISSING, List.of(), new ResourceLocation(MISSING));
+            MissingRecipeTypeHolder.class, MissingRecipeCanvas.class);
+    public static final RecipeEditorCategory CATEGORY = new RecipeEditorCategory(new ResourceLocation("barrier"), MISSING, MISSING, new ResourceLocation(MISSING));
     static final List<String> entryKeys = List.of("enabled", "operation", "type", "recipeId");
 
     String missingDataName = "";

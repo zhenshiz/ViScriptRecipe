@@ -25,15 +25,11 @@ public final class GoetyRecipeEditorTypes implements IModModule{
     public static final ResourceLocation PULVERIZE = goety("pulverize");
     public static final ResourceLocation BREWING = goety("brewing");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return GoetyRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -58,32 +54,27 @@ public final class GoetyRecipeEditorTypes implements IModModule{
         registerEditorType(RecipeEditorType.of(
                 CURSED_INFUSER_RECIPE, CURSED_INFUSER,
                 "viscript_recipe.editor.type.goety.cursed_infuser",
-                GoetyCursedInfuserRecipeData.class, GoetyCursedInfuserRecipeData::new,
-                CursedInfuserCanvas::new, MOD_ID
+                GoetyCursedInfuserRecipeData.class, CursedInfuserCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 RITUAL, DARK_ALTAR,
                 "viscript_recipe.editor.type.goety.ritual",
-                GoetyRitualRecipeData.class, GoetyRitualRecipeData::new,
-                RitualCanvas::new, MOD_ID
+                GoetyRitualRecipeData.class, RitualCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 BRAZIER, NECRO_BRAZIER,
                 "viscript_recipe.editor.type.goety.brazier",
-                GoetyBrazierRecipeData.class, GoetyBrazierRecipeData::new,
-                BrazierCanvas::new, MOD_ID
+                GoetyBrazierRecipeData.class, BrazierCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 PULVERIZE, PULVERIZE_FOCUS,
                 "viscript_recipe.editor.type.goety.pulverize",
-                GoetyPulverizeRecipeData.class, GoetyPulverizeRecipeData::new,
-                PulverizeCanvas::new, MOD_ID
+                GoetyPulverizeRecipeData.class, PulverizeCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 BREWING, WITCH_CAULDRON,
                 "viscript_recipe.editor.type.goety.brewing",
-                GoetyBrewingRecipeData.class, GoetyBrewingRecipeData::new,
-                BrewingCanvas::new, MOD_ID
+                GoetyBrewingRecipeData.class, BrewingCanvas.class
         ));
     }
 

@@ -1,48 +1,30 @@
 package com.viscript_recipe.data;
 
-import com.viscript_recipe.ViScriptRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.List;
-
 public record RecipeEditorCategory(
         ResourceLocation id,
         String translationKey,
         String ownerModId,
-        List<String> requiredMods,
         ResourceLocation defaultType,
         ResourceLocation workstationItemId
 ) {
-    public RecipeEditorCategory(ResourceLocation id, String translationKey, String ownerModId, List<String> requiredMods,
-                                ResourceLocation defaultType) {
-        this(id, translationKey, ownerModId, requiredMods, defaultType, id);
+    public RecipeEditorCategory(ResourceLocation id, String translationKey, String ownerModId, ResourceLocation defaultType) {
+        this(id, translationKey, ownerModId, defaultType, id);
     }
 
     public static RecipeEditorCategory of(ResourceLocation id, String translationKey,
                                           String ownerModId, ResourceLocation defaultType) {
-        return new RecipeEditorCategory(id, translationKey, ownerModId, List.of(ownerModId), defaultType);
+        return new RecipeEditorCategory(id, translationKey, ownerModId, defaultType);
     }
 
     public static RecipeEditorCategory of(ResourceLocation id, String translationKey, String ownerModId,
                                           ResourceLocation defaultType, ResourceLocation workstationItemId) {
-        return new RecipeEditorCategory(id, translationKey, ownerModId, List.of(ownerModId), defaultType, workstationItemId);
-    }
-
-    public RecipeEditorCategory {
-        requiredMods = requiredMods == null ? List.of() : List.copyOf(requiredMods);
-    }
-
-    public boolean isAvailable() {
-        for (var modId : requiredMods) {
-            if (!ViScriptRecipe.isModLoaded(modId)) {
-                return false;
-            }
-        }
-        return true;
+        return new RecipeEditorCategory(id, translationKey, ownerModId, defaultType, workstationItemId);
     }
 
     public Component displayName() {

@@ -207,7 +207,7 @@ public class NavigationView extends View {
     }
 
     public void setSelectedRecipeType(RecipeEditorType type) {
-        if (selectedEntry == null || !type.isAvailable() || !type.category().equals(selectedCategoryId)) {
+        if (selectedEntry == null || !type.category().equals(selectedCategoryId)) {
             return;
         }
         saveCanvas();
@@ -311,7 +311,7 @@ public class NavigationView extends View {
     }
 
     public void setSelectedCategoryId(RecipeEditorCategory category) {
-        if (category == null || !category.isAvailable() || selectedCategoryId.equals(category.id())) {
+        if (category == null || selectedCategoryId.equals(category.id())) {
             return;
         }
         selectedCategoryId = category.id();

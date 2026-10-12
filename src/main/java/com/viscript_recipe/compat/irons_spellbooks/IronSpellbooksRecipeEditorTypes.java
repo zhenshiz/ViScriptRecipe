@@ -22,15 +22,11 @@ public final class IronSpellbooksRecipeEditorTypes implements IModModule {
     public static final ResourceLocation ALCHEMIST_CAULDRON_BREW = iron("alchemist_cauldron_brew");
     public static final ResourceLocation ARCANE_ANVIL_TRANSFORM = iron("arcane_anvil_transform");
 
-    private static boolean registered;
-
     @Override
     public RecipeImportHandler importHandler() {return IronSpellbooksRecipeImporter.INSTANCE;}
 
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -52,26 +48,22 @@ public final class IronSpellbooksRecipeEditorTypes implements IModModule {
         registerEditorType(RecipeEditorType.of(
                 ALCHEMIST_CAULDRON_FILL, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_fill",
-                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
-                IronAlchemistCauldronCanvas::new, MOD_ID
+                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 ALCHEMIST_CAULDRON_EMPTY, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_empty",
-                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
-                IronAlchemistCauldronCanvas::new, MOD_ID
+                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 ALCHEMIST_CAULDRON_BREW, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_brew",
-                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronRecipeData::new,
-                IronAlchemistCauldronCanvas::new, MOD_ID
+                IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 ARCANE_ANVIL_TRANSFORM, ARCANE_ANVIL,
                 "viscript_recipe.editor.type.irons_spellbooks.arcane_anvil_transform",
-                IronArcaneAnvilRecipeData.class, IronArcaneAnvilRecipeData::new,
-                IronArcaneAnvilCanvas::new, MOD_ID
+                IronArcaneAnvilRecipeData.class, IronArcaneAnvilCanvas.class
         ));
     }
 
