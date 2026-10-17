@@ -10,6 +10,7 @@ import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
 import com.viscript_recipe.gui.views.NavigationView;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -70,14 +71,20 @@ public class ApparatusCanvas extends RecipeCanvas<ArsNouveauApparatusRecipeData>
                 }));
     }
 
+    @Nullable
     static UIElement centerPreview(IPreview preview) {
-        var centerPreview = createItemIcon(preview.centerPreview(), SLOT_SIZE);
+        var stack = preview.centerPreview();
+        if (stack.isEmpty()) return null;
+        var centerPreview = createItemIcon(stack, SLOT_SIZE);
         tooltip(centerPreview, "viscript_recipe.editor.ars_nouveau.center_preview");
         return centerPreview;
     }
 
+    @Nullable
     static UIElement outputPreview(IPreview preview) {
-        var outputPreview = createItemIcon(preview.outputPreview(), OUTPUT_SLOT_SIZE);
+        var stack = preview.outputPreview();
+        if (stack.isEmpty()) return null;
+        var outputPreview = createItemIcon(stack, OUTPUT_SLOT_SIZE);
         tooltip(outputPreview, "viscript_recipe.editor.ars_nouveau.output_preview");
         return outputPreview;
     }

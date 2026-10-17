@@ -10,6 +10,7 @@ import dev.vfyjxf.taffy.style.AlignContent;
 import dev.vfyjxf.taffy.style.AlignItems;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.IntFunction;
 
@@ -24,8 +25,8 @@ public final class ArsNouveauCanvasFactory {
             UIElement[] ingredientSlots,
             UIElement[] ingredientCells,
             UIElement resultSlot,
-            UIElement centerPreviewIcon,
-            UIElement outputPreviewIcon,
+            @Nullable UIElement centerPreviewIcon,
+            @Nullable UIElement outputPreviewIcon,
             Label sourceLabel,
             Label tierLabel,
             IntFunction<Component> ingredientTooltip
@@ -34,16 +35,20 @@ public final class ArsNouveauCanvasFactory {
         layoutFloatingLabel(tierLabel, 20, 8, 92, 18);
 
         var panel = createPanel(Sprites.BORDER_DARK);
-        var centerPreviewCell = createFloatingCell(centerPreviewIcon, 98, 88, SLOT_SIZE, SLOT_SIZE);
-        var outputPreviewCell = createFloatingCell(outputPreviewIcon, 170, 24, OUTPUT_SLOT_SIZE, OUTPUT_SLOT_SIZE);
+        resultSlot.setId("ars_result");
         panel.addChildren(
                 createIngredientCell(ingredientSlots[0], ingredientCells, 0, 0, 98, 88, ingredientTooltip),
-                centerPreviewCell,
                 createFloatingCell(resultSlot, 170, 24, OUTPUT_SLOT_SIZE, OUTPUT_SLOT_SIZE),
-                outputPreviewCell,
                 sourceLabel,
                 tierLabel
         );
+        // 仅特殊配方添加固定预览，避免空的预览容器遮挡可编辑槽位。
+        if (centerPreviewIcon != null) {
+            panel.addChild(createFloatingCell(centerPreviewIcon, 98, 88, SLOT_SIZE, SLOT_SIZE));
+        }
+        if (outputPreviewIcon != null) {
+            panel.addChild(createFloatingCell(outputPreviewIcon, 170, 24, OUTPUT_SLOT_SIZE, OUTPUT_SLOT_SIZE));
+        }
 
         var pedestalPositions = new int[][]{
                 {98, 28},
@@ -82,9 +87,10 @@ public final class ArsNouveauCanvasFactory {
     ) {
         layoutFloatingLabel(sourceLabel, 20, 178, 176, 18);
         var panel = createPanel(Sprites.BORDER_DARK);
+        resultSlot.setId("ars_result");
         panel.addChildren(
                 createIngredientCell(inputSlot, null, -1, 0, 98, 88, ingredientTooltip),
-                createFloatingCell(centerIcon, 94, 84, 32, 32),
+                createFloatingCell(centerIcon, 20, 20, 32, 32),
                 createFloatingCell(resultSlot, 170, 24, OUTPUT_SLOT_SIZE, OUTPUT_SLOT_SIZE),
                 sourceLabel
         );
@@ -233,6 +239,7 @@ public final class ArsNouveauCanvasFactory {
             int top,
             IntFunction<Component> tooltip
     ) {
+        slot.setId("ars_ingredient_" + recipeIndex);
         var cell = createFloatingCell(slot, left, top, SLOT_SIZE, SLOT_SIZE)
                 .style(style -> style.tooltips(tooltip.apply(recipeIndex)));
         if (cellStorage != null && storageIndex >= 0 && storageIndex < cellStorage.length) {

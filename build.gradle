@@ -162,6 +162,8 @@ dependencies {
     implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
     //just dire things
     implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
+    // 仅供开发环境验证配方共存，all 包内含 KilaGraph。
+    runtimeOnly "curse.maven:multiblocked2-1104057:${mbd2_file}"
 }
 
 tasks.withType(ProcessResources).configureEach {

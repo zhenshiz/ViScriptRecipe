@@ -1,7 +1,7 @@
 // 源自 LDLib2 v2.2.35（25dc88dba73e6c740173271b97d0f276e4b39e24），仅传入 -PldTest 时启用。
 // 上游说明：https://github.com/Low-Drag-MC/LDLib2/blob/1.21/uitest.md
 // 闭包中的 ext 指向其委托对象，因此输出目录使用捕获的局部变量。
-def ldTestOutDir = layout.buildDirectory.dir('ldlib2-uitest').get().asFile.absolutePath
+def ldTestOutDir = project.findProperty('ldTestOut') ?: layout.buildDirectory.dir('ldlib2-uitest').get().asFile.absolutePath
 
 def ldTestEnabled = project.hasProperty('ldTest')
 if (ldTestEnabled) {
