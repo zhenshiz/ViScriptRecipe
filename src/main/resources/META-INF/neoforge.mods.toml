@@ -207,3 +207,9 @@ type = "optional"
 versionRange = "[2.6.5,2.7)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "lychee"
+type = "optional"
+ordering = "AFTER"
+side = "BOTH"

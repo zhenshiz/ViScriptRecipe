@@ -103,6 +103,14 @@ public final class RecipeDeltaJeiSynchronizer {
             forceFullJeiReload("Create automatic brewing recipes changed");
             return;
         }
+        // Lychee 按 group 动态创建分类，铁砧和高级合成还使用原生 JEI 包装或分类扩展。
+        // 包括原生类型为 minecraft:crafting 的 Lychee 配方，统一交由它的插件重新注册。
+        for (var id : affectedRecipeIds) {
+            if (isLychee(oldRecipes.get(id)) || isLychee(newRecipes.get(id))) {
+                forceFullJeiReload("Lychee native recipe groups or category extensions changed");
+                return;
+            }
+        }
 
         var jeiRuntime = runtime;
         if (tryApplyPendingFullReload()) {
@@ -127,6 +135,12 @@ public final class RecipeDeltaJeiSynchronizer {
             ViScriptRecipe.LOGGER.warn("Failed to apply an incremental JEI recipe update", e);
             forceFullJeiReload("JEI rejected an incremental recipe update");
         }
+    }
+
+    private static boolean isLychee(RecipeHolder<?> holder) {
+        if (holder == null) return false;
+        var id = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
+        return id != null && id.getNamespace().equals("lychee");
     }
 
     private static boolean affectsAutomaticBrewing(
@@ -185,6 +199,7 @@ public final class RecipeDeltaJeiSynchronizer {
             if (typeId.equals(ResourceLocation.parse("tacz:gun_smith_table_crafting"))) return false;
             // 黏液和流体转化使用不同的 JEI UID，并直接持有配方对象；重建以同步增删改。
             if ("justdirethings".equals(typeId.getNamespace())) return false;
+            if ("lychee".equals(typeId.getNamespace())) return false;
             var farmCharm = FarmCharmRecipeKind.byType(typeId);
             var jeiType = recipeManager.getRecipeType(jeiTypeId(typeId)).orElse(null);
             if (farmCharm.isPresent()) continue;

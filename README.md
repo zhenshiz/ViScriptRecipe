@@ -16,7 +16,7 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持 25 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO、TACZ、Just Dire Things 和 Confluence: Otherworld。
+- 支持 26 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO、TACZ、Just Dire Things、Confluence: Otherworld 和 Lychee。
 
 ## 基本信息
 
@@ -68,6 +68,7 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Goety | `goety` | 支持 |
 | TACZ（NeoForge 1.21.1 移植版） | `tacz` | 支持枪械工作台；枪械、弹药、配件和自定义物品共用原生配方类型 |
 | Just Dire Things | `justdirethings` | 凝胶蔓延、方块标签蔓延、投入流体、能力升级、镐尖斧合成 |
+| Lychee | `lychee` | 14 类原生配方；可视原料和产物槽、条件与动作表单 |
 | Mystical Agriculture | `mysticalagriculture` | 支持 |
 | Industrial Foregoing | `industrialforegoing` | 支持 |
 | Alloy Smelter | `alloy_smelter` | 支持 |
@@ -77,6 +78,14 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 这里的“支持”指本模组已经注册了对应的编辑器类别、配方数据模型和原生配方构造逻辑；“导入器”只对能够无损映射到当前编辑器数据模型的原生配方启用。某些模组的 JEI 动态展示页、Data Map 或运行时 synthetic 配方不是 `RecipeManager` 配方，因此不会被错误地列为可上传的 `.recipe` 类型。
 
 TACZ 联动使用 `tacz:gun_smith_table_crafting` 原生配方，材料支持独立数量，产物保留完整物品组件及枪包页签。画布沿用 JEI 的左侧产物、右侧材料布局，并通过 VSR 属性栏编辑。特殊 NBT 或多候选原料会保留原始条件，直到玩家明确替换。配件适用查询是 JEI 的兼容关系展示，不作为合成配方导入。TACZ 的枪包工作台过滤器和页签仍决定配方在实际工作台及 JEI 中的可见性；增量重载涉及 TACZ 时会重建 JEI 的动态分类。
+
+Lychee 联动支持方块左右键交互、物品燃烧、方块内浸泡、铁砧合成、下落方块碾压、引雷、物品与方块爆炸、方块随机刻、滴水石锥滴落、高级有序合成、实体周期触发及展示配方（`blank`）。安装 Lychee 及其自身依赖后，对应分类会自动出现；VSR 不限制 Lychee 的版本范围。
+
+Lychee 配方使用其原生 Codec 编译和导入，运行及 JEI 展示交由 Lychee 自身处理。原料和直接 `drop_item` 产物可在槽位中修改；分组、说明、展示选项及相关时间和费用在属性栏中编辑。“编辑条件与动作”提供匹配对象、触发条件、后置动作和高级合成动作表单，列表支持添加、删除、排序和嵌套分支；提交前调用原生 Codec 校验，取消不会改变配方。方块可按类型或标签选择并设置状态，实体类型使用搜索选择器，合成图案使用九宫格标记选择。未修改的复杂原料、位置谓词、自定义附加数据以及第三方规则完整保留；尚无表单的扩展参数只保留原值，不提供 JSON 编辑入口。
+
+大量规则默认折叠为摘要，展开时才加载详细表单。可按显示名称、类型 ID 或参数搜索，使用“展开结果 / 收起结果”批量查看；搜索只过滤显示，清空搜索后可拖动左侧 `=` 排序。顶部操作栏可搜索新增类型、复制或删除选中的规则，复制会保留嵌套条件并插入下方。点击画布动作会直接定位对应规则，产物属性栏也提供“编辑此动作及条件”。方块、方块标签、实体及实体标签复用公共搜索补全控件。
+
+Lychee 的 JEI 分类由原生插件根据 `group` 动态生成，左右键交互共用分类，铁砧配方使用原生铁砧展示，高级有序合成使用原版合成分类扩展。涉及 Lychee 的增量重载会刷新原生运行索引并重建 JEI，支持分组变更、`ghost` 和 `hide_in_viewer`。方块随机刻和实体周期触发沿用 Lychee 自身的展示范围，VSR 不为其额外创建 JEI 页面。
 
 ## 指令
 

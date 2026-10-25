@@ -6,6 +6,7 @@ import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
+import com.viscript_recipe.compat.lychee.LycheeRecipeRuntimeSupport;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeOperation;
@@ -54,7 +55,9 @@ public final class RecipeOverrideManager {
             if (state.baseRecipes == null) {
                 state.baseRecipes = snapshot(recipeManager.getRecipes());
             }
-            return applyOverrides(recipeManager, provider, state, resourceManager);
+            var result = applyOverrides(recipeManager, provider, state, resourceManager);
+            if (ViScriptRecipe.isModLoaded("lychee")) LycheeRecipeRuntimeSupport.refreshCaches(recipeManager);
+            return result;
         }
     }
 
@@ -78,6 +81,7 @@ public final class RecipeOverrideManager {
             var oldShowcaseOnly = state.showcaseOnly;
             var baseRevision = state.revision;
             var result = applyOverrides(recipeManager, provider, state, resourceManager);
+            if (ViScriptRecipe.isModLoaded("lychee")) LycheeRecipeRuntimeSupport.refreshCaches(recipeManager);
 
             RecipeDeltaSnapshot delta;
             try {

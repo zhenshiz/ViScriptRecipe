@@ -3,6 +3,16 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    def lycheeDependencies = maven {
+        name = "LycheeDependencies"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeModule "maven.modrinth", "lychee"
+            includeModule "maven.modrinth", "kiwi"
+        }
+    }
+    remove(lycheeDependencies)
+    addFirst(lycheeDependencies)
     maven {
         name = "EnderIO"
         url = "https://maven.rover656.dev/releases"
@@ -162,6 +172,9 @@ dependencies {
     implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
     //just dire things
     implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
+    // Lychee 原生配方、条件、后置动作及 JEI 展示。
+    implementation "maven.modrinth:lychee:${lychee_version}"
+    implementation "maven.modrinth:kiwi:${kiwi_version}"
     // 仅供开发环境验证配方共存，all 包内含 KilaGraph。
     runtimeOnly "curse.maven:multiblocked2-1104057:${mbd2_file}"
 }

@@ -3,6 +3,7 @@ package com.viscript_recipe.network;
 import com.mojang.serialization.Codec;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.tacz.TaczRecipeFactory;
+import com.viscript_recipe.compat.lychee.LycheeRecipeFactory;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
@@ -62,7 +63,11 @@ public record RecipeDeltaSnapshot(
         for (var holder : upsertedRecipes) {
             var entry = new CompoundTag();
             entry.putString("id", holder.id().toString());
-            entry.put("recipe", encodeRecipe(provider, holder));
+            var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
+            if (ViScriptRecipe.isModLoaded("lychee") && serializerId != null && serializerId.getNamespace().equals("lychee")) {
+                // Lychee 的网络 Codec 会过滤 preventSync 动作，不能用持久化 Codec 直接发送。
+                entry.putByteArray("lychee_stream", LycheeRecipeFactory.encodeForSync(provider, holder));
+            } else entry.put("recipe", encodeRecipe(provider, holder));
             upserted.add(entry);
         }
         root.put("upserted", upserted);
@@ -87,6 +92,10 @@ public record RecipeDeltaSnapshot(
         for (var tag : root.getList("upserted", Tag.TAG_COMPOUND)) {
             var entry = (CompoundTag) tag;
             var id = ResourceLocation.parse(entry.getString("id"));
+            if (ViScriptRecipe.isModLoaded("lychee") && entry.contains("lychee_stream", Tag.TAG_BYTE_ARRAY)) {
+                upserted.add(LycheeRecipeFactory.decodeFromSync(provider, entry.getByteArray("lychee_stream")));
+                continue;
+            }
             var recipe = decode(provider, Recipe.CODEC, entry.get("recipe"), "recipe " + id);
             upserted.add(new RecipeHolder<>(id, recipe));
         }
