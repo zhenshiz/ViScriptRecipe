@@ -1,112 +1,27 @@
 package com.viscript_recipe.compat.jei.irons_spellbooks;
 
-import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
-import io.redspace.ironsspellbooks.jei.*;
+import io.redspace.ironsspellbooks.jei.AlchemistCauldronJeiRecipe;
+import io.redspace.ironsspellbooks.jei.AlchemistCauldronRecipeCategory;
+import io.redspace.ironsspellbooks.jei.AlchemistCauldronRecipeMaker;
 import io.redspace.ironsspellbooks.recipe_types.alchemist_cauldron.BrewAlchemistCauldronRecipe;
 import io.redspace.ironsspellbooks.registries.RecipeRegistry;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public final class IronSpellbooksJeiRecipeFilter {
-    private IronSpellbooksJeiRecipeFilter() {
-    }
+public final class IronAlchemistCauldronJeiFilter {
+    private IronAlchemistCauldronJeiFilter() {}
 
-    public static void apply(IJeiRuntime jeiRuntime, boolean showcaseOnly) {
-        var recipeManager = jeiRuntime.getRecipeManager();
-        if (showcaseOnly) {
-            applyAlchemistShowcaseFilter(recipeManager);
-            applyArcaneAnvilShowcaseFilter(recipeManager);
-            recipeManager.hideRecipeCategory(ScrollForgeRecipeCategory.SCROLL_FORGE_RECIPE_RECIPE_TYPE);
-            return;
-        }
-
-        restoreAlchemistRecipes(recipeManager);
-        restoreArcaneAnvilRecipes(recipeManager);
-        recipeManager.unhideRecipeCategory(ArcaneAnvilRecipeCategory.ARCANE_ANVIL_RECIPE_RECIPE_TYPE);
-        recipeManager.unhideRecipeCategory(ScrollForgeRecipeCategory.SCROLL_FORGE_RECIPE_RECIPE_TYPE);
-    }
-
-    private static void applyArcaneAnvilShowcaseFilter(IRecipeManager recipeManager) {
-        var type = ArcaneAnvilRecipeCategory.ARCANE_ANVIL_RECIPE_RECIPE_TYPE;
-        var allowed = currentArcaneAnvilRecipes();
-        var allowedIds = arcaneAnvilRecipeIds(allowed);
-        var existing = allJeiRecipes(recipeManager, type);
-        var hidden = new ArrayList<ArcaneAnvilJeiRecipe>();
-        var visible = new ArrayList<ArcaneAnvilJeiRecipe>();
-        var visibleIds = new HashSet<ResourceLocation>();
-        for (var recipe : existing) {
-            if (recipe instanceof ViscriptArcaneAnvilJeiRecipe viscriptRecipe
-                    && allowedIds.contains(viscriptRecipe.id())
-                    && visibleIds.add(viscriptRecipe.id())) {
-                visible.add(recipe);
-            } else {
-                hidden.add(recipe);
-            }
-        }
-        var missing = allowed.stream()
-                .filter(recipe -> !visibleIds.contains(recipe.id()))
-                .toList();
-
-        if (!hidden.isEmpty()) {
-            recipeManager.hideRecipes(type, hidden);
-        }
-        if (!visible.isEmpty()) {
-            recipeManager.unhideRecipes(type, visible);
-        }
-        if (!missing.isEmpty()) {
-            recipeManager.addRecipes(type, new ArrayList<>(missing));
-        }
-        if (allowed.isEmpty()) {
-            recipeManager.hideRecipeCategory(type);
-        } else {
-            recipeManager.unhideRecipeCategory(type);
-        }
-    }
-
-    private static void restoreArcaneAnvilRecipes(IRecipeManager recipeManager) {
-        var type = ArcaneAnvilRecipeCategory.ARCANE_ANVIL_RECIPE_RECIPE_TYPE;
-        var customRecipes = currentArcaneAnvilRecipes();
-        var customRecipeIds = arcaneAnvilRecipeIds(customRecipes);
-        var existing = allJeiRecipes(recipeManager, type);
-        var staleCustomRecipes = new ArrayList<ArcaneAnvilJeiRecipe>();
-        var visibleRecipes = new ArrayList<ArcaneAnvilJeiRecipe>();
-        var visibleCustomIds = new HashSet<ResourceLocation>();
-        for (var recipe : existing) {
-            if (recipe instanceof ViscriptArcaneAnvilJeiRecipe viscriptRecipe) {
-                if (customRecipeIds.contains(viscriptRecipe.id()) && visibleCustomIds.add(viscriptRecipe.id())) {
-                    visibleRecipes.add(recipe);
-                } else {
-                    staleCustomRecipes.add(recipe);
-                }
-                continue;
-            }
-            visibleRecipes.add(recipe);
-        }
-        var missing = customRecipes.stream()
-                .filter(recipe -> !visibleCustomIds.contains(recipe.id()))
-                .toList();
-
-        if (!staleCustomRecipes.isEmpty()) {
-            recipeManager.hideRecipes(type, staleCustomRecipes);
-        }
-        if (!visibleRecipes.isEmpty()) {
-            recipeManager.unhideRecipes(type, visibleRecipes);
-        }
-        if (!missing.isEmpty()) {
-            recipeManager.addRecipes(type, new ArrayList<ArcaneAnvilJeiRecipe>(missing));
-        }
-        recipeManager.unhideRecipeCategory(type);
+    public static void apply(IJeiRuntime runtime, boolean showcaseOnly) {
+        if (showcaseOnly) applyAlchemistShowcaseFilter(runtime.getRecipeManager());
+        else restoreAlchemistRecipes(runtime.getRecipeManager());
     }
 
     private static void applyAlchemistShowcaseFilter(IRecipeManager recipeManager) {
@@ -167,7 +82,7 @@ public final class IronSpellbooksJeiRecipeFilter {
         return level.getRecipeManager()
                 .getAllRecipesFor(RecipeRegistry.ALCHEMIST_CAULDRON_BREW_TYPE.get())
                 .stream()
-                .map(IronSpellbooksJeiRecipeFilter::toJeiRecipe)
+                .map(IronAlchemistCauldronJeiFilter::toJeiRecipe)
                 .toList();
     }
 
@@ -178,25 +93,6 @@ public final class IronSpellbooksJeiRecipeFilter {
                 recipe.results(),
                 recipe.byproduct().orElse(ItemStack.EMPTY)
         );
-    }
-
-    private static List<ViscriptArcaneAnvilJeiRecipe> currentArcaneAnvilRecipes() {
-        var seenIds = new HashSet<ResourceLocation>();
-        var recipes = new ArrayList<ViscriptArcaneAnvilJeiRecipe>();
-        for (var recipe : IronArcaneAnvilOverrideManager.recipes()) {
-            if (seenIds.add(recipe.id())) {
-                recipes.add(new ViscriptArcaneAnvilJeiRecipe(recipe));
-            }
-        }
-        return recipes;
-    }
-
-    private static Set<ResourceLocation> arcaneAnvilRecipeIds(List<ViscriptArcaneAnvilJeiRecipe> recipes) {
-        var ids = new HashSet<ResourceLocation>();
-        for (var recipe : recipes) {
-            ids.add(recipe.id());
-        }
-        return ids;
     }
 
     private static <T> List<T> allJeiRecipes(IRecipeManager recipeManager, RecipeType<T> type) {

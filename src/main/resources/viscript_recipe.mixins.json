@@ -7,8 +7,6 @@
     "FluidIngredientMixin",
     "FluidStack",
     "FluidTag",
-    "IronAlchemistCauldronFluidHandlerMixin",
-    "IronArcaneAnvilMenuMixin",
     "RecipeManagerMixin"
   ],
   "client": [

@@ -2,7 +2,6 @@ package com.viscript_recipe.client;
 
 import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.irons_spellbooks.IronArcaneAnvilOverrideManager;
 import com.viscript_recipe.compat.jei.JeiShowcaseModeState;
 import com.viscript_recipe.compat.jei.RecipeDeltaJeiBridge;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
@@ -143,7 +142,6 @@ public final class RecipeDeltaClientState {
         SERVER_RECIPE_TYPE_HINTS.forEach(RecipeDeltaClientState::addRecipeTypeHint);
         DELTA_TOUCHED_IDS.addAll(affectedIds);
 
-        IronArcaneAnvilOverrideManager.replaceAll(snapshot.arcaneAnvilRecipes());
         JeiShowcaseModeState.updateFromServer(snapshot.showcaseOnly());
         RecipeDeltaJeiBridge.applyDelta(
                 snapshot.revision(),
@@ -151,8 +149,7 @@ public final class RecipeDeltaClientState {
                 oldRecipes,
                 newRecipes,
                 oldEditorTypes,
-                Map.copyOf(MANAGED_EDITOR_TYPES),
-                snapshot.arcaneAnvilChanged()
+                Map.copyOf(MANAGED_EDITOR_TYPES)
         );
         ViScriptRecipe.LOGGER.info(
                 "Applied recipe delta revision {}: {} removed, {} upserted",
@@ -171,7 +168,6 @@ public final class RecipeDeltaClientState {
         SERVER_RECIPE_TYPE_HINTS.putAll(snapshot.recipeTypeHints());
         DELTA_TOUCHED_IDS.clear();
         rebuildHistoricalHints();
-        IronArcaneAnvilOverrideManager.replaceAll(snapshot.arcaneAnvilRecipes());
         JeiShowcaseModeState.updateFromServer(snapshot.showcaseOnly());
         RecipeDeltaJeiBridge.applyBaseline();
     }

@@ -20,8 +20,7 @@ public final class RecipeDeltaJeiBridge {
             Map<ResourceLocation, Recipe<?>> oldRecipes,
             Map<ResourceLocation, Recipe<?>> newRecipes,
             Map<ResourceLocation, ResourceLocation> oldEditorTypes,
-            Map<ResourceLocation, ResourceLocation> newEditorTypes,
-            boolean arcaneAnvilChanged
+            Map<ResourceLocation, ResourceLocation> newEditorTypes
     ) {
         if (!ViScriptRecipe.isModLoaded(JEI)) {
             return;
@@ -32,8 +31,7 @@ public final class RecipeDeltaJeiBridge {
                 oldRecipes,
                 newRecipes,
                 oldEditorTypes,
-                newEditorTypes,
-                arcaneAnvilChanged
+                newEditorTypes
         );
     }
 

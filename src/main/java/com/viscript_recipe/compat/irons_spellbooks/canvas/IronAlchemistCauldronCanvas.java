@@ -5,40 +5,48 @@ import com.lowdragmc.lowdraglib2.gui.texture.Icons;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.FluidSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.Label;
-import com.viscript_lib.util.math.Clamp;
+import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import com.viscript_recipe.compat.irons_spellbooks.IronSpellbooksRecipeEditorTypes;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.gui.canvas.FluidRecipeCanvas;
 import com.viscript_recipe.gui.canvas.vanilla.BasicRecipeCanvasFactory;
-import com.viscript_recipe.gui.editor.IngredientDisplaySlot;
 import com.viscript_recipe.gui.editor.RecipeEditorUi;
+import com.viscript_recipe.gui.editor.RecipeSearchComponents;
 import com.viscript_recipe.gui.views.NavigationView;
+import com.viscript_recipe.gui.views.PropertiesView;
 import com.viscript_recipe.recipe.RecipeHelper;
 import dev.vfyjxf.taffy.style.AlignItems;
-import io.redspace.ironsspellbooks.config.ServerConfigs;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.registries.BuiltInRegistries;
+import dev.vfyjxf.taffy.style.FlexWrap;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.fluids.FluidStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemistCauldronRecipeData> {
-    static final boolean useJeiCanvas = AlchemistCauldronCanvasFactory.hasJeiSkin();
-    static final ResourceLocation IRON_SCROLL_ID = new ResourceLocation("irons_spellbooks", "scroll");
+    private final List<FluidSlot> fluids = new ArrayList<>();
 
     public IronAlchemistCauldronCanvas(NavigationView navigationView, RecipeEntry entry) {super(navigationView, entry);}
+
+    @Override
+    public void initVisualState() {
+        fluids.clear();
+        super.initVisualState();
+    }
 
     @Override
     public void load() {
         var data = getData();
         loadIngredientSlot(0, data.getInput());
-        setVisualOutput(0, isBrewEntry() ? ItemStack.EMPTY : data.getResult());
+        setVisualOutput(0, isBrewEntry() ? data.getByproduct() : data.getResult());
+        setVisualFluidOutput(0, isBrewEntry() ? data.getBaseFluid() : data.getFluid());
         if (isBrewEntry()) {
-            setVisualFluidOutput(0, data.getBaseFluid());
-            setVisualFluidOutput(1, data.firstResultFluid());
-        } else setVisualFluidOutput(0, data.getFluid());
+            for (int i = 0; i < data.getResultFluids().size(); i++) setVisualFluidOutput(i + 1, data.getResultFluids().get(i));
+        }
     }
 
     @Override
@@ -46,118 +54,143 @@ public class IronAlchemistCauldronCanvas extends FluidRecipeCanvas<IronAlchemist
         var data = getData();
         data.setInput(getVisualIngredient(0));
         if (isBrewEntry()) {
-            data.setByproduct(ItemStack.EMPTY);
-            data.setBaseFluid(getVisualFluidOutput(0));
-            data.setFirstResultFluid(getVisualFluidOutput(1));
-        } else {
-            data.setResult(getVisualOutput(0).getItem());
-            data.setFluid(getVisualFluidOutput(0));
-        }
+            data.setByproduct(getVisualOutput(0).getItem()).setBaseFluid(getVisualFluidOutput(0));
+            var outputs = new ArrayList<FluidStack>();
+            for (int i = 1; i < fluids.size(); i++) outputs.add(getVisualFluidOutput(i));
+            data.setResultFluids(outputs);
+        } else data.setResult(getVisualOutput(0).getItem()).setFluid(getVisualFluidOutput(0));
     }
 
-    boolean isBrewEntry() {return entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW);}
-    boolean isFillEntry() {return entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_FILL);}
+    private boolean isBrewEntry() {return entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_BREW);}
+    private boolean isFillEntry() {return entry.isType(IronSpellbooksRecipeEditorTypes.ALCHEMIST_CAULDRON_FILL);}
+
+    @Override
+    public String selectedFluidConfigNameKey() {
+        return "viscript_recipe.editor.alchemist_cauldron." + (isBrewEntry()
+                ? selectedSlotIndex() == 2 ? "base_fluid" : "result_fluid"
+                : isFillEntry() ? "result_fluid" : "input_fluid");
+    }
+
+    @Override
+    public void setVisualOutput(int index, ItemStack item) {
+        super.setVisualOutput(index, isBrewEntry() ? item.copyWithCount(1) : item);
+    }
+
+    @Override
+    public void buildResultProperties(UIElement content) {
+        if (!isBrewEntry()) {
+            super.buildResultProperties(content);
+            return;
+        }
+        // 上游副产物使用 SINGLE_ITEM_CODEC，数量固定为一件。
+        content.addChildren(sectionTitle("viscript_recipe.editor.alchemist_cauldron.byproduct"),
+                PropertiesView.removeCountConfig(PropertiesView.createItemStackConfigurator(
+                        "viscript_recipe.editor.alchemist_cauldron.byproduct",
+                        () -> getSelectedOutput().getItem(), this::setSelectedOutput)));
+    }
 
     @Override
     public void buildRecipeProperties(UIElement content) {
-        if (isBrewEntry()) return;
         content.addChild(sectionTitle("viscript_recipe.editor.properties.alchemist_cauldron"));
         var data = getData();
+        if (isBrewEntry()) {
+            var add = RecipeEditorUi.textButton(Component.translatable("viscript_recipe.editor.alchemist_cauldron.add_fluid"),
+                    Icons.ADD, event -> resizeOutputs(true));
+            add.setId("irons_cauldron_add_fluid");
+            var remove = RecipeEditorUi.textButton(Component.translatable("viscript_recipe.editor.alchemist_cauldron.remove_fluid"),
+                    Icons.REMOVE, event -> resizeOutputs(false));
+            remove.setId("irons_cauldron_remove_fluid");
+            content.addChildren(add, remove);
+            return;
+        }
         if (isFillEntry()) content.addChild(switchField(
                 "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.must_fit_all", data.isMustFitAll(), data::setMustFitAll));
-        content.addChild(resourceField("viscript_recipe.config.irons_spellbooks.alchemist_cauldron.sound",
-                data.getSound(), data::setSound));
+        content.addChild(RecipeSearchComponents.sound(
+                "viscript_recipe.config.irons_spellbooks.alchemist_cauldron.sound",
+                data::getSound, data::setSound, () -> {}, isFillEntry() ? SoundEvents.BUCKET_EMPTY : SoundEvents.BOTTLE_FILL)
+                .setId("irons_cauldron_sound"));
+    }
+
+    private void resizeOutputs(boolean add) {
+        save();
+        var outputs = getData().getResultFluids();
+        if (add) outputs.add(FluidStack.EMPTY);
+        else if (!outputs.isEmpty()) outputs.remove(outputs.size() - 1);
+        navigationView.loadCanvas();
+        reloadProperties();
     }
 
     @Override
     public UIElement createCanvas() {
-        boolean isBrew = isBrewEntry();
-        boolean isFill = isFillEntry();
-        var ingredientSlot = createIngredientSlot(0, useJeiCanvas ? JEI_SLOT_SIZE : SLOT_SIZE);
-        var middleFluidSlot = createFluidOutputSlot(0, useJeiCanvas ? 16 : 30);
-        var resultFluidSlot = createFluidOutputSlot(1, useJeiCanvas ? 16 : 30);
-        var outputSlot = createOutputSlot(0, useJeiCanvas ? 16 : OUTPUT_SLOT_SIZE);
-        if (useJeiCanvas) {
-            configureJeiOverlaySlotVisual(ingredientSlot);
-            var chanceLabel = RecipeEditorUi.label(Component.empty());
-            if (isBrew) configureInputSlot(ingredientSlot, chanceLabel);
-            configureJeiOverlayFluidSlotVisual(middleFluidSlot);
-            configureJeiOverlayFluidSlotVisual(resultFluidSlot);
-            configureJeiOverlaySlotVisual(outputSlot);
-            return AlchemistCauldronCanvasFactory.createCanvas(
-                    ingredientSlot, middleFluidSlot, resultFluidSlot.setDisplay(isBrew),
-                    outputSlot.setDisplay(!isBrew),
-                    createItemIcon(new ItemStack(RecipeHelper.itemFromRegistry(
-                            "irons_spellbooks:alchemist_cauldron", Items.CAULDRON
-                    )), 23), chanceLabel
-            );
-        }
-        var outputLabel = RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.alchemist_cauldron.result_item"));
-        var middleFluidLabel = RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.alchemist_cauldron."
-                + (isFill ? "result_fluid" : isBrew ? "base_fluid" : "input_fluid")));
-        var outputFluidLabel = RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.alchemist_cauldron.result_fluid"));
-        var resultFluidColumn = createFluidColumn(outputFluidLabel, resultFluidSlot);
-        var outputItemColumn = RecipeEditorUi.column().layout(layout -> {
-            layout.width(72);
+        setId("irons_cauldron_canvas");
+        boolean brew = isBrewEntry();
+        boolean fill = isFillEntry();
+        int count = brew ? getData().getResultFluids().size() : 0;
+        boolean jei = AlchemistCauldronCanvasFactory.hasJeiSkin() && count <= 1;
+        var ingredient = createIngredientSlot(0, jei ? JEI_SLOT_SIZE : SLOT_SIZE);
+        ingredient.setId("irons_cauldron_input");
+        var middle = createFluidOutputSlot(0, jei ? 16 : 30);
+        var output = createOutputSlot(0, jei ? 16 : OUTPUT_SLOT_SIZE);
+        output.setId("irons_cauldron_item_output");
+        var fluidResults = RecipeEditorUi.row().layout(layout -> {
+            layout.maxWidth(160);
             layout.gapAll(4);
-            layout.alignItems(AlignItems.CENTER);
-        }).addChildren(outputLabel, outputSlot);
-
-        var inputPlusLabel = createOperatorPlusLabel().setDisplay(!isFill);
-        var inputArrow = createArrowElement().setDisplay(isFill);
-        var outputArrow = createArrowElement().setDisplay(!isFill);
-        var outputPlusLabel = createOperatorPlusLabel().setDisplay(isFill);
+            layout.flexWrap(FlexWrap.WRAP);
+        });
+        for (int i = 0; i < count; i++) fluidResults.addChild(createFluidOutputSlot(i + 1, jei ? 16 : 30));
+        if (jei) {
+            configureJeiOverlaySlotVisual(ingredient, output);
+            for (var slot : fluids) configureJeiOverlayFluidSlotVisual(slot);
+            return AlchemistCauldronCanvasFactory.createCanvas(ingredient, middle,
+                    fluidResults.setDisplay(brew && count > 0), output,
+                    createItemIcon(new ItemStack(RecipeHelper.itemFromRegistry("irons_spellbooks:alchemist_cauldron", Items.CAULDRON)), 23), brew);
+        }
         return BasicRecipeCanvasFactory.createAlchemistCanvas(
-                RecipeEditorUi.column().layout(layout -> {
-                    layout.width(72);
-                    layout.gapAll(4);
-                    layout.alignItems(AlignItems.CENTER);
-                }).addChildren(
-                        RecipeEditorUi.label(Component.translatable("viscript_recipe.editor.alchemist_cauldron.input")),
-                        ingredientSlot
-                ),
-                inputPlusLabel,
-                inputArrow,
-                createFluidColumn(middleFluidLabel, middleFluidSlot),
-                outputArrow,
-                resultFluidColumn.setDisplay(isBrew),
-                outputPlusLabel,
-                outputItemColumn.setDisplay(!isBrew)
-        );
+                column("viscript_recipe.editor.alchemist_cauldron.input", ingredient),
+                plus().setDisplay(!fill), arrow().setDisplay(fill),
+                column("viscript_recipe.editor.alchemist_cauldron." + (fill ? "result_fluid" : brew ? "base_fluid" : "input_fluid"), middle),
+                arrow().setDisplay(!fill),
+                column("viscript_recipe.editor.alchemist_cauldron.result_fluid", fluidResults).setDisplay(brew && count > 0),
+                plus().setDisplay(fill || brew && count > 0),
+                column("viscript_recipe.editor.alchemist_cauldron." + (brew ? "byproduct" : "result_item"), output));
     }
 
-    void configureInputSlot(IngredientDisplaySlot slot, Label chanceLabel) {
-        slot.registerValueListener(stack -> {
-            boolean showChance = IRON_SCROLL_ID.equals(BuiltInRegistries.ITEM.getKey(stack.getItem()));
-            chanceLabel.setDisplay(showChance);
-            if (showChance) {
-                var chance = (int) Clamp.clamp((float) (double) ServerConfigs.SCROLL_RECYCLE_CHANCE.get(), 0, 1) * 100;
-                var color = chance >= 100 ? ChatFormatting.GREEN.getColor() : ChatFormatting.RED.getColor();
-                chanceLabel.setText(Component.literal(chance + "%"))
-                        .textStyle(style -> style.textColor(color == null ? 0xFFFFFF : color));
+    @Override
+    public FluidSlot createFluidOutputSlot(int index, int size) {
+        var slot = createFluidSlot(size);
+        fluids.add(slot);
+        slot.setId("irons_cauldron_fluid_" + index);
+        slot.addEventListener(UIEvents.MOUSE_DOWN, event -> {
+            if (event.button == 1) {
+                setVisualFluidOutput(index, FluidStack.EMPTY);
+                event.stopPropagation();
             }
         });
+        return slot;
     }
 
-    static Label createOperatorPlusLabel() {
-        Label label = RecipeEditorUi.label(Component.literal("+"));
-        label.textStyle(style -> style.fontSize(22).textColor(ColorPattern.GRAY.color));
-        label.layout(layout -> layout.width(22).height(24));
-        return label;
-    }
+    @Override
+    public FluidStack getVisualFluidOutput(int index) {return fluids.get(index).getFluid().copy();}
 
-    static UIElement createArrowElement() {
-        return new UIElement().layout(layout -> {
-            layout.width(28);
-            layout.height(16);
-        }).style(style -> style.backgroundTexture(Icons.ARROW_LEFT_RIGHT));
-    }
+    @Override
+    public void setVisualFluidOutput(int index, FluidStack stack) {fluids.get(index).setFluid(stack.copy(), false);}
 
-    static UIElement createFluidColumn(Label label, FluidSlot slot) {
+    private static UIElement column(String key, UIElement slot) {
         return RecipeEditorUi.column().layout(layout -> {
             layout.width(72);
             layout.gapAll(4);
             layout.alignItems(AlignItems.CENTER);
-        }).addChildren(label, slot);
+        }).addChildren(RecipeEditorUi.label(Component.translatable(key)), slot);
+    }
+
+    private static Label plus() {
+        return (Label) RecipeEditorUi.label(Component.literal("+"))
+                .textStyle(style -> style.fontSize(22).textColor(ColorPattern.GRAY.color))
+                .layout(layout -> layout.width(22).height(24));
+    }
+
+    private static UIElement arrow() {
+        return new UIElement().layout(layout -> layout.width(28).height(16))
+                .style(style -> style.backgroundTexture(Icons.ARROW_LEFT_RIGHT));
     }
 }

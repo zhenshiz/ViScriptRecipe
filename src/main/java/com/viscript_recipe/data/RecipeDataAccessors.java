@@ -36,6 +36,7 @@ public final class RecipeDataAccessors {
         event.register(CookingRecipeData.class, CookingRecipeData::new);
         event.register(StonecuttingRecipeData.class, StonecuttingRecipeData::new);
         event.register(SmithingTransformRecipeData.class, SmithingTransformRecipeData::new);
+        event.register(VanillaEventRecipeData.class, VanillaEventRecipeData::new);
     }
 
     private static void registerFarmersDelight(RegisterAccessorEvent event) {

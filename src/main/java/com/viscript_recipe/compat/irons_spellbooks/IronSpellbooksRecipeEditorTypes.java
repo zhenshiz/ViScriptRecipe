@@ -3,9 +3,7 @@ package com.viscript_recipe.compat.irons_spellbooks;
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
 import com.viscript_recipe.IModModule;
 import com.viscript_recipe.compat.irons_spellbooks.canvas.IronAlchemistCauldronCanvas;
-import com.viscript_recipe.compat.irons_spellbooks.canvas.IronArcaneAnvilCanvas;
 import com.viscript_recipe.compat.irons_spellbooks.data.IronAlchemistCauldronRecipeData;
-import com.viscript_recipe.compat.irons_spellbooks.data.IronArcaneAnvilRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
@@ -16,11 +14,11 @@ public final class IronSpellbooksRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "irons_spellbooks";
 
     public static final ResourceLocation ALCHEMIST_CAULDRON = iron("alchemist_cauldron");
-    public static final ResourceLocation ARCANE_ANVIL = iron("arcane_anvil");
+    public static final ResourceLocation SMITHING_TABLE = iron("smithing_table");
     public static final ResourceLocation ALCHEMIST_CAULDRON_FILL = iron("alchemist_cauldron_fill");
     public static final ResourceLocation ALCHEMIST_CAULDRON_EMPTY = iron("alchemist_cauldron_empty");
     public static final ResourceLocation ALCHEMIST_CAULDRON_BREW = iron("alchemist_cauldron_brew");
-    public static final ResourceLocation ARCANE_ANVIL_TRANSFORM = iron("arcane_anvil_transform");
+    public static final ResourceLocation SMITHING_TRANSFORM_NO_ADDITION = iron("smithing_transform_no_addition");
 
     @Override
     public RecipeImportHandler importHandler() {return IronSpellbooksRecipeImporter.INSTANCE;}
@@ -36,11 +34,6 @@ public final class IronSpellbooksRecipeEditorTypes implements IModModule {
                 ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.category.irons_spellbooks.alchemist_cauldron",
                 MOD_ID, ALCHEMIST_CAULDRON_FILL
-        ));
-        registerCategory(RecipeEditorCategory.of(
-                ARCANE_ANVIL,
-                "viscript_recipe.editor.category.irons_spellbooks.arcane_anvil",
-                MOD_ID, ARCANE_ANVIL_TRANSFORM
         ));
     }
 
@@ -59,11 +52,6 @@ public final class IronSpellbooksRecipeEditorTypes implements IModModule {
                 ALCHEMIST_CAULDRON_BREW, ALCHEMIST_CAULDRON,
                 "viscript_recipe.editor.type.irons_spellbooks.alchemist_cauldron_brew",
                 IronAlchemistCauldronRecipeData.class, IronAlchemistCauldronCanvas.class
-        ));
-        registerEditorType(RecipeEditorType.of(
-                ARCANE_ANVIL_TRANSFORM, ARCANE_ANVIL,
-                "viscript_recipe.editor.type.irons_spellbooks.arcane_anvil_transform",
-                IronArcaneAnvilRecipeData.class, IronArcaneAnvilCanvas.class
         ));
     }
 
