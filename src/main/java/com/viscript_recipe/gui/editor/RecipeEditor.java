@@ -24,6 +24,11 @@ public class RecipeEditor extends FunctionFileEditor {
         removeUnusedBottomWindow();
     }
 
+    @Override
+    public com.viscript_lib.gui.ai.AiEditorAdapter createAiEditorAdapter() {
+        return new RecipeAiAdapter();
+    }
+
     public static ModularUI createUI() {
         var root = ViScriptEditorWindow.open(WINDOW_ID, RecipeEditor::new)
                 .setMinimizedBoundsPercent(0, 0, RESTORED_WIDTH_PERCENT, 100);

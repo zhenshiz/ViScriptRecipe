@@ -34,6 +34,43 @@ public class RecipeProject implements IRuntimeFileProject {
     private WorkBenchView workbenchView;
     @Nullable
     private PropertiesView propertiesView;
+    private boolean aiPreviewing;
+
+    /**
+     * 切换配方信息对象并重建对应视图，保留旧对象供已有历史引用。
+     *
+     * @param file 完整的配方文件数据
+     */
+    public void installAiFile(RecipeFile file) {
+        var old = recipeFile;
+        recipeFile = file;
+        try { refreshAiViews(); }
+        catch (RuntimeException exception) { recipeFile = old; refreshAiViews(); throw exception; }
+    }
+
+    /** 刷新领域视图，不记录历史。 */
+    public void refreshAiViews() {
+        if (editor == null) return;
+        var currentEditor = editor;
+        if (navigationView != null) navigationView.removeSelf();
+        if (workbenchView != null) workbenchView.removeSelf();
+        if (propertiesView != null) propertiesView.removeSelf();
+        onLoad(currentEditor);
+        if (!recipeFile.getEntries().isEmpty()) navigationView.selectEntry(recipeFile.getEntries().getFirst());
+        setAiPreviewing(aiPreviewing);
+    }
+
+    /**
+     * 暂停配方修改，仍允许通过左侧列表浏览预览。
+     *
+     * @param previewing 是否等待应用或放弃
+     */
+    public void setAiPreviewing(boolean previewing) {
+        aiPreviewing = previewing;
+        if (navigationView != null) navigationView.setAiPreviewing(previewing);
+        if (workbenchView != null && workbenchView.getCanvas() != null) workbenchView.getCanvas().setActive(!previewing);
+        if (propertiesView != null) propertiesView.setAiPreviewing(previewing);
+    }
 
     @Override
     public ProjectType getProjectType() {

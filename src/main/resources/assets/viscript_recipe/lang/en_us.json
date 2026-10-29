@@ -1573,5 +1573,6 @@
   "viscript_recipe.editor.lychee.entity_match.any": "Any entity type",
   "viscript_recipe.editor.lychee.entity_match.single": "Specific entity type",
   "viscript_recipe.editor.lychee.entity_match.tag": "Entity type tag",
-  "viscript_recipe.editor.lychee.entity_match.preserved": "Keep imported type selection"
+  "viscript_recipe.editor.lychee.entity_match.preserved": "Keep imported type selection",
+  "viscript_recipe.ai.change": "%s: %s → %s"
 }

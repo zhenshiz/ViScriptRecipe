@@ -7,6 +7,7 @@ import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.gui.canvas.vanilla.*;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
+import com.viscript_recipe.data.RecipeAiSupport;
 import net.minecraft.resources.ResourceLocation;
 
 @LDLRegister(registry = IModModule.ID, name = VanillaRecipeEditorTypes.MOD_ID, priority = 1000)
@@ -74,7 +75,12 @@ public final class VanillaRecipeEditorTypes implements IModModule {
                 CRAFTING_SHAPED, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shaped",
                 ShapedCraftingRecipeData.class, ShapedCraftingCanvas.class
-        ));
+        ).withAiSupport(new RecipeAiSupport() {
+            @Override
+            public String guide() {
+                return "Shaped crafting: pattern is a rectangular 1..3 by 1..3 array of strings. Each non-space character must have one matching key entry; symbol is one character. key entries contain RecipeIngredient data, accepting item stacks or item tags. result is a nonempty item stack. Omitted remainders and notification settings are preserved.";
+            }
+        }));
         registerEditorType(RecipeEditorType.of(
                 CRAFTING_SHAPELESS, CRAFTING_TABLE,
                 "viscript_recipe.editor.type.minecraft.crafting_shapeless",

@@ -175,8 +175,6 @@ dependencies {
     // Lychee 原生配方、条件、后置动作及 JEI 展示。
     implementation "maven.modrinth:lychee:${lychee_version}"
     implementation "maven.modrinth:kiwi:${kiwi_version}"
-    // 仅供开发环境验证配方共存，all 包内含 KilaGraph。
-    runtimeOnly "curse.maven:multiblocked2-1104057:${mbd2_file}"
 }
 
 tasks.withType(ProcessResources).configureEach {

@@ -197,6 +197,10 @@ public final class RecipeDeltaJeiSynchronizer {
             if (typeId.equals(ResourceLocation.parse("enderio:enchanting"))) return false;
             // TACZ 按枪包工作台、页签和过滤器动态拆分 JEI 分类，原生类型没有一一对应的 JEI UID。
             if (typeId.equals(ResourceLocation.parse("tacz:gun_smith_table_crafting"))) return false;
+            // 原版铁砧和酿造台联动通过事件注册 JEI 展示，分类对象不保证与
+            // RecipeHolder 一一对应；完整重建才能同步 reload 后的增删改。
+            if (typeId.equals(ResourceLocation.fromNamespaceAndPath(ViScriptRecipe.MOD_ID, "anvil"))
+                    || typeId.equals(ResourceLocation.fromNamespaceAndPath(ViScriptRecipe.MOD_ID, "brewing"))) return false;
             // 黏液和流体转化使用不同的 JEI UID，并直接持有配方对象；重建以同步增删改。
             if ("justdirethings".equals(typeId.getNamespace())) return false;
             if ("lychee".equals(typeId.getNamespace())) return false;

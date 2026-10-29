@@ -18,6 +18,12 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
 - 支持 26 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO、TACZ、Just Dire Things、Confluence: Otherworld 和 Lychee。
 
+## AI 编辑与扩展
+
+编辑器已接入 VSL AI 对话，可读取实际配方类型的模板、字段说明和 Schema，创建或修改配方，并在画布中预览后应用、放弃或撤销。已安装的联动类型使用同一入口。
+
+第三方类型可在 `RecipeEditorType.of(...).withAiSupport(new RecipeAiSupport() { ... })` 中提供字段说明、读写、Schema 和校验；原有注册代码默认自动支持持久化字段。完整契约与示例见 [VSL AI 接口文档](../ViScriptLib/docs/ai-integration.md#配方类型注册的-ai-契约)。
+
 ## 基本信息
 
 - Minecraft：`1.21.1`

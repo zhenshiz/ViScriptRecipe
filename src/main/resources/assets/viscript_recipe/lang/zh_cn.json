@@ -1573,5 +1573,6 @@
   "viscript_recipe.editor.lychee.entity_match.any": "任意实体类型",
   "viscript_recipe.editor.lychee.entity_match.single": "指定实体类型",
   "viscript_recipe.editor.lychee.entity_match.tag": "实体类型标签",
-  "viscript_recipe.editor.lychee.entity_match.preserved": "保留导入的多个类型"
+  "viscript_recipe.editor.lychee.entity_match.preserved": "保留导入的多个类型",
+  "viscript_recipe.ai.change": "%s：%s → %s"
 }
