@@ -52,6 +52,20 @@ public class NavigationView extends View {
     private RecipeIdSearchComponent importRecipeSearch;
     private Label importStatusLabel;
     private boolean importOpen;
+    @Getter
+    private boolean aiPreviewing;
+
+    /**
+     * 切换只读浏览，保留配方选择和工作站筛选。
+     *
+     * @param previewing 是否正在预览 AI 修改
+     */
+    public void setAiPreviewing(boolean previewing) {
+        aiPreviewing = previewing;
+        addRow.setActive(!previewing);
+        importPanel.setActive(!previewing);
+        refresh();
+    }
     private String importRecipeId = "";
     private static boolean showAllEntries = false;
 
@@ -624,6 +638,7 @@ public class NavigationView extends View {
         var visibleIndex = 0;
         for (var entry : visibleEntries) {
             var dragHandle = createDragHandle();
+            dragHandle.setActive(!aiPreviewing);
             draggableEntries.addSortableCard(entry, createEntryRow(entry, visibleIndex++, dragHandle), dragHandle);
         }
         draggableEntries.addChild(createTailDropZone());
@@ -679,8 +694,10 @@ public class NavigationView extends View {
                 dragHandle,
                 button.layout(layout -> layout.flex(1)),
                 RecipeEditorUi.iconButton(Icons.COPY, "viscript_recipe.editor.duplicate", event -> duplicateEntry(entry))
+                        .setActive(!aiPreviewing)
                         .layout(layout -> layout.width(20).height(22)),
                 RecipeEditorUi.iconButton(Icons.DELETE, "viscript_recipe.editor.delete", event -> removeEntry(entry))
+                        .setActive(!aiPreviewing)
                         .layout(layout -> layout.width(20).height(22))
         );
     }

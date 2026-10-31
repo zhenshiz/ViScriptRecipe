@@ -270,7 +270,8 @@ public final class RecipeSearchComponents {
                 KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE);
     }*/
 
-    private static UIElement catalog(
+    /** 从固定 ID 列表按 ID 或显示名称补全，复用统一的搜索控件和弹出列表设置。 */
+    public static UIElement catalog(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,

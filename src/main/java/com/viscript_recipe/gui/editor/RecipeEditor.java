@@ -26,6 +26,11 @@ public class RecipeEditor extends FunctionFileEditor {
         removeUnusedBottomWindow();
     }
 
+    @Override
+    public com.viscript_lib.gui.ai.AiEditorAdapter createAiEditorAdapter() {
+        return new RecipeAiAdapter();
+    }
+
     public static ModularUI createUI() {
         var root = EditorWindow.open(WINDOW_ID, RecipeEditor::new);
         configureRestoredBounds(root);

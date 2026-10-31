@@ -102,6 +102,7 @@ public class WorkBenchView extends View {
             titleLabel.setText(Component.translatable("viscript_recipe.editor.category.unknown", entry.getType()));
         canvas.initVisualState();
         canvas.load();
+        canvas.setActive(!navigationView.isAiPreviewing());
         canvasStack.addChild(canvas);
     }
 

@@ -40,6 +40,13 @@ public class PropertiesView extends View {
     private final ConfiguratorGroup content = new ConfiguratorGroup();
     private boolean rebuilding;
 
+    /**
+     * 暂停属性修改，保留外层滚动条以供查看。
+     *
+     * @param previewing 是否正在预览 AI 修改
+     */
+    public void setAiPreviewing(boolean previewing) { content.setActive(!previewing); }
+
     private static final List<String> ITEM_ABILITY_CHOICES = List.of(
             "knife_dig",
             "axe_dig",

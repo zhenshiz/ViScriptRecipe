@@ -164,13 +164,13 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
 
     @Deprecated
     public ItemSlot createEditorSlot(int size) {
-        return enableShiftDragCopy((ItemSlot) new ItemSlot()
-                .xeiPhantom()
-                .slotStyle(style -> style.showItemTooltips(true))
-                .layout(layout -> {
-                    layout.width(size);
-                    layout.height(size);
-                }));
+        return configureEditorSlot(new ItemSlot(), size);
+    }
+
+    private <T extends ItemSlot> T configureEditorSlot(T slot, int size) {
+        slot.xeiPhantom().slotStyle(style -> style.showItemTooltips(true));
+        slot.layout(layout -> layout.width(size).height(size));
+        return enableShiftDragCopy(slot);
     }
 
     @Deprecated
@@ -194,6 +194,12 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         return configureResultSlot(index);
     }
 
+    /** 允许联动提供绘制方式，幻影槽、属性选择和拖拽仍由公共工厂配置。 */
+    protected ItemSlot createOutputSlot(int index, int size, ItemSlot slot) {
+        visualOutputSlots[index] = configureEditorSlot(slot, size);
+        return configureResultSlot(index);
+    }
+
     /**新建一个原料槽位，并且绑定到visualIngredientSlots[index]上*/
     public IngredientDisplaySlot createIngredientSlot(int index, int size) {
         visualIngredientSlots[index] = createIngredientSlot(size);
@@ -202,13 +208,7 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
 
     @Deprecated
     public IngredientDisplaySlot createIngredientSlot(int size) {
-        return enableShiftDragCopy((IngredientDisplaySlot) new IngredientDisplaySlot()
-                .xeiPhantom()
-                .slotStyle(style -> style.showItemTooltips(true))
-                .layout(layout -> {
-                    layout.width(size);
-                    layout.height(size);
-                }));
+        return configureEditorSlot(new IngredientDisplaySlot(), size);
     }
 
     @Deprecated
