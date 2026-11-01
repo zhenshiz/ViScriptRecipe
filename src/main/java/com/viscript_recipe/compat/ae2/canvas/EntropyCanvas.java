@@ -33,14 +33,13 @@ public class EntropyCanvas extends RecipeCanvas<Ae2EntropyRecipeData> {
         var data = getData();
         dropSlots = Math.min(PAGE_SIZE, Math.max(1, data.getDrops().size() - page * PAGE_SIZE + 1));
         int width = Math.max(150, 111 + Math.min(4, dropSlots) * 18);
-        var panel = panel("ae2_entropy", width, 80).addChildren(
+        var panel = panel("ae2_entropy", width, 56).addChildren(
                 label(Component.translatable("viscript_recipe.editor.ae2." + (data.isHeat() ? "heat" : "cool")), 29, 0, 100),
                 worldSlot(true, true, 28, 14), worldSlot(false, true, 84, 14), arrow(53, 15),
                 worldSlot(true, false, 28, 38), worldSlot(false, false, 84, 38),
                 label(Component.translatable("viscript_recipe.editor.ae2.block"), 0, 17, 28),
                 label(Component.translatable("viscript_recipe.editor.ae2.fluid"), 0, 41, 28),
-                label(Component.translatable("viscript_recipe.editor.ae2.drops"), 111, 1, 72),
-                label(Component.translatable("viscript_recipe.editor.ae2.entropy_hint"), 0, 65, width));
+                label(Component.translatable("viscript_recipe.editor.ae2.drops"), 111, 1, 72));
         for (int i = 0; i < dropSlots; i++) {
             panel.addChild(standardSlot(createOutputSlot(i, 18), "ae2_drop_" + i, 111 + i % 4 * 18, 14 + i / 4 * 24));
         }

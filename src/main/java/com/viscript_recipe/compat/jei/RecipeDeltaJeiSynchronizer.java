@@ -7,6 +7,8 @@ import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.farm_and_charm.FarmCharmRecipeKind;
 import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
 import com.viscript_recipe.compat.jei.irons_spellbooks.IronAlchemistCauldronJeiFilter;
+import com.viscript_recipe.compat.jei.omnisequence.OmniSequenceJeiRecipeSupport;
+import com.viscript_recipe.compat.omnisequence.OmniSequenceRecipeEditorTypes;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -103,6 +105,11 @@ public final class RecipeDeltaJeiSynchronizer {
             forceFullJeiReload("Create automatic brewing recipes changed");
             return;
         }
+        // Neo ECO 的大型工作站可通过扩展 API 借用任意来源配方；让原生插件重建分组与包装对象。
+        if (ViScriptRecipe.isModLoaded("neoecoae")) {
+            forceFullJeiReload("Neo ECO workstation source recipes changed");
+            return;
+        }
         // Lychee 按 group 动态创建分类，铁砧和高级合成还使用原生 JEI 包装或分类扩展。
         // 包括原生类型为 minecraft:crafting 的 Lychee 配方，统一交由它的插件重新注册。
         for (var id : affectedRecipeIds) {
@@ -118,6 +125,15 @@ public final class RecipeDeltaJeiSynchronizer {
         }
 
         try {
+            var level = Minecraft.getInstance().level;
+            if (ViScriptRecipe.isModLoaded(OmniSequenceRecipeEditorTypes.MOD_ID) && level != null
+                    && OmniSequenceJeiRecipeSupport.affectsImportedRecipes(level.getRecipeManager().getRecipes(),
+                    affectedRecipeIds.stream().flatMap(id -> java.util.stream.Stream.<RecipeHolder<?>>of(oldRecipes.get(id), newRecipes.get(id)))
+                            .filter(Objects::nonNull).toList())) {
+                forceFullJeiReload("OmniSequence imported machine recipes changed");
+                return;
+            }
+
             var typeHints = collectTypeHints(affectedRecipeIds, oldRecipes, newRecipes);
             var recipeManager = jeiRuntime.getRecipeManager();
             if (!canIncrementallyUpdate(recipeManager, typeHints)) {
@@ -204,6 +220,10 @@ public final class RecipeDeltaJeiSynchronizer {
             // 黏液和流体转化使用不同的 JEI UID，并直接持有配方对象；重建以同步增删改。
             if ("justdirethings".equals(typeId.getNamespace())) return false;
             if ("lychee".equals(typeId.getNamespace())) return false;
+            // 构筑配方使用不同的 JEI UID；研究和整机声明还会改变派生配方及阶段提示。
+            if ("molecularmanipulator".equals(typeId.getNamespace())) return false;
+            // 闪电科技分类直接持有原生配方，完整重建以同步增删改。
+            if ("ae2lt".equals(typeId.getNamespace())) return false;
             var farmCharm = FarmCharmRecipeKind.byType(typeId);
             var jeiType = recipeManager.getRecipeType(jeiTypeId(typeId)).orElse(null);
             if (farmCharm.isPresent()) continue;
@@ -256,6 +276,9 @@ public final class RecipeDeltaJeiSynchronizer {
     private static ResourceLocation jeiTypeId(ResourceLocation typeId) {
         // Bakery 的原生类型与 JEI 分类名称不同，分类直接持有配方对象，沿用现有完整重建路径。
         if (typeId.equals(ResourceLocation.parse("bakery:baking_station"))) return ResourceLocation.parse("bakery:caking");
+        // 晶体科学的原生类型比 JEI 分类多出 _recipe 后缀，分类可直接复用 RecipeHolder 增量同步。
+        if ("ae2cs".equals(typeId.getNamespace()) && typeId.getPath().endsWith("_recipe"))
+            return ResourceLocation.fromNamespaceAndPath("ae2cs", typeId.getPath().substring(0, typeId.getPath().length() - 7));
         return FarmCharmRecipeKind.byType(typeId).map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId);
     }
 

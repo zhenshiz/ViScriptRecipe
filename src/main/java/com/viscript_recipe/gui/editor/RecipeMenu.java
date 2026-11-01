@@ -14,9 +14,14 @@ public class RecipeMenu extends MenuTab {
 
     @Override
     protected TreeBuilder.Menu createDefaultMenu() {
+        var filterName = Component.translatable("viscript_recipe.editor.menu.disabled_recipes_only");
+        if (editor.getCurrentProject() instanceof RecipeProject project && project.isShowDisabledRecipesOnly()) {
+            filterName.append(" √");
+        }
         return TreeBuilder.Menu.start()
                 .leaf(Icons.EDIT_FILE, "viscript_recipe.editor.menu.recipe_namespace", this::editRecipeNamespace)
-                .leaf(Icons.INFORMATION, "viscript_recipe.editor.menu.workstation_summary", this::showWorkstationSummary);
+                .leaf(Icons.INFORMATION, "viscript_recipe.editor.menu.workstation_summary", this::showWorkstationSummary)
+                .leaf(Icons.FILTER, filterName, this::toggleDisabledRecipesFilter);
     }
 
     @Override
@@ -44,5 +49,13 @@ public class RecipeMenu extends MenuTab {
             return;
         }
         RecipeWorkstationSummaryDialog.show(project, editor.getModularUI());
+    }
+
+    private void toggleDisabledRecipesFilter() {
+        if (!(editor.getCurrentProject() instanceof RecipeProject project)) {
+            Dialog.showNotification("viscript_lib.editor.no_project", 2).show(editor.getModularUI());
+            return;
+        }
+        project.setShowDisabledRecipesOnly(!project.isShowDisabledRecipesOnly());
     }
 }

@@ -10,6 +10,7 @@ import com.viscript_lib.gui.editor.EditorUploadAction;
 import com.viscript_lib.gui.editor.FunctionFileEditor;
 import com.viscript_lib.gui.editor.ViScriptEditorWindow;
 import com.viscript_recipe.ViScriptRecipe;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -32,15 +33,23 @@ public class RecipeEditor extends FunctionFileEditor {
     public static ModularUI createUI() {
         var root = ViScriptEditorWindow.open(WINDOW_ID, RecipeEditor::new)
                 .setMinimizedBoundsPercent(0, 0, RESTORED_WIDTH_PERCENT, 100);
+        root.setGameWindowReopener(RecipeEditor::requestMenu);
         return new ModularUI(UI.of(root))
                 .shouldCloseOnEsc(false)
                 .shouldCloseOnKeyInventory(false);
     }
 
+    private static boolean requestMenu() {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return false;
+        connection.sendCommand(ViScriptRecipe.MOD_ID + " editor");
+        return true;
+    }
+
     @Override
     protected void initMenus() {
         super.initMenus();
-        menuContainer.addChild(new RecipeMenu(this).createMenuTab());
+        menuContainer.addChild(new RecipeMenu(this).createMenuTab().setId("recipe_menu"));
     }
 
     @Override

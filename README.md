@@ -11,12 +11,13 @@ ViScriptRecipe 是一个面向 Minecraft 1.21.1 / NeoForge 的可视化配方编
 - 按工作站分类展示配方类型，联动模组只有在已安装时才会出现在编辑器中。
 - 支持物品输入、物品标签输入、工具动作输入、流体输入、Create 流体标签输入、概率输出、数量输出等常见配方参数。
 - 左侧配方列表支持新增、删除、复制到下方，适合批量制作相似配方。
+- “配方”菜单提供“仅显示未启用的配方”，默认关闭，开启后末尾显示 `√`，可跨工作站查找当前文件中的未启用条目。
 - 支持通过配方 ID 导入当前世界已经加载的配方，兼容时会自动切换到对应配方类型并填充参数。
 - 支持 `add`、`replace`、`remove` 三种操作，可以把 `.recipe` 当作一个轻量配方覆盖包使用。
 - `/viscript_recipe reload` 只重新读取本模组的 `.recipe` 文件并应用覆盖，不执行完整数据包 reload。
 - `/viscript_recipe reload delta` 只向客户端发送实际变化的配方，并增量更新 JEI；普通重载会同步完整配方包和配方书，`reload full` 还会同步标签包。
 - 提供 JEI 展示模式，可以只加载并展示 ViScriptRecipe 提供的配方，方便整合包作者检查当前配方包。
-- 支持 26 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO、TACZ、Just Dire Things、Confluence: Otherworld 和 Lychee。
+- 支持 28 个配方模组的专用编辑 UI 与导入器，包括 Iron's Spells、Ice and Fire、Farmer's Delight、Farm & Charm、Create、Applied Energistics 2、Extended Crafting、Ars Nouveau、Kaleidoscope Cookery、Kaleidoscope Tavern、Avaritia、Fungal Infection: Spore、L_Ender's Cataclysm、Touhou Little Maid、Goety、Mystical Agriculture、Industrial Foregoing、Alloy Smelter、Mekanism、Draconic Evolution、Eidolon: Repraised、Ender IO、TACZ、Just Dire Things、Confluence: Otherworld、Lychee、OmniSequence: Transfinite 和 AE2 Lightning Tech。
 
 ## AI 编辑与扩展
 
@@ -60,6 +61,11 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Farm & Charm | `farm_and_charm` | 支持 |
 | Create | `create` | 支持 |
 | Applied Energistics 2 | `ae2` | 支持 |
+| OmniSequence: Transfinite（万象构序：超限） | `molecularmanipulator` | 物质构筑、研究、整机配方导入声明；NeoForge 2.0.12+ |
+| Neo ECO AE Extension | `neoecoae` | 冷却、集成工作站、大型集成工作站；原生 JEI 编辑画布；21.2.14+ |
+| Powah!（能源器） | `powah` | 充能合成；原生 JEI 六输入槽、产物及 FE 显示；NeoForge 6.2.10+ |
+| AE2 Crystal Science（晶体科学） | `ae2cs` | 电路蚀刻、晶能聚合、粉碎；复用原生 JEI 画布；NeoForge 1.2.1 |
+| AE2 Lightning Tech（闪电科技） | `ae2lt` | 7 类原生配方与 JEI 编辑画布；NeoForge 2.1.3+ |
 | Draconic Evolution | `draconicevolution` | 支持 |
 | Eidolon: Repraised | `eidolon_repraised` | 支持 |
 | Ender IO | `enderio` | 支持 |
@@ -82,6 +88,14 @@ ViScriptRecipe 自带原版配方编辑器，并按模组是否安装动态注�
 | Confluence: Otherworld | `confluence` | 支持 |
 
 这里的“支持”指本模组已经注册了对应的编辑器类别、配方数据模型和原生配方构造逻辑；“导入器”只对能够无损映射到当前编辑器数据模型的原生配方启用。某些模组的 JEI 动态展示页、Data Map 或运行时 synthetic 配方不是 `RecipeManager` 配方，因此不会被错误地列为可上传的 `.recipe` 类型。
+
+AE2 Lightning Tech 联动在安装 AE2、闪电科技 2.1.3+ 和 Thunderbolt Core 后自动启用，覆盖 `lightning_transform`、`lightning_simulation`、`lightning_assembly`、`overload_processing`、`crystal_catalyzer`、`firmament_conversion`、`lightning_strike`。画布直接绘制原生 JEI 分类及其动画、流体槽和雷击结构预览，点击槽位进入属性栏，支持 JEI 拖入和 Shift 拖拽复制。物品与数量共用 VSL 的 `ViScriptItemStack` 配置器；候选材料、标签、能耗、闪电等级、催化模式、结构坐标与消耗开关均可编辑。普通物品产物、标签产物和方块采集产物保留原生语义；采集产物由服务端解析，并沿用原生网络序列化同步。客户端导入只能取得原模组同步的配方快照，因此原生采集产物导入后是已经解析的物品产物。仅作 JEI 说明的特斯拉线圈、生长及多方块展示页不作为可执行配方注册。
+
+OmniSequence 联动在安装模组及其 AE2、ExtendedAE、AppliedEnhancements 等前置后自动启用。在“物质构筑井”工作站中，可编辑 `matter_fabrication`、`matter_research`、`matter_machine_import` 三类原生定义，支持导入、上传、增删改及普通/增量重载。构筑配方提供材料、可复用催化剂、产物和精确流体槽位，以及时间、AE 能耗和研究开关；AE 物品/流体资源通过属性栏编辑，数量使用 long 保存。研究可编辑前置与完成次数、解锁列表、所需模组、阶段、各深度并行数、材料倍率和独立材料费用。整机声明可编辑来源机器、序列化器、嵌套研究及物品/流体/资源路径映射。
+
+导入时保留复杂原料、多候选条件、物品/流体组件、第三方 AE 资源和自定义 AE 键映射；复杂原料需要明确“替换原料条件”后才会改成普通原料，第三方 AE 键映射目前保留原值。原生整机导入产生的运行时配方及多方块结构展示页不作为独立定义导入。相关定义及整机声明所引用来源配方的增量重载会重建原生 JEI 页面，以更新派生配方和研究提示。
+
+开发环境可用 `bash ./gradlew :ViScriptRecipe:runClient -PldTest=omnisequence_recipes -PldTestWindow=1280x720` 运行真实客户端回归。联动模组及其前置直接在 `build.gradle` 中声明；场景覆盖三类定义的导入与持久化、槽位编辑、大数量精度和原生配方索引刷新。
 
 TACZ 联动使用 `tacz:gun_smith_table_crafting` 原生配方，材料支持独立数量，产物保留完整物品组件及枪包页签。画布沿用 JEI 的左侧产物、右侧材料布局，并通过 VSR 属性栏编辑。特殊 NBT 或多候选原料会保留原始条件，直到玩家明确替换。配件适用查询是 JEI 的兼容关系展示，不作为合成配方导入。TACZ 的枪包工作台过滤器和页签仍决定配方在实际工作台及 JEI 中的可见性；增量重载涉及 TACZ 时会重建 JEI 的动态分类。
 
@@ -541,3 +555,9 @@ git submodule update --init --recursive
 凝胶/流体类别的 JEI UID 与原生 RecipeType 不同，并直接存储配方对象，重载时会重建 JEI；两类锻造配方继续使用原生锻造类别。普通工作台和熔炼配方沿用已有原版编辑器。JEI 的“矿物方块→资源”是模组硬编码的掉落说明，未注册原生配方序列化器，因此不作为配方导入；改变这种掉落需要修改战利品表。
 
 重载会让凝胶和流体查询缓存失效，已放置凝胶会重新匹配产物与时间；正在进行的凝胶转化会重新计时。移除配方也会清除先前命中或未命中的缓存。
+
+晶体科学兼容直接复用原生 JEI 分类的背景、动画与槽位位置，支持物品/标签、VSL 数量编辑、配方导入与 JEI 增量同步。复合材料与产物组件在导入和保存时保留；水晶生长展示不属于数据包配方，熵变反应室沿用 AE2 配方入口。回归命令：`bash ./gradlew :ViScriptRecipe:runClient -PldTest=ae2cs_recipes -PldTestWindow=1280x720`。
+
+Neo ECO 兼容复用原生 JEI 配方绘制、动画、流体槽和参数显示，提供 9／12 格物品输入、流体输入与物品／流体输出编辑。物品数量使用 VSL 配置器，原生标签、复合材料和组件保留；大型工作站借用的其他模组配方仍通过其来源分类编辑。应用修改后由原生缓存和 JEI 重建流程更新派生配方。回归命令：`bash ./gradlew :ViScriptRecipe:runClient -PldTest=neoecoae_recipes -PldTestWindow=1280x720`。
+
+Powah 兼容复用原生充能 JEI 画布和 FE 显示，支持六格材料、VSL 产物编辑、64 位能量、标签与复合材料保留，以及原生配方导入、保存和 JEI 同步。每个输入槽消耗一件材料；燃料、冷却剂和热源页面来自 Powah 配置与数据映射，不作为配方编辑类型。回归命令：`bash ./gradlew :ViScriptRecipe:runClient -PldTest=powah_energizing -PldTestWindow=1280x720`。

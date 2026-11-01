@@ -6,15 +6,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lowdragmc.lowdraglib2.Platform;
 import com.mojang.serialization.JsonOps;
-import io.netty.buffer.Unpooled;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import snownee.lychee.util.recipe.ILycheeRecipe;
 
 /** 使用原生配方 Codec 保留条件、动作、引用和原料扩展，不复制 Lychee 的配方执行器。 */
@@ -39,23 +35,6 @@ public final class LycheeRecipeFactory {
 
     public static ResourceLocation type(Recipe<?> recipe) {
         return BuiltInRegistries.RECIPE_SERIALIZER.getKey(recipe.getSerializer());
-    }
-
-    /** 使用原生网络序列化器，遵守 Lychee 对 preventSync 动作及客户端数据的处理。 */
-    public static byte[] encodeForSync(HolderLookup.Provider provider, RecipeHolder<?> recipe) {
-        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), (RegistryAccess) provider);
-        try {
-            RecipeHolder.STREAM_CODEC.encode(buffer, recipe);
-            var bytes = new byte[buffer.readableBytes()];
-            buffer.readBytes(bytes);
-            return bytes;
-        } finally { buffer.release(); }
-    }
-
-    public static RecipeHolder<?> decodeFromSync(HolderLookup.Provider provider, byte[] bytes) {
-        var buffer = new RegistryFriendlyByteBuf(Unpooled.wrappedBuffer(bytes), (RegistryAccess) provider);
-        try { return RecipeHolder.STREAM_CODEC.decode(buffer); }
-        finally { buffer.release(); }
     }
 
     public static String defaults(ResourceLocation type) {

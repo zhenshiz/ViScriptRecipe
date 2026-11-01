@@ -98,6 +98,13 @@ public class NavigationView extends View {
     public void reloadCanvas() {saveCanvas(); loadCanvas();}
     public void updateStatus() {listeners.get(UPDATE_STATUS).run();}
 
+    /** 刷新筛选结果，当前条目不可见时选择首个匹配条目。 */
+    public void refreshEntryFilter() {
+        if (selectedEntry != null && !shouldShow(selectedEntry)) {
+            selectEntry(getRecipeFile().getEntries().stream().filter(this::shouldShow).findFirst().orElse(null));
+        } else refresh();
+    }
+
     private UIElement createRoot() {
         var root = RecipeEditorUi.panelRoot();
         root.addChildren(
@@ -252,13 +259,13 @@ public class NavigationView extends View {
         }
         for (int i = Math.min(preferredIndex, entries.size() - 1); i >= 0; i--) {
             var entry = entries.get(i);
-            if (isEntryInCategory(entry, category)) {
+            if (project.isShowDisabledRecipesOnly() ? !entry.isEnabled() : isEntryInCategory(entry, category)) {
                 return entry;
             }
         }
         for (int i = Math.max(0, preferredIndex); i < entries.size(); i++) {
             var entry = entries.get(i);
-            if (isEntryInCategory(entry, category)) {
+            if (project.isShowDisabledRecipesOnly() ? !entry.isEnabled() : isEntryInCategory(entry, category)) {
                 return entry;
             }
         }
@@ -338,7 +345,7 @@ public class NavigationView extends View {
     @Nullable
     private RecipeEntry findFirstEntryInCategory(ResourceLocation category) {
         for (var entry : getRecipeFile().getEntries()) {
-            if (isEntryInCategory(entry, category)) {
+            if (isEntryInCategory(entry, category) && (!project.isShowDisabledRecipesOnly() || !entry.isEnabled())) {
                 return entry;
             }
         }
@@ -646,6 +653,7 @@ public class NavigationView extends View {
     }
 
     private boolean shouldShow(RecipeEntry entry) {
+        if (project.isShowDisabledRecipesOnly()) return !entry.isEnabled();
         return showAllEntries || isEntryInCategory(entry, selectedCategoryId);
     }
 
@@ -685,7 +693,7 @@ public class NavigationView extends View {
                 .baseTexture(selected ? ColorPattern.GRAY.rectTexture() : ColorPattern.DARK_GRAY.rectTexture())
                 .hoverTexture(ColorPattern.GRAY.rectTexture())
                 .pressedTexture(ColorPattern.SEAL_BLACK.rectTexture()));
-        return new UIElement().layout(layout -> {
+        return new UIElement().addClass("recipe_entry_row").layout(layout -> {
             layout.widthPercent(100);
             layout.height(22);
             layout.gapAll(2);

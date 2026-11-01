@@ -1,6 +1,7 @@
 package com.viscript_recipe.recipe;
 
 import com.viscript_recipe.Config;
+import com.viscript_recipe.compat.ae2lt.Ae2LightningRecipeFactory;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
@@ -199,6 +200,7 @@ public final class RecipeOverrideManager {
         }
 
         recipeManager.replaceRecipes(recipes.values());
+        if (ViScriptRecipe.isModLoaded("ae2lt")) Ae2LightningRecipeFactory.resolveHarvestOutputs(recipeManager);
         invalidateCompatRecipeCaches(resourceManager);
         lastAppliedRecipeTypes = appliedRecipeTypes;
         state.managedRecipeTypes = managedRecipeTypes;

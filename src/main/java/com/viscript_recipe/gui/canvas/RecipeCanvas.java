@@ -198,6 +198,19 @@ public abstract class RecipeCanvas<D extends IVSRecipeData> extends UIElement {
         return configureIngredientSlot(index);
     }
 
+    /**
+     * 使用指定槽位的绘制方式，并配置公共幻影槽与拖拽事件。
+     *
+     * @param index 材料槽索引
+     * @param size 槽位逻辑像素尺寸
+     * @param slot 材料槽控件
+     * @return 已绑定索引和编辑事件的材料槽
+     */
+    protected IngredientDisplaySlot createIngredientSlot(int index, int size, IngredientDisplaySlot slot) {
+        visualIngredientSlots[index] = configureEditorSlot(slot, size);
+        return configureIngredientSlot(index);
+    }
+
     @Deprecated
     public IngredientDisplaySlot createIngredientSlot(int size) {
         return configureEditorSlot(new IngredientDisplaySlot(), size);

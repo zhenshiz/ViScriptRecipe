@@ -105,11 +105,10 @@ public final class EnderIoRecipeCanvas extends FluidRecipeCanvas<EnderIoRecipeDa
                 body.addChildren(label(Component.literal("→"), 72, 23, 20), output(0, 104, 20));
             }
             default -> {
-                body = panel(172, 95);
+                body = panel(172, 71);
                 int base = 0;
                 for (var id : data.getBases().stream().limit(6).toList()) body.addChild(fixed(BuiltInRegistries.BLOCK.get(id).asItem().getDefaultInstance(), base++ * 22, 0));
-                body.addChild(label(text("fire_base_hint"), 0, 23, 172));
-                for (int i = 0; i < data.getOutputs().size(); i++) body.addChild(output(i, i % 8 * 21, 48 + i / 8 * 22));
+                for (int i = 0; i < data.getOutputs().size(); i++) body.addChild(output(i, i % 8 * 21, 24 + i / 8 * 22));
             }
         }
         var page = panel(228, 160).setId("enderio_canvas_" + type());

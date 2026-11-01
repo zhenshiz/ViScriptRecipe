@@ -144,7 +144,7 @@ public class LycheeRecipeCanvas extends RecipeCanvas<LycheeRecipeData> {
         if (List.of("crafting", "anvil_crafting").contains(type)) shortcuts.addChild(
                 RecipeEditorUi.textButton(Component.translatable(key("assembling")), null,
                         e -> showRuleEditor("assembling")).setId("lychee_edit_assembling"));
-        content.addChildren(shortcuts, RecipeEditorUi.label(Component.translatable(key("canvas_hint"))).layout(l -> l.width(310).height(14)),
+        content.addChildren(shortcuts,
                 previewStatus.setId("lychee_preview_status").layout(l -> l.width(310).height(14)));
         return content;
     }

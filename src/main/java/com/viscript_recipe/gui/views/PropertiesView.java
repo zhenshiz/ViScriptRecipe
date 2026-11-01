@@ -121,7 +121,8 @@ public class PropertiesView extends View {
                 RecipeCanvas.switchField("viscript_recipe.config.entry.enabled",
                         entry.isEnabled(), value -> {
                     entry.setEnabled(value); navigationView.updateStatus();
-                }),
+                    navigationView.refreshEntryFilter();
+                }).setId("recipe_entry_enabled"),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.recipe_id",
                         RecipeEditorUi.resourceLocationField(entry.getRecipeId(), entry::setRecipeId).setId("recipe_entry_id")),
                 RecipeEditorUi.fieldGroup("viscript_recipe.config.entry.operation",

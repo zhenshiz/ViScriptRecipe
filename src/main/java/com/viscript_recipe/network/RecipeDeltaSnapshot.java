@@ -3,7 +3,9 @@ package com.viscript_recipe.network;
 import com.mojang.serialization.Codec;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.tacz.TaczRecipeFactory;
-import com.viscript_recipe.compat.lychee.LycheeRecipeFactory;
+import io.netty.buffer.Unpooled;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
@@ -66,7 +68,10 @@ public record RecipeDeltaSnapshot(
             var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
             if (ViScriptRecipe.isModLoaded("lychee") && serializerId != null && serializerId.getNamespace().equals("lychee")) {
                 // Lychee 的网络 Codec 会过滤 preventSync 动作，不能用持久化 Codec 直接发送。
-                entry.putByteArray("lychee_stream", LycheeRecipeFactory.encodeForSync(provider, holder));
+                entry.putByteArray("lychee_stream", encodeNativeRecipe(provider, holder));
+            } else if (serializerId != null && serializerId.getNamespace().equals("ae2lt")) {
+                // 采集产物必须使用原生网络快照；客户端没有服务器的战利品表。
+                entry.putByteArray("native_stream", encodeNativeRecipe(provider, holder));
             } else entry.put("recipe", encodeRecipe(provider, holder));
             upserted.add(entry);
         }
@@ -93,7 +98,11 @@ public record RecipeDeltaSnapshot(
             var entry = (CompoundTag) tag;
             var id = ResourceLocation.parse(entry.getString("id"));
             if (ViScriptRecipe.isModLoaded("lychee") && entry.contains("lychee_stream", Tag.TAG_BYTE_ARRAY)) {
-                upserted.add(LycheeRecipeFactory.decodeFromSync(provider, entry.getByteArray("lychee_stream")));
+                upserted.add(decodeNativeRecipe(provider, entry.getByteArray("lychee_stream")));
+                continue;
+            }
+            if (entry.contains("native_stream", Tag.TAG_BYTE_ARRAY)) {
+                upserted.add(decodeNativeRecipe(provider, entry.getByteArray("native_stream")));
                 continue;
             }
             var recipe = decode(provider, Recipe.CODEC, entry.get("recipe"), "recipe " + id);
@@ -119,6 +128,20 @@ public record RecipeDeltaSnapshot(
             return TaczRecipeFactory.encodeSnapshot(holder.value(), provider);
         }
         return encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id());
+    }
+
+    private static byte[] encodeNativeRecipe(HolderLookup.Provider provider, RecipeHolder<?> recipe) {
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), (RegistryAccess) provider);
+        try {
+            RecipeHolder.STREAM_CODEC.encode(buffer, recipe);
+            var bytes = new byte[buffer.readableBytes()]; buffer.readBytes(bytes); return bytes;
+        } finally { buffer.release(); }
+    }
+
+    private static RecipeHolder<?> decodeNativeRecipe(HolderLookup.Provider provider, byte[] bytes) {
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.wrappedBuffer(bytes), (RegistryAccess) provider);
+        try { return RecipeHolder.STREAM_CODEC.decode(buffer); }
+        finally { buffer.release(); }
     }
 
     private static ListTag encodeResourceLocationMap(

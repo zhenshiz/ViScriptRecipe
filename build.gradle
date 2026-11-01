@@ -60,6 +60,11 @@ repositories {
         url = "https://maven.createmod.net"
     }
     maven {
+        name = "RegistrateReleases"
+        url = "https://maven.gegy.dev/releases"
+        content { includeGroup "com.tterrag.registrate" }
+    }
+    maven {
         name = "Registrate"
         url = "https://maven.ithundxr.dev/snapshots"
     }
@@ -144,9 +149,24 @@ dependencies {
     //Alloy Smelter
     compileOnly "maven.modrinth:alloy-smelter:${alloy_smelter_version}"
     // Applied Energistics 2
-    compileOnly "maven.modrinth:ae2:${ae2_version}"
-//    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
+    implementation "maven.modrinth:ae2:${ae2_version}"
+    runtimeOnly "maven.modrinth:guideme:${guideme_version}"
 //    runtimeOnly "curse.maven:ae2-jei-integration-1074338:${ae2_jei_integration_file}"
+    // AE2 附属：OmniSequence: Transfinite（万象构序：超限）及其前置。
+    implementation "curse.maven:omnisequence-transfinite-1624558:${omnisequence_file}"
+    runtimeOnly "maven.modrinth:extended-ae:bC302UUP"
+    runtimeOnly "maven.modrinth:glodium:pfbmdJ3b"
+    runtimeOnly "curse.maven:applied-enhancements-1665696:9297305"
+    // AE2 附属：闪电科技（AE2 Lightning Tech）及其前置 Thunderbolt Core。
+    implementation "curse.maven:ae2-lightning-tech-1527395:${ae2_lightning_tech_file}"
+    runtimeOnly "curse.maven:thunderbolt-core-1631756:${thunderbolt_file}"
+    // AE2 附属：晶体科学（AE2 Crystal Science）。
+    implementation "maven.modrinth:ae2-crystal-science:${ae2_crystal_science_version}"
+    // AE2 附属：Neo ECO AE Extension。
+    implementation "maven.modrinth:neoecoae:${neo_eco_ae_version}"
+    // Powah!（能源器）及 Cloth Config 前置；GuideME 沿用上方依赖。
+    implementation "maven.modrinth:powah:${powah_version}"
+    runtimeOnly "maven.modrinth:cloth-config:${cloth_config_version}"
     // [Let's Do] Farm & Charm
     implementation "maven.modrinth:lets-do-farm-charm:${farm_and_charm_version}"
     runtimeOnly "maven.modrinth:architectury-api:${architectury_version}"
