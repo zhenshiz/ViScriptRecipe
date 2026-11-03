@@ -35,6 +35,18 @@ public class RecipeProject implements IRuntimeFileProject {
     @Nullable
     private PropertiesView propertiesView;
     private boolean aiPreviewing;
+    @Getter
+    private boolean showDisabledRecipesOnly;
+
+    /**
+     * 切换当前文件的未启用配方筛选，不修改或保存配方启用状态。
+     *
+     * @param showDisabledRecipesOnly 是否只显示所有工作站的未启用配方
+     */
+    public void setShowDisabledRecipesOnly(boolean showDisabledRecipesOnly) {
+        this.showDisabledRecipesOnly = showDisabledRecipesOnly;
+        if (navigationView != null) navigationView.refreshEntryFilter();
+    }
 
     /**
      * 切换配方信息对象并重建对应视图，保留旧对象供已有历史引用。
@@ -57,6 +69,7 @@ public class RecipeProject implements IRuntimeFileProject {
         if (propertiesView != null) propertiesView.removeSelf();
         onLoad(currentEditor);
         if (!recipeFile.getEntries().isEmpty()) navigationView.selectEntry(recipeFile.getEntries().get(0));
+        navigationView.refreshEntryFilter();
         setAiPreviewing(aiPreviewing);
     }
 

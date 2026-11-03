@@ -3,13 +3,12 @@ package com.viscript_recipe.gui.editor;
 import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.editor.ui.Editor;
 import com.lowdragmc.lowdraglib2.editor.ui.EditorLayout;
-import com.lowdragmc.lowdraglib2.editor.ui.EditorWindow;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.viscript_lib.gui.editor.EditorServerUploads;
 import com.viscript_lib.gui.editor.EditorUploadAction;
 import com.viscript_lib.gui.editor.FunctionFileEditor;
-import com.viscript_lib.mixin.EditorWindowAccessor;
+import com.viscript_lib.gui.editor.ViScriptEditorWindow;
 import com.viscript_recipe.ViScriptRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -32,32 +31,25 @@ public class RecipeEditor extends FunctionFileEditor {
     }
 
     public static ModularUI createUI() {
-        var root = EditorWindow.open(WINDOW_ID, RecipeEditor::new);
-        configureRestoredBounds(root);
+        var root = ViScriptEditorWindow.open(WINDOW_ID, RecipeEditor::new)
+                .setMinimizedBoundsPercent(0, 0, RESTORED_WIDTH_PERCENT, 100);
+        root.setGameWindowReopener(RecipeEditor::requestMenu);
         return new ModularUI(UI.of(root))
                 .shouldCloseOnEsc(false)
                 .shouldCloseOnKeyInventory(false);
     }
 
-    private static void configureRestoredBounds(EditorWindow window) {
-        var minecraftWindow = Minecraft.getInstance().getWindow();
-        var screenWidth = minecraftWindow.getGuiScaledWidth();
-        var screenHeight = minecraftWindow.getGuiScaledHeight();
-        var accessor = (EditorWindowAccessor) window;
-        accessor.viscript_lib$setWindowLeft(-centeredRootOrigin(screenWidth));
-        accessor.viscript_lib$setWindowTop(-centeredRootOrigin(screenHeight));
-        accessor.viscript_lib$setWindowWidth(screenWidth * RESTORED_WIDTH_PERCENT / 100f);
-        accessor.viscript_lib$setWindowHeight(screenHeight);
-    }
-
-    private static float centeredRootOrigin(float screenSize) {
-        return Math.round((screenSize - 1f) / 2f);
+    private static boolean requestMenu() {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) return false;
+        connection.sendCommand(ViScriptRecipe.MOD_ID + " editor");
+        return true;
     }
 
     @Override
     protected void initMenus() {
         super.initMenus();
-        menuContainer.addChild(new RecipeMenu(this).createMenuTab());
+        menuContainer.addChild(new RecipeMenu(this).createMenuTab().setId("recipe_menu"));
     }
 
     @Override
@@ -91,9 +83,7 @@ public class RecipeEditor extends FunctionFileEditor {
         return null;
     }
 
-    /**
-     * Removes the unused bottom split after both the default layout and a persisted layout are built.
-     */
+    /** 默认布局或已保存布局构建完成后，均需移除未使用的底部分栏。 */
     private void removeUnusedBottomWindow() {
         if (bottomWindow != rootWindow && bottomWindow.getAllViews().isEmpty()) {
             removeBottomWindow();
