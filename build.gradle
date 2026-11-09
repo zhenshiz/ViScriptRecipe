@@ -115,6 +115,10 @@ dependencies {
     modCompileOnly "maven.modrinth:draconic-evolution:${draconic_evolution_version}"
     modCompileOnly "maven.modrinth:brandons-core:${brandons_core_version}"
     modCompileOnly "maven.modrinth:codechicken-lib:${codechicken_lib_version}"
+    //森罗物语：厨房
+    modCompileOnly "maven.modrinth:kaleidoscope-cookery:${kaleidoscope_cookery_version}"
+    //森罗物语：酒馆
+    modCompileOnly "maven.modrinth:kaleidoscopetavern:${kaleidoscope_tavern_version}"
 
     //must
 //    implementation "maven.modrinth:advanced-loot-info:${advanced_loot_info_version}"

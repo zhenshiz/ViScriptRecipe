@@ -5,9 +5,7 @@ import com.viscript_recipe.IModModule;
 import com.viscript_recipe.data.RecipeAiSupport;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
-import com.viscript_recipe.gui.canvas.vanilla.CookingCanvas;
-import com.viscript_recipe.gui.canvas.vanilla.ShapedCraftingCanvas;
-import com.viscript_recipe.gui.canvas.vanilla.ShapelessCraftingCanvas;
+import com.viscript_recipe.gui.canvas.vanilla.*;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.resources.ResourceLocation;
@@ -32,12 +30,8 @@ public final class VanillaRecipeEditorTypes implements IModModule {
     public static final ResourceLocation STONECUTTING = minecraft("stonecutting");
     public static final ResourceLocation SMITHING_TRANSFORM = minecraft("smithing_transform");
 
-    private static boolean registered;
-
     @Override
     public void registerEditorTypes() {
-        if (registered) return;
-        registered = true;
         registerCategories();
         registerTypes();
     }
@@ -115,12 +109,12 @@ public final class VanillaRecipeEditorTypes implements IModModule {
         registerEditorType(RecipeEditorType.of(
                 STONECUTTING, STONECUTTER,
                 "viscript_recipe.editor.type.minecraft.stonecutting",
-                StonecuttingRecipeData.class, CookingCanvas.class
+                StonecuttingRecipeData.class, StonecuttingCanvas.class
         ));
         registerEditorType(RecipeEditorType.of(
                 SMITHING_TRANSFORM, SMITHING_TABLE,
                 "viscript_recipe.editor.type.minecraft.smithing_transform",
-                SmithingTransformRecipeData.class, CookingCanvas.class
+                SmithingTransformRecipeData.class, SmithingTransformCanvas.class
         ));
     }
 

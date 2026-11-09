@@ -4,6 +4,7 @@ import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.utils.UIElementProvider;
 import com.lowdragmc.lowdraglib2.utils.search.IResultHandler;
 import com.viscript_lib.gui.components.search.*;
+import com.viscript_recipe.compat.kaleidoscope_cookery.canvas.KaleidoscopeSoupBaseUiSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -258,7 +259,7 @@ public final class RecipeSearchComponents {
                 value -> updateId(value, supplier, consumer, onChanged));
     }
 
-/*    public static UIElement soupBase(
+    public static UIElement soupBase(
             String nameKey,
             Supplier<ResourceLocation> supplier,
             Consumer<ResourceLocation> consumer,
@@ -268,7 +269,7 @@ public final class RecipeSearchComponents {
                 KaleidoscopeSoupBaseUiSupport.ids(),
                 KaleidoscopeSoupBaseUiSupport::displayName,
                 KaleidoscopeSoupBaseUiSupport.DEFAULT_SOUP_BASE);
-    }*/
+    }
 
     /** 从固定 ID 列表按 ID 或显示名称补全，复用统一的搜索控件和弹出列表设置。 */
     public static UIElement catalog(

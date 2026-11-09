@@ -17,10 +17,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
- * Compact recipe state transfer used by the fast reload path.
- *
- * <p>The RPC layer transports this object as a {@link CompoundTag}; recipes still use their
- * registered vanilla codecs, so optional recipe serializers keep their normal network contract.
+ * 增量重载通过 RPC 传输 {@link CompoundTag}；配方仍使用已注册的原版 Codec，
+ * 以保留可选配方序列化器原有的网络协议。
  */
 public record RecipeDeltaSnapshot(
         long baseRevision,

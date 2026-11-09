@@ -9,11 +9,8 @@ import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
 import dev.vfyjxf.taffy.style.TaffyPosition;
 
 /**
- * Provides a clipped, responsive scroll surface for a recipe canvas.
- *
- * <p>The surface measures visible descendant bounds after layout and expands its scrollable
- * extent when a fixed-size recipe diagram cannot fit. The canvas is scaled down only for compact
- * viewport sizes; its interactive coordinates continue to use the matching LDLib2 transform.
+ * 根据布局后的可见子元素边界扩展滚动范围，仅在视口较小时缩小画布。
+ * 交互坐标必须沿用同一套 LDLib2 变换，以保持点击位置与显示一致。
  */
 public final class RecipeCanvasViewport extends ScrollerView {
     private static final float RELAXED_MIN_WIDTH = 360;
@@ -92,12 +89,7 @@ public final class RecipeCanvasViewport extends ScrollerView {
         addEventListener(UIEvents.TICK, event -> applyPendingLayout());
     }
 
-    /**
-     * Recomputes the canvas extent after the selected recipe layout changes.
-     *
-     * <p>The next layout passes first return to the available viewport size, then expand only
-     * when visible descendants still need additional room.
-     */
+    /** 重新布局时先恢复可用视口尺寸，再按可见子元素的实际需要扩展范围。 */
     public void requestReflow() {
         resetToViewport = true;
         pendingLayoutPasses = Math.max(pendingLayoutPasses, 3);
