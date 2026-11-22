@@ -5,8 +5,10 @@ import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.mojang.logging.LogUtils;
 import com.viscript_recipe.client.RecipeDeltaClientEvents;
+import com.viscript_recipe.compat.jei.RecipeDeltaJeiBridge;
 import com.viscript_recipe.gui.editor.RecipeEditor;
 import com.viscript_recipe.recipe.ComponentStackIngredient;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import com.viscript_recipe.recipe.RecipeDeltaServerEvents;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import net.minecraft.client.Minecraft;
@@ -42,10 +44,13 @@ public class ViScriptRecipe {
             RecipeDeltaClientEvents.register();
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         }
+        var recipeCompatibility = new RecipeCompatibility.Registration();
         for (var holder : IModModule.MODULES) {
             var module = holder.value().get();
             module.registerRuntime(modEventBus);
             module.registerEditorTypes();
+            module.registerRecipeCompatibility(recipeCompatibility);
+            if (dist.isClient()) RecipeDeltaJeiBridge.registerCompatibility(module);
             RecipeImporter.HANDLERS.add(module.importHandler());
         }
     }

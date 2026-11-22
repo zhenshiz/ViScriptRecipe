@@ -1,13 +1,11 @@
 package com.viscript_recipe.network;
 
 import com.mojang.serialization.Codec;
-import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.tacz.TaczRecipeFactory;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
@@ -65,12 +63,7 @@ public record RecipeDeltaSnapshot(
         for (var holder : upsertedRecipes) {
             var entry = new CompoundTag();
             entry.putString("id", holder.id().toString());
-            var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
-            if (ViScriptRecipe.isModLoaded("lychee") && serializerId != null && serializerId.getNamespace().equals("lychee")) {
-                // Lychee 的网络 Codec 会过滤 preventSync 动作，不能用持久化 Codec 直接发送。
-                entry.putByteArray("lychee_stream", encodeNativeRecipe(provider, holder));
-            } else if (serializerId != null && serializerId.getNamespace().equals("ae2lt")) {
-                // 采集产物必须使用原生网络快照；客户端没有服务器的战利品表。
+            if (RecipeCompatibility.usesNativeStream(holder)) {
                 entry.putByteArray("native_stream", encodeNativeRecipe(provider, holder));
             } else entry.put("recipe", encodeRecipe(provider, holder));
             upserted.add(entry);
@@ -97,12 +90,13 @@ public record RecipeDeltaSnapshot(
         for (var tag : root.getList("upserted", Tag.TAG_COMPOUND)) {
             var entry = (CompoundTag) tag;
             var id = ResourceLocation.parse(entry.getString("id"));
-            if (ViScriptRecipe.isModLoaded("lychee") && entry.contains("lychee_stream", Tag.TAG_BYTE_ARRAY)) {
-                upserted.add(decodeNativeRecipe(provider, entry.getByteArray("lychee_stream")));
-                continue;
-            }
             if (entry.contains("native_stream", Tag.TAG_BYTE_ARRAY)) {
                 upserted.add(decodeNativeRecipe(provider, entry.getByteArray("native_stream")));
+                continue;
+            }
+            // 早期增量包使用专用字段名，内容同样是原生配方网络快照。
+            if (entry.contains("lychee_stream", Tag.TAG_BYTE_ARRAY)) {
+                upserted.add(decodeNativeRecipe(provider, entry.getByteArray("lychee_stream")));
                 continue;
             }
             var recipe = decode(provider, Recipe.CODEC, entry.get("recipe"), "recipe " + id);
@@ -122,12 +116,9 @@ public record RecipeDeltaSnapshot(
     }
 
     public static Tag encodeRecipe(HolderLookup.Provider provider, RecipeHolder<?> holder) {
-        // TACZ 的产物 Codec 未实现写入，但原生解码器支持保留完整物品组件的 custom 格式。
-        if (ViScriptRecipe.isModLoaded("tacz") && ResourceLocation.parse("tacz:gun_smith_table_crafting")
-                .equals(BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer()))) {
-            return TaczRecipeFactory.encodeSnapshot(holder.value(), provider);
-        }
-        return encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id());
+        var encoder = RecipeCompatibility.snapshotEncoder(holder);
+        return encoder == null ? encode(provider, Recipe.CODEC, holder.value(), "recipe " + holder.id())
+                : encoder.encode(provider, holder);
     }
 
     private static byte[] encodeNativeRecipe(HolderLookup.Provider provider, RecipeHolder<?> recipe) {

@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -194,9 +195,6 @@ public class NavigationView extends View {
             return result;
         }
         var entry = result.entry();
-        if (!recipeId.equals(entry.getRecipeId()) && recipeIdExists(entry.getRecipeId())) {
-            return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.duplicate_id");
-        }
         var entries = getRecipeFile().getEntries();
         var insertIndex = selectedEntry == null ? entries.size() : entries.indexOf(selectedEntry) + 1;
         if (insertIndex <= 0 || insertIndex > entries.size()) {
@@ -482,7 +480,7 @@ public class NavigationView extends View {
                 var manager = minecraft.level.getRecipeManager();
                 var recipeIds = manager.getRecipes().stream()
                         .filter(RecipeImporter::canImport)
-                        .map(holder -> RecipeImporter.importSearchId(manager, holder))
+                        .map(RecipeHolder::id)
                         .sorted(Comparator.comparing(ResourceLocation::toString))
                         .toList();
                 for (var recipeId : recipeIds) {
@@ -554,7 +552,7 @@ public class NavigationView extends View {
         if (minecraft.level == null) {
             return "";
         }
-        return RecipeImporter.findImportHolder(minecraft.level.getRecipeManager(), recipeId)
+        return minecraft.level.getRecipeManager().byKey(recipeId)
                 .map(holder -> {
                     var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
                     var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());

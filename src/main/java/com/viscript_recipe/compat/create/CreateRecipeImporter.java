@@ -62,7 +62,7 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
     public RecipeImportResult tryImport(RecipeHolder<?> holder, HolderLookup.Provider provider) throws RecipeImportException {
         var recipe = holder.value();
         if (recipe instanceof MechanicalCraftingRecipe mechanicalCrafting) {
-            return success(RecipeImporter.importMechanicalCrafting(holder.id(), mechanicalCrafting, mechanicalCrafting.acceptsMirrored(), provider));
+            return success(importMechanicalCrafting(holder.id(), mechanicalCrafting, provider));
         }
         if (recipe instanceof SequencedAssemblyRecipe sequencedAssembly) {
             return success(importSequencedAssembly(holder.id(), sequencedAssembly));
@@ -75,6 +75,21 @@ public final class CreateRecipeImporter implements RecipeImportHandler {
 
     private static RecipeImportResult success(RecipeEntry entry) {
         return RecipeImporter.success(entry);
+    }
+
+    private static RecipeEntry importMechanicalCrafting(ResourceLocation id, MechanicalCraftingRecipe recipe, HolderLookup.Provider provider) throws RecipeImportException {
+        if (recipe.getWidth() > CreateMechanicalCraftingRecipeData.maxSize() || recipe.getHeight() > CreateMechanicalCraftingRecipeData.maxSize()) {
+            throw new RecipeImportException("viscript_recipe.editor.import_recipe.error.shaped_too_large", recipe.getWidth(), recipe.getHeight());
+        }
+        var pattern = RecipeImporter.importShapedPattern(recipe.getIngredients(), recipe.getWidth(), recipe.getHeight());
+        var data = new CreateMechanicalCraftingRecipeData()
+                .setWidth(recipe.getWidth())
+                .setHeight(recipe.getHeight())
+                .setAcceptMirrored(recipe.acceptsMirrored())
+                .setPattern(pattern.pattern())
+                .setKey(pattern.key())
+                .setResult(RecipeImporter.copyResult(recipe, provider));
+        return RecipeImporter.baseEntry(id, CreateRecipeEditorTypes.MECHANICAL_CRAFTING).setData(data);
     }
 
     private static RecipeEntry importProcessing(ResourceLocation id, ProcessingRecipe<?, ?> recipe) throws RecipeImportException {

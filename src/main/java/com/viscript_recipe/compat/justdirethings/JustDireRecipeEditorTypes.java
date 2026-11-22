@@ -2,6 +2,7 @@ package com.viscript_recipe.compat.justdirethings;
 
 import com.lowdragmc.lowdraglib2.registry.annotation.LDLRegister;
 import com.viscript_recipe.IModModule;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import com.viscript_recipe.compat.justdirethings.canvas.JustDireSmithingCanvas;
 import com.viscript_recipe.compat.justdirethings.canvas.JustDireTransformationCanvas;
 import com.viscript_recipe.compat.justdirethings.data.JustDireSmithingData;
@@ -16,6 +17,11 @@ import java.util.List;
 @LDLRegister(registry = IModModule.ID, name = JustDireRecipeEditorTypes.MOD_ID, modID = JustDireRecipeEditorTypes.MOD_ID)
 public final class JustDireRecipeEditorTypes implements IModModule {
     public static final String MOD_ID = "justdirethings";
+
+    @Override
+    public void registerRecipeCompatibility(RecipeCompatibility.Registration registration) {
+        registration.afterServerApply((manager, resources) -> JustDireRecipeRuntimeSupport.invalidateRecipeCaches());
+    }
     public static final List<String> TYPES = List.of("goospread", "goospread_tag", "fluiddrop", "ability", "paxel");
 
     @Override

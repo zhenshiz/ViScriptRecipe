@@ -2,15 +2,6 @@ package com.viscript_recipe.compat.jei;
 
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.client.RecipeDeltaClientState;
-import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.compat.create.data.CreateProcessingKind;
-import com.viscript_recipe.compat.farm_and_charm.FarmCharmRecipeKind;
-import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeEditorTypes;
-import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeImporter;
-import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
-import com.viscript_recipe.compat.jei.irons_spellbooks.IronAlchemistCauldronJeiFilter;
-import com.viscript_recipe.compat.jei.omnisequence.OmniSequenceJeiRecipeSupport;
-import com.viscript_recipe.compat.omnisequence.OmniSequenceRecipeEditorTypes;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -47,7 +38,7 @@ public final class RecipeDeltaJeiSynchronizer {
         runtime = jeiRuntime;
         runtimeGeneration++;
         hiddenRuntimeRecipes = 0;
-        FarmCharmJeiRecipeSynchronizer.reset();
+        JeiRecipeCompatibility.resetRuntime();
         if (tryApplyPendingFullReload()) {
             applyCompatFiltersSafely(jeiRuntime);
             return;
@@ -103,29 +94,6 @@ public final class RecipeDeltaJeiSynchronizer {
             forceFullJeiReload("JEI runtime is not available yet");
             return;
         }
-        if (affectsAutomaticBrewing(affectedRecipeIds, oldEditorTypes, newEditorTypes)) {
-            forceFullJeiReload("Create automatic brewing recipes changed");
-            return;
-        }
-        if (ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID) && affectedRecipeIds.stream()
-                .anyMatch(id -> isForbiddenArcanusRecipe(oldRecipes.get(id)) || isForbiddenArcanusRecipe(newRecipes.get(id)))) {
-            forceFullJeiReload("Forbidden Arcanus native JEI recipes changed");
-            return;
-        }
-        // Neo ECO 的大型工作站可通过扩展 API 借用任意来源配方；让原生插件重建分组与包装对象。
-        if (ViScriptRecipe.isModLoaded("neoecoae")) {
-            forceFullJeiReload("Neo ECO workstation source recipes changed");
-            return;
-        }
-        // Lychee 按 group 动态创建分类，铁砧和高级合成还使用原生 JEI 包装或分类扩展。
-        // 包括原生类型为 minecraft:crafting 的 Lychee 配方，统一交由它的插件重新注册。
-        for (var id : affectedRecipeIds) {
-            if (isLychee(oldRecipes.get(id)) || isLychee(newRecipes.get(id))) {
-                forceFullJeiReload("Lychee native recipe groups or category extensions changed");
-                return;
-            }
-        }
-
         var jeiRuntime = runtime;
         if (tryApplyPendingFullReload()) {
             return;
@@ -133,12 +101,13 @@ public final class RecipeDeltaJeiSynchronizer {
 
         try {
             var level = Minecraft.getInstance().level;
-            if (ViScriptRecipe.isModLoaded(OmniSequenceRecipeEditorTypes.MOD_ID) && level != null
-                    && OmniSequenceJeiRecipeSupport.affectsImportedRecipes(level.getRecipeManager().getRecipes(),
-                    affectedRecipeIds.stream().flatMap(id -> java.util.stream.Stream.<RecipeHolder<?>>of(oldRecipes.get(id), newRecipes.get(id)))
-                            .filter(Objects::nonNull).toList())) {
-                forceFullJeiReload("OmniSequence imported machine recipes changed");
-                return;
+            if (level != null) {
+                var reason = JeiRecipeCompatibility.rebuildReason(new JeiRecipeCompatibility.Delta(level.getRecipeManager(),
+                        affectedRecipeIds, oldRecipes, newRecipes, oldEditorTypes, newEditorTypes));
+                if (reason != null) {
+                    forceFullJeiReload(reason);
+                    return;
+                }
             }
 
             var typeHints = collectTypeHints(affectedRecipeIds, oldRecipes, newRecipes);
@@ -158,30 +127,6 @@ public final class RecipeDeltaJeiSynchronizer {
             ViScriptRecipe.LOGGER.warn("Failed to apply an incremental JEI recipe update", e);
             forceFullJeiReload("JEI rejected an incremental recipe update");
         }
-    }
-
-    private static boolean isLychee(RecipeHolder<?> holder) {
-        if (holder == null) return false;
-        var id = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
-        return id != null && id.getNamespace().equals("lychee");
-    }
-
-    private static boolean isForbiddenArcanusRecipe(RecipeHolder<?> holder) {
-        return holder != null && ForbiddenArcanusRecipeImporter.INSTANCE.canImport(holder);
-    }
-
-    private static boolean affectsAutomaticBrewing(
-            Set<ResourceLocation> affectedRecipeIds,
-            Map<ResourceLocation, ResourceLocation> oldEditorTypes,
-            Map<ResourceLocation, ResourceLocation> newEditorTypes
-    ) {
-        var automaticBrewing = CreateProcessingKind.AUTOMATIC_BREWING.typeId();
-        for (var id : affectedRecipeIds) {
-            if (automaticBrewing.equals(oldEditorTypes.get(id)) || automaticBrewing.equals(newEditorTypes.get(id))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static Map<ResourceLocation, Set<ResourceLocation>> collectTypeHints(
@@ -216,28 +161,9 @@ public final class RecipeDeltaJeiSynchronizer {
         var uniqueTypes = new LinkedHashSet<ResourceLocation>();
         typeHints.values().forEach(uniqueTypes::addAll);
         for (var typeId : uniqueTypes) {
-            // 炼药锅在 JEI 中使用包装对象和合并分类，重建以更新原生酿造及流体交互页面。
-            if ("irons_spellbooks".equals(typeId.getNamespace()) && typeId.getPath().startsWith("alchemist_cauldron_")) return false;
-            // Eidolon 的 rituals 分类合并了五种原生仪式且直接持有配方；需完整重建 JEI，才能更新没有原生 UID 的分类。
-            if ("eidolon_repraised".equals(typeId.getNamespace())) return false;
-            // 附魔配方在 JEI 中按等级展开到 enchanter 分类，需重建全部等级的包装配方。
-            if (typeId.equals(ResourceLocation.parse("enderio:enchanting"))) return false;
-            // TACZ 按枪包工作台、页签和过滤器动态拆分 JEI 分类，原生类型没有一一对应的 JEI UID。
-            if (typeId.equals(ResourceLocation.parse("tacz:gun_smith_table_crafting"))) return false;
-            // 原版铁砧和酿造台联动通过事件注册 JEI 展示，分类对象不保证与
-            // RecipeHolder 一一对应；完整重建才能同步 reload 后的增删改。
-            if (typeId.equals(ResourceLocation.fromNamespaceAndPath(ViScriptRecipe.MOD_ID, "anvil"))
-                    || typeId.equals(ResourceLocation.fromNamespaceAndPath(ViScriptRecipe.MOD_ID, "brewing"))) return false;
-            // 黏液和流体转化使用不同的 JEI UID，并直接持有配方对象；重建以同步增删改。
-            if ("justdirethings".equals(typeId.getNamespace())) return false;
-            if ("lychee".equals(typeId.getNamespace())) return false;
-            // 构筑配方使用不同的 JEI UID；研究和整机声明还会改变派生配方及阶段提示。
-            if ("molecularmanipulator".equals(typeId.getNamespace())) return false;
-            // 闪电科技分类直接持有原生配方，完整重建以同步增删改。
-            if ("ae2lt".equals(typeId.getNamespace())) return false;
-            var farmCharm = FarmCharmRecipeKind.byType(typeId);
-            var jeiType = recipeManager.getRecipeType(jeiTypeId(typeId)).orElse(null);
-            if (farmCharm.isPresent()) continue;
+            if (JeiRecipeCompatibility.requiresRebuild(typeId)) return false;
+            if (JeiRecipeCompatibility.categoryUpdater(typeId) != null) continue;
+            var jeiType = recipeManager.getRecipeType(JeiRecipeCompatibility.categoryId(typeId)).orElse(null);
             if (jeiType != null && !RecipeHolder.class.isAssignableFrom(jeiType.getRecipeClass())) {
                 return false;
             }
@@ -252,7 +178,7 @@ public final class RecipeDeltaJeiSynchronizer {
             Map<ResourceLocation, RecipeHolder<?>> desiredRecipes,
             Map<ResourceLocation, Set<ResourceLocation>> typeHints
     ) {
-        var recipesByType = new LinkedHashMap<ResourceLocation, ArrayList<RecipeHolder<?>>>();
+        var recipesByType = new LinkedHashMap<ResourceLocation, List<RecipeHolder<?>>>();
         for (var holder : desiredRecipes.values()) {
             var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
             if (typeId != null) {
@@ -264,33 +190,18 @@ public final class RecipeDeltaJeiSynchronizer {
         typeHints.values().forEach(allTypes::addAll);
         allTypes.addAll(recipesByType.keySet());
         for (var typeId : allTypes) {
-            var farmCharm = FarmCharmRecipeKind.byType(typeId);
-            var jeiType = recipeManager.getRecipeType(jeiTypeId(typeId)).orElse(null);
+            var jeiType = recipeManager.getRecipeType(JeiRecipeCompatibility.categoryId(typeId)).orElse(null);
             if (jeiType == null) {
                 continue;
             }
-            if (farmCharm.isPresent()) {
-                hiddenRuntimeRecipes += FarmCharmJeiRecipeSynchronizer.reconcile(recipeManager, jeiType, typeId,
-                        affectedRecipeIds, recipesByType.getOrDefault(typeId, new ArrayList<>()));
-                continue;
+            var recipes = recipesByType.getOrDefault(typeId, List.of());
+            var updater = JeiRecipeCompatibility.categoryUpdater(typeId);
+            if (updater == null) {
+                reconcileType(recipeManager, jeiType, revision, affectedRecipeIds, recipes);
+            } else {
+                hiddenRuntimeRecipes += updater.reconcile(recipeManager, jeiType, typeId, affectedRecipeIds, recipes);
             }
-            reconcileType(
-                    recipeManager,
-                    jeiType,
-                    revision,
-                    affectedRecipeIds,
-                    recipesByType.getOrDefault(typeId, new ArrayList<>())
-            );
         }
-    }
-
-    private static ResourceLocation jeiTypeId(ResourceLocation typeId) {
-        // Bakery 的原生类型与 JEI 分类名称不同，分类直接持有配方对象，沿用现有完整重建路径。
-        if (typeId.equals(ResourceLocation.parse("bakery:baking_station"))) return ResourceLocation.parse("bakery:caking");
-        // 晶体科学的原生类型比 JEI 分类多出 _recipe 后缀，分类可直接复用 RecipeHolder 增量同步。
-        if ("ae2cs".equals(typeId.getNamespace()) && typeId.getPath().endsWith("_recipe"))
-            return ResourceLocation.fromNamespaceAndPath("ae2cs", typeId.getPath().substring(0, typeId.getPath().length() - 7));
-        return FarmCharmRecipeKind.byType(typeId).map(FarmCharmRecipeKind::jeiTypeId).orElse(typeId);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -364,18 +275,9 @@ public final class RecipeDeltaJeiSynchronizer {
         return recipes;
     }
 
-    private static void applyCompatFilters(IJeiRuntime jeiRuntime) {
-        if (ViScriptRecipe.isModLoaded(CreateRecipeEditorTypes.MOD_ID)) {
-            CreateJeiRecipeFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
-        }
-        if (ViScriptRecipe.isModLoaded("irons_spellbooks")) {
-            IronAlchemistCauldronJeiFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
-        }
-    }
-
     private static void applyCompatFiltersSafely(IJeiRuntime jeiRuntime) {
         try {
-            applyCompatFilters(jeiRuntime);
+            JeiRecipeCompatibility.applyShowcaseFilters(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
         } catch (RuntimeException | LinkageError e) {
             ViScriptRecipe.LOGGER.warn("Failed to apply JEI compatibility filters", e);
             forceFullJeiReload("a JEI compatibility filter failed during initialization");

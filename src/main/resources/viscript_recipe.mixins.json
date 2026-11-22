@@ -9,12 +9,7 @@
     "RecipeManagerMixin",
     "JustDireGooRecipeCacheMixin",
     "JustDireFluidRecipeCacheMixin",
-    "ForbiddenArcanusClibanoCacheMixin",
-    "ForbiddenArcanusRitualManagerMixin",
-    "ForbiddenArcanusActiveRitualMixin"
-  ],
-  "client": [
-    "ForbiddenArcanusJeiPluginMixin"
+    "ForbiddenArcanusClibanoCacheMixin"
   ],
   "injectors": {
     "defaultRequire": 1

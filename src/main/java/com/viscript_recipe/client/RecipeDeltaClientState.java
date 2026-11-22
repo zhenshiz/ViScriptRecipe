@@ -4,9 +4,9 @@ import com.lowdragmc.lowdraglib2.networking.rpc.RPCPacketDistributor;
 import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.jei.JeiShowcaseModeState;
 import com.viscript_recipe.compat.jei.RecipeDeltaJeiBridge;
-import com.viscript_recipe.compat.lychee.LycheeRecipeRuntimeSupport;
 import com.viscript_recipe.network.RecipeDeltaSnapshot;
 import com.viscript_recipe.network.c2s.RecipeDeltaC2SPayload;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -105,7 +105,7 @@ public final class RecipeDeltaClientState {
         }
 
         if (snapshot.baseline() || expectedBaseline) {
-            applyBaseline(snapshot);
+            applyBaseline(snapshot, level.getRecipeManager());
             return;
         }
         if (revision >= 0 && revision != snapshot.baseRevision()) {
@@ -129,9 +129,7 @@ public final class RecipeDeltaClientState {
             snapshot.removedRecipeIds().forEach(recipes::remove);
             snapshot.upsertedRecipes().forEach(holder -> recipes.put(holder.id(), holder));
             recipeManager.replaceRecipes(recipes.values());
-            if (ViScriptRecipe.isModLoaded("lychee")) {
-                LycheeRecipeRuntimeSupport.refreshCaches(recipeManager);
-            }
+            RecipeCompatibility.afterClientSync(recipeManager);
         }
         var newRecipes = selectedRecipes(recipes, affectedIds);
 
@@ -163,11 +161,8 @@ public final class RecipeDeltaClientState {
         );
     }
 
-    private static void applyBaseline(RecipeDeltaSnapshot snapshot) {
-        // 普通完整配方同步不一定包含标签包，需补上 Lychee 原生标签同步钩子之外的缓存刷新。
-        if (ViScriptRecipe.isModLoaded("lychee") && Minecraft.getInstance().level != null) {
-            LycheeRecipeRuntimeSupport.refreshCaches(Minecraft.getInstance().level.getRecipeManager());
-        }
+    private static void applyBaseline(RecipeDeltaSnapshot snapshot, RecipeManager recipeManager) {
+        RecipeCompatibility.afterClientSync(recipeManager);
         revision = snapshot.revision();
         fullSyncRequested = false;
         MANAGED_EDITOR_TYPES.clear();

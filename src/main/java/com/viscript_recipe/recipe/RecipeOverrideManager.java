@@ -1,15 +1,7 @@
 package com.viscript_recipe.recipe;
 
 import com.viscript_recipe.Config;
-import com.viscript_recipe.compat.ae2lt.Ae2LightningRecipeFactory;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
-import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
-import com.viscript_recipe.compat.create.data.CreateProcessingKind;
-import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeEditorTypes;
-import com.viscript_recipe.compat.forbidden_arcanus.ForgeRitualRecipes;
-import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
-import com.viscript_recipe.compat.lychee.LycheeRecipeRuntimeSupport;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeEditorTypes;
 import com.viscript_recipe.data.RecipeOperation;
@@ -43,7 +35,7 @@ public final class RecipeOverrideManager {
     public static ApplyResult apply(RecipeManager recipeManager, HolderLookup.Provider provider, @Nullable ResourceManager resourceManager) {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
-            state.baseRecipes = captureBaseline(recipeManager, provider);
+            state.baseRecipes = snapshot(recipeManager.getRecipes());
             return applyOverrides(recipeManager, provider, state, resourceManager);
         }
     }
@@ -56,10 +48,10 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
             if (state.baseRecipes == null) {
-                state.baseRecipes = captureBaseline(recipeManager, provider);
+                state.baseRecipes = snapshot(recipeManager.getRecipes());
             }
             var result = applyOverrides(recipeManager, provider, state, resourceManager);
-            if (ViScriptRecipe.isModLoaded("lychee")) LycheeRecipeRuntimeSupport.refreshCaches(recipeManager);
+            RecipeCompatibility.afterServerReload(recipeManager);
             return result;
         }
     }
@@ -76,7 +68,7 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
             if (state.baseRecipes == null) {
-                state.baseRecipes = captureBaseline(recipeManager, provider);
+                state.baseRecipes = snapshot(recipeManager.getRecipes());
             }
 
             var oldRecipes = snapshot(recipeManager.getRecipes());
@@ -84,7 +76,7 @@ public final class RecipeOverrideManager {
             var oldShowcaseOnly = state.showcaseOnly;
             var baseRevision = state.revision;
             var result = applyOverrides(recipeManager, provider, state, resourceManager);
-            if (ViScriptRecipe.isModLoaded("lychee")) LycheeRecipeRuntimeSupport.refreshCaches(recipeManager);
+            RecipeCompatibility.afterServerReload(recipeManager);
 
             RecipeDeltaSnapshot delta;
             try {
@@ -122,7 +114,7 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
             if (state.baseRecipes == null) {
-                state.baseRecipes = captureBaseline(recipeManager, provider);
+                state.baseRecipes = snapshot(recipeManager.getRecipes());
             }
             return new RecipeDeltaSnapshot(
                     state.revision,
@@ -148,7 +140,7 @@ public final class RecipeOverrideManager {
             return lastAppliedRecipeTypes.entrySet()
                     .stream()
                     .filter(entry -> Objects.equals(entry.getValue(), type))
-                    .map(entry -> isForgeRitualType(entry.getValue()) ? ForgeRitualRecipes.ritualId(entry.getKey()) : entry.getKey())
+                    .map(Map.Entry::getKey)
                     .toList();
         }
     }
@@ -203,8 +195,7 @@ public final class RecipeOverrideManager {
         }
 
         recipeManager.replaceRecipes(recipes.values());
-        if (ViScriptRecipe.isModLoaded("ae2lt")) Ae2LightningRecipeFactory.resolveHarvestOutputs(recipeManager);
-        invalidateCompatRecipeCaches(resourceManager);
+        RecipeCompatibility.afterServerApply(recipeManager, resourceManager);
         lastAppliedRecipeTypes = appliedRecipeTypes;
         state.managedRecipeTypes = managedRecipeTypes;
         state.recipeTypeHints = buildRecipeTypeHints(base, recipes, managedRecipeTypes.keySet());
@@ -238,33 +229,12 @@ public final class RecipeOverrideManager {
         return lastResult;
     }
 
-    private static void invalidateCompatRecipeCaches(@Nullable ResourceManager resourceManager) {
-        if (ViScriptRecipe.isModLoaded("justdirethings")) {
-            JustDireRecipeRuntimeSupport.invalidateRecipeCaches();
-        }
-        if (ViScriptRecipe.isModLoaded(CreateRecipeEditorTypes.MOD_ID)) {
-            CreateRecipeRuntimeSupport.invalidateRecipeCaches(resourceManager);
-        }
-    }
-
     private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> snapshot(Collection<RecipeHolder<?>> recipes) {
         var snapshot = new LinkedHashMap<ResourceLocation, RecipeHolder<?>>();
         for (var holder : recipes) {
             snapshot.put(holder.id(), holder);
         }
         return snapshot;
-    }
-
-    private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> captureBaseline(RecipeManager recipeManager, HolderLookup.Provider provider) {
-        var recipes = snapshot(recipeManager.getRecipes());
-        if (ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID)) {
-            ForgeRitualRecipes.addBaseline(provider, recipes);
-        }
-        return recipes;
-    }
-
-    private static boolean isForgeRitualType(ResourceLocation type) {
-        return ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID) && ForgeRitualRecipes.isEditorType(type);
     }
 
     private static ManagerState stateFor(RecipeManager recipeManager) {
@@ -364,12 +334,11 @@ public final class RecipeOverrideManager {
             return ApplyEntryResult.SKIPPED;
         }
         try {
-            var managerId = isForgeRitualType(entry.getType()) ? ForgeRitualRecipes.managerId(id) : id;
             return switch (entry.getOperation()) {
-                case REMOVE -> removeEntry(source, managerId, entry, recipes, managedRecipeTypes, showcaseOnly);
+                case REMOVE -> removeEntry(source, id, entry, recipes, managedRecipeTypes, showcaseOnly);
                 case ADD, REPLACE -> upsertEntry(
                         source,
-                        managerId,
+                        id,
                         entry,
                         provider,
                         recipes,
@@ -393,7 +362,7 @@ public final class RecipeOverrideManager {
             boolean showcaseOnly
     ) {
         var removed = false;
-        for (var recipeId : removableRecipeIds(id, entry)) {
+        for (var recipeId : RecipeCompatibility.removalIds(entry.getType(), id)) {
             managedRecipeTypes.put(recipeId, entry.getType());
             removed |= recipes.remove(recipeId) != null;
         }
@@ -431,26 +400,6 @@ public final class RecipeOverrideManager {
         appliedRecipeTypes.put(id, entry.getType());
         managedRecipeTypes.put(id, entry.getType());
         return ApplyEntryResult.APPLIED;
-    }
-
-    private static List<ResourceLocation> removableRecipeIds(ResourceLocation id, RecipeEntry entry) {
-        var createKind = CreateProcessingKind.byType(entry.getType()).orElse(null);
-        if (createKind != CreateProcessingKind.BLOCK_CUTTING) {
-            return List.of(id);
-        }
-        // 删除旧版方块切割条目时，同时清理曾按输出生成的派生配方。
-        var ids = new ArrayList<ResourceLocation>();
-        for (int i = 0; i < createKind.maxItemOutputs(); i++) {
-            ids.add(derivedRecipeId(id, i));
-        }
-        return ids;
-    }
-
-    private static ResourceLocation derivedRecipeId(ResourceLocation baseId, int index) {
-        if (index <= 0) {
-            return baseId;
-        }
-        return ResourceLocation.fromNamespaceAndPath(baseId.getNamespace(), baseId.getPath() + "_output_" + (index + 1));
     }
 
     private enum ApplyEntryResult {

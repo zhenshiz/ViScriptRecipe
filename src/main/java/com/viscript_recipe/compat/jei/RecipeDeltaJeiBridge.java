@@ -1,5 +1,6 @@
 package com.viscript_recipe.compat.jei;
 
+import com.viscript_recipe.IModModule;
 import com.viscript_recipe.ViScriptRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -12,6 +13,12 @@ public final class RecipeDeltaJeiBridge {
     private static final String JEI = "jei";
 
     private RecipeDeltaJeiBridge() {
+    }
+
+    public static void registerCompatibility(IModModule module) {
+        if (ViScriptRecipe.isModLoaded(JEI)) {
+            module.registerJeiCompatibility(new JeiRecipeCompatibility.Registration());
+        }
     }
 
     public static void applyDelta(

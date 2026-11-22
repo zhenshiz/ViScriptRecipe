@@ -6,6 +6,7 @@ import com.viscript_recipe.compat.lychee.canvas.LycheeRecipeCanvas;
 import com.viscript_recipe.compat.lychee.data.LycheeRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,6 +22,14 @@ public final class LycheeRecipeEditorTypes implements IModModule {
 
     @Override
     public RecipeImportHandler importHandler() { return LycheeRecipeImporter.INSTANCE; }
+
+    @Override
+    public void registerRecipeCompatibility(RecipeCompatibility.Registration registration) {
+        registration.afterServerReload(LycheeRecipeRuntimeSupport::refreshCaches);
+        registration.afterClientSync(LycheeRecipeRuntimeSupport::refreshCaches);
+        // 网络 Codec 会过滤 preventSync 动作。
+        registration.useNativeStream(id -> MOD_ID.equals(id.getNamespace()));
+    }
 
     @Override
     public void registerEditorTypes() {

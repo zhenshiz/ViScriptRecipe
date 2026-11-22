@@ -6,6 +6,7 @@ import com.viscript_recipe.compat.ae2lt.canvas.Ae2LightningRecipeCanvas;
 import com.viscript_recipe.compat.ae2lt.data.Ae2LightningRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
@@ -22,6 +23,13 @@ public final class Ae2LightningRecipeEditorTypes implements IModModule {
 
     @Override
     public RecipeImportHandler importHandler() { return Ae2LightningRecipeImporter.INSTANCE; }
+
+    @Override
+    public void registerRecipeCompatibility(RecipeCompatibility.Registration registration) {
+        registration.afterServerApply((manager, resources) -> Ae2LightningRecipeFactory.resolveHarvestOutputs(manager));
+        // 客户端使用服务端已解析的采集产物。
+        registration.useNativeStream(id -> MOD_ID.equals(id.getNamespace()));
+    }
 
     @Override
     public void registerEditorTypes() {

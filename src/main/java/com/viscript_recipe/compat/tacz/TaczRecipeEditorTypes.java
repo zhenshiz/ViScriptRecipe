@@ -6,6 +6,7 @@ import com.viscript_recipe.compat.tacz.canvas.TaczWorkbenchCanvas;
 import com.viscript_recipe.compat.tacz.data.TaczRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
 
@@ -18,6 +19,11 @@ public final class TaczRecipeEditorTypes implements IModModule {
 
     @Override
     public RecipeImportHandler importHandler() { return TaczRecipeImporter.INSTANCE; }
+
+    @Override
+    public void registerRecipeCompatibility(RecipeCompatibility.Registration registration) {
+        registration.snapshotEncoder(CRAFTING, (provider, holder) -> TaczRecipeFactory.encodeSnapshot(holder.value(), provider));
+    }
 
     @Override
     public void registerEditorTypes() {

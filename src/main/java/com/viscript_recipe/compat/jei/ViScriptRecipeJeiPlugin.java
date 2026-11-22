@@ -2,8 +2,6 @@ package com.viscript_recipe.compat.jei;
 
 import com.viscript_recipe.Config;
 import com.viscript_recipe.ViScriptRecipe;
-import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
-import com.viscript_recipe.compat.jei.irons_spellbooks.IronAlchemistCauldronJeiFilter;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -11,8 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 
 @JeiPlugin
 public final class ViScriptRecipeJeiPlugin implements IModPlugin {
-    private static final String CREATE = "create";
-
     @Override
     public ResourceLocation getPluginUid() {
         return ViScriptRecipe.id("jei_plugin");
@@ -21,7 +17,8 @@ public final class ViScriptRecipeJeiPlugin implements IModPlugin {
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         RecipeDeltaJeiSynchronizer.onRuntimeAvailable(jeiRuntime);
-        JeiShowcaseModeState.setRuntimeApplier(() -> applyRuntime(jeiRuntime));
+        JeiShowcaseModeState.setRuntimeApplier(() ->
+                JeiRecipeCompatibility.applyShowcaseFilters(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly()));
         JeiShowcaseModeState.updateFromLocalConfig(localShowcaseMode());
     }
 
@@ -29,15 +26,6 @@ public final class ViScriptRecipeJeiPlugin implements IModPlugin {
     public void onRuntimeUnavailable() {
         RecipeDeltaJeiSynchronizer.onRuntimeUnavailable();
         JeiShowcaseModeState.clearRuntimeApplier();
-    }
-
-    private static void applyRuntime(IJeiRuntime jeiRuntime) {
-        if (ViScriptRecipe.isModLoaded(CREATE)) {
-            CreateJeiRecipeFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
-        }
-        if (ViScriptRecipe.isModLoaded("irons_spellbooks")) {
-            IronAlchemistCauldronJeiFilter.apply(jeiRuntime, JeiShowcaseModeState.isShowcaseOnly());
-        }
     }
 
     private static boolean localShowcaseMode() {

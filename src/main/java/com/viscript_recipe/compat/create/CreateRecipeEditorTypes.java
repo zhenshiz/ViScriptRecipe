@@ -12,8 +12,11 @@ import com.viscript_recipe.compat.create.data.CreateSequencedAssemblyRecipeData;
 import com.viscript_recipe.data.RecipeEditorCategory;
 import com.viscript_recipe.data.RecipeEditorType;
 import com.viscript_recipe.data.RecipeEditorTypes;
+import com.viscript_recipe.recipe.RecipeCompatibility;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.stream.IntStream;
 
 @LDLRegister(registry = IModModule.ID, name = CreateRecipeEditorTypes.MOD_ID, modID = CreateRecipeEditorTypes.MOD_ID)
 public final class CreateRecipeEditorTypes implements IModModule {
@@ -24,6 +27,16 @@ public final class CreateRecipeEditorTypes implements IModModule {
 
     @Override
     public RecipeImportHandler importHandler() {return CreateRecipeImporter.INSTANCE;}
+
+    @Override
+    public void registerRecipeCompatibility(RecipeCompatibility.Registration registration) {
+        registration.afterServerApply((manager, resources) -> CreateRecipeRuntimeSupport.invalidateRecipeCaches(resources));
+        var cutting = CreateProcessingKind.BLOCK_CUTTING;
+        // 旧版方块切割曾按产物拆分为多个配方。
+        registration.removalIds(cutting.typeId(), id -> IntStream.range(0, cutting.maxItemOutputs())
+                .mapToObj(index -> index == 0 ? id : id.withSuffix("_output_" + (index + 1)))
+                .toList());
+    }
 
     @Override
     public void registerEditorTypes() {
