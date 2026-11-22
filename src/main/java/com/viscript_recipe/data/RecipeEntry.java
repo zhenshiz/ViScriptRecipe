@@ -65,6 +65,8 @@ public class RecipeEntry implements ISkipDefaultedSerialize, IConfigurable {
 
     public Recipe<?> compile() {return getData().compile(getType());}
 
+    public Recipe<?> compile(HolderLookup.Provider provider) {return getData().compile(getType(), provider);}
+
     public ResourceLocation getType() {
         return type == null ? RecipeEditorTypes.CRAFTING_SHAPED : type;
     }

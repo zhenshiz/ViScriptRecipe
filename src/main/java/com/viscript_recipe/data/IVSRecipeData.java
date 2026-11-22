@@ -29,6 +29,15 @@ public interface IVSRecipeData extends ISkipDefaultedSerialize, IConfigurable {
 
     default Recipe<?> compile(ResourceLocation typeId) {return null;}
 
+    /**
+     * 使用配方生效世界的注册表编译数据。
+     *
+     * @param typeId 编辑器配方类型的标识
+     * @param provider 配方引用的注册表查询上下文
+     * @return 编译后的配方，或在数据类型无法编译时返回 <code>null</code>
+     */
+    default Recipe<?> compile(ResourceLocation typeId, HolderLookup.Provider provider) {return compile(typeId);}
+
     default String[] getCompatNames() {return new String[0];}
 
     @Override

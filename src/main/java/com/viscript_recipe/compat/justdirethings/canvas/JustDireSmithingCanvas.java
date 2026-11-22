@@ -5,8 +5,8 @@ import com.lowdragmc.lowdraglib2.gui.sync.bindings.impl.SupplierDataSource;
 import com.lowdragmc.lowdraglib2.gui.ui.UIElement;
 import com.lowdragmc.lowdraglib2.gui.ui.elements.ItemSlot;
 import com.lowdragmc.lowdraglib2.gui.ui.event.UIEvents;
-import com.viscript_recipe.compat.justdirethings.data.JustDireIngredientData;
 import com.viscript_recipe.compat.justdirethings.data.JustDireSmithingData;
+import com.viscript_recipe.data.NativeIngredientData;
 import com.viscript_recipe.data.RecipeEntry;
 import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.gui.canvas.RecipeCanvas;
@@ -32,7 +32,7 @@ public final class JustDireSmithingCanvas extends RecipeCanvas<JustDireSmithingD
      */
     public JustDireSmithingCanvas(NavigationView navigation, RecipeEntry entry) { super(navigation, entry); }
     private boolean ability() { return entry.getType().getPath().equals("ability"); }
-    private JustDireIngredientData material(int index) {
+    private NativeIngredientData material(int index) {
         return switch (index) { case 0 -> getData().getTemplate(); case 1 -> getData().getBase(); default -> getData().getAddition(); };
     }
 

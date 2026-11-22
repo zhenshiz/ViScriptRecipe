@@ -194,6 +194,9 @@ public class NavigationView extends View {
             return result;
         }
         var entry = result.entry();
+        if (!recipeId.equals(entry.getRecipeId()) && recipeIdExists(entry.getRecipeId())) {
+            return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.duplicate_id");
+        }
         var entries = getRecipeFile().getEntries();
         var insertIndex = selectedEntry == null ? entries.size() : entries.indexOf(selectedEntry) + 1;
         if (insertIndex <= 0 || insertIndex > entries.size()) {
@@ -476,12 +479,14 @@ public class NavigationView extends View {
                 }
                 var normalized = normalizeSearch(word);
                 var accepted = 0;
-                var recipeIds = minecraft.level.getRecipeManager().getRecipeIds()
+                var manager = minecraft.level.getRecipeManager();
+                var recipeIds = manager.getRecipes().stream()
+                        .filter(RecipeImporter::canImport)
+                        .map(holder -> RecipeImporter.importSearchId(manager, holder))
                         .sorted(Comparator.comparing(ResourceLocation::toString))
                         .toList();
                 for (var recipeId : recipeIds) {
-                    var holder = minecraft.level.getRecipeManager().byKey(recipeId).orElse(null);
-                    if (RecipeImporter.canImport(holder) && matchesRecipeId(recipeId, normalized)) {
+                    if (matchesRecipeId(recipeId, normalized)) {
                         searchHandler.acceptResult(recipeId);
                         accepted++;
                         if (accepted >= MAX_RECIPE_ID_CANDIDATES) return;
@@ -549,8 +554,7 @@ public class NavigationView extends View {
         if (minecraft.level == null) {
             return "";
         }
-        return minecraft.level.getRecipeManager()
-                .byKey(recipeId)
+        return RecipeImporter.findImportHolder(minecraft.level.getRecipeManager(), recipeId)
                 .map(holder -> {
                     var typeId = BuiltInRegistries.RECIPE_TYPE.getKey(holder.value().getType());
                     var serializerId = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());

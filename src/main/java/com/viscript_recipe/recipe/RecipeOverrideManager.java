@@ -6,6 +6,8 @@ import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.CreateRecipeRuntimeSupport;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
+import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeEditorTypes;
+import com.viscript_recipe.compat.forbidden_arcanus.ForgeRitualRecipes;
 import com.viscript_recipe.compat.justdirethings.JustDireRecipeRuntimeSupport;
 import com.viscript_recipe.compat.lychee.LycheeRecipeRuntimeSupport;
 import com.viscript_recipe.data.RecipeEntry;
@@ -41,7 +43,7 @@ public final class RecipeOverrideManager {
     public static ApplyResult apply(RecipeManager recipeManager, HolderLookup.Provider provider, @Nullable ResourceManager resourceManager) {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
-            state.baseRecipes = snapshot(recipeManager.getRecipes());
+            state.baseRecipes = captureBaseline(recipeManager, provider);
             return applyOverrides(recipeManager, provider, state, resourceManager);
         }
     }
@@ -54,7 +56,7 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
             if (state.baseRecipes == null) {
-                state.baseRecipes = snapshot(recipeManager.getRecipes());
+                state.baseRecipes = captureBaseline(recipeManager, provider);
             }
             var result = applyOverrides(recipeManager, provider, state, resourceManager);
             if (ViScriptRecipe.isModLoaded("lychee")) LycheeRecipeRuntimeSupport.refreshCaches(recipeManager);
@@ -74,7 +76,7 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
             if (state.baseRecipes == null) {
-                state.baseRecipes = snapshot(recipeManager.getRecipes());
+                state.baseRecipes = captureBaseline(recipeManager, provider);
             }
 
             var oldRecipes = snapshot(recipeManager.getRecipes());
@@ -120,7 +122,7 @@ public final class RecipeOverrideManager {
         synchronized (LOCK) {
             var state = stateFor(recipeManager);
             if (state.baseRecipes == null) {
-                state.baseRecipes = snapshot(recipeManager.getRecipes());
+                state.baseRecipes = captureBaseline(recipeManager, provider);
             }
             return new RecipeDeltaSnapshot(
                     state.revision,
@@ -146,7 +148,7 @@ public final class RecipeOverrideManager {
             return lastAppliedRecipeTypes.entrySet()
                     .stream()
                     .filter(entry -> Objects.equals(entry.getValue(), type))
-                    .map(Map.Entry::getKey)
+                    .map(entry -> isForgeRitualType(entry.getValue()) ? ForgeRitualRecipes.ritualId(entry.getKey()) : entry.getKey())
                     .toList();
         }
     }
@@ -186,6 +188,7 @@ public final class RecipeOverrideManager {
                 var entryResult = applyEntry(
                         loaded.relativePath(),
                         entry,
+                        provider,
                         recipes,
                         appliedRecipeTypes,
                         managedRecipeTypes,
@@ -250,6 +253,18 @@ public final class RecipeOverrideManager {
             snapshot.put(holder.id(), holder);
         }
         return snapshot;
+    }
+
+    private static LinkedHashMap<ResourceLocation, RecipeHolder<?>> captureBaseline(RecipeManager recipeManager, HolderLookup.Provider provider) {
+        var recipes = snapshot(recipeManager.getRecipes());
+        if (ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID)) {
+            ForgeRitualRecipes.addBaseline(provider, recipes);
+        }
+        return recipes;
+    }
+
+    private static boolean isForgeRitualType(ResourceLocation type) {
+        return ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID) && ForgeRitualRecipes.isEditorType(type);
     }
 
     private static ManagerState stateFor(RecipeManager recipeManager) {
@@ -333,6 +348,7 @@ public final class RecipeOverrideManager {
     private static ApplyEntryResult applyEntry(
             String source,
             RecipeEntry entry,
+            HolderLookup.Provider provider,
             LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes,
             LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes,
             LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes,
@@ -348,11 +364,14 @@ public final class RecipeOverrideManager {
             return ApplyEntryResult.SKIPPED;
         }
         try {
+            var managerId = isForgeRitualType(entry.getType()) ? ForgeRitualRecipes.managerId(id) : id;
             return switch (entry.getOperation()) {
-                case REMOVE -> removeEntry(source, id, entry, recipes, managedRecipeTypes, showcaseOnly);
+                case REMOVE -> removeEntry(source, managerId, entry, recipes, managedRecipeTypes, showcaseOnly);
                 case ADD, REPLACE -> upsertEntry(
                         source,
+                        managerId,
                         entry,
+                        provider,
                         recipes,
                         appliedRecipeTypes,
                         managedRecipeTypes,
@@ -389,14 +408,15 @@ public final class RecipeOverrideManager {
 
     private static ApplyEntryResult upsertEntry(
             String source,
+            ResourceLocation id,
             RecipeEntry entry,
+            HolderLookup.Provider provider,
             LinkedHashMap<ResourceLocation, RecipeHolder<?>> recipes,
             LinkedHashMap<ResourceLocation, ResourceLocation> appliedRecipeTypes,
             LinkedHashMap<ResourceLocation, ResourceLocation> managedRecipeTypes,
             boolean showcaseOnly
     ) {
-        var id = entry.getRecipeId();
-        var recipe = entry.compile();
+        var recipe = entry.compile(provider);
         if (recipe == null) {
             ViScriptRecipe.LOGGER.warn("Recipe override {} compiled no recipe for {}", source, id);
             return ApplyEntryResult.FAILED;

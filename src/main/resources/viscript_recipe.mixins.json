@@ -8,9 +8,13 @@
     "MysticalAgricultureInfusionRecipeAccessor",
     "RecipeManagerMixin",
     "JustDireGooRecipeCacheMixin",
-    "JustDireFluidRecipeCacheMixin"
+    "JustDireFluidRecipeCacheMixin",
+    "ForbiddenArcanusClibanoCacheMixin",
+    "ForbiddenArcanusRitualManagerMixin",
+    "ForbiddenArcanusActiveRitualMixin"
   ],
   "client": [
+    "ForbiddenArcanusJeiPluginMixin"
   ],
   "injectors": {
     "defaultRequire": 1

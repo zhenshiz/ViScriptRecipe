@@ -1,11 +1,10 @@
-package com.viscript_recipe.compat.justdirethings.data;
+package com.viscript_recipe.data;
 
 import com.google.gson.JsonParser;
 import com.lowdragmc.lowdraglib2.Platform;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.mojang.serialization.JsonOps;
 import com.viscript_lib.util.ISkipDefaultedSerialize;
-import com.viscript_recipe.data.RecipeIngredient;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImporter;
 import lombok.Getter;
@@ -19,7 +18,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 @Getter
 @Setter
 @Accessors(chain = true)
-public final class JustDireIngredientData implements ISkipDefaultedSerialize {
+public final class NativeIngredientData implements ISkipDefaultedSerialize {
     @Persisted private RecipeIngredient value = RecipeIngredient.empty();
     @Persisted private String customJson = "";
 
@@ -31,8 +30,8 @@ public final class JustDireIngredientData implements ISkipDefaultedSerialize {
      * @return 可持久化的原料数据
      * @throws RecipeImportException 普通原料无法映射时抛出
      */
-    public static JustDireIngredientData from(Ingredient ingredient, HolderLookup.Provider provider) throws RecipeImportException {
-        var data = new JustDireIngredientData();
+    public static NativeIngredientData from(Ingredient ingredient, HolderLookup.Provider provider) throws RecipeImportException {
+        var data = new NativeIngredientData();
         if (ingredient.isEmpty()) return data;
         if (!ingredient.isCustom() && ingredient.getValues().length == 1) data.value = RecipeImporter.importIngredient(ingredient);
         else data.customJson = Ingredient.CODEC.encodeStart(RegistryOps.create(JsonOps.INSTANCE, provider), ingredient).getOrThrow().toString();
@@ -46,7 +45,18 @@ public final class JustDireIngredientData implements ISkipDefaultedSerialize {
      * @throws IllegalStateException 保存的复杂材料无法解码时抛出
      */
     public Ingredient compile() {
+        return customJson.isBlank() ? value.compile() : compile(Platform.getFrozenRegistry());
+    }
+
+    /**
+     * 还原使用指定注册表的材料条件。
+     *
+     * @param provider 材料条件引用的注册表查询上下文
+     * @return 编译后的原料条件
+     * @throws IllegalStateException 保存的复杂材料无法解码时抛出
+     */
+    public Ingredient compile(HolderLookup.Provider provider) {
         return customJson.isBlank() ? value.compile() : Ingredient.CODEC.parse(
-                RegistryOps.create(JsonOps.INSTANCE, Platform.getFrozenRegistry()), JsonParser.parseString(customJson)).getOrThrow();
+                RegistryOps.create(JsonOps.INSTANCE, provider), JsonParser.parseString(customJson)).getOrThrow();
     }
 }

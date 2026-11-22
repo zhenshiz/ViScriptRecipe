@@ -2,10 +2,10 @@ package com.viscript_recipe.compat.justdirethings;
 
 import com.direwolf20.justdirethings.datagen.recipes.*;
 import com.mojang.serialization.JsonOps;
-import com.viscript_recipe.compat.justdirethings.data.JustDireIngredientData;
 import com.viscript_recipe.compat.justdirethings.data.JustDireSmithingData;
 import com.viscript_recipe.compat.justdirethings.data.JustDireTransformationData;
 import com.viscript_recipe.data.IVSRecipeData;
+import com.viscript_recipe.data.NativeIngredientData;
 import com.viscript_recipe.recipe.importer.RecipeImportException;
 import com.viscript_recipe.recipe.importer.RecipeImportHandler;
 import com.viscript_recipe.recipe.importer.RecipeImportResult;
@@ -49,13 +49,13 @@ public final class JustDireRecipeImporter implements RecipeImportHandler {
             }
             case AbilityRecipe r -> {
                 type = "ability";
-                data = new JustDireSmithingData().setTemplate(JustDireIngredientData.from(r.getTemplate(), provider))
-                        .setBase(JustDireIngredientData.from(r.getBase(), provider)).setAddition(JustDireIngredientData.from(r.getAddition(), provider));
+                data = new JustDireSmithingData().setTemplate(NativeIngredientData.from(r.getTemplate(), provider))
+                        .setBase(NativeIngredientData.from(r.getBase(), provider)).setAddition(NativeIngredientData.from(r.getAddition(), provider));
             }
             case PaxelRecipe r -> {
                 type = "paxel";
-                data = new JustDireSmithingData().setTemplate(JustDireIngredientData.from(r.getTemplate(), provider))
-                        .setBase(JustDireIngredientData.from(r.getBase(), provider)).setAddition(JustDireIngredientData.from(r.getAddition(), provider)).setResult(r.getResult());
+                data = new JustDireSmithingData().setTemplate(NativeIngredientData.from(r.getTemplate(), provider))
+                        .setBase(NativeIngredientData.from(r.getBase(), provider)).setAddition(NativeIngredientData.from(r.getAddition(), provider)).setResult(r.getResult());
             }
             default -> { return null; }
         }

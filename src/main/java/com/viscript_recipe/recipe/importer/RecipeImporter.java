@@ -1,6 +1,9 @@
 package com.viscript_recipe.recipe.importer;
 
 import com.viscript_recipe.compat.create.data.CreateMechanicalCraftingRecipeData;
+import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeEditorTypes;
+import com.viscript_recipe.compat.forbidden_arcanus.ForgeRitualRecipes;
+import com.viscript_recipe.ViScriptRecipe;
 import com.viscript_recipe.data.*;
 import com.viscript_recipe.data.vanilla.*;
 import com.viscript_recipe.recipe.ComponentStackIngredient;
@@ -21,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public final class RecipeImporter {
@@ -62,10 +66,26 @@ public final class RecipeImporter {
         if (minecraft.level == null) {
             return RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.no_world");
         }
-        return minecraft.level.getRecipeManager()
-                .byKey(recipeId)
+        return findImportHolder(minecraft.level.getRecipeManager(), recipeId)
                 .map(holder -> importHolder(holder, minecraft.level.registryAccess()))
                 .orElseGet(() -> RecipeImportResult.failure("viscript_recipe.editor.import_recipe.error.not_found", recipeId.toString()));
+    }
+
+    public static Optional<RecipeHolder<?>> findImportHolder(RecipeManager manager, ResourceLocation id) {
+        var holder = manager.byKey(id);
+        if (ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID)
+                && (holder.isEmpty() || !canImport(holder.get()))) {
+            return manager.byKey(ForgeRitualRecipes.managerId(id)).or(() -> holder);
+        }
+        return holder;
+    }
+
+    public static ResourceLocation importSearchId(RecipeManager manager, RecipeHolder<?> holder) {
+        if (ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID) && ForgeRitualRecipes.isRitual(holder)) {
+            var id = ForgeRitualRecipes.ritualId(holder.id());
+            if (!canImport(manager.byKey(id).orElse(null))) return id;
+        }
+        return holder.id();
     }
 
     public static boolean canImport(RecipeHolder<?> holder) {

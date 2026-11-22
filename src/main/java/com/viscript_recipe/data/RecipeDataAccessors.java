@@ -66,6 +66,7 @@ public final class RecipeDataAccessors {
         event.register(RecipeFile.class, RecipeFile::new);
         event.register(RecipeEntry.class, RecipeEntry::new);
         event.register(RecipeIngredient.class, RecipeIngredient::of);
+        event.register(NativeIngredientData.class, NativeIngredientData::new);
         event.register(FluidIngredientData.class, FluidIngredientData::of);
         event.register(RecipeOutputData.class, RecipeOutputData::of);
     }

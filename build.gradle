@@ -192,6 +192,9 @@ dependencies {
     implementation "curse.maven:tacz-1-21-1-1353462:${tacz_file}"
     //just dire things
     implementation "curse.maven:just-dire-things-1002348:${just_dire_things_file}"
+    // Forbidden and Arcanus 与 Valhelsia Core，供兼容模块编译和开发环境运行。
+    implementation "curse.maven:forbidden-arcanus-309858:9308904"
+    implementation "curse.maven:valhelsia-core-416935:9616554"
     // Lychee 原生配方、条件、后置动作及 JEI 展示。
     implementation "maven.modrinth:lychee:${lychee_version}"
     implementation "maven.modrinth:kiwi:${kiwi_version}"

@@ -7,6 +7,7 @@ import com.direwolf20.justdirethings.datagen.recipes.AbilityRecipe;
 import com.direwolf20.justdirethings.datagen.recipes.PaxelRecipe;
 import com.lowdragmc.lowdraglib2.syncdata.annotation.Persisted;
 import com.viscript_recipe.data.IVSRecipeData;
+import com.viscript_recipe.data.NativeIngredientData;
 import com.viscript_recipe.data.RecipeIngredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,17 +24,17 @@ import static com.viscript_recipe.compat.justdirethings.JustDireRecipeEditorType
 @Setter
 @Accessors(chain = true)
 public final class JustDireSmithingData implements IVSRecipeData {
-    @Persisted private JustDireIngredientData template = new JustDireIngredientData();
-    @Persisted private JustDireIngredientData base = new JustDireIngredientData();
-    @Persisted private JustDireIngredientData addition = new JustDireIngredientData();
+    @Persisted private NativeIngredientData template = new NativeIngredientData();
+    @Persisted private NativeIngredientData base = new NativeIngredientData();
+    @Persisted private NativeIngredientData addition = new NativeIngredientData();
     @Persisted private ItemStack result = ItemStack.EMPTY;
 
     @Override
     public void applyDefaultData(ResourceLocation typeId) {
         boolean paxel = typeId.equals(id("paxel"));
-        base = new JustDireIngredientData().setValue(RecipeIngredient.item(
+        base = new NativeIngredientData().setValue(RecipeIngredient.item(
                 BuiltInRegistries.ITEM.get(id(paxel ? "celestigem_axe" : "celestigem_pickaxe"))));
-        addition = new JustDireIngredientData().setValue(RecipeIngredient.item(
+        addition = new NativeIngredientData().setValue(RecipeIngredient.item(
                 BuiltInRegistries.ITEM.get(id(paxel ? "celestigem_shovel" : "upgrade_hammer"))));
         if (paxel) {
             template.setValue(RecipeIngredient.item(BuiltInRegistries.ITEM.get(id("celestigem_pickaxe"))));

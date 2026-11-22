@@ -5,6 +5,8 @@ import com.viscript_recipe.client.RecipeDeltaClientState;
 import com.viscript_recipe.compat.create.CreateRecipeEditorTypes;
 import com.viscript_recipe.compat.create.data.CreateProcessingKind;
 import com.viscript_recipe.compat.farm_and_charm.FarmCharmRecipeKind;
+import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeEditorTypes;
+import com.viscript_recipe.compat.forbidden_arcanus.ForbiddenArcanusRecipeImporter;
 import com.viscript_recipe.compat.jei.create.CreateJeiRecipeFilter;
 import com.viscript_recipe.compat.jei.irons_spellbooks.IronAlchemistCauldronJeiFilter;
 import com.viscript_recipe.compat.jei.omnisequence.OmniSequenceJeiRecipeSupport;
@@ -105,6 +107,11 @@ public final class RecipeDeltaJeiSynchronizer {
             forceFullJeiReload("Create automatic brewing recipes changed");
             return;
         }
+        if (ViScriptRecipe.isModLoaded(ForbiddenArcanusRecipeEditorTypes.MOD_ID) && affectedRecipeIds.stream()
+                .anyMatch(id -> isForbiddenArcanusRecipe(oldRecipes.get(id)) || isForbiddenArcanusRecipe(newRecipes.get(id)))) {
+            forceFullJeiReload("Forbidden Arcanus native JEI recipes changed");
+            return;
+        }
         // Neo ECO 的大型工作站可通过扩展 API 借用任意来源配方；让原生插件重建分组与包装对象。
         if (ViScriptRecipe.isModLoaded("neoecoae")) {
             forceFullJeiReload("Neo ECO workstation source recipes changed");
@@ -157,6 +164,10 @@ public final class RecipeDeltaJeiSynchronizer {
         if (holder == null) return false;
         var id = BuiltInRegistries.RECIPE_SERIALIZER.getKey(holder.value().getSerializer());
         return id != null && id.getNamespace().equals("lychee");
+    }
+
+    private static boolean isForbiddenArcanusRecipe(RecipeHolder<?> holder) {
+        return holder != null && ForbiddenArcanusRecipeImporter.INSTANCE.canImport(holder);
     }
 
     private static boolean affectsAutomaticBrewing(

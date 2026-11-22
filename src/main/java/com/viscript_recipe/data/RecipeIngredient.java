@@ -17,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -92,11 +91,8 @@ public class RecipeIngredient implements ISkipDefaultedSerialize, IConfigurable 
                 if (ItemStack.isSameItemSameComponents(stack, new ItemStack(stack.getItem()))) {
                     yield Ingredient.of(stack.getItem());
                 }
-                // DataComponentIngredient 无法编码组件删除，会恢复物品默认组件，因此删除语义需要专用原料。
-                if (stack.getComponentsPatch().entrySet().stream().anyMatch(component -> component.getValue().isEmpty())) {
-                    yield new ComponentStackIngredient(stack).toVanilla();
-                }
-                yield DataComponentIngredient.of(true, stack);
+                // 只保存模板的组件修改，避免把其他模组尚未完成加载的默认组件固化进原料。
+                yield new ComponentStackIngredient(stack).toVanilla();
             }
             case TAG -> {
                 if (tag == null) {

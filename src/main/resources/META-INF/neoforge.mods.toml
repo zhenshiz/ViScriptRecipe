@@ -211,6 +211,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId = "lychee"
 type = "optional"
+versionRange = "[6.7.3,)"
 ordering = "AFTER"
 side = "BOTH"
 
@@ -246,5 +247,11 @@ side = "BOTH"
 modId = "powah"
 type = "optional"
 versionRange = "[6.2.10,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "forbidden_arcanus"
+type = "optional"
 ordering = "AFTER"
 side = "BOTH"
